@@ -16,9 +16,10 @@ class AdminUserSeeder extends Seeder
 
         $users = [
             ['name' => 'Printbuka Management', 'email' => 'management@printbuka.local', 'role' => 'management', 'department' => 'Management'],
+            ['name' => 'Production Supervisor', 'email' => 'supervisor@printbuka.local', 'role' => 'supervisor', 'department' => 'Supervision'],
             ['name' => 'Afolabi Taiwo', 'email' => 'afolabi.taiwo@printbuka.local', 'role' => 'designer', 'department' => 'Design'],
             ['name' => 'Adeniyi Michael', 'email' => 'adeniyi.michael@printbuka.local', 'role' => 'designer', 'department' => 'Design'],
-            ['name' => 'Tosin Mercy', 'email' => 'tosin.mercy@printbuka.local', 'role' => 'designer', 'department' => 'Design'],
+            ['name' => 'Tosin Mercy', 'email' => 'tosin.mercy@printbuka.local', 'role' => 'production', 'department' => 'Production'],
             ['name' => 'Suru Damilola', 'email' => 'suru.damilola@printbuka.local', 'role' => 'production', 'department' => 'Production'],
             ['name' => 'Saheed Balogun', 'email' => 'saheed.balogun@printbuka.local', 'role' => 'production', 'department' => 'Production'],
             ['name' => 'Lawal Soliu', 'email' => 'lawal.soliu@printbuka.local', 'role' => 'customer_service', 'department' => 'Customer Service'],

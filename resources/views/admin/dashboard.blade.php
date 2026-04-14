@@ -31,6 +31,19 @@
             </div>
 
             <section class="mt-8 rounded-md border border-slate-200 bg-white p-6 shadow-sm">
+                <p class="text-sm font-black uppercase tracking-wide text-cyan-700">Workbook Workflow</p>
+                <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    @foreach ($workflowPhases as $phase)
+                        <div class="rounded-md border border-slate-200 p-4">
+                            <p class="font-black text-slate-950">{{ $phase['phase'] }}</p>
+                            <p class="mt-2 text-sm font-bold text-slate-600">{{ $phase['responsible'] }}</p>
+                            <p class="mt-2 text-xs font-black uppercase tracking-wide text-pink-700">{{ $phase['status'] }}</p>
+                        </div>
+                    @endforeach
+                </div>
+            </section>
+
+            <section class="mt-8 rounded-md border border-slate-200 bg-white p-6 shadow-sm">
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <p class="text-sm font-black uppercase tracking-wide text-pink-700">Recent Workflow Jobs</p>

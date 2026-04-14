@@ -23,7 +23,6 @@
             <div class="group">
                 <a href="{{ route('products.index') }}" class="inline-flex items-center gap-2 py-3 transition hover:text-pink-600 focus:text-pink-600">
                     All Products
-                    <span class="text-xs">v</span>
                 </a>
 
                 <div class="invisible absolute left-0 top-full w-full translate-y-3 border-t border-slate-100 bg-white opacity-0 shadow-2xl shadow-slate-900/10 transition duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">

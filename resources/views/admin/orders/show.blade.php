@@ -26,6 +26,8 @@
                             <p class="text-sm font-black uppercase tracking-wide text-pink-700">Phase 1 — Intake</p>
                             <div class="mt-5 grid gap-5 sm:grid-cols-2">
                                 <label class="text-sm font-black">Job Order #<input name="job_order_number" value="{{ old('job_order_number', $order->job_order_number) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold"></label>
+                                <label class="text-sm font-black">Job Type<select name="job_type" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold"><option value="">Select job type</option>@foreach ($jobTypes as $jobType)<option @selected(old('job_type', $order->job_type ?? $order->product?->name) === $jobType)>{{ $jobType }}</option>@endforeach</select></label>
+                                <label class="text-sm font-black">Size / Format<select name="size_format" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold"><option value="">Select size</option>@foreach ($sizes as $size)<option @selected(old('size_format', $order->size_format) === $size)>{{ $size }}</option>@endforeach</select></label>
                                 <label class="text-sm font-black">Priority<select name="priority" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">@foreach ($priorities as $priority)<option @selected(old('priority', $order->priority) === $priority)>{{ $priority }}</option>@endforeach</select></label>
                                 <label class="text-sm font-black">Brief Received By<select name="brief_received_by_id" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold"><option value="">Select staff</option>@foreach ($staff as $person)<option value="{{ $person->id }}" @selected((int) old('brief_received_by_id', $order->brief_received_by_id) === $person->id)>{{ $person->name }} · {{ $person->department }}</option>@endforeach</select></label>
                                 <label class="text-sm font-black">Brief Date<input type="datetime-local" name="brief_received_at" value="{{ old('brief_received_at', $order->brief_received_at?->format('Y-m-d\\TH:i')) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold"></label>
@@ -40,6 +42,11 @@
                             <div class="mt-5 grid gap-5 sm:grid-cols-2">
                                 <label class="text-sm font-black">Design Start<input type="datetime-local" name="design_started_at" value="{{ old('design_started_at', $order->design_started_at?->format('Y-m-d\\TH:i')) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold"></label>
                                 <label class="text-sm font-black">Client Approval<input type="datetime-local" name="design_approved_at" value="{{ old('design_approved_at', $order->design_approved_at?->format('Y-m-d\\TH:i')) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold"></label>
+                                <label class="flex items-center gap-3 rounded-md border border-slate-200 px-4 py-3 text-sm font-black sm:col-span-2">
+                                    <input type="hidden" name="design_approved_by_client" value="0">
+                                    <input type="checkbox" name="design_approved_by_client" value="1" @checked((bool) old('design_approved_by_client', $order->design_approved_by_client)) class="h-5 w-5 rounded border-slate-300 text-pink-600">
+                                    Design approved by client
+                                </label>
                             </div>
                         </div>
                     @endif
@@ -50,8 +57,8 @@
                             <div class="mt-5 grid gap-5 sm:grid-cols-2">
                                 <label class="text-sm font-black">Production Officer<select name="production_officer_id" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold"><option value="">Select staff</option>@foreach ($staff as $person)<option value="{{ $person->id }}" @selected((int) old('production_officer_id', $order->production_officer_id) === $person->id)>{{ $person->name }} · {{ $person->department }}</option>@endforeach</select></label>
                                 <label class="text-sm font-black">Production Start<input type="datetime-local" name="production_started_at" value="{{ old('production_started_at', $order->production_started_at?->format('Y-m-d\\TH:i')) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold"></label>
-                                <label class="text-sm font-black">Material / Substrate<input name="material_substrate" value="{{ old('material_substrate', $order->material_substrate) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold"></label>
-                                <label class="text-sm font-black">Finish / Lamination<input name="finish_lamination" value="{{ old('finish_lamination', $order->finish_lamination) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold"></label>
+                                <label class="text-sm font-black">Material / Substrate<select name="material_substrate" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold"><option value="">Select material</option>@foreach ($materials as $material)<option @selected(old('material_substrate', $order->material_substrate) === $material)>{{ $material }}</option>@endforeach</select></label>
+                                <label class="text-sm font-black">Finish / Lamination<select name="finish_lamination" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold"><option value="">Select finish</option>@foreach ($finishes as $finish)<option @selected(old('finish_lamination', $order->finish_lamination) === $finish)>{{ $finish }}</option>@endforeach</select></label>
                             </div>
                         </div>
                     @endif
@@ -110,6 +117,23 @@
                     <div class="rounded-md border border-slate-200 bg-white p-6 shadow-sm">
                         <p class="text-sm font-black uppercase tracking-wide text-cyan-700">Workbook Permission</p>
                         <p class="mt-3 text-sm leading-6 text-slate-600">Your role is <strong>{{ auth()->user()->role }}</strong>. Sections shown here match the SOP responsibility for that role.</p>
+                    </div>
+
+                    <div class="rounded-md border border-slate-200 bg-white p-6 shadow-sm">
+                        <p class="text-sm font-black uppercase tracking-wide text-pink-700">SOP Phase Gates</p>
+                        <div class="mt-5 space-y-5">
+                            @foreach ($workflowPhases as $phase)
+                                <div>
+                                    <p class="font-black text-slate-950">{{ $phase['phase'] }}</p>
+                                    <p class="mt-1 text-xs font-bold uppercase tracking-wide text-slate-500">{{ $phase['responsible'] }} · {{ $phase['status'] }}</p>
+                                    <ul class="mt-3 space-y-2 text-sm leading-6 text-slate-600">
+                                        @foreach ($phase['gates'] as $gate)
+                                            <li>• {{ $gate }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 </aside>
             </form>

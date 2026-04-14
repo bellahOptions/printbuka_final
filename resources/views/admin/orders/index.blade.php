@@ -14,15 +14,18 @@
             </div>
 
             <div class="mt-8 overflow-x-auto rounded-md border border-slate-200 bg-white shadow-sm">
-                <table class="w-full min-w-[980px] text-left text-sm">
+                <table class="w-full min-w-[1180px] text-left text-sm">
                     <thead>
                         <tr class="border-b border-slate-200 bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
                             <th class="px-5 py-4">Job Order</th>
                             <th class="px-5 py-4">Invoice</th>
+                            <th class="px-5 py-4">Date Logged</th>
                             <th class="px-5 py-4">Client</th>
                             <th class="px-5 py-4">Job Type</th>
+                            <th class="px-5 py-4">Size</th>
                             <th class="px-5 py-4">Priority</th>
                             <th class="px-5 py-4">Payment</th>
+                            <th class="px-5 py-4">On Time?</th>
                             <th class="px-5 py-4">Status</th>
                             <th class="px-5 py-4"></th>
                         </tr>
@@ -32,13 +35,22 @@
                             <tr>
                                 <td class="px-5 py-4 font-black">{{ $order->job_order_number ?? $order->displayNumber() }}</td>
                                 <td class="px-5 py-4">{{ $order->invoice?->invoice_number ?? 'Pending' }}</td>
+                                <td class="px-5 py-4">{{ $order->created_at->format('M j, Y') }}</td>
                                 <td class="px-5 py-4">
                                     <span class="block font-bold">{{ $order->customer_name }}</span>
-                                    <span class="text-xs text-slate-500">{{ $order->customer_email }}</span>
+                                    <span class="text-xs text-slate-500">{{ $order->customer_phone }} · {{ $order->customer_email }}</span>
                                 </td>
-                                <td class="px-5 py-4">{{ $order->product?->name ?? ucfirst($order->service_type) }}</td>
+                                <td class="px-5 py-4">{{ $order->job_type ?? $order->product?->name ?? ucfirst($order->service_type) }}</td>
+                                <td class="px-5 py-4">{{ $order->size_format ?? 'Pending' }}</td>
                                 <td class="px-5 py-4">{{ $order->priority }}</td>
                                 <td class="px-5 py-4">{{ $order->payment_status }}</td>
+                                <td class="px-5 py-4">
+                                    @if ($order->actual_delivery_at && $order->estimated_delivery_at)
+                                        {{ $order->actual_delivery_at->lte($order->estimated_delivery_at) ? 'Yes' : 'No' }}
+                                    @else
+                                        Pending
+                                    @endif
+                                </td>
                                 <td class="px-5 py-4">{{ $order->status }}</td>
                                 <td class="px-5 py-4 text-right">
                                     <a href="{{ route('admin.orders.show', $order) }}" class="font-black text-pink-700 hover:text-pink-800">Manage</a>
@@ -46,7 +58,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="px-5 py-10 text-center text-slate-500">No jobs have been logged yet.</td>
+                                <td colspan="11" class="px-5 py-10 text-center text-slate-500">No jobs have been logged yet.</td>
                             </tr>
                         @endforelse
                     </tbody>

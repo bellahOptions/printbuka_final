@@ -20,6 +20,7 @@ class AdminOrderController extends Controller
                 ->with('product', 'invoice', 'designer', 'productionOfficer')
                 ->latest()
                 ->paginate(20),
+            'workflowPhases' => config('printbuka_admin.workflow_phases'),
         ]);
     }
 
@@ -32,9 +33,14 @@ class AdminOrderController extends Controller
                 ->where('is_active', true)
                 ->orderBy('name')
                 ->get(),
+            'workflowPhases' => config('printbuka_admin.workflow_phases'),
+            'jobTypes' => config('printbuka_admin.job_types'),
+            'sizes' => config('printbuka_admin.sizes'),
             'priorities' => config('printbuka_admin.priorities'),
             'jobStatuses' => config('printbuka_admin.job_statuses'),
             'paymentStatuses' => config('printbuka_admin.payment_statuses'),
+            'materials' => config('printbuka_admin.materials'),
+            'finishes' => config('printbuka_admin.finishes'),
             'deliveryMethods' => config('printbuka_admin.delivery_methods'),
             'reviewStatuses' => config('printbuka_admin.review_statuses'),
         ]);
@@ -44,12 +50,15 @@ class AdminOrderController extends Controller
     {
         $validated = $request->validate([
             'job_order_number' => ['nullable', 'string', 'max:255', Rule::unique('orders', 'job_order_number')->ignore($order->id)],
+            'job_type' => ['nullable', 'string', 'max:255'],
+            'size_format' => ['nullable', 'string', 'max:255'],
             'priority' => ['nullable', 'string', 'max:255'],
             'status' => ['nullable', 'string', 'max:255'],
             'brief_received_by_id' => ['nullable', 'exists:users,id'],
             'brief_received_at' => ['nullable', 'date'],
             'assigned_designer_id' => ['nullable', 'exists:users,id'],
             'design_started_at' => ['nullable', 'date'],
+            'design_approved_by_client' => ['nullable', 'boolean'],
             'design_approved_at' => ['nullable', 'date'],
             'production_officer_id' => ['nullable', 'exists:users,id'],
             'production_started_at' => ['nullable', 'date'],
@@ -83,21 +92,18 @@ class AdminOrderController extends Controller
         $user = $request->user();
         $fields = [];
 
-        $map = [
-            'orders.intake' => ['job_order_number', 'priority', 'status', 'brief_received_by_id', 'brief_received_at', 'assigned_designer_id', 'internal_notes'],
-            'design.update' => ['status', 'design_started_at', 'design_approved_at', 'internal_notes'],
-            'production.update' => ['status', 'production_officer_id', 'production_started_at', 'material_substrate', 'finish_lamination', 'internal_notes'],
-            'qc.update' => ['status', 'qc_checked_by_id', 'qc_checked_at', 'qc_result', 'internal_notes'],
-            'delivery.update' => ['status', 'estimated_delivery_at', 'actual_delivery_at', 'delivery_method', 'dispatched_by_id', 'internal_notes'],
-            'client_review.update' => ['status', 'client_review_status', 'after_sales_action', 'after_sales_resolved_at', 'internal_notes'],
-            'invoices.manage' => ['amount_paid', 'payment_status', 'internal_notes'],
-            'orders.verify' => ['verified_by_id', 'verified_at', 'internal_notes'],
-        ];
-
-        foreach ($map as $permission => $permissionFields) {
-            if ($user->canAdmin($permission)) {
-                $fields = array_merge($fields, $permissionFields);
+        foreach (config('printbuka_admin.workflow_phases', []) as $phase) {
+            if ($user->canAdmin($phase['permission'])) {
+                $fields = array_merge($fields, $phase['fields']);
             }
+        }
+
+        if ($user->canAdmin('invoices.manage')) {
+            $fields = array_merge($fields, ['amount_paid', 'payment_status', 'internal_notes']);
+        }
+
+        if ($user->canAdmin('orders.verify')) {
+            $fields = array_merge($fields, ['verified_by_id', 'verified_at', 'internal_notes']);
         }
 
         if ($user->canAdmin('*')) {

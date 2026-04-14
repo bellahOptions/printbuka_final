@@ -41,6 +41,7 @@ class OrderController extends Controller
             'product_id' => $product->id,
             'user_id' => Auth::id(),
             'service_type' => $this->serviceTypeFor($product),
+            'job_type' => $product->name,
             'unit_price' => $unitPrice,
             'total_price' => $batches * $unitPrice,
             'status' => 'Analyzing Job Brief',

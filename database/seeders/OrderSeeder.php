@@ -80,6 +80,7 @@ class OrderSeeder extends Seeder
                 [
                     'user_id' => null,
                     'service_type' => $this->serviceTypeFor($product),
+                    'job_type' => $product->name,
                     'quantity' => $quantity,
                     'unit_price' => $product->price,
                     'total_price' => $total,
@@ -88,7 +89,7 @@ class OrderSeeder extends Seeder
                     'delivery_city' => $seedOrder['delivery_city'],
                     'delivery_address' => $seedOrder['delivery_address'],
                     'artwork_notes' => $seedOrder['artwork_notes'],
-                    'status' => $seedOrder['status'],
+                    'status' => $this->workbookStatusFor($seedOrder['status']),
                     'priority' => '🟡 Normal',
                     'payment_status' => $seedOrder['status'] === 'delivered' ? 'Invoice Settled (100%)' : 'Invoice Issued',
                     'amount_paid' => $seedOrder['status'] === 'delivered' ? $total : 0,
@@ -122,5 +123,15 @@ class OrderSeeder extends Seeder
         return str_contains($name, 'gift') || str_contains($name, 'mug') || str_contains($name, 'shirt') || str_contains($name, 'tote')
             ? 'gift'
             : 'print';
+    }
+
+    private function workbookStatusFor(string $status): string
+    {
+        return match ($status) {
+            'in_review' => 'Design / Artwork Preparation',
+            'production' => 'In Production',
+            'delivered' => 'Delivered',
+            default => 'Analyzing Job Brief',
+        };
     }
 }

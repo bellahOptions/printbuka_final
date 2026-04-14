@@ -16,6 +16,7 @@ class AdminDashboardController extends Controller
             'activeJobs' => Order::query()->whereNotIn('status', ['Delivered', 'Cancelled'])->count(),
             'deliveredJobs' => Order::query()->where('status', 'Delivered')->count(),
             'staffCount' => User::query()->where('role', '!=', 'customer')->count(),
+            'workflowPhases' => config('printbuka_admin.workflow_phases'),
             'recentOrders' => Order::query()
                 ->with('product', 'invoice')
                 ->latest()
