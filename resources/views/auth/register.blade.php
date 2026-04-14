@@ -10,27 +10,32 @@
                 <h1 class="mt-2 text-4xl text-slate-950">Start printing with Printbuka.</h1>
                 <p class="mt-3 text-sm leading-6 text-slate-600">Already have an account? <a href="{{ route('login') }}" class="font-black text-pink-700 hover:text-pink-800">Login here</a>.</p>
 
-                <a href="{{ route('auth.google.redirect') }}" class="mt-8 flex min-h-12 w-full items-center justify-center gap-3 rounded-md border border-slate-200 bg-white px-5 text-sm font-black text-slate-800 shadow-sm transition hover:border-pink-300 hover:text-pink-700">
-                    <span class="flex h-6 w-6 items-center justify-center rounded-md bg-slate-100 text-xs font-black text-pink-700">G</span>
-                    Continue with Google
-                </a>
-
-                <div class="mt-6 flex items-center gap-3 text-xs font-black uppercase tracking-wide text-slate-400">
-                    <span class="h-px flex-1 bg-slate-200"></span>
-                    <span>Email registration</span>
-                    <span class="h-px flex-1 bg-slate-200"></span>
-                </div>
-
-                <form action="{{ route('register.store') }}" method="POST" class="mt-8 space-y-5">
+                <form w action="{{ route('register.store') }}" method="POST" class="mt-8 space-y-5">
                     @csrf
 
                     <div>
-                        <label for="name" class="text-sm font-black text-slate-800">Full name</label>
+                        <label for="name" class="text-sm font-black text-slate-800">First name</label>
                         <input
-                            id="name"
-                            name="name"
+                            id="first_name"
+                            name="first_name"
                             type="text"
-                            value="{{ old('name') }}"
+                            value="{{ old('first_name') }}"
+                            autocomplete="name"
+                            class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
+                            required
+                        />
+                        @error('first_name')
+                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                     <div>
+                        <label for="last_name" class="text-sm font-black text-slate-800">Last name</label>
+                        <input
+                            id="last_name"
+                            name="last_name"
+                            type="text"
+                            value="{{ old('last_name') }}"
                             autocomplete="name"
                             class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
                             required
@@ -40,6 +45,40 @@
                         @enderror
                     </div>
 
+                    <div class="grid gap-5 grid-cols-2">
+                         <div>
+                        <label for="phone" class="text-sm font-black text-slate-800">Phone/Whatsapp</label>
+                        <input
+                            id="phone"
+                            name="phone"
+                            type="text"
+                            value="{{ old('phone') }}"
+                            autocomplete="phone"
+                            class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
+                            required
+                        />
+                        @error('phone')
+                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                     <div>
+                        <label for="company" class="text-sm font-black text-slate-800">COmpany Name</label>
+                        <input
+                            id="comapny"
+                            name="companyName"
+                            type="text"
+                            value="{{ old('first_name') }}"
+                            autocomplete="companyName"
+                            class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
+                            required
+                        />
+                        @error('name')
+                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    </div>
                     <div>
                         <label for="email" class="text-sm font-black text-slate-800">Email address</label>
                         <input

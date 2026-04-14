@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -20,12 +21,37 @@ class AuthController extends Controller
 {
     public function showLogin(): View
     {
-        return view('auth.login');
+        return view('auth.login', [
+            'mode' => 'customer',
+            'storeRoute' => route('login.store'),
+            'registerRoute' => route('register'),
+        ]);
+    }
+
+    public function showStaffLogin(): View
+    {
+        return view('auth.login', [
+            'mode' => 'staff',
+            'storeRoute' => route('staff.login.store'),
+            'registerRoute' => route('staff.register'),
+        ]);
     }
 
     public function login(Request $request): RedirectResponse
     {
-        $this->ensureIsNotRateLimited($request, 'login');
+        return $this->attemptLogin($request, false);
+    }
+
+    public function staffLogin(Request $request): RedirectResponse
+    {
+        return $this->attemptLogin($request, true);
+    }
+
+    private function attemptLogin(Request $request, bool $staffOnly): RedirectResponse
+    {
+        $action = $staffOnly ? 'staff-login' : 'login';
+
+        $this->ensureIsNotRateLimited($request, $action);
 
         $credentials = $request->validate([
             'email' => ['required', 'email'],
@@ -33,7 +59,7 @@ class AuthController extends Controller
         ]);
 
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey($request, 'login'));
+            RateLimiter::hit($this->throttleKey($request, $action));
 
             return back()
                 ->withErrors([
@@ -42,11 +68,35 @@ class AuthController extends Controller
                 ->onlyInput('email');
         }
 
-        RateLimiter::clear($this->throttleKey($request, 'login'));
+        if ($staffOnly && Auth::user()->role === 'customer') {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey($request, $action));
+
+            return back()
+                ->withErrors([
+                    'email' => 'Use the customer login for customer accounts.',
+                ])
+                ->onlyInput('email');
+        }
+
+        if (! Auth::user()->is_active) {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey($request, $action));
+
+            return back()
+                ->withErrors([
+                    'email' => $staffOnly
+                        ? 'Your staff account is pending approval by the Super Admin.'
+                        : 'This account is inactive. Contact Printbuka management.',
+                ])
+                ->onlyInput('email');
+        }
+
+        RateLimiter::clear($this->throttleKey($request, $action));
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard'));
+        return redirect()->intended($this->postLoginRoute());
     }
 
     public function showRegister(): View
@@ -54,12 +104,22 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
+    public function showStaffRegister(): View
+    {
+        return view('auth.staff-register', [
+            'staffRoles' => config('printbuka_admin.staff_signup_roles'),
+        ]);
+    }
+
     public function register(Request $request): RedirectResponse
     {
         $this->ensureIsNotRateLimited($request, 'register');
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:22'],
+            'companyName' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
         ]);
@@ -73,6 +133,37 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         return redirect()->route('dashboard');
+    }
+
+    public function staffRegister(Request $request): RedirectResponse
+    {
+        $this->ensureIsNotRateLimited($request, 'staff-register');
+
+        $validated = $request->validate([
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:22'],
+            'address' => ['required', 'string', 'max:255'],
+            'date_of_birth' => ['required', 'date'],
+            'requested_role' => ['required', 'string', Rule::in(array_keys(config('printbuka_admin.staff_signup_roles', [])))],
+            'other_role' => ['nullable', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
+        ]);
+
+        User::create([
+            ...$validated,
+            'companyName' => 'Printbuka',
+            'role' => 'staff_pending',
+            'department' => null,
+            'is_active' => false,
+        ]);
+
+        RateLimiter::clear($this->throttleKey($request, 'staff-register'));
+
+        return redirect()
+            ->route('staff.login')
+            ->with('status', 'Staff registration submitted. The Super Admin will approve and assign your department.');
     }
 
     public function logout(Request $request): RedirectResponse
@@ -131,7 +222,10 @@ class AuthController extends Controller
             ]);
         } else {
             $user = User::create([
-                'name' => $googleUser->getName() ?: Str::before($email, '@'),
+                'first_name' => Str::before($googleUser->getName() ?: Str::before($email, '@'), ' '),
+                'last_name' => Str::after($googleUser->getName() ?: 'Customer', ' '),
+                'phone' => '',
+                'companyName' => '',
                 'email' => $email,
                 'password' => Str::password(32),
                 'google_id' => $googleUser->getId(),
@@ -142,10 +236,20 @@ class AuthController extends Controller
 
         RateLimiter::clear($this->throttleKey($request, 'google'));
 
+        if (! $user->is_active) {
+            RateLimiter::hit($this->throttleKey($request, 'google'));
+
+            return redirect()
+                ->route('login')
+                ->withErrors([
+                    'email' => 'This account is inactive. Contact Printbuka management.',
+                ]);
+        }
+
         Auth::login($user, true);
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard'));
+        return redirect()->intended($this->postLoginRoute());
     }
 
     private function ensureIsNotRateLimited(Request $request, string $action): void
@@ -166,5 +270,12 @@ class AuthController extends Controller
     private function throttleKey(Request $request, string $action): string
     {
         return Str::transliterate(Str::lower($action.'|'.$request->input('email', 'google').'|'.$request->ip()));
+    }
+
+    private function postLoginRoute(): string
+    {
+        return Auth::user()?->hasAdminAccess()
+            ? route('admin.dashboard')
+            : route('dashboard');
     }
 }

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'google_id', 'avatar', 'email_verified_at', 'role', 'department', 'is_active'])]
+#[Fillable(['first_name', 'last_name', 'phone', 'companyName', 'email', 'password', 'google_id', 'avatar', 'email_verified_at', 'role', 'department', 'requested_role', 'other_role', 'address', 'date_of_birth', 'photo', 'approved_by_id', 'approved_at', 'is_active'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -28,6 +28,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'date_of_birth' => 'date',
+            'approved_at' => 'datetime',
         ];
     }
 
@@ -41,5 +43,20 @@ class User extends Authenticatable
         $permissions = (array) config('printbuka_admin.roles.'.$this->role, []);
 
         return in_array('*', $permissions, true) || in_array($permission, $permissions, true);
+    }
+
+    public function rolePriority(): int
+    {
+        return (int) config('printbuka_admin.role_priority.'.$this->role, 0);
+    }
+
+    public function displayName(): string
+    {
+        return trim($this->first_name.' '.$this->last_name) ?: $this->email;
+    }
+
+    public function isPendingStaff(): bool
+    {
+        return $this->role === 'staff_pending' || (! $this->is_active && $this->requested_role !== null);
     }
 }

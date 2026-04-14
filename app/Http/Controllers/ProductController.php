@@ -13,6 +13,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::query()
+            ->where('is_active', true)
             ->orderBy('name')
             ->get();
 
@@ -43,6 +44,7 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         $relatedProducts = Product::query()
+            ->where('is_active', true)
             ->whereKeyNot($product->id)
             ->limit(4)
             ->get();

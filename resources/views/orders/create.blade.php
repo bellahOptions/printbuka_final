@@ -3,6 +3,16 @@
 @section('title', 'Order '.$product->name.' | Printbuka')
 
 @section('content')
+    @php
+        $pricingPayload = [
+            'basePrice' => (float) $product->price,
+            'moq' => (int) $product->moq,
+            'sizes' => $sizeOptions,
+            'materials' => $materialOptions,
+            'finishes' => $finishOptions,
+            'deliveries' => $deliveryOptions,
+        ];
+    @endphp
     <main class="bg-slate-50 py-12 text-slate-900">
         <section class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.75fr_1.25fr] lg:px-8">
             <aside class="h-fit rounded-md bg-slate-950 p-6 text-white lg:sticky lg:top-28">
@@ -31,7 +41,7 @@
                 <h2 class="mt-2 text-4xl text-slate-950">Tell us what to prepare.</h2>
                 <p class="mt-3 text-sm leading-6 text-slate-600">We will review your request, confirm artwork and delivery details, then guide you through payment and production.</p>
 
-                <form action="{{ route('orders.store', $product) }}" method="POST" class="mt-8 space-y-6">
+                <form action="{{ route('orders.store', $product) }}" method="POST" enctype="multipart/form-data" class="mt-8 space-y-6">
                     @csrf
 
                     <div>
@@ -51,10 +61,56 @@
                         @enderror
                     </div>
 
+                    <div class="rounded-md border border-slate-200 p-5">
+                        <p class="text-sm font-black uppercase tracking-wide text-cyan-700">Product Options</p>
+                        <p class="mt-2 text-xs font-bold text-slate-500">Option prices are calculated live. Delivery is added once; product options are calculated per MOQ batch.</p>
+                        <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                            <label for="size_format" class="text-sm font-black text-slate-800">Size / Format
+                                <select id="size_format" name="size_format" data-price-group="sizes" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+                                    @foreach ($sizeOptions as $option)
+                                        <option value="{{ $option['label'] }}" @selected(old('size_format') === $option['label'])>{{ $option['label'] }}{{ (float) $option['price'] > 0 ? ' + NGN '.number_format((float) $option['price'], 2) : '' }}</option>
+                                    @endforeach
+                                </select>
+                            </label>
+                            <label for="material_substrate" class="text-sm font-black text-slate-800">Material Type
+                                <select id="material_substrate" name="material_substrate" data-price-group="materials" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+                                    @foreach ($materialOptions as $option)
+                                        <option value="{{ $option['label'] }}" @selected(old('material_substrate') === $option['label'])>{{ $option['label'] }}{{ (float) $option['price'] > 0 ? ' + NGN '.number_format((float) $option['price'], 2) : '' }}</option>
+                                    @endforeach
+                                </select>
+                            </label>
+                            <label for="finish_lamination" class="text-sm font-black text-slate-800">Finish / Lamination
+                                <select id="finish_lamination" name="finish_lamination" data-price-group="finishes" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+                                    @foreach ($finishOptions as $option)
+                                        <option value="{{ $option['label'] }}" @selected(old('finish_lamination') === $option['label'])>{{ $option['label'] }}{{ (float) $option['price'] > 0 ? ' + NGN '.number_format((float) $option['price'], 2) : '' }}</option>
+                                    @endforeach
+                                </select>
+                            </label>
+                            <label for="delivery_method" class="text-sm font-black text-slate-800">Delivery
+                                <select id="delivery_method" name="delivery_method" data-price-group="deliveries" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" required>
+                                    @foreach ($deliveryOptions as $option)
+                                        <option value="{{ $option['label'] }}" @selected(old('delivery_method') === $option['label'])>{{ $option['label'] }}{{ (float) $option['price'] > 0 ? ' + NGN '.number_format((float) $option['price'], 2) : '' }}</option>
+                                    @endforeach
+                                </select>
+                            </label>
+                        </div>
+
+                        <div class="mt-5 rounded-md bg-slate-950 p-5 text-white">
+                            <p class="text-xs font-black uppercase tracking-wide text-cyan-300">Live Estimate</p>
+                            <p class="mt-2 text-4xl font-black" id="live-order-total">NGN {{ number_format($product->price, 2) }}</p>
+                            <div class="mt-4 grid gap-3 text-sm font-bold text-slate-200 sm:grid-cols-2">
+                                <p>MOQ batches: <span id="live-order-batches">1</span></p>
+                                <p>Production per batch: <span id="live-production-price">NGN {{ number_format($product->price, 2) }}</span></p>
+                                <p>Delivery: <span id="live-delivery-price">NGN 0.00</span></p>
+                                <p>Base MOQ price: NGN {{ number_format($product->price, 2) }}</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="grid gap-5 sm:grid-cols-2">
                         <div>
                             <label for="customer_name" class="text-sm font-black text-slate-800">Full name</label>
-                            <input id="customer_name" name="customer_name" type="text" value="{{ old('customer_name', auth()->user()->name ?? '') }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" required />
+                            <input id="customer_name" name="customer_name" type="text" value="{{ old('customer_name', auth()->user()?->displayName() ?? '') }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" required />
                             @error('customer_name')
                                 <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
                             @enderror
@@ -101,9 +157,54 @@
                         @enderror
                     </div>
 
+                    <div>
+                        <label for="job_asset_files" class="text-sm font-black text-slate-800">Artwork / Image Assets</label>
+                        <input id="job_asset_files" name="job_asset_files[]" type="file" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.svg,.zip" class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" />
+                        <p class="mt-2 text-xs font-bold text-slate-500">Upload images, PDFs, SVG files or ZIP archives up to 20MB each.</p>
+                        @error('job_asset_files.*')
+                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <button type="submit" class="min-h-12 w-full rounded-md bg-pink-600 px-5 text-sm font-black text-white transition hover:bg-pink-700">Submit Order Request</button>
                 </form>
             </section>
         </section>
     </main>
+
+    <script>
+        (() => {
+            const pricing = @json($pricingPayload);
+            const currency = new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' });
+            const quantityInput = document.getElementById('quantity');
+            const totalOutput = document.getElementById('live-order-total');
+            const batchOutput = document.getElementById('live-order-batches');
+            const productionOutput = document.getElementById('live-production-price');
+            const deliveryOutput = document.getElementById('live-delivery-price');
+
+            const selectedPrice = (group) => {
+                const select = document.querySelector(`[data-price-group="${group}"]`);
+                const option = (pricing[group] || []).find((item) => item.label === select?.value);
+
+                return Number(option?.price || 0);
+            };
+
+            const recalculate = () => {
+                const quantity = Math.max(Number(quantityInput.value || pricing.moq), Number(pricing.moq || 1));
+                const batches = Math.ceil(quantity / Math.max(Number(pricing.moq || 1), 1));
+                const productionPrice = Number(pricing.basePrice || 0) + selectedPrice('sizes') + selectedPrice('materials') + selectedPrice('finishes');
+                const deliveryPrice = selectedPrice('deliveries');
+                const total = (batches * productionPrice) + deliveryPrice;
+
+                batchOutput.textContent = batches;
+                productionOutput.textContent = currency.format(productionPrice);
+                deliveryOutput.textContent = currency.format(deliveryPrice);
+                totalOutput.textContent = currency.format(total);
+            };
+
+            document.querySelectorAll('[data-price-group]').forEach((select) => select.addEventListener('change', recalculate));
+            quantityInput.addEventListener('input', recalculate);
+            recalculate();
+        })();
+    </script>
 @endsection

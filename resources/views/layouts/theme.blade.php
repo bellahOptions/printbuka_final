@@ -19,10 +19,12 @@
                 font-weight: 400;
             }
         </style>
+        @livewireStyles
     </head>
     <body class="tracking-tight">
         @include('layouts.guest.nav')
         @yield('content')
         @include('layouts.guest.footer')
+        @livewireScripts
     </body>
 </html>

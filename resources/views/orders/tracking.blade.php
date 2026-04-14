@@ -18,11 +18,11 @@
                 </div>
                 <div class="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
                     <p class="text-sm font-bold text-slate-500">Invoice</p>
-                    <p class="mt-1 text-2xl font-black text-slate-950">{{ $order->invoice?->invoice_number ?? 'Pending' }}</p>
+                    <p class="mt-1 text-2xl font-black text-slate-950">{{ $order->service_type === 'quote' ? 'Quote review' : ($order->invoice?->invoice_number ?? 'Pending') }}</p>
                 </div>
                 <div class="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
-                    <p class="text-sm font-bold text-slate-500">Total</p>
-                    <p class="mt-1 text-2xl font-black text-pink-700">NGN {{ number_format($order->invoice?->total_amount ?? $order->total_price, 2) }}</p>
+                    <p class="text-sm font-bold text-slate-500">{{ $order->service_type === 'quote' ? 'Pricing' : 'Total' }}</p>
+                    <p class="mt-1 text-2xl font-black text-pink-700">{{ $order->service_type === 'quote' ? 'Pending' : 'NGN '.number_format($order->invoice?->total_amount ?? $order->total_price, 2) }}</p>
                 </div>
                 <div class="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
                     <p class="text-sm font-bold text-slate-500">Ordered</p>
@@ -47,8 +47,8 @@
                             <span class="font-black text-slate-950">{{ ucfirst($order->service_type) }}</span>
                         </div>
                         <div class="flex justify-between gap-4 border-b border-slate-100 pb-3">
-                            <span class="font-bold text-slate-500">Invoice status</span>
-                            <span class="font-black text-slate-950">{{ ucfirst($order->invoice?->status ?? 'pending') }}</span>
+                            <span class="font-bold text-slate-500">{{ $order->service_type === 'quote' ? 'Request status' : 'Invoice status' }}</span>
+                            <span class="font-black text-slate-950">{{ $order->service_type === 'quote' ? $order->status : ucfirst($order->invoice?->status ?? 'pending') }}</span>
                         </div>
                     </div>
                 </section>

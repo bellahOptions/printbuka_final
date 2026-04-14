@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ProductSeeder extends Seeder
 {
@@ -11,9 +12,9 @@ class ProductSeeder extends Seeder
      * Run the database seeds.
      */
     public function run(): void
-    {
-        $products = [
-            [
+{
+    $baseProducts = [ 
+        [
                 'name' => 'Business Cards',
                 'moq' => 100,
                 'price' => 8500.00,
@@ -109,17 +110,27 @@ class ProductSeeder extends Seeder
                 'finishing' => 'Branded Packaging',
                 'paper_density' => 'Gift Item',
             ],
-        ];
+    ];
 
-        foreach ($products as $product) {
-            DB::table('products')->updateOrInsert(
-                ['name' => $product['name']],
-                [
-                    ...$product,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]
-            );
-        }
+    $products = [];
+
+    foreach (range(1, 20) as $i) {
+        $base = $baseProducts[array_rand($baseProducts)];
+
+        $products[] = [
+            ...$base,
+            'name' => $base['name'] . ' ' . $i,
+            'price' => $base['price'] + rand(1000, 10000),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
     }
+
+    foreach ($products as $product) {
+        DB::table('products')->updateOrInsert(
+            ['name' => $product['name']],
+            $product
+        );
+    }
+}
 }

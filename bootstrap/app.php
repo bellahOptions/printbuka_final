@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureUserIsAuthenticated;
 use App\Http\Middleware\EnsureAdminPermission;
+use App\Http\Middleware\LogStaffActivity;
 use App\Http\Middleware\RedirectIfUserAuthenticated;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'user.auth' => EnsureUserIsAuthenticated::class,
             'user.guest' => RedirectIfUserAuthenticated::class,
             'admin.permission' => EnsureAdminPermission::class,
+            'admin.activity' => LogStaffActivity::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

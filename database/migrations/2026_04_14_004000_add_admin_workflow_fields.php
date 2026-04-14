@@ -12,9 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('role')->default('customer')->after('avatar');
+            $table->string('role')->default('customer')->after('avatar')->index();
             $table->string('department')->nullable()->after('role');
-            $table->boolean('is_active')->default(true)->after('department');
+            $table->string('requested_role')->nullable()->after('department');
+            $table->string('other_role')->nullable()->after('requested_role');
+            $table->string('address')->nullable()->after('other_role');
+            $table->date('date_of_birth')->nullable()->after('address');
+            $table->string('photo')->nullable()->after('date_of_birth');
+            $table->foreignId('approved_by_id')->nullable()->after('photo')->constrained('users')->nullOnDelete();
+            $table->timestamp('approved_at')->nullable()->after('approved_by_id');
+            $table->boolean('is_active')->default(true)->after('approved_at');
         });
 
         Schema::table('orders', function (Blueprint $table) {
@@ -44,6 +51,10 @@ return new class extends Migration
             $table->text('internal_notes')->nullable()->after('payment_status');
             $table->foreignId('verified_by_id')->nullable()->after('internal_notes')->constrained('users')->nullOnDelete();
             $table->timestamp('verified_at')->nullable()->after('verified_by_id');
+            $table->string('phase_approval_status')->default('Pending Operations Approval')->after('verified_at');
+            $table->text('phase_approval_comment')->nullable()->after('phase_approval_status');
+            $table->foreignId('phase_approved_by_id')->nullable()->after('phase_approval_comment')->constrained('users')->nullOnDelete();
+            $table->timestamp('phase_approved_at')->nullable()->after('phase_approved_by_id');
         });
     }
 
@@ -59,6 +70,7 @@ return new class extends Migration
             $table->dropConstrainedForeignId('qc_checked_by_id');
             $table->dropConstrainedForeignId('dispatched_by_id');
             $table->dropConstrainedForeignId('verified_by_id');
+            $table->dropConstrainedForeignId('phase_approved_by_id');
             $table->dropColumn([
                 'job_order_number',
                 'priority',
@@ -80,11 +92,15 @@ return new class extends Migration
                 'payment_status',
                 'internal_notes',
                 'verified_at',
+                'phase_approval_status',
+                'phase_approval_comment',
+                'phase_approved_at',
             ]);
         });
 
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['role', 'department', 'is_active']);
+            $table->dropConstrainedForeignId('approved_by_id');
+            $table->dropColumn(['role', 'department', 'requested_role', 'other_role', 'address', 'date_of_birth', 'photo', 'approved_at', 'is_active']);
         });
     }
 };

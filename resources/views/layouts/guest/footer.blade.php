@@ -1,7 +1,7 @@
 <footer class="border-t border-slate-200 bg-slate-950 text-white">
     <div class="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.2fr_2fr] lg:px-8">
         <div>
-            <img src="{{ asset('logo.png') }}" class="h-10 w-auto rounded-md bg-white p-1" alt="Printbuka Logo" />
+            <img src="{{ asset('logo-dark.svg') }}" class="h-10 w-auto rounded-md p-1" alt="Printbuka Logo" />
             <p class="mt-5 max-w-sm text-sm leading-7 text-slate-300">Custom printing, branding and corporate gifts for teams, events, campaigns and everyday business needs.</p>
             <div class="mt-6 space-y-2 text-sm font-semibold text-slate-200">
                 <p>08035245784, 09054784526</p>
@@ -43,7 +43,7 @@
                 <h2 class="text-sm font-black uppercase tracking-wide text-cyan-300">Support</h2>
                 <div class="mt-4 space-y-3 text-sm text-slate-300">
                     <a href="{{ route('orders.track') }}" class="block transition hover:text-white">Track Order</a>
-                    <a href="#" class="block transition hover:text-white">Cost Calculator</a>
+                    <a href="{{ route('quotes.create') }}" class="block transition hover:text-white">Get Quote</a>
                     <a href="#" class="block transition hover:text-white">Artwork Guide</a>
                     <a href="#" class="block transition hover:text-white">Delivery</a>
                 </div>

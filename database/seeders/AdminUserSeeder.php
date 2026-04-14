@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class AdminUserSeeder extends Seeder
 {
@@ -12,31 +13,26 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        $password = env('PRINTBUKA_ADMIN_PASSWORD', 'PrintbukaAdmin2026!');
-
-        $users = [
-            ['name' => 'Printbuka Management', 'email' => 'management@printbuka.local', 'role' => 'management', 'department' => 'Management'],
-            ['name' => 'Production Supervisor', 'email' => 'supervisor@printbuka.local', 'role' => 'supervisor', 'department' => 'Supervision'],
-            ['name' => 'Afolabi Taiwo', 'email' => 'afolabi.taiwo@printbuka.local', 'role' => 'designer', 'department' => 'Design'],
-            ['name' => 'Adeniyi Michael', 'email' => 'adeniyi.michael@printbuka.local', 'role' => 'designer', 'department' => 'Design'],
-            ['name' => 'Tosin Mercy', 'email' => 'tosin.mercy@printbuka.local', 'role' => 'production', 'department' => 'Production'],
-            ['name' => 'Suru Damilola', 'email' => 'suru.damilola@printbuka.local', 'role' => 'production', 'department' => 'Production'],
-            ['name' => 'Saheed Balogun', 'email' => 'saheed.balogun@printbuka.local', 'role' => 'production', 'department' => 'Production'],
-            ['name' => 'Lawal Soliu', 'email' => 'lawal.soliu@printbuka.local', 'role' => 'customer_service', 'department' => 'Customer Service'],
-            ['name' => 'QC Officer', 'email' => 'qc@printbuka.local', 'role' => 'qc', 'department' => 'Quality Control'],
-            ['name' => 'Logistics Officer', 'email' => 'logistics@printbuka.local', 'role' => 'logistics', 'department' => 'Logistics'],
-        ];
-
-        foreach ($users as $user) {
-            User::query()->updateOrCreate(
-                ['email' => $user['email']],
-                [
-                    ...$user,
-                    'password' => $password,
-                    'email_verified_at' => now(),
-                    'is_active' => true,
-                ]
-            );
-        }
+        User::query()->updateOrCreate(
+            ['email' => 'ahmed@prinbuka.com.ng'],
+            [
+                'first_name' => 'Ahmed',
+                'last_name' => 'Bello',
+                'phone' => '08108671804',
+                'companyName' => 'Printbuka',
+                'role' => 'super_admin',
+                'department' => 'IT',
+                'requested_role' => null,
+                'other_role' => null,
+                'address' => null,
+                'date_of_birth' => null,
+                'photo' => null,
+                'approved_by_id' => null,
+                'approved_at' => now(),
+                'password' => Hash::make('123456'),
+                'email_verified_at' => now(),
+                'is_active' => true,
+            ]
+        );
     }
 }

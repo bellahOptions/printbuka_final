@@ -12,6 +12,7 @@ class Order extends Model
         'product_id',
         'user_id',
         'service_type',
+        'channel',
         'job_type',
         'size_format',
         'quantity',
@@ -23,6 +24,8 @@ class Order extends Model
         'delivery_city',
         'delivery_address',
         'artwork_notes',
+        'job_image_assets',
+        'pricing_breakdown',
         'status',
         'job_order_number',
         'priority',
@@ -31,6 +34,7 @@ class Order extends Model
         'assigned_designer_id',
         'design_started_at',
         'design_approved_by_client',
+        'final_design_path',
         'design_approved_at',
         'production_officer_id',
         'production_started_at',
@@ -51,6 +55,10 @@ class Order extends Model
         'internal_notes',
         'verified_by_id',
         'verified_at',
+        'phase_approval_status',
+        'phase_approval_comment',
+        'phase_approved_by_id',
+        'phase_approved_at',
     ];
 
     protected function casts(): array
@@ -59,6 +67,8 @@ class Order extends Model
             'unit_price' => 'decimal:2',
             'total_price' => 'decimal:2',
             'amount_paid' => 'decimal:2',
+            'job_image_assets' => 'array',
+            'pricing_breakdown' => 'array',
             'design_approved_by_client' => 'boolean',
             'brief_received_at' => 'datetime',
             'design_started_at' => 'datetime',
@@ -69,6 +79,7 @@ class Order extends Model
             'actual_delivery_at' => 'datetime',
             'after_sales_resolved_at' => 'datetime',
             'verified_at' => 'datetime',
+            'phase_approved_at' => 'datetime',
         ];
     }
 
@@ -115,6 +126,11 @@ class Order extends Model
     public function verifier(): BelongsTo
     {
         return $this->belongsTo(User::class, 'verified_by_id');
+    }
+
+    public function phaseApprover(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'phase_approved_by_id');
     }
 
     public function displayNumber(): string

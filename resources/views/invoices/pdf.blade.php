@@ -14,9 +14,24 @@
         </style>
     </head>
     <body>
+        @php
+            $logoPath = public_path('logo.png');
+            $logo = file_exists($logoPath) ? 'data:image/png;base64,'.base64_encode(file_get_contents($logoPath)) : null;
+        @endphp
         <div class="header">
-            <h1 style="margin:0;">Printbuka Invoice</h1>
-            <p style="margin:8px 0 0;">{{ $invoice->invoice_number }}</p>
+            <table style="border:0;">
+                <tr>
+                    <td style="border:0;padding:0;">
+                        @if ($logo)
+                            <img src="{{ $logo }}" alt="Printbuka" style="height:48px;width:auto;background:#ffffff;border-radius:4px;padding:4px;">
+                        @endif
+                    </td>
+                    <td style="border:0;padding:0;text-align:right;">
+                        <h1 style="margin:0;">Printbuka Invoice</h1>
+                        <p style="margin:8px 0 0;">{{ $invoice->invoice_number }}</p>
+                    </td>
+                </tr>
+            </table>
         </div>
 
         <div class="section">
@@ -59,6 +74,14 @@
                         <td>NGN {{ number_format($invoice->order->unit_price, 2) }}</td>
                         <td>NGN {{ number_format($invoice->subtotal, 2) }}</td>
                     </tr>
+                    @if ($invoice->order->size_format || $invoice->order->material_substrate || $invoice->order->finish_lamination || $invoice->order->delivery_method)
+                        <tr>
+                            <td colspan="4">
+                                <strong>Selected options:</strong>
+                                {{ collect([$invoice->order->size_format, $invoice->order->material_substrate, $invoice->order->finish_lamination, $invoice->order->delivery_method])->filter()->implode(' · ') }}
+                            </td>
+                        </tr>
+                    @endif
                 </tbody>
             </table>
         </div>

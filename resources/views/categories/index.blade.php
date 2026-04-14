@@ -29,16 +29,18 @@
                 <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach ($categories as $category)
                         <article class="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-                            <img src="{{ $category['image'] }}" alt="{{ $category['name'] }}" class="h-56 w-full object-cover" />
+                            <img src="{{ $category->image ?: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=1200&q=80' }}" alt="{{ $category->name }}" class="h-56 w-full object-cover" />
                             <div class="p-6">
-                                <p class="text-xs font-black uppercase tracking-wide text-pink-700">{{ $category['tag'] }}</p>
-                                <h2 class="mt-2 text-2xl font-black text-slate-950">{{ $category['name'] }}</h2>
-                                <p class="mt-3 text-sm leading-6 text-slate-600">{{ $category['description'] }}</p>
+                                <p class="text-xs font-black uppercase tracking-wide text-pink-700">{{ $category->tag }}</p>
+                                <h2 class="mt-2 text-2xl font-black text-slate-950">{{ $category->name }}</h2>
+                                <p class="mt-3 text-sm leading-6 text-slate-600">{{ $category->description }}</p>
 
                                 <div class="mt-5 flex flex-wrap gap-2">
-                                    @foreach ($category['products'] as $product)
-                                        <span class="rounded-md bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600">{{ $product }}</span>
-                                    @endforeach
+                                    @forelse ($category->products as $product)
+                                        <span class="rounded-md bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600">{{ $product->name }}</span>
+                                    @empty
+                                        <span class="rounded-md bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600">Products coming soon</span>
+                                    @endforelse
                                 </div>
 
                                 <a href="{{ route('products.index') }}#catalog" class="mt-6 inline-flex w-full justify-center rounded-md bg-slate-950 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700">Browse Products</a>

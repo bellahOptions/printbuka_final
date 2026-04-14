@@ -154,8 +154,7 @@
                 @else
                     <div class="mt-8 rounded-md border border-dashed border-slate-300 bg-white p-8 text-center">
                         <h3 class="text-2xl font-black text-slate-950">No products yet.</h3>
-                        <p class="mt-3 text-sm leading-6 text-slate-600">Run the product seeder to add sample products to the catalog.</p>
-                        <code class="mt-5 inline-flex rounded-md bg-slate-100 px-4 py-3 text-sm font-bold text-slate-800">php artisan db:seed --class=ProductSeeder</code>
+                        <p class="mt-3 text-sm leading-6 text-slate-600">PLease check back later</p>                        
                     </div>
                 @endif
             </div>
