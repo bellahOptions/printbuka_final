@@ -1,12 +1,13 @@
-@extends('layouts.theme')
+@extends('layouts.admin')
 
 @section('title', 'Invoice Management | Printbuka')
 
 @section('content')
-    <main class="bg-slate-50 py-12 text-slate-900"><section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p class="text-sm font-black uppercase tracking-wide text-pink-700">Invoice Management</p><h1 class="mt-2 text-4xl text-slate-950">Invoices.</h1></div><a href="{{ route('admin.invoices.create') }}" class="rounded-md bg-pink-600 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700">Create Invoice</a></div>
         @if (session('status'))<p class="mt-6 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">{{ session('status') }}</p>@endif
+        @if (session('warning'))<p class="mt-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">{{ session('warning') }}</p>@endif
         <div class="mt-8 overflow-x-auto rounded-md border border-slate-200 bg-white shadow-sm"><table class="w-full min-w-[900px] text-left text-sm"><thead><tr class="border-b border-slate-200 bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500"><th class="px-5 py-4">Invoice</th><th class="px-5 py-4">Job</th><th class="px-5 py-4">Client</th><th class="px-5 py-4">Total</th><th class="px-5 py-4">Status</th><th class="px-5 py-4"></th></tr></thead><tbody class="divide-y divide-slate-100">@forelse ($invoices as $invoice)<tr><td class="px-5 py-4 font-black">{{ $invoice->invoice_number }}</td><td class="px-5 py-4">{{ $invoice->order?->job_order_number ?? 'No job' }}</td><td class="px-5 py-4">{{ $invoice->order?->customer_name ?? 'Pending' }}</td><td class="px-5 py-4">NGN {{ number_format((float) $invoice->total_amount, 2) }}</td><td class="px-5 py-4">{{ ucfirst($invoice->status) }}</td><td class="px-5 py-4 text-right"><a href="{{ route('admin.invoices.edit', $invoice) }}" class="font-black text-pink-700">Edit</a><form action="{{ route('admin.invoices.destroy', $invoice) }}" method="POST" class="inline">@csrf @method('DELETE') <button class="ml-4 font-black text-slate-500 hover:text-red-700">Delete</button></form></td></tr>@empty<tr><td colspan="6" class="px-5 py-10 text-center text-slate-500">No invoices yet.</td></tr>@endforelse</tbody></table></div>
         <div class="mt-6">{{ $invoices->links() }}</div>
-    </section></main>
+    </div>
 @endsection

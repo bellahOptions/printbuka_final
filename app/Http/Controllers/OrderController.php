@@ -43,10 +43,17 @@ class OrderController extends Controller
             'delivery_city' => ['nullable', 'string', 'max:255'],
             'delivery_address' => ['nullable', 'string', 'max:255'],
             'artwork_notes' => ['nullable', 'string', 'max:2000'],
-            'job_asset_files' => ['nullable', 'array'],
-            'job_asset_files.*' => ['file', 'mimes:jpg,jpeg,png,webp,pdf,svg,zip', 'max:20480'],
+            'job_asset_files' => ['nullable', 'array', 'max:5'],
+            'job_asset_files.*' => ['file', 'mimes:jpg,jpeg,png,webp', 'mimetypes:image/jpeg,image/png,image/webp', 'max:5120'],
         ]);
         unset($validated['job_asset_files']);
+
+        $customer = Auth::user();
+        if ($customer && $customer->role === 'customer') {
+            $validated['customer_name'] = $customer->displayName();
+            $validated['customer_email'] = $customer->email;
+            $validated['customer_phone'] = $customer->phone;
+        }
 
         $quantity = (int) $validated['quantity'];
         $unitPrice = (float) $product->price;

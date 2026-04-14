@@ -1,10 +1,9 @@
-@extends('layouts.theme')
+@extends('layouts.admin')
 
 @section('title', 'Product Management | Printbuka')
 
 @section('content')
-    <main class="bg-slate-50 py-12 text-slate-900">
-        <section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                     <p class="text-sm font-black uppercase tracking-wide text-pink-700">Product Management</p>
@@ -36,6 +35,5 @@
                 </table>
             </div>
             <div class="mt-6">{{ $products->links() }}</div>
-        </section>
-    </main>
+    </div>
 @endsection

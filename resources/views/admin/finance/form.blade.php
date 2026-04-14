@@ -1,9 +1,9 @@
-@extends('layouts.theme')
+@extends('layouts.admin')
 
 @section('title', ($entry->exists ? 'Edit Finance Entry' : 'Add Finance Entry').' | Printbuka')
 
 @section('content')
-    <main class="bg-slate-50 py-12 text-slate-900"><section class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-5xl">
         <div class="rounded-md bg-slate-950 p-6 text-white lg:p-8"><a href="{{ route('admin.finance.index') }}" class="text-sm font-black text-cyan-300">Finance</a><h1 class="mt-3 text-4xl">{{ $entry->exists ? 'Edit finance entry.' : 'Add finance entry.' }}</h1></div>
         <form action="{{ $entry->exists ? route('admin.finance.update', $entry) : route('admin.finance.store') }}" method="POST" class="mt-8 rounded-md border border-slate-200 bg-white p-6 shadow-sm">
             @csrf
@@ -21,5 +21,5 @@
             </div>
             <button class="mt-6 rounded-md bg-pink-600 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700">Save Entry</button>
         </form>
-    </section></main>
+    </div>
 @endsection

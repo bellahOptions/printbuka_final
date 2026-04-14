@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AppNotification extends Model
 {
@@ -14,6 +15,7 @@ class AppNotification extends Model
         'title',
         'message',
         'type',
+        'display_format',
         'read_at',
         'starts_at',
         'ends_at',
@@ -31,5 +33,10 @@ class AppNotification extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function reads(): HasMany
+    {
+        return $this->hasMany(AppNotificationRead::class);
     }
 }

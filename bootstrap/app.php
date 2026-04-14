@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureUserIsAuthenticated;
 use App\Http\Middleware\EnsureAdminPermission;
+use App\Http\Middleware\EnforceSiteMaintenance;
 use App\Http\Middleware\LogStaffActivity;
 use App\Http\Middleware\RedirectIfUserAuthenticated;
 use Illuminate\Foundation\Application;
@@ -15,6 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(append: [
+            EnforceSiteMaintenance::class,
+        ]);
+
         $middleware->alias([
             'user.auth' => EnsureUserIsAuthenticated::class,
             'user.guest' => RedirectIfUserAuthenticated::class,

@@ -1,10 +1,9 @@
-@extends('layouts.theme')
+@extends('layouts.admin')
 
 @section('title', ($category->exists ? 'Edit Category' : 'Create Category').' | Printbuka')
 
 @section('content')
-    <main class="bg-slate-50 py-12 text-slate-900">
-        <section class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-5xl">
             <div class="rounded-md bg-slate-950 p-6 text-white lg:p-8"><a href="{{ route('admin.product-categories.index') }}" class="text-sm font-black text-cyan-300">Categories</a><h1 class="mt-3 text-4xl">{{ $category->exists ? 'Edit category.' : 'Create category.' }}</h1></div>
             <form action="{{ $category->exists ? route('admin.product-categories.update', $category) : route('admin.product-categories.store') }}" method="POST" class="mt-8 rounded-md border border-slate-200 bg-white p-6 shadow-sm">
                 @csrf
@@ -19,6 +18,5 @@
                 </div>
                 <button class="mt-6 rounded-md bg-pink-600 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700">Save Category</button>
             </form>
-        </section>
-    </main>
+    </div>
 @endsection

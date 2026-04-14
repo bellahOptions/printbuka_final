@@ -4,8 +4,8 @@
             <img src="{{ asset('logo-dark.svg') }}" class="h-10 w-auto rounded-md p-1" alt="Printbuka Logo" />
             <p class="mt-5 max-w-sm text-sm leading-7 text-slate-300">Custom printing, branding and corporate gifts for teams, events, campaigns and everyday business needs.</p>
             <div class="mt-6 space-y-2 text-sm font-semibold text-slate-200">
-                <p>08035245784, 09054784526</p>
-                <p>sales@printbuka.com.ng</p>
+                <p>{{ $siteSettings['contact_phone'] ?? '08035245784, 09054784526' }}</p>
+                <p>{{ $siteSettings['contact_email'] ?? 'sales@printbuka.com.ng' }}</p>
             </div>
         </div>
 
@@ -53,7 +53,7 @@
 
     <div class="border-t border-white/10">
         <div class="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-6 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-            <p>&copy; {{ date('Y') }} Printbuka. All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} {{ $siteSettings['site_name'] ?? 'Printbuka' }}. All rights reserved.</p>
             <p>
                 Built with Love by
                 <a href="https://www.aidigitalagency.com.ng" target="_blank" rel="noopener noreferrer" class="font-bold text-white transition hover:text-cyan-300">AI Digital Agency</a>

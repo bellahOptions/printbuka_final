@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Support\SiteSettings;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,5 +23,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(191);
+
+        View::share('siteSettings', SiteSettings::all());
     }
 }

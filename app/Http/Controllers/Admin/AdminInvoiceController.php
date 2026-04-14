@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\Order;
+use App\Services\InvoiceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -27,11 +28,19 @@ class AdminInvoiceController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, InvoiceService $invoiceService): RedirectResponse
     {
-        Invoice::query()->create($this->validated($request));
+        $invoice = Invoice::query()->create($this->validated($request));
+        $sent = $invoiceService->sendInvoice($invoice->load('order.product'));
 
-        return redirect()->route('admin.invoices.index')->with('status', 'Invoice created.');
+        return redirect()
+            ->route('admin.invoices.index')
+            ->with(
+                $sent ? 'status' : 'warning',
+                $sent
+                    ? 'Invoice created and emailed with PDF attachment.'
+                    : 'Invoice created, but the email could not be sent. Check mail configuration.'
+            );
     }
 
     public function edit(Invoice $invoice): View
@@ -58,7 +67,7 @@ class AdminInvoiceController extends Controller
 
     private function validated(Request $request, ?Invoice $invoice = null): array
     {
-        return $request->validate([
+        $validated = $request->validate([
             'order_id' => ['required', 'exists:orders,id'],
             'invoice_number' => ['required', 'string', 'max:255', Rule::unique('invoices', 'invoice_number')->ignore($invoice?->id)],
             'subtotal' => ['required', 'numeric', 'min:0'],
@@ -70,5 +79,10 @@ class AdminInvoiceController extends Controller
             'due_at' => ['nullable', 'date'],
             'sent_at' => ['nullable', 'date'],
         ]);
+
+        $validated['tax_amount'] ??= 0;
+        $validated['discount_amount'] ??= 0;
+
+        return $validated;
     }
 }

@@ -7,8 +7,8 @@
         </div>
 
         <div class="flex items-center gap-6">
-            <span>Call: 08035245784, 09054784526</span>
-            <span>Email: sales@printbuka.com.ng</span>
+            <span>Call: {{ $siteSettings['contact_phone'] ?? '08035245784, 09054784526' }}</span>
+            <span>Email: {{ $siteSettings['contact_email'] ?? 'sales@printbuka.com.ng' }}</span>
         </div>
     </div>
 </div>
@@ -102,6 +102,7 @@
         </div>
 
         <div class="flex items-center gap-2 text-sm font-bold">
+            <livewire:notification-bell />
             @auth
                 @if (auth()->user()->hasAdminAccess())
                     <a href="{{ route('admin.dashboard') }}" class="hidden px-4 py-2 text-slate-700 transition hover:text-pink-600 xl:inline-flex">Admin</a>

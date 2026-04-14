@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -20,11 +21,29 @@ class AdminStaffController extends Controller
                     $query->where('is_active', false)->whereNotNull('requested_role');
                 })
                 ->latest()
-                ->get(),
+                ->paginate(6, ['*'], 'pending_page'),
             'staff' => User::query()
                 ->where('role', '!=', 'customer')
                 ->where('role', '!=', 'staff_pending')
                 ->latest()
+                ->paginate(12, ['*'], 'staff_page'),
+            'staffStats' => [
+                'total' => User::query()->where('role', '!=', 'customer')->count(),
+                'active' => User::query()->where('role', '!=', 'customer')->where('is_active', true)->count(),
+                'pending' => User::query()->where('role', 'staff_pending')->orWhere(fn ($query) => $query->where('is_active', false)->whereNotNull('requested_role'))->count(),
+                'inactive' => User::query()->where('role', '!=', 'customer')->where('is_active', false)->count(),
+            ],
+            'roleCounts' => User::query()
+                ->where('role', '!=', 'customer')
+                ->select('role', DB::raw('count(*) as total'))
+                ->groupBy('role')
+                ->orderByDesc('total')
+                ->get(),
+            'departmentCounts' => User::query()
+                ->where('role', '!=', 'customer')
+                ->select('department', DB::raw('count(*) as total'))
+                ->groupBy('department')
+                ->orderByDesc('total')
                 ->get(),
             'roles' => config('printbuka_admin.role_labels'),
             'departments' => config('printbuka_admin.departments'),

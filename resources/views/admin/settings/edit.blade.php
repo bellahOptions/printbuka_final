@@ -1,9 +1,9 @@
-@extends('layouts.theme')
+@extends('layouts.admin')
 
 @section('title', 'Site Settings | Printbuka')
 
 @section('content')
-    <main class="bg-slate-50 py-12 text-slate-900"><section class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-5xl">
         <div class="rounded-md bg-slate-950 p-6 text-white lg:p-8"><a href="{{ route('admin.dashboard') }}" class="text-sm font-black text-cyan-300">Admin Dashboard</a><h1 class="mt-3 text-4xl">Site settings.</h1><p class="mt-3 max-w-3xl text-sm leading-6 text-slate-300">Manage notifications, announcements, contact details and maintenance mode.</p></div>
         @if (session('status'))<p class="mt-6 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">{{ session('status') }}</p>@endif
         <form action="{{ route('admin.settings.update') }}" method="POST" class="mt-8 rounded-md border border-slate-200 bg-white p-6 shadow-sm">
@@ -20,5 +20,5 @@
             </div>
             <button class="mt-6 rounded-md bg-pink-600 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700">Save Settings</button>
         </form>
-    </section></main>
+    </div>
 @endsection

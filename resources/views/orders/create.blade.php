@@ -12,6 +12,7 @@
             'finishes' => $finishOptions,
             'deliveries' => $deliveryOptions,
         ];
+        $authenticatedCustomer = auth()->user()?->role === 'customer' ? auth()->user() : null;
     @endphp
     <main class="bg-slate-50 py-12 text-slate-900">
         <section class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.75fr_1.25fr] lg:px-8">
@@ -109,15 +110,15 @@
 
                     <div class="grid gap-5 sm:grid-cols-2">
                         <div>
-                            <label for="customer_name" class="text-sm font-black text-slate-800">Full name</label>
-                            <input id="customer_name" name="customer_name" type="text" value="{{ old('customer_name', auth()->user()?->displayName() ?? '') }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" required />
+                            <label for="customer_name" class="text-sm font-black text-slate-800">First & Last Name</label>
+                            <input id="customer_name" name="customer_name" type="text" value="{{ $authenticatedCustomer ? $authenticatedCustomer->displayName() : old('customer_name') }}" @readonly($authenticatedCustomer) class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 {{ $authenticatedCustomer ? 'bg-slate-100 text-slate-500' : '' }}" required />
                             @error('customer_name')
                                 <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
                             @enderror
                         </div>
                         <div>
                             <label for="customer_phone" class="text-sm font-black text-slate-800">Phone number</label>
-                            <input id="customer_phone" name="customer_phone" type="text" value="{{ old('customer_phone') }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" required />
+                            <input id="customer_phone" name="customer_phone" type="text" value="{{ $authenticatedCustomer ? $authenticatedCustomer->phone : old('customer_phone') }}" @readonly($authenticatedCustomer) class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 {{ $authenticatedCustomer ? 'bg-slate-100 text-slate-500' : '' }}" required />
                             @error('customer_phone')
                                 <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
                             @enderror
@@ -126,7 +127,10 @@
 
                     <div>
                         <label for="customer_email" class="text-sm font-black text-slate-800">Email address</label>
-                        <input id="customer_email" name="customer_email" type="email" value="{{ old('customer_email', auth()->user()->email ?? '') }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" required />
+                        <input id="customer_email" name="customer_email" type="email" value="{{ $authenticatedCustomer ? $authenticatedCustomer->email : old('customer_email') }}" @readonly($authenticatedCustomer) class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 {{ $authenticatedCustomer ? 'bg-slate-100 text-slate-500' : '' }}" required />
+                        @if ($authenticatedCustomer)
+                            <p class="mt-2 text-xs font-bold text-slate-500">Using your verified account details. Update your profile if these details need to change.</p>
+                        @endif
                         @error('customer_email')
                             <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
                         @enderror
@@ -159,8 +163,11 @@
 
                     <div>
                         <label for="job_asset_files" class="text-sm font-black text-slate-800">Artwork / Image Assets</label>
-                        <input id="job_asset_files" name="job_asset_files[]" type="file" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.svg,.zip" class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" />
-                        <p class="mt-2 text-xs font-bold text-slate-500">Upload images, PDFs, SVG files or ZIP archives up to 20MB each.</p>
+                        <input id="job_asset_files" name="job_asset_files[]" type="file" multiple accept="image/jpeg,image/png,image/webp" class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" />
+                        <p class="mt-2 text-xs font-bold text-slate-500">Upload up to 5 images only: JPG, PNG or WebP. Maximum 5MB per image. PDFs, SVGs, archives and executable files are blocked for security.</p>
+                        @error('job_asset_files')
+                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                        @enderror
                         @error('job_asset_files.*')
                             <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
                         @enderror

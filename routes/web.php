@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AdminBlogPostController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminFinanceController;
 use App\Http\Controllers\Admin\AdminInvoiceController;
+use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminProductCategoryController;
 use App\Http\Controllers\Admin\AdminProductController;
@@ -69,6 +70,15 @@ Route::middleware('user.auth')->group(function (): void {
         Route::resource('invoices', AdminInvoiceController::class)
             ->except('show')
             ->middleware('admin.permission:invoices.manage');
+        Route::get('/notifications', [AdminNotificationController::class, 'index'])
+            ->middleware('admin.permission:*')
+            ->name('notifications.index');
+        Route::post('/notifications', [AdminNotificationController::class, 'store'])
+            ->middleware('admin.permission:*')
+            ->name('notifications.store');
+        Route::delete('/notifications/{notification}', [AdminNotificationController::class, 'destroy'])
+            ->middleware('admin.permission:*')
+            ->name('notifications.destroy');
         Route::resource('finance', AdminFinanceController::class)
             ->except('show')
             ->middleware('admin.permission:finance.view');

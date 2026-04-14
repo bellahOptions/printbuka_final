@@ -1,10 +1,9 @@
-@extends('layouts.theme')
+@extends('layouts.admin')
 
 @section('title', 'Create Admin Job | Printbuka')
 
 @section('content')
-    <main class="bg-slate-50 py-12 text-slate-900">
-        <section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl">
             <div class="rounded-md bg-slate-950 p-6 text-white lg:p-8">
                 <a href="{{ route('admin.orders.index') }}" class="text-sm font-black text-cyan-300 hover:text-cyan-200">Back to Job Tracker</a>
                 <h1 class="mt-3 text-4xl">Create a new job.</h1>
@@ -75,6 +74,5 @@
                     </div>
                 </aside>
             </form>
-        </section>
-    </main>
+    </div>
 @endsection

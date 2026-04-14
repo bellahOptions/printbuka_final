@@ -52,7 +52,7 @@
                     <th>Email</th>
                     <td>{{ $invoice->order->customer_email }}</td>
                     <th>Status</th>
-                    <td>{{ ucfirst($invoice->status) }}</td>
+                    <td>{{ str($invoice->status)->replace('_', ' ')->title() }}</td>
                 </tr>
             </table>
         </div>
@@ -103,6 +103,14 @@
                 <tr>
                     <th>Total</th>
                     <td class="total">NGN {{ number_format($invoice->total_amount, 2) }}</td>
+                </tr>
+                <tr>
+                    <th>Amount Paid</th>
+                    <td>NGN {{ number_format((float) $invoice->order->amount_paid, 2) }}</td>
+                </tr>
+                <tr>
+                    <th>Payment Status</th>
+                    <td>{{ str($invoice->status)->replace('_', ' ')->title() }}</td>
                 </tr>
             </table>
         </div>
