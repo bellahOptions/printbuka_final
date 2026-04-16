@@ -1,20 +1,14 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\Admin\AdminBlogPostController;
-use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\Admin\AdminFinanceController;
-use App\Http\Controllers\Admin\AdminInvoiceController;
-use App\Http\Controllers\Admin\AdminNotificationController;
-use App\Http\Controllers\Admin\AdminOrderController;
-use App\Http\Controllers\Admin\AdminProductCategoryController;
-use App\Http\Controllers\Admin\AdminProductController;
-use App\Http\Controllers\Admin\AdminSiteSettingController;
-use App\Http\Controllers\Admin\AdminStaffController;
+use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DeliveryAddressController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PartnerController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\TrackOrderController;
@@ -44,70 +38,32 @@ Route::middleware('user.guest')->group(function (): void {
     Route::post('/login', [AuthController::class, 'login'])->name('login.store');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.store');
-    Route::get('/staff/login', [AuthController::class, 'showStaffLogin'])->name('staff.login');
-    Route::post('/staff/login', [AuthController::class, 'staffLogin'])->name('staff.login.store');
-    Route::get('/staff/register', [AuthController::class, 'showStaffRegister'])->name('staff.register');
-    Route::post('/staff/register', [AuthController::class, 'staffRegister'])->name('staff.register.store');
-    Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google.redirect');
-    Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+    Route::get('/email/verify', [EmailVerificationController::class, 'notice'])->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
+        ->middleware(['signed:relative', 'throttle:6,1'])
+        ->name('verification.verify');
+    Route::post('/email/verification-notification', [EmailVerificationController::class, 'send'])
+        ->middleware('throttle:6,1')
+        ->name('verification.send');
+
+    Route::get('/forgot-password', [PasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLinkEmail'])
+        ->middleware('throttle:6,1')
+        ->name('password.email');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
 });
 
 Route::middleware('user.auth')->group(function (): void {
-    Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::prefix('admin')->name('admin.')->middleware(['admin.permission:admin.view', 'admin.activity'])->group(function (): void {
-        Route::get('/', AdminDashboardController::class)->name('dashboard');
-        Route::resource('products', AdminProductController::class)
-            ->except('show')
-            ->middleware('admin.permission:products.manage');
-        Route::resource('product-categories', AdminProductCategoryController::class)
-            ->except('show')
-            ->middleware('admin.permission:product_categories.manage');
-        Route::resource('blog', AdminBlogPostController::class)
-            ->except('show')
-            ->middleware('admin.permission:blog.manage');
-        Route::resource('invoices', AdminInvoiceController::class)
-            ->except('show')
-            ->middleware('admin.permission:invoices.manage');
-        Route::get('/notifications', [AdminNotificationController::class, 'index'])
-            ->middleware('admin.permission:*')
-            ->name('notifications.index');
-        Route::post('/notifications', [AdminNotificationController::class, 'store'])
-            ->middleware('admin.permission:*')
-            ->name('notifications.store');
-        Route::delete('/notifications/{notification}', [AdminNotificationController::class, 'destroy'])
-            ->middleware('admin.permission:*')
-            ->name('notifications.destroy');
-        Route::resource('finance', AdminFinanceController::class)
-            ->except('show')
-            ->middleware('admin.permission:finance.view');
-        Route::get('/settings', [AdminSiteSettingController::class, 'edit'])
-            ->middleware('admin.permission:site_settings.manage')
-            ->name('settings.edit');
-        Route::put('/settings', [AdminSiteSettingController::class, 'update'])
-            ->middleware('admin.permission:site_settings.manage')
-            ->name('settings.update');
-        Route::get('/staff', [AdminStaffController::class, 'index'])
-            ->middleware('admin.permission:staff.view')
-            ->name('staff.index');
-        Route::put('/staff/{user}', [AdminStaffController::class, 'update'])
-            ->middleware('admin.permission:*')
-            ->name('staff.update');
-        Route::get('/orders', [AdminOrderController::class, 'index'])
-            ->middleware('admin.permission:orders.view')
-            ->name('orders.index');
-        Route::get('/orders/create', [AdminOrderController::class, 'create'])
-            ->middleware('admin.permission:orders.create')
-            ->name('orders.create');
-        Route::post('/orders', [AdminOrderController::class, 'store'])
-            ->middleware('admin.permission:orders.create')
-            ->name('orders.store');
-        Route::get('/orders/{order}', [AdminOrderController::class, 'show'])
-            ->middleware('admin.permission:orders.view')
-            ->name('orders.show');
-        Route::put('/orders/{order}', [AdminOrderController::class, 'update'])
-            ->middleware('admin.permission:orders.view')
-            ->name('orders.update');
+    Route::middleware('user.verified')->group(function (): void {
+        Route::get('/dashboard', DashboardController::class)->name('dashboard');
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('/profile/addresses', [DeliveryAddressController::class, 'store'])->name('profile.addresses.store');
+        Route::put('/profile/addresses/{deliveryAddress}', [DeliveryAddressController::class, 'update'])->name('profile.addresses.update');
+        Route::delete('/profile/addresses/{deliveryAddress}', [DeliveryAddressController::class, 'destroy'])->name('profile.addresses.destroy');
+        Route::put('/profile/addresses/{deliveryAddress}/default', [DeliveryAddressController::class, 'setDefault'])->name('profile.addresses.default');
     });
 });

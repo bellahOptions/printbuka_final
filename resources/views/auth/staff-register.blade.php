@@ -33,8 +33,20 @@
                     @enderror
 
                     <div class="grid gap-5 sm:grid-cols-2">
-                        <label class="text-sm font-black text-slate-800">Password<input type="password" name="password" required class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"></label>
-                        <label class="text-sm font-black text-slate-800">Confirm Password<input type="password" name="password_confirmation" required class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"></label>
+                        <label class="text-sm font-black text-slate-800">
+                            Password
+                            <div class="relative mt-2">
+                                <input id="staff_password" type="password" name="password" required class="min-h-12 w-full rounded-md border border-slate-200 px-4 pr-28 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+                                <button type="button" data-password-toggle data-target="staff_password" class="absolute right-2 top-1/2 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:bg-slate-50">Show</button>
+                            </div>
+                        </label>
+                        <label class="text-sm font-black text-slate-800">
+                            Confirm Password
+                            <div class="relative mt-2">
+                                <input id="staff_password_confirmation" type="password" name="password_confirmation" required class="min-h-12 w-full rounded-md border border-slate-200 px-4 pr-28 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+                                <button type="button" data-password-toggle data-target="staff_password_confirmation" class="absolute right-2 top-1/2 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:bg-slate-50">Show</button>
+                            </div>
+                        </label>
                     </div>
 
                     <button class="min-h-12 w-full rounded-md bg-pink-600 px-5 text-sm font-black text-white transition hover:bg-pink-700">Submit for Approval</button>
@@ -50,4 +62,21 @@
             </div>
         </section>
     </main>
+
+    <script>
+        (() => {
+            document.querySelectorAll('[data-password-toggle]').forEach((button) => {
+                const input = document.getElementById(button.dataset.target || '');
+                if (!input) {
+                    return;
+                }
+
+                button.addEventListener('click', () => {
+                    const shouldShow = input.type === 'password';
+                    input.type = shouldShow ? 'text' : 'password';
+                    button.textContent = shouldShow ? 'Hide' : 'Show';
+                });
+            });
+        })();
+    </script>
 @endsection

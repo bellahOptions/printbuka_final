@@ -26,7 +26,7 @@ class InvoiceService
                 'status' => $this->paymentStatusFor($order),
                 'issued_at' => now(),
                 'due_at' => now()->addDays(7),
-                'sent_at' => now(),
+                'sent_at' => null,
             ]
         );
     }
@@ -34,7 +34,19 @@ class InvoiceService
     public function sendInvoice(Invoice $invoice): bool
     {
         try {
-            Mail::to($invoice->order->customer_email)->send(new InvoiceMail($invoice));
+            $invoice->loadMissing('order.product');
+            $recipient = (string) ($invoice->order?->customer_email ?? '');
+
+            if ($recipient === '') {
+                Log::warning('Invoice email skipped because recipient is missing.', [
+                    'invoice_id' => $invoice->id,
+                    'order_id' => $invoice->order_id,
+                ]);
+
+                return false;
+            }
+
+            Mail::to($recipient)->send(new InvoiceMail($invoice));
             $invoice->forceFill(['sent_at' => now()])->save();
 
             return true;

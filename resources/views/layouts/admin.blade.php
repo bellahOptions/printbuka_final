@@ -220,6 +220,14 @@
                                     </svg>
                                     Settings
                                 </a>
+                                @if (auth()->user()?->role === 'super_admin')
+                                    <a href="{{ route('admin.policies.edit') }}" class="{{ $sidebarLinkClass('admin.policies.*') }}">
+                                        <svg class="w-5 h-5 text-slate-400 group-hover:text-pink-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h6l5 5v11a2 2 0 01-2 2z"/>
+                                        </svg>
+                                        Policies
+                                    </a>
+                                @endif
                             @endif
                         </nav>
                     </div>
@@ -237,6 +245,12 @@
                                         New Job
                                     </a>
                                 @endif
+                                <a href="{{ route('admin.profile.edit') }}" class="flex items-center gap-2 text-sm font-bold text-slate-700 hover:text-pink-700 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A8.966 8.966 0 0112 15c2.607 0 4.955 1.11 6.621 2.878M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                    My Profile
+                                </a>
                                 <a href="{{ route('admin.orders.index') }}" class="flex items-center gap-2 text-sm font-bold text-slate-700 hover:text-pink-700 transition-colors">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -256,6 +270,14 @@
                     <div class="px-6 py-4 lg:px-8">
                         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <div class="flex items-center gap-4">
+                                @php($currentAdmin = auth()->user())
+                                @if ($currentAdmin?->profilePhotoUrl())
+                                    <img src="{{ $currentAdmin->profilePhotoUrl() }}" alt="{{ $currentAdmin->displayName() }}" class="h-12 w-12 rounded-full border border-slate-200 object-cover shadow-sm">
+                                @else
+                                    <div class="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-sm font-black text-slate-700">
+                                        {{ $currentAdmin?->profileInitials() }}
+                                    </div>
+                                @endif
                                 <div>
                                     <div class="flex items-center gap-2">
                                         <span class="relative flex h-2 w-2">
@@ -263,10 +285,10 @@
                                             <span class="relative inline-flex rounded-full h-2 w-2 bg-pink-600"></span>
                                         </span>
                                         <p class="text-[0.65rem] font-black uppercase tracking-wider text-pink-700">
-                                            {{ config('printbuka_admin.role_labels.'.auth()->user()?->role, auth()->user()?->role) }}
+                                            {{ config('printbuka_admin.role_labels.'.$currentAdmin?->role, $currentAdmin?->role) }}
                                         </p>
                                     </div>
-                                    <p class="mt-1 text-xl font-black text-slate-950 tracking-tight">{{ auth()->user()?->displayName() }}</p>
+                                    <p class="mt-1 text-xl font-black text-slate-950 tracking-tight">{{ $currentAdmin?->displayName() }}</p>
                                 </div>
                             </div>
                             

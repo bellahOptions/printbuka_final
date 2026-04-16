@@ -12,7 +12,19 @@
             'finishes' => $finishOptions,
             'deliveries' => $deliveryOptions,
         ];
-        $authenticatedCustomer = auth()->user()?->role === 'customer' ? auth()->user() : null;
+        $authenticatedUser = auth()->user();
+        $authenticatedCustomer = $authenticatedUser?->role === 'customer' ? $authenticatedUser : null;
+        $savedAddresses = ($savedDeliveryAddresses ?? collect())->values();
+        $defaultSavedAddressId = $savedAddresses->firstWhere('is_default', true)?->id;
+        $selectedSavedAddressId = old('delivery_address_id', $defaultSavedAddressId);
+        $savedAddressLookup = $savedAddresses
+            ->mapWithKeys(fn ($address) => [
+                (string) $address->id => [
+                    'city' => $address->city,
+                    'address' => $address->address,
+                ],
+            ])
+            ->all();
     @endphp
     <main class="bg-slate-50 py-12 text-slate-900">
         <section class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.75fr_1.25fr] lg:px-8">
@@ -136,6 +148,31 @@
                         @enderror
                     </div>
 
+                    @if ($authenticatedUser)
+                        <div>
+                            <label for="delivery_address_id" class="text-sm font-black text-slate-800">Saved delivery addresses</label>
+                            <select id="delivery_address_id" name="delivery_address_id" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+                                <option value="">Enter delivery details manually</option>
+                                @foreach ($savedAddresses as $savedAddress)
+                                    <option value="{{ $savedAddress->id }}" @selected((string) $selectedSavedAddressId === (string) $savedAddress->id)>
+                                        {{ $savedAddress->label }} - {{ $savedAddress->city }}{{ $savedAddress->is_default ? ' (Default)' : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @if ($savedAddresses->isEmpty())
+                                <p class="mt-2 text-xs font-bold text-slate-500">
+                                    You do not have any saved addresses yet. Add one in
+                                    <a href="{{ route('profile.edit') }}" class="text-cyan-700 underline">your profile</a>.
+                                </p>
+                            @else
+                                <p class="mt-2 text-xs font-bold text-slate-500">Select any saved address or switch to manual entry.</p>
+                            @endif
+                            @error('delivery_address_id')
+                                <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    @endif
+
                     <div class="grid gap-5 sm:grid-cols-2">
                         <div>
                             <label for="delivery_city" class="text-sm font-black text-slate-800">Delivery city</label>
@@ -188,6 +225,10 @@
             const batchOutput = document.getElementById('live-order-batches');
             const productionOutput = document.getElementById('live-production-price');
             const deliveryOutput = document.getElementById('live-delivery-price');
+            const savedAddresses = @json($savedAddressLookup);
+            const savedAddressSelect = document.getElementById('delivery_address_id');
+            const deliveryCityInput = document.getElementById('delivery_city');
+            const deliveryAddressInput = document.getElementById('delivery_address');
 
             const selectedPrice = (group) => {
                 const select = document.querySelector(`[data-price-group="${group}"]`);
@@ -209,9 +250,35 @@
                 totalOutput.textContent = currency.format(total);
             };
 
+            const hydrateSavedAddress = () => {
+                if (!savedAddressSelect || !deliveryCityInput || !deliveryAddressInput) {
+                    return;
+                }
+
+                const selected = savedAddresses[savedAddressSelect.value];
+
+                if (!selected) {
+                    deliveryCityInput.readOnly = false;
+                    deliveryAddressInput.readOnly = false;
+                    deliveryCityInput.classList.remove('bg-slate-100', 'text-slate-500');
+                    deliveryAddressInput.classList.remove('bg-slate-100', 'text-slate-500');
+
+                    return;
+                }
+
+                deliveryCityInput.value = selected.city || '';
+                deliveryAddressInput.value = selected.address || '';
+                deliveryCityInput.readOnly = true;
+                deliveryAddressInput.readOnly = true;
+                deliveryCityInput.classList.add('bg-slate-100', 'text-slate-500');
+                deliveryAddressInput.classList.add('bg-slate-100', 'text-slate-500');
+            };
+
             document.querySelectorAll('[data-price-group]').forEach((select) => select.addEventListener('change', recalculate));
             quantityInput.addEventListener('input', recalculate);
+            savedAddressSelect?.addEventListener('change', hydrateSavedAddress);
             recalculate();
+            hydrateSavedAddress();
         })();
     </script>
 @endsection

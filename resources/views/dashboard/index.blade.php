@@ -71,6 +71,7 @@
                 <aside class="rounded-md border border-slate-200 bg-white p-6 shadow-sm">
                     <p class="text-sm font-black uppercase tracking-wide text-cyan-700">Quick Actions</p>
                     <div class="mt-5 space-y-3">
+                        <a href="{{ route('profile.edit') }}" class="block rounded-md border border-slate-200 px-5 py-4 text-sm font-black text-slate-800 transition hover:border-pink-300 hover:text-pink-700">Edit Profile</a>
                         @if (auth()->user()->hasAdminAccess())
                             <a href="{{ route('admin.dashboard') }}" class="block rounded-md bg-slate-950 px-5 py-4 text-sm font-black text-white transition hover:bg-pink-700">Open Admin Workflow</a>
                         @endif

@@ -98,14 +98,24 @@
                     <div class="grid gap-5 sm:grid-cols-2">
                         <div>
                             <label for="password" class="text-sm font-black text-slate-800">Password</label>
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                autocomplete="new-password"
-                                class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
-                                required
-                            />
+                            <div class="relative mt-2">
+                                <input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    autocomplete="new-password"
+                                    class="min-h-12 w-full rounded-md border border-slate-200 px-4 pr-28 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    data-password-toggle
+                                    data-target="password"
+                                    class="absolute right-2 top-1/2 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:bg-slate-50"
+                                >
+                                    Show
+                                </button>
+                            </div>
                             @error('password')
                                 <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
                             @enderror
@@ -113,14 +123,24 @@
 
                         <div>
                             <label for="password_confirmation" class="text-sm font-black text-slate-800">Confirm password</label>
-                            <input
-                                id="password_confirmation"
-                                name="password_confirmation"
-                                type="password"
-                                autocomplete="new-password"
-                                class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
-                                required
-                            />
+                            <div class="relative mt-2">
+                                <input
+                                    id="password_confirmation"
+                                    name="password_confirmation"
+                                    type="password"
+                                    autocomplete="new-password"
+                                    class="min-h-12 w-full rounded-md border border-slate-200 px-4 pr-28 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    data-password-toggle
+                                    data-target="password_confirmation"
+                                    class="absolute right-2 top-1/2 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:bg-slate-50"
+                                >
+                                    Show
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -141,4 +161,21 @@
             </div>
         </section>
     </main>
+
+    <script>
+        (() => {
+            document.querySelectorAll('[data-password-toggle]').forEach((button) => {
+                const input = document.getElementById(button.dataset.target || '');
+                if (!input) {
+                    return;
+                }
+
+                button.addEventListener('click', () => {
+                    const shouldShow = input.type === 'password';
+                    input.type = shouldShow ? 'text' : 'password';
+                    button.textContent = shouldShow ? 'Hide' : 'Show';
+                });
+            });
+        })();
+    </script>
 @endsection

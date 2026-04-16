@@ -22,9 +22,18 @@
             <div class="mt-3 divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-slate-50/70">
                 @forelse ($topPerformers as $performer)
                     <article class="flex items-center justify-between gap-4 bg-white/70 p-4 transition-colors hover:bg-pink-50/30">
-                        <div>
-                            <p class="font-black text-slate-950">{{ $performer->user?->displayName() ?? 'Staff member' }}</p>
-                            <p class="mt-1 text-xs font-bold text-slate-500">Last action {{ $performer->last_action_at ? \Illuminate\Support\Carbon::parse($performer->last_action_at)->diffForHumans() : 'today' }}</p>
+                        <div class="flex items-center gap-3">
+                            @if ($performer->user?->profilePhotoUrl())
+                                <img src="{{ $performer->user->profilePhotoUrl() }}" alt="{{ $performer->user->displayName() }}" class="h-10 w-10 rounded-full border border-slate-200 object-cover">
+                            @else
+                                <div class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-xs font-black text-slate-700">
+                                    {{ $performer->user?->profileInitials() ?? 'PB' }}
+                                </div>
+                            @endif
+                            <div>
+                                <p class="font-black text-slate-950">{{ $performer->user?->displayName() ?? 'Staff member' }}</p>
+                                <p class="mt-1 text-xs font-bold text-slate-500">Last action {{ $performer->last_action_at ? \Illuminate\Support\Carbon::parse($performer->last_action_at)->diffForHumans() : 'today' }}</p>
+                            </div>
                         </div>
                         <p class="text-3xl font-black text-slate-950">{{ number_format($performer->total) }}</p>
                     </article>
@@ -60,9 +69,18 @@
             <div class="mt-3 divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200">
                 @forelse ($activities as $activity)
                     <article class="grid gap-2 p-4 transition-colors hover:bg-cyan-50/30 md:grid-cols-[1fr_auto] md:items-center">
-                        <div>
-                            <p class="font-black text-slate-950">{{ $activity->user?->displayName() ?? 'Staff member' }}</p>
-                            <p class="mt-1 text-sm font-semibold text-slate-600">{{ $activity->action }}</p>
+                        <div class="flex items-center gap-3">
+                            @if ($activity->user?->profilePhotoUrl())
+                                <img src="{{ $activity->user->profilePhotoUrl() }}" alt="{{ $activity->user->displayName() }}" class="h-10 w-10 rounded-full border border-slate-200 object-cover">
+                            @else
+                                <div class="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-xs font-black text-slate-700">
+                                    {{ $activity->user?->profileInitials() ?? 'PB' }}
+                                </div>
+                            @endif
+                            <div>
+                                <p class="font-black text-slate-950">{{ $activity->user?->displayName() ?? 'Staff member' }}</p>
+                                <p class="mt-1 text-sm font-semibold text-slate-600">{{ $activity->action }}</p>
+                            </div>
                         </div>
                         <div class="text-left md:text-right">
                             <p class="text-xs font-black uppercase tracking-wider text-cyan-700">{{ config('printbuka_admin.role_labels.'.$activity->role, $activity->role) }}</p>

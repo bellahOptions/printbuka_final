@@ -2,17 +2,21 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 #[Fillable(['first_name', 'last_name', 'phone', 'companyName', 'email', 'password', 'google_id', 'avatar', 'email_verified_at', 'role', 'department', 'requested_role', 'other_role', 'address', 'date_of_birth', 'photo', 'approved_by_id', 'approved_at', 'is_active'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
+    implements MustVerifyEmailContract
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -35,7 +39,7 @@ class User extends Authenticatable
 
     public function hasAdminAccess(): bool
     {
-        return $this->is_active && $this->role !== 'customer' && $this->canAdmin('admin.view');
+        return $this->is_active && $this->hasVerifiedEmail() && $this->role !== 'customer' && $this->canAdmin('admin.view');
     }
 
     public function canAdmin(string $permission): bool
@@ -58,5 +62,37 @@ class User extends Authenticatable
     public function isPendingStaff(): bool
     {
         return $this->role === 'staff_pending' || (! $this->is_active && $this->requested_role !== null);
+    }
+
+    public function deliveryAddresses(): HasMany
+    {
+        return $this->hasMany(DeliveryAddress::class)->orderByDesc('is_default')->latest();
+    }
+
+    public function profilePhotoUrl(): ?string
+    {
+        if (filled($this->photo)) {
+            return Storage::disk('public')->url($this->photo);
+        }
+
+        if (filled($this->avatar) && filter_var($this->avatar, FILTER_VALIDATE_URL)) {
+            return $this->avatar;
+        }
+
+        return null;
+    }
+
+    public function profileInitials(): string
+    {
+        $initials = Str::of($this->displayName())
+            ->replaceMatches('/[^A-Za-z0-9 ]+/', '')
+            ->trim()
+            ->explode(' ')
+            ->filter()
+            ->take(2)
+            ->map(fn (string $part): string => Str::upper(Str::substr($part, 0, 1)))
+            ->implode('');
+
+        return $initials !== '' ? $initials : 'PB';
     }
 }

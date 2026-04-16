@@ -34,11 +34,11 @@ class EnforceSiteMaintenance
             return true;
         }
 
-        if ($request->is('login', 'staff/login', 'auth/google', 'auth/google/*', 'logout')) {
+        if ($request->is('login', 'staff/login', 'logout', 'email/verify', 'email/verify/*', 'email/verification-notification', 'forgot-password', 'reset-password', 'reset-password/*')) {
             return true;
         }
 
-        if ($request->routeIs('login', 'login.store', 'staff.login', 'staff.login.store', 'logout', 'auth.google.*')) {
+        if ($request->routeIs('login', 'login.store', 'staff.login', 'staff.login.store', 'logout', 'verification.*', 'password.*')) {
             return true;
         }
 

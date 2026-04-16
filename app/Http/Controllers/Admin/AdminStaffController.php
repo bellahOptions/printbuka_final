@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -52,19 +54,44 @@ class AdminStaffController extends Controller
 
     public function update(Request $request, User $user): RedirectResponse
     {
-        $validated = $request->validate([
-            'role' => ['required', 'string', Rule::in(array_keys(config('printbuka_admin.roles', [])))],
-            'department' => ['required', 'string', Rule::in(array_values(config('printbuka_admin.departments', [])))],
-            'is_active' => ['nullable', 'boolean'],
+        $request->merge([
+            'role' => $request->input('role') ?: null,
+            'department' => $request->input('department') ?: null,
         ]);
 
-        $user->update([
-            'role' => $validated['role'],
-            'department' => $validated['department'],
-            'is_active' => $request->boolean('is_active'),
+        $validated = $request->validate([
+            'role' => ['nullable', 'string', Rule::in(array_keys(config('printbuka_admin.roles', [])))],
+            'department' => ['nullable', 'string', Rule::in(array_values(config('printbuka_admin.departments', [])))],
+            'is_active' => ['nullable', 'boolean'],
+            'photo' => [
+                'nullable',
+                'file',
+                'max:2048',
+                'mimes:jpg,jpeg,png,webp',
+                'mimetypes:image/jpeg,image/png,image/webp',
+                'dimensions:min_width=80,min_height=80,max_width=4000,max_height=4000',
+            ],
+        ]);
+
+        $updates = [
+            'role' => $validated['role'] ?? $user->role,
+            'department' => $validated['department'] ?? $user->department,
+            'is_active' => $request->boolean('is_active', $user->is_active),
             'approved_by_id' => $request->user()->id,
             'approved_at' => now(),
-        ]);
+        ];
+
+        if ($request->hasFile('photo')) {
+            $newPhotoPath = $request->file('photo')->store('staff-photos', 'public');
+
+            if (filled($user->photo) && Str::startsWith($user->photo, 'staff-photos/')) {
+                Storage::disk('public')->delete($user->photo);
+            }
+
+            $updates['photo'] = $newPhotoPath;
+        }
+
+        $user->update($updates);
 
         return back()->with('status', 'Staff access updated.');
     }

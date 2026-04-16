@@ -10,12 +10,16 @@ use App\Support\ProductOptionPricing;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class OrderController extends Controller
 {
     public function create(Product $product): View
     {
+        $customer = Auth::user();
+        $savedDeliveryAddresses = $customer?->deliveryAddresses()->get() ?? collect();
+
         return view('orders.create', [
             'product' => $product,
             'serviceType' => $this->serviceTypeFor($product),
@@ -26,11 +30,14 @@ class OrderController extends Controller
                 ['label' => 'Pickup', 'price' => 0],
                 ['label' => 'Deliver to address', 'price' => 0],
             ],
+            'savedDeliveryAddresses' => $savedDeliveryAddresses,
         ]);
     }
 
     public function store(Request $request, Product $product, InvoiceService $invoiceService): RedirectResponse
     {
+        $customer = Auth::user();
+
         $validated = $request->validate([
             'quantity' => ['required', 'integer', 'min:'.$product->moq],
             'size_format' => ['nullable', 'string', 'max:255'],
@@ -42,18 +49,35 @@ class OrderController extends Controller
             'customer_phone' => ['required', 'string', 'max:50'],
             'delivery_city' => ['nullable', 'string', 'max:255'],
             'delivery_address' => ['nullable', 'string', 'max:255'],
+            'delivery_address_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('delivery_addresses', 'id')->where(
+                    fn ($query) => $query->where('user_id', (int) (Auth::id() ?? 0))
+                ),
+            ],
             'artwork_notes' => ['nullable', 'string', 'max:2000'],
             'job_asset_files' => ['nullable', 'array', 'max:5'],
             'job_asset_files.*' => ['file', 'mimes:jpg,jpeg,png,webp', 'mimetypes:image/jpeg,image/png,image/webp', 'max:5120'],
         ]);
         unset($validated['job_asset_files']);
 
-        $customer = Auth::user();
         if ($customer && $customer->role === 'customer') {
             $validated['customer_name'] = $customer->displayName();
             $validated['customer_email'] = $customer->email;
             $validated['customer_phone'] = $customer->phone;
         }
+
+        if ($customer && filled($validated['delivery_address_id'] ?? null)) {
+            $selectedDeliveryAddress = $customer->deliveryAddresses()->whereKey($validated['delivery_address_id'])->first();
+
+            if ($selectedDeliveryAddress) {
+                $validated['delivery_city'] = $selectedDeliveryAddress->city;
+                $validated['delivery_address'] = $selectedDeliveryAddress->address;
+            }
+        }
+
+        unset($validated['delivery_address_id']);
 
         $quantity = (int) $validated['quantity'];
         $unitPrice = (float) $product->price;

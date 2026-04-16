@@ -50,14 +50,24 @@
 
                     <div>
                         <label for="password" class="text-sm font-black text-slate-800">Password</label>
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            autocomplete="current-password"
-                            class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
-                            required
-                        />
+                        <div class="relative mt-2">
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                autocomplete="current-password"
+                                class="min-h-12 w-full rounded-md border border-slate-200 px-4 pr-28 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
+                                required
+                            />
+                            <button
+                                type="button"
+                                data-password-toggle
+                                data-target="password"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:bg-slate-50"
+                            >
+                                Show
+                            </button>
+                        </div>
                         @error('password')
                             <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
                         @enderror
@@ -67,10 +77,35 @@
                         <input type="checkbox" name="remember" value="1" class="rounded border-slate-300 text-pink-600 focus:ring-pink-500" />
                         Remember me
                     </label>
+                    <p class="text-sm font-bold text-slate-600">
+                        Forgot your password?
+                        <a href="{{ route('password.request') }}" class="font-black text-pink-700 hover:text-pink-800">Reset it here</a>.
+                    </p>
+                    <p class="text-sm font-bold text-slate-600">
+                        Need a new verification link?
+                        <a href="{{ route('verification.notice') }}" class="font-black text-pink-700 hover:text-pink-800">Resend verification email</a>.
+                    </p>
 
                     <button type="submit" class="min-h-12 w-full rounded-md bg-pink-600 px-5 text-sm font-black text-white transition hover:bg-pink-700">Login</button>
                 </form>
             </div>
         </section>
     </main>
+
+    <script>
+        (() => {
+            document.querySelectorAll('[data-password-toggle]').forEach((button) => {
+                const input = document.getElementById(button.dataset.target || '');
+                if (!input) {
+                    return;
+                }
+
+                button.addEventListener('click', () => {
+                    const shouldShow = input.type === 'password';
+                    input.type = shouldShow ? 'text' : 'password';
+                    button.textContent = shouldShow ? 'Hide' : 'Show';
+                });
+            });
+        })();
+    </script>
 @endsection

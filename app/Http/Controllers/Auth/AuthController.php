@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -14,8 +15,6 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-use Laravel\Socialite\Facades\Socialite;
-use Symfony\Component\HttpFoundation\RedirectResponse as SymfonyRedirectResponse;
 
 class AuthController extends Controller
 {
@@ -92,6 +91,15 @@ class AuthController extends Controller
                 ->onlyInput('email');
         }
 
+        if (Auth::user() instanceof MustVerifyEmail && ! Auth::user()->hasVerifiedEmail()) {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey($request, $action));
+
+            return redirect()
+                ->route('verification.notice', ['email' => $credentials['email']])
+                ->with('status', 'Your email is not verified yet. Please verify your email before signing in.');
+        }
+
         RateLimiter::clear($this->throttleKey($request, $action));
 
         $request->session()->regenerate();
@@ -125,14 +133,13 @@ class AuthController extends Controller
         ]);
 
         $user = User::create($validated);
+        $user->sendEmailVerificationNotification();
 
         RateLimiter::clear($this->throttleKey($request, 'register'));
 
-        Auth::login($user);
-
-        $request->session()->regenerate();
-
-        return redirect()->route('dashboard');
+        return redirect()
+            ->route('login')
+            ->with('status', 'Account created. Please verify your email address before signing in.');
     }
 
     public function staffRegister(Request $request): RedirectResponse
@@ -151,19 +158,20 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
         ]);
 
-        User::create([
+        $staff = User::create([
             ...$validated,
             'companyName' => 'Printbuka',
             'role' => 'staff_pending',
             'department' => null,
             'is_active' => false,
         ]);
+        $staff->sendEmailVerificationNotification();
 
         RateLimiter::clear($this->throttleKey($request, 'staff-register'));
 
         return redirect()
             ->route('staff.login')
-            ->with('status', 'Staff registration submitted. The Super Admin will approve and assign your department.');
+            ->with('status', 'Staff registration submitted. Your account remains pending until Super Admin approval, and email verification will be required at first login.');
     }
 
     public function logout(Request $request): RedirectResponse
@@ -174,82 +182,6 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('home');
-    }
-
-    public function redirectToGoogle(): SymfonyRedirectResponse
-    {
-        return Socialite::driver('google')->redirect();
-    }
-
-    public function handleGoogleCallback(Request $request): RedirectResponse
-    {
-        $this->ensureIsNotRateLimited($request, 'google');
-
-        try {
-            $googleUser = Socialite::driver('google')->user();
-        } catch (\Throwable) {
-            RateLimiter::hit($this->throttleKey($request, 'google'));
-
-            return redirect()
-                ->route('login')
-                ->withErrors([
-                    'email' => 'Google sign in could not be completed. Please try again.',
-                ]);
-        }
-
-        $email = $googleUser->getEmail();
-
-        if (! $email) {
-            RateLimiter::hit($this->throttleKey($request, 'google'));
-
-            return redirect()
-                ->route('login')
-                ->withErrors([
-                    'email' => 'Your Google account did not return an email address.',
-                ]);
-        }
-
-        $user = User::query()
-            ->where('google_id', $googleUser->getId())
-            ->orWhere('email', $email)
-            ->first();
-
-        if ($user) {
-            $user->update([
-                'google_id' => $user->google_id ?? $googleUser->getId(),
-                'avatar' => $googleUser->getAvatar(),
-                'email_verified_at' => $user->email_verified_at ?? now(),
-            ]);
-        } else {
-            $user = User::create([
-                'first_name' => Str::before($googleUser->getName() ?: Str::before($email, '@'), ' '),
-                'last_name' => Str::after($googleUser->getName() ?: 'Customer', ' '),
-                'phone' => '',
-                'companyName' => '',
-                'email' => $email,
-                'password' => Str::password(32),
-                'google_id' => $googleUser->getId(),
-                'avatar' => $googleUser->getAvatar(),
-                'email_verified_at' => now(),
-            ]);
-        }
-
-        RateLimiter::clear($this->throttleKey($request, 'google'));
-
-        if (! $user->is_active) {
-            RateLimiter::hit($this->throttleKey($request, 'google'));
-
-            return redirect()
-                ->route('login')
-                ->withErrors([
-                    'email' => 'This account is inactive. Contact Printbuka management.',
-                ]);
-        }
-
-        Auth::login($user, true);
-        $request->session()->regenerate();
-
-        return redirect()->intended($this->postLoginRoute());
     }
 
     private function ensureIsNotRateLimited(Request $request, string $action): void
@@ -269,7 +201,7 @@ class AuthController extends Controller
 
     private function throttleKey(Request $request, string $action): string
     {
-        return Str::transliterate(Str::lower($action.'|'.$request->input('email', 'google').'|'.$request->ip()));
+        return Str::transliterate(Str::lower($action.'|'.$request->input('email', 'user').'|'.$request->ip()));
     }
 
     private function postLoginRoute(): string
