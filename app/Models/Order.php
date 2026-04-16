@@ -11,11 +11,13 @@ class Order extends Model
     protected $fillable = [
         'product_id',
         'user_id',
+        'created_by_admin_id',
         'service_type',
         'channel',
         'job_type',
         'size_format',
         'quantity',
+        'quote_budget',
         'unit_price',
         'total_price',
         'customer_name',
@@ -66,6 +68,7 @@ class Order extends Model
         return [
             'unit_price' => 'decimal:2',
             'total_price' => 'decimal:2',
+            'quote_budget' => 'decimal:2',
             'amount_paid' => 'decimal:2',
             'job_image_assets' => 'array',
             'pricing_breakdown' => 'array',
@@ -101,6 +104,11 @@ class Order extends Model
     public function briefReceiver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'brief_received_by_id');
+    }
+
+    public function creatorAdmin(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by_admin_id');
     }
 
     public function designer(): BelongsTo

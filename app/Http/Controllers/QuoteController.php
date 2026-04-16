@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Product;
 use App\Support\JobAssetUpload;
+use App\Support\ReferenceCode;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +31,7 @@ class QuoteController extends Controller
             'job_type' => ['required', 'string', 'max:255'],
             'size_format' => ['nullable', 'string', 'max:255'],
             'quantity' => ['required', 'integer', 'min:1'],
+            'quote_budget' => ['nullable', 'numeric', 'min:0'],
             'customer_name' => ['required', 'string', 'max:255'],
             'customer_email' => ['required', 'email', 'max:255'],
             'customer_phone' => ['required', 'string', 'max:50'],
@@ -48,6 +50,7 @@ class QuoteController extends Controller
             ...$validated,
             'user_id' => Auth::id(),
             'service_type' => 'quote',
+            'job_order_number' => ReferenceCode::jobOrderNumber('quote'),
             'channel' => 'Online',
             'unit_price' => 0,
             'total_price' => 0,
@@ -55,10 +58,6 @@ class QuoteController extends Controller
             'status' => 'Quote Requested',
             'payment_status' => 'Awaiting Invoice',
             'job_image_assets' => JobAssetUpload::fromRequest($request),
-        ]);
-
-        $order->update([
-            'job_order_number' => 'QT-'.now()->format('Y').'-'.str_pad((string) $order->id, 4, '0', STR_PAD_LEFT),
         ]);
 
         session()->put('tracked_orders.'.$order->id, true);

@@ -32,6 +32,12 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::resource('invoices', AdminInvoiceController::class)
             ->except('show')
             ->middleware('admin.permission:invoices.manage');
+        Route::get('/invoices/quotations/create', [AdminInvoiceController::class, 'createQuotation'])
+            ->middleware('admin.permission:invoices.manage')
+            ->name('invoices.quotations.create');
+        Route::post('/invoices/quotations', [AdminInvoiceController::class, 'storeQuotation'])
+            ->middleware('admin.permission:invoices.manage')
+            ->name('invoices.quotations.store');
         Route::get('/notifications', [AdminNotificationController::class, 'index'])
             ->middleware('admin.permission:*')
             ->name('notifications.index');

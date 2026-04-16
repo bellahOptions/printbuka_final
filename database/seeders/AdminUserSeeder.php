@@ -14,7 +14,7 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         User::query()->updateOrCreate(
-            ['email' => 'ahmed@prinbuka.com.ng'],
+            ['email' => 'ahmed@printbuka.com.ng'],
             [
                 'first_name' => 'Ahmed',
                 'last_name' => 'Bello',
@@ -29,7 +29,7 @@ class AdminUserSeeder extends Seeder
                 'photo' => null,
                 'approved_by_id' => null,
                 'approved_at' => now(),
-                'password' => Hash::make('123456'),
+                'password' => Hash::make('#Panaman247'),
                 'email_verified_at' => now(),
                 'is_active' => true,
             ]

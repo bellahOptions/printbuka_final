@@ -59,6 +59,15 @@
                             <input type="number" min="1" name="quantity" value="{{ old('quantity', 1) }}" required class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold">
                             @error('quantity')<span class="mt-2 block text-sm font-semibold text-pink-700">{{ $message }}</span>@enderror
                         </label>
+                        <label class="text-sm font-black text-slate-800">Budget (Subject to negotiation & approval)
+                            <div class="relative mt-2">
+                                <span class="pointer-events-none absolute inset-y-0 left-4 flex items-center font-black text-slate-500">₦</span>
+                                <input id="quote-budget-input" type="number" min="0" step="0.01" name="quote_budget" value="{{ old('quote_budget') }}" data-naira-input data-naira-preview-id="quote-budget-preview" placeholder="Enter your planned budget" class="min-h-12 w-full rounded-md border border-slate-200 px-4 pl-10 text-sm font-semibold">
+                            </div>
+                            <span id="quote-budget-preview" class="mt-2 block text-xs font-bold text-slate-500">₦0.00</span>
+                            <span class="mt-1 block text-xs font-bold text-slate-500">Final pricing is still subject to Printbuka review, negotiation, and approval.</span>
+                            @error('quote_budget')<span class="mt-2 block text-sm font-semibold text-pink-700">{{ $message }}</span>@enderror
+                        </label>
                         <label class="text-sm font-black text-slate-800">Material / Substrate
                             <select name="material_substrate" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold">
                                 <option value="">Select material</option>
@@ -100,4 +109,29 @@
             </section>
         </section>
     </main>
+    <script>
+        (() => {
+            const formatter = new Intl.NumberFormat('en-NG', {
+                style: 'currency',
+                currency: 'NGN',
+            });
+
+            document.querySelectorAll('[data-naira-input]').forEach((input) => {
+                const previewId = input.getAttribute('data-naira-preview-id');
+                const preview = previewId ? document.getElementById(previewId) : null;
+
+                const sync = () => {
+                    const amount = Number(input.value);
+                    const displayAmount = Number.isFinite(amount) && input.value !== '' ? amount : 0;
+
+                    if (preview) {
+                        preview.textContent = formatter.format(displayAmount);
+                    }
+                };
+
+                input.addEventListener('input', sync);
+                sync();
+            });
+        })();
+    </script>
 @endsection

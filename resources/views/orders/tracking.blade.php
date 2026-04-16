@@ -1,13 +1,13 @@
 @extends('layouts.theme')
 
-@section('title', 'Order '.$order->displayNumber().' | Printbuka')
+@section('title', 'Order '.($order->job_order_number ?? $order->displayNumber()).' | Printbuka')
 
 @section('content')
     <main class="bg-slate-50 py-12 text-slate-900">
         <section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="rounded-md bg-slate-950 p-6 text-white lg:p-8">
                 <p class="text-sm font-black uppercase tracking-wide text-cyan-300">Order Tracking</p>
-                <h1 class="mt-2 text-5xl">{{ $order->displayNumber() }}</h1>
+                <h1 class="mt-2 text-5xl">{{ $order->job_order_number ?? $order->displayNumber() }}</h1>
                 <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-300">{{ $order->product?->name ?? 'Custom order' }} for {{ $order->customer_name }}</p>
             </div>
 

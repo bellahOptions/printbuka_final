@@ -69,7 +69,7 @@ class AdminDashboardController extends Controller
             'weeklyProfitSnapshot' => $weeklyProfitSnapshot,
             'workflowPhases' => config('printbuka_admin.workflow_phases'),
             'recentOrders' => Order::query()
-                ->with('product', 'invoice')
+                ->with('product', 'invoice', 'creatorAdmin', 'briefReceiver')
                 ->latest()
                 ->limit(6)
                 ->get(),

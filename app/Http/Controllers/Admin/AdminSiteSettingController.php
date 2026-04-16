@@ -27,6 +27,10 @@ class AdminSiteSettingController extends Controller
             'maintenance_message' => ['nullable', 'string', 'max:2000'],
             'contact_email' => ['nullable', 'email', 'max:255'],
             'contact_phone' => ['nullable', 'string', 'max:255'],
+            'paper_types' => ['nullable', 'string', 'max:5000'],
+            'paper_sizes' => ['nullable', 'string', 'max:5000'],
+            'finishings' => ['nullable', 'string', 'max:5000'],
+            'paper_densities' => ['nullable', 'string', 'max:5000'],
         ]);
         $validated['maintenance_mode'] = $request->boolean('maintenance_mode') ? '1' : '0';
 

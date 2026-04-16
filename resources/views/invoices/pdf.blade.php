@@ -15,7 +15,7 @@
     </head>
     <body>
         @php
-            $logoPath = public_path('logo.png');
+            $logoPath = public_path('logo-dark.png');
             $logo = file_exists($logoPath) ? 'data:image/png;base64,'.base64_encode(file_get_contents($logoPath)) : null;
         @endphp
         <div class="header">
@@ -38,7 +38,7 @@
             <table>
                 <tr>
                     <th>Order</th>
-                    <td>{{ $invoice->order->displayNumber() }}</td>
+                    <td>{{ $invoice->order->job_order_number ?? $invoice->order->displayNumber() }}</td>
                     <th>Issued</th>
                     <td>{{ $invoice->issued_at?->format('M d, Y') }}</td>
                 </tr>

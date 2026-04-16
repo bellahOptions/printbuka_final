@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Services\InvoiceService;
 use App\Support\JobAssetUpload;
+use App\Support\ReferenceCode;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -23,7 +24,7 @@ class AdminOrderController extends Controller
     {
         return view('admin.orders.index', [
             'orders' => Order::query()
-                ->with('product', 'invoice', 'designer', 'productionOfficer')
+                ->with('product', 'invoice', 'designer', 'productionOfficer', 'creatorAdmin', 'briefReceiver')
                 ->latest()
                 ->paginate(20),
             'workflowPhases' => config('printbuka_admin.workflow_phases'),
@@ -41,6 +42,12 @@ class AdminOrderController extends Controller
                 ->orderBy('first_name')
                 ->orderBy('last_name')
                 ->get(),
+            'customers' => User::query()
+                ->where('role', 'customer')
+                ->where('is_active', true)
+                ->orderBy('first_name')
+                ->orderBy('last_name')
+                ->get(),
             'jobTypes' => config('printbuka_admin.job_types'),
             'sizes' => config('printbuka_admin.sizes'),
             'priorities' => config('printbuka_admin.priorities'),
@@ -48,13 +55,14 @@ class AdminOrderController extends Controller
             'paymentStatuses' => config('printbuka_admin.payment_statuses'),
             'materials' => config('printbuka_admin.materials'),
             'finishes' => config('printbuka_admin.finishes'),
+            'deliveryMethods' => config('printbuka_admin.delivery_methods'),
         ]);
     }
 
     public function show(Order $order): View
     {
         return view('admin.orders.show', [
-            'order' => $order->load('product', 'invoice', 'briefReceiver', 'designer', 'productionOfficer', 'qcOfficer', 'dispatcher', 'verifier'),
+            'order' => $order->load('product', 'invoice', 'briefReceiver', 'creatorAdmin', 'designer', 'productionOfficer', 'qcOfficer', 'dispatcher', 'verifier'),
             'staff' => User::query()
                 ->where('role', '!=', 'customer')
                 ->where('is_active', true)
@@ -80,6 +88,12 @@ class AdminOrderController extends Controller
     {
         $validated = $request->validate([
             'product_id' => ['nullable', 'exists:products,id'],
+            'customer_id' => [
+                'nullable',
+                Rule::exists('users', 'id')->where(
+                    fn ($query) => $query->where('role', 'customer')->where('is_active', true)
+                ),
+            ],
             'channel' => ['required', 'string', Rule::in(config('printbuka_admin.job_channels'))],
             'job_type' => ['required', 'string', 'max:255'],
             'size_format' => ['nullable', 'string', 'max:255'],
@@ -88,8 +102,10 @@ class AdminOrderController extends Controller
             'customer_name' => ['required', 'string', 'max:255'],
             'customer_email' => ['required', 'email', 'max:255'],
             'customer_phone' => ['required', 'string', 'max:50'],
-            'delivery_city' => ['nullable', 'string', 'max:255'],
-            'delivery_address' => ['nullable', 'string', 'max:500'],
+            'delivery_preference' => ['required', Rule::in(['pickup', 'delivery'])],
+            'delivery_method' => ['nullable', Rule::in(config('printbuka_admin.delivery_methods'))],
+            'delivery_city' => ['nullable', 'required_if:delivery_preference,delivery', 'string', 'max:255'],
+            'delivery_address' => ['nullable', 'required_if:delivery_preference,delivery', 'string', 'max:500'],
             'artwork_notes' => ['nullable', 'string', 'max:2000'],
             'priority' => ['required', 'string', 'max:255'],
             'brief_received_at' => ['nullable', 'date'],
@@ -104,24 +120,57 @@ class AdminOrderController extends Controller
         ]);
         unset($validated['job_asset_files']);
 
+        $selectedCustomer = null;
+
+        if (filled($validated['customer_id'] ?? null)) {
+            $selectedCustomer = User::query()
+                ->whereKey($validated['customer_id'])
+                ->where('role', 'customer')
+                ->where('is_active', true)
+                ->first();
+        }
+
+        if (! $selectedCustomer && filled($validated['customer_email'] ?? null)) {
+            $selectedCustomer = User::query()
+                ->where('role', 'customer')
+                ->where('is_active', true)
+                ->where('email', $validated['customer_email'])
+                ->first();
+        }
+
+        if ($selectedCustomer) {
+            $validated['customer_name'] = $selectedCustomer->displayName();
+            $validated['customer_email'] = $selectedCustomer->email;
+            $validated['customer_phone'] = $selectedCustomer->phone ?: $validated['customer_phone'];
+        }
+
+        $deliveryPreference = $validated['delivery_preference'] ?? 'delivery';
+        unset($validated['delivery_preference'], $validated['customer_id']);
+
+        if ($deliveryPreference === 'pickup') {
+            $validated['delivery_method'] = 'Client Pickup';
+            $validated['delivery_city'] = null;
+            $validated['delivery_address'] = null;
+        } else {
+            $validated['delivery_method'] = $validated['delivery_method'] ?: 'Dispatch Rider';
+        }
+
         $quantity = (int) $validated['quantity'];
         $unitPrice = (float) $validated['unit_price'];
         $amountPaid = (float) ($validated['amount_paid'] ?? 0);
 
         $order = Order::query()->create([
             ...$validated,
-            'user_id' => Auth::id(),
+            'user_id' => $selectedCustomer?->id,
+            'created_by_admin_id' => Auth::id(),
             'service_type' => 'print',
+            'job_order_number' => ReferenceCode::jobOrderNumber('print'),
             'total_price' => $quantity * $unitPrice,
             'status' => 'Analyzing Job Brief',
             'brief_received_by_id' => Auth::id(),
             'brief_received_at' => $validated['brief_received_at'] ?? now(),
             'amount_paid' => $amountPaid,
             'job_image_assets' => JobAssetUpload::fromRequest($request),
-        ]);
-
-        $order->update([
-            'job_order_number' => 'PB-'.now()->format('Y').'-'.str_pad((string) $order->id, 4, '0', STR_PAD_LEFT),
         ]);
 
         $invoice = $invoiceService->createForOrder($order);

@@ -17,7 +17,7 @@
             <div class="mx-auto mt-8 grid max-w-2xl gap-4 text-left sm:grid-cols-2">
                 <div class="rounded-md border border-slate-200 p-5">
                     <p class="text-sm font-bold text-slate-500">Order number</p>
-                    <p class="mt-1 text-2xl font-black text-slate-950">#{{ str_pad($order->id, 5, '0', STR_PAD_LEFT) }}</p>
+                    <p class="mt-1 text-2xl font-black text-slate-950">{{ $order->job_order_number ?? ('#'.str_pad((string) $order->id, 5, '0', STR_PAD_LEFT)) }}</p>
                 </div>
                 <div class="rounded-md border border-slate-200 p-5">
                     <p class="text-sm font-bold text-slate-500">Invoice</p>

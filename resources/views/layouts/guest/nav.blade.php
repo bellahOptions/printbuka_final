@@ -22,7 +22,6 @@
         <div class="hidden items-center gap-8 text-sm font-bold text-slate-700 md:flex">
             @auth
                 <a href="{{ route('quotes.create') }}" class="transition hover:text-pink-600">Get Quote</a>
-                <a href="#" class="transition hover:text-pink-600">Rate our Service</a>
                 <a href="{{ route('categories.index') }}" class="transition hover:text-pink-600">Manage Invoice/Reciepts</a>
             @else
             <div class="group">

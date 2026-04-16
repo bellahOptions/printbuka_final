@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Support\ProductOptionPricing;
+use App\Support\SiteSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -25,6 +26,7 @@ class AdminProductController extends Controller
             'product' => new Product(['is_active' => true, 'moq' => 1, 'price' => 0]),
             'categories' => ProductCategory::query()->orderBy('name')->get(),
             'optionLines' => $this->optionLines(new Product),
+            ...$this->paperAttributeOptions(),
         ]);
     }
 
@@ -41,6 +43,7 @@ class AdminProductController extends Controller
             'product' => $product,
             'categories' => ProductCategory::query()->orderBy('name')->get(),
             'optionLines' => $this->optionLines($product),
+            ...$this->paperAttributeOptions($product),
         ]);
     }
 
@@ -94,5 +97,52 @@ class AdminProductController extends Controller
             'finish_price_options' => ProductOptionPricing::toLines($product->finish_price_options),
             'delivery_price_options' => ProductOptionPricing::toLines($product->delivery_price_options),
         ];
+    }
+
+    private function paperAttributeOptions(?Product $product = null): array
+    {
+        $settings = SiteSettings::all();
+
+        return [
+            'paperTypeOptions' => $this->settingList($settings['paper_types'] ?? '', config('printbuka_admin.materials', []), $product?->paper_type),
+            'paperSizeOptions' => $this->settingList($settings['paper_sizes'] ?? '', config('printbuka_admin.sizes', []), $product?->paper_size),
+            'finishingOptions' => $this->settingList($settings['finishings'] ?? '', config('printbuka_admin.finishes', []), $product?->finishing),
+            'paperDensityOptions' => $this->settingList($settings['paper_densities'] ?? '', [
+                '100gsm',
+                '115gsm',
+                '150gsm',
+                '170gsm',
+                '200gsm',
+                '250gsm',
+                '300gsm',
+                '350gsm',
+                'Self Adhesive',
+                'Gift Item',
+                'Custom',
+            ], $product?->paper_density),
+        ];
+    }
+
+    private function settingList(mixed $settingValue, array $fallback, ?string $currentValue = null): array
+    {
+        $options = collect(preg_split('/[\r\n,]+/', is_string($settingValue) ? $settingValue : ''))
+            ->map(fn (string $item): string => trim($item))
+            ->filter(fn (string $item): bool => $item !== '')
+            ->values()
+            ->all();
+
+        if ($options === []) {
+            $options = collect($fallback)
+                ->map(fn (mixed $item): string => trim((string) $item))
+                ->filter(fn (string $item): bool => $item !== '')
+                ->values()
+                ->all();
+        }
+
+        if (filled($currentValue) && ! in_array($currentValue, $options, true)) {
+            $options[] = $currentValue;
+        }
+
+        return collect($options)->unique()->values()->all();
     }
 }

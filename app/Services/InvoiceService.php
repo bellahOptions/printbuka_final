@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Mail\InvoiceMail;
 use App\Models\Invoice;
 use App\Models\Order;
+use App\Support\ReferenceCode;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 
@@ -15,20 +16,21 @@ class InvoiceService
         $order->loadMissing('product');
         $subtotal = (float) $order->total_price;
 
-        return Invoice::query()->updateOrCreate(
-            ['order_id' => $order->id],
-            [
-                'invoice_number' => $this->invoiceNumberFor($order),
-                'subtotal' => $subtotal,
-                'tax_amount' => 0,
-                'discount_amount' => 0,
-                'total_amount' => $subtotal,
-                'status' => $this->paymentStatusFor($order),
-                'issued_at' => now(),
-                'due_at' => now()->addDays(7),
-                'sent_at' => null,
-            ]
-        );
+        $invoice = Invoice::query()->firstOrNew(['order_id' => $order->id]);
+        $invoice->fill([
+            'invoice_number' => $invoice->invoice_number ?: $this->invoiceNumberFor(),
+            'subtotal' => $subtotal,
+            'tax_amount' => 0,
+            'discount_amount' => 0,
+            'total_amount' => $subtotal,
+            'status' => $this->paymentStatusFor($order),
+            'issued_at' => now(),
+            'due_at' => now()->addDays(7),
+            'sent_at' => null,
+        ]);
+        $invoice->save();
+
+        return $invoice;
     }
 
     public function sendInvoice(Invoice $invoice): bool
@@ -61,9 +63,9 @@ class InvoiceService
         }
     }
 
-    private function invoiceNumberFor(Order $order): string
+    private function invoiceNumberFor(): string
     {
-        return 'PB-INV-'.str_pad((string) $order->id, 6, '0', STR_PAD_LEFT);
+        return ReferenceCode::invoiceNumber();
     }
 
     private function paymentStatusFor(Order $order): string

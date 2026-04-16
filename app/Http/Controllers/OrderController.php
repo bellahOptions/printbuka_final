@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Services\InvoiceService;
 use App\Support\JobAssetUpload;
 use App\Support\ProductOptionPricing;
+use App\Support\ReferenceCode;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -88,12 +89,14 @@ class OrderController extends Controller
         $productionUnitPrice = $unitPrice + $sizePrice + $materialPrice + $finishPrice;
         $batches = (int) ceil($quantity / max(1, $product->moq));
         $total = ($batches * $productionUnitPrice) + $deliveryPrice;
+        $serviceType = $this->serviceTypeFor($product);
 
         $order = Order::create([
             ...$validated,
             'product_id' => $product->id,
             'user_id' => Auth::id(),
-            'service_type' => $this->serviceTypeFor($product),
+            'service_type' => $serviceType,
+            'job_order_number' => ReferenceCode::jobOrderNumber($serviceType),
             'channel' => 'Online',
             'job_type' => $product->name,
             'unit_price' => $productionUnitPrice,
@@ -111,9 +114,6 @@ class OrderController extends Controller
                 'total' => $total,
             ],
             'job_image_assets' => JobAssetUpload::fromRequest($request),
-        ]);
-        $order->update([
-            'job_order_number' => 'PB-'.now()->format('Y').'-'.str_pad((string) $order->id, 4, '0', STR_PAD_LEFT),
         ]);
 
         $invoice = $invoiceService->createForOrder($order);

@@ -17,6 +17,22 @@ class SiteSettings
             'announcement' => null,
             'maintenance_mode' => '0',
             'maintenance_message' => 'We are making a few improvements. Please check back shortly.',
+            'paper_types' => implode(PHP_EOL, config('printbuka_admin.materials', [])),
+            'paper_sizes' => implode(PHP_EOL, config('printbuka_admin.sizes', [])),
+            'finishings' => implode(PHP_EOL, config('printbuka_admin.finishes', [])),
+            'paper_densities' => implode(PHP_EOL, [
+                '100gsm',
+                '115gsm',
+                '150gsm',
+                '170gsm',
+                '200gsm',
+                '250gsm',
+                '300gsm',
+                '350gsm',
+                'Self Adhesive',
+                'Gift Item',
+                'Custom',
+            ]),
         ];
 
         try {

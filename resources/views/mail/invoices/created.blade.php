@@ -12,7 +12,7 @@
                         <tr>
                             <td style="background:#0f172a;color:#ffffff;padding:28px;">
                                 <h1 style="margin:0;font-size:28px;">Your Printbuka invoice is ready</h1>
-                                <p style="margin:12px 0 0;color:#cbd5e1;">Invoice {{ $invoice->invoice_number }} for order {{ $invoice->order->displayNumber() }} is attached as a PDF.</p>
+                                <p style="margin:12px 0 0;color:#cbd5e1;">Invoice {{ $invoice->invoice_number }} for order {{ $invoice->order->job_order_number ?? $invoice->order->displayNumber() }} is attached as a PDF.</p>
                             </td>
                         </tr>
                         <tr>
@@ -39,7 +39,7 @@
                                     </tr>
                                 </table>
 
-                                <p style="margin:0;line-height:1.6;">You can track your order with order number <strong>{{ $invoice->order->displayNumber() }}</strong> and this email address.</p>
+                                <p style="margin:0;line-height:1.6;">You can track your order with order number <strong>{{ $invoice->order->job_order_number ?? $invoice->order->displayNumber() }}</strong> and this email address.</p>
                             </td>
                         </tr>
                     </table>
