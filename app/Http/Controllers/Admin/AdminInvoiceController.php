@@ -7,6 +7,7 @@ use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\InvoiceLifecycleService;
 use App\Services\InvoiceService;
 use App\Support\ReferenceCode;
 use Illuminate\Http\RedirectResponse;
@@ -50,9 +51,14 @@ class AdminInvoiceController extends Controller
         ]);
     }
 
-    public function store(Request $request, InvoiceService $invoiceService): RedirectResponse
+    public function store(
+        Request $request,
+        InvoiceService $invoiceService,
+        InvoiceLifecycleService $invoiceLifecycleService
+    ): RedirectResponse
     {
         $invoice = Invoice::query()->create($this->validated($request));
+        $invoiceLifecycleService->handleStatusChange($invoice);
         $sent = $invoiceService->sendInvoice($invoice->load('order.product'));
 
         return redirect()
@@ -73,9 +79,15 @@ class AdminInvoiceController extends Controller
         ]);
     }
 
-    public function update(Request $request, Invoice $invoice): RedirectResponse
+    public function update(
+        Request $request,
+        Invoice $invoice,
+        InvoiceLifecycleService $invoiceLifecycleService
+    ): RedirectResponse
     {
+        $previousStatus = (string) $invoice->status;
         $invoice->update($this->validated($request, $invoice));
+        $invoiceLifecycleService->handleStatusChange($invoice->fresh(['order.product']), $previousStatus);
 
         return redirect()->route('admin.invoices.index')->with('status', 'Invoice updated.');
     }

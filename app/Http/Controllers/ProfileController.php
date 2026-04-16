@@ -14,31 +14,51 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    public function edit(Request $request): View
+    public function edit(Request $request): View|RedirectResponse
     {
-        return view('profile.edit', $this->viewData($request->user()));
+        $user = $request->user();
+
+        if ($user?->hasAdminAccess()) {
+            return redirect()->route('admin.profile.edit');
+        }
+
+        return view('profile.edit', $this->userViewData($user));
     }
 
     public function update(Request $request): RedirectResponse
     {
-        $this->updateProfile($request, $request->user());
+        $user = $request->user();
+
+        if ($user?->hasAdminAccess()) {
+            return redirect()->route('admin.profile.edit');
+        }
+
+        $this->updateProfile($request, $user, false);
 
         return back()->with('status', 'Profile updated successfully.');
     }
 
     public function editAdmin(Request $request): View
     {
-        return view('admin.profile.edit', $this->viewData($request->user()));
+        return view('admin.profile.edit', $this->adminViewData($request->user()));
     }
 
     public function updateAdmin(Request $request): RedirectResponse
     {
-        $this->updateProfile($request, $request->user());
+        $this->updateProfile($request, $request->user(), true);
 
         return redirect()->route('admin.profile.edit')->with('status', 'Profile updated successfully.');
     }
 
-    private function viewData(User $user): array
+    private function userViewData(User $user): array
+    {
+        return [
+            'user' => $user,
+            'deliveryAddresses' => $user->deliveryAddresses()->get(),
+        ];
+    }
+
+    private function adminViewData(User $user): array
     {
         return [
             'user' => $user,
@@ -49,18 +69,15 @@ class ProfileController extends Controller
         ];
     }
 
-    private function updateProfile(Request $request, User $user): void
+    private function updateProfile(Request $request, User $user, bool $allowStaffFields): void
     {
-        $validated = $request->validate([
+        $rules = [
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'companyName' => ['nullable', 'string', 'max:255'],
             'address' => ['nullable', 'string', 'max:255'],
             'date_of_birth' => ['nullable', 'date', 'before:today'],
-            'department' => ['nullable', 'string', Rule::in(array_values(config('printbuka_admin.departments', [])))],
-            'requested_role' => ['nullable', 'string', Rule::in(array_keys(config('printbuka_admin.staff_signup_roles', [])))],
-            'other_role' => ['nullable', 'string', 'max:255'],
             'remove_photo' => ['nullable', 'boolean'],
             'photo' => [
                 'nullable',
@@ -72,7 +89,15 @@ class ProfileController extends Controller
             ],
             'current_password' => ['nullable', 'string', 'required_with:password', 'current_password'],
             'password' => ['nullable', 'confirmed', Password::min(8)->mixedCase()->numbers()],
-        ]);
+        ];
+
+        if ($allowStaffFields) {
+            $rules['department'] = ['nullable', 'string', Rule::in(array_values(config('printbuka_admin.departments', [])))];
+            $rules['requested_role'] = ['nullable', 'string', Rule::in(array_keys(config('printbuka_admin.staff_signup_roles', [])))];
+            $rules['other_role'] = ['nullable', 'string', 'max:255'];
+        }
+
+        $validated = $request->validate($rules);
 
         $updates = Arr::only($validated, [
             'first_name',
@@ -81,10 +106,14 @@ class ProfileController extends Controller
             'companyName',
             'address',
             'date_of_birth',
-            'department',
-            'requested_role',
-            'other_role',
         ]);
+
+        if ($allowStaffFields) {
+            $updates = [
+                ...$updates,
+                ...Arr::only($validated, ['department', 'requested_role', 'other_role']),
+            ];
+        }
 
         if ($request->boolean('remove_photo')) {
             if (filled($user->photo) && Str::startsWith($user->photo, 'staff-photos/')) {

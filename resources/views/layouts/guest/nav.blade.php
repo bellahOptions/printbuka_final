@@ -1,7 +1,7 @@
 <div class="hidden border-b border-slate-100 bg-white md:block">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 text-sm font-semibold text-slate-600">
         <div class="flex items-center gap-6">
-            <a href="#" class="transition hover:text-pink-600">Gift Suggestions</a>
+            <a href="{{ route('services.index') }}" class="transition hover:text-pink-600">Services</a>
             <a href="{{ route('orders.track') }}" class="transition hover:text-pink-600">Track Order</a>
             <a href="{{ route('quotes.create') }}" class="transition hover:text-pink-600">Get Quote</a>
         </div>
@@ -21,6 +21,7 @@
 
         <div class="hidden items-center gap-8 text-sm font-bold text-slate-700 md:flex">
             @auth
+                <a href="{{ route('services.index') }}" class="transition hover:text-pink-600">Services</a>
                 <a href="{{ route('quotes.create') }}" class="transition hover:text-pink-600">Get Quote</a>
                 <a href="{{ route('categories.index') }}" class="transition hover:text-pink-600">Manage Invoice/Reciepts</a>
             @else
@@ -81,7 +82,7 @@
                     </div>
                 </div>
             </div>
-            <a href="{{ route('categories.index') }}" class="transition hover:text-pink-600">Gifts</a>
+            <a href="{{ route('services.index') }}" class="transition hover:text-pink-600">Services</a>
             <a href="{{ route('partners.create') }}" class="transition hover:text-pink-600">Become a Partner</a>
             <a href="{{ route('quotes.create') }}" class="transition hover:text-pink-600">Get Quote</a>
             @endauth
@@ -101,11 +102,8 @@
         </div>
 
         <div class="flex items-center gap-2 text-sm font-bold">
-            <livewire:notification-bell />
             @auth
-                @if (auth()->user()->hasAdminAccess())
-                    <a href="{{ route('admin.dashboard') }}" class="hidden px-4 py-2 text-slate-700 transition hover:text-pink-600 xl:inline-flex">Admin</a>
-                @endif
+                <livewire:notification-bell />
                 <a href="{{ route('dashboard') }}" class="hidden px-4 py-2 text-slate-700 transition hover:text-pink-600 sm:inline-flex">Dashboard</a>
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf
@@ -113,7 +111,6 @@
                 </form>
             @else
                 <a href="{{ route('login') }}" class="hidden px-4 py-2 text-slate-700 transition hover:text-pink-600 sm:inline-flex">Sign In</a>
-                <a href="{{ route('staff.login') }}" class="hidden px-4 py-2 text-slate-700 transition hover:text-pink-600 sm:inline-flex">Staff</a>
                 <a href="{{ route('register') }}" class="rounded-md bg-pink-600 px-4 py-2 text-white shadow-sm shadow-pink-200 transition hover:bg-pink-700">Create Account</a>
             @endauth
         </div>

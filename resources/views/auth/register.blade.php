@@ -144,6 +144,13 @@
                         </div>
                     </div>
 
+                    <p class="text-xs font-bold leading-6 text-slate-500">
+                        By creating an account, you agree to our
+                        <a href="{{ route('policies.terms') }}" class="font-black text-pink-700 hover:text-pink-800">Terms & Conditions</a>,
+                        <a href="{{ route('policies.privacy') }}" class="font-black text-pink-700 hover:text-pink-800">Privacy Policy</a>, and
+                        <a href="{{ route('policies.refund') }}" class="font-black text-pink-700 hover:text-pink-800">Refund Policy</a>.
+                    </p>
+
                     <button type="submit" class="min-h-12 w-full rounded-md bg-pink-600 px-5 text-sm font-black text-white transition hover:bg-pink-700">Create Account</button>
                 </form>
             </div>

@@ -8,9 +8,13 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeliveryAddressController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PartnerController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PolicyPageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\QuoteController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\ServiceOrderController;
 use App\Http\Controllers\TrackOrderController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,9 +33,17 @@ Route::post('/track-order', [TrackOrderController::class, 'store'])->name('order
 Route::get('/track-order/{order}', [TrackOrderController::class, 'show'])->name('orders.track.show');
 Route::get('/partners', [PartnerController::class, 'create'])->name('partners.create');
 Route::post('/partners', [PartnerController::class, 'store'])->name('partners.store');
+Route::get('/terms-and-conditions', [PolicyPageController::class, 'terms'])->name('policies.terms');
+Route::get('/privacy-policy', [PolicyPageController::class, 'privacy'])->name('policies.privacy');
+Route::get('/refund-policy', [PolicyPageController::class, 'refund'])->name('policies.refund');
+Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
+Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
+Route::post('/services/{service}/order', [ServiceOrderController::class, 'store'])->name('services.orders.store');
+Route::get('/services/{service}/orders/{order}/success', [ServiceOrderController::class, 'success'])->name('services.orders.success');
 Route::get('/get-quote', [QuoteController::class, 'create'])->name('quotes.create');
 Route::post('/get-quote', [QuoteController::class, 'store'])->name('quotes.store');
 Route::get('/get-quote/{order}/success', [QuoteController::class, 'success'])->name('quotes.success');
+Route::get('/payments/paystack/callback', [PaymentController::class, 'paystackCallback'])->name('payments.paystack.callback');
 
 Route::middleware('user.guest')->group(function (): void {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

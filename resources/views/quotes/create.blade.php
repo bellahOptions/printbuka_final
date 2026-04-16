@@ -13,7 +13,7 @@
                 <div class="mt-6 space-y-3 rounded-md bg-white p-5 text-sm font-bold text-slate-700">
                     <p>Online requests go straight into the job tracker as quote requests.</p>
                     <p>Attach artwork, logos or images so the team can price the work faster.</p>
-                    <p>No invoice is issued until staff reviews the quote.</p>
+                    <p>No invoice is issued until our team reviews the quote.</p>
                 </div>
             </aside>
 

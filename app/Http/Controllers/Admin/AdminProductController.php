@@ -77,6 +77,7 @@ class AdminProductController extends Controller
             'size_price_options' => ['nullable', 'string'],
             'material_price_options' => ['nullable', 'string'],
             'finish_price_options' => ['nullable', 'string'],
+            'density_price_options' => ['nullable', 'string'],
             'delivery_price_options' => ['nullable', 'string'],
             'is_active' => ['nullable', 'boolean'],
         ]);
@@ -84,6 +85,7 @@ class AdminProductController extends Controller
         $validated['size_price_options'] = ProductOptionPricing::parseLines($request->input('size_price_options'));
         $validated['material_price_options'] = ProductOptionPricing::parseLines($request->input('material_price_options'));
         $validated['finish_price_options'] = ProductOptionPricing::parseLines($request->input('finish_price_options'));
+        $validated['density_price_options'] = ProductOptionPricing::parseLines($request->input('density_price_options'));
         $validated['delivery_price_options'] = ProductOptionPricing::parseLines($request->input('delivery_price_options'));
 
         return $validated;
@@ -91,11 +93,18 @@ class AdminProductController extends Controller
 
     private function optionLines(Product $product): array
     {
+        $sizeDefault = ProductOptionPricing::parseLines((string) SiteSettings::get('default_size_price_options', ''));
+        $materialDefault = ProductOptionPricing::parseLines((string) SiteSettings::get('default_material_price_options', ''));
+        $finishDefault = ProductOptionPricing::parseLines((string) SiteSettings::get('default_finish_price_options', ''));
+        $densityDefault = ProductOptionPricing::parseLines((string) SiteSettings::get('default_density_price_options', ''));
+        $deliveryDefault = ProductOptionPricing::parseLines((string) SiteSettings::get('default_delivery_price_options', ''));
+
         return [
-            'size_price_options' => ProductOptionPricing::toLines($product->size_price_options),
-            'material_price_options' => ProductOptionPricing::toLines($product->material_price_options),
-            'finish_price_options' => ProductOptionPricing::toLines($product->finish_price_options),
-            'delivery_price_options' => ProductOptionPricing::toLines($product->delivery_price_options),
+            'size_price_options' => ProductOptionPricing::toLines($product->size_price_options ?: $sizeDefault),
+            'material_price_options' => ProductOptionPricing::toLines($product->material_price_options ?: $materialDefault),
+            'finish_price_options' => ProductOptionPricing::toLines($product->finish_price_options ?: $finishDefault),
+            'density_price_options' => ProductOptionPricing::toLines($product->density_price_options ?: $densityDefault),
+            'delivery_price_options' => ProductOptionPricing::toLines($product->delivery_price_options ?: $deliveryDefault),
         ];
     }
 

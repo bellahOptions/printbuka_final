@@ -9,6 +9,7 @@
             'moq' => (int) $product->moq,
             'sizes' => $sizeOptions,
             'materials' => $materialOptions,
+            'densities' => $densityOptions,
             'finishes' => $finishOptions,
             'deliveries' => $deliveryOptions,
         ];
@@ -89,6 +90,13 @@
                                 <select id="material_substrate" name="material_substrate" data-price-group="materials" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
                                     @foreach ($materialOptions as $option)
                                         <option value="{{ $option['label'] }}" @selected(old('material_substrate') === $option['label'])>{{ $option['label'] }}{{ (float) $option['price'] > 0 ? ' + NGN '.number_format((float) $option['price'], 2) : '' }}</option>
+                                    @endforeach
+                                </select>
+                            </label>
+                            <label for="paper_density" class="text-sm font-black text-slate-800">Paper Density
+                                <select id="paper_density" name="paper_density" data-price-group="densities" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+                                    @foreach ($densityOptions as $option)
+                                        <option value="{{ $option['label'] }}" @selected(old('paper_density') === $option['label'])>{{ $option['label'] }}{{ (float) $option['price'] > 0 ? ' + NGN '.number_format((float) $option['price'], 2) : '' }}</option>
                                     @endforeach
                                 </select>
                             </label>
@@ -240,7 +248,7 @@
             const recalculate = () => {
                 const quantity = Math.max(Number(quantityInput.value || pricing.moq), Number(pricing.moq || 1));
                 const batches = Math.ceil(quantity / Math.max(Number(pricing.moq || 1), 1));
-                const productionPrice = Number(pricing.basePrice || 0) + selectedPrice('sizes') + selectedPrice('materials') + selectedPrice('finishes');
+                const productionPrice = Number(pricing.basePrice || 0) + selectedPrice('sizes') + selectedPrice('materials') + selectedPrice('densities') + selectedPrice('finishes');
                 const deliveryPrice = selectedPrice('deliveries');
                 const total = (batches * productionPrice) + deliveryPrice;
 

@@ -53,7 +53,7 @@
                         <div class="relative flex h-full flex-col justify-end p-6 text-white sm:p-8">
                             <p class="mb-3 w-fit rounded-md bg-white px-3 py-1 text-sm font-black text-pink-700">Core Service</p>
                             <h3 class="text-3xl font-black">Branded Gifts</h3>
-                            <p class="mt-3 max-w-xl text-sm leading-6 text-white/90">Mugs, shirts, tote bags, notebooks, hampers and corporate gift sets for clients, events and staff appreciation.</p>
+                            <p class="mt-3 max-w-xl text-sm leading-6 text-white/90">Mugs, shirts, tote bags, notebooks, hampers and corporate gift sets for clients, events and team appreciation.</p>
                             <div class="mt-5 flex flex-wrap gap-2 text-xs font-bold">
                                 <span class="rounded-md bg-white/90 px-3 py-2 text-slate-950">Mugs</span>
                                 <span class="rounded-md bg-white/90 px-3 py-2 text-slate-950">T-shirts</span>

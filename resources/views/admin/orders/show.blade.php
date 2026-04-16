@@ -4,6 +4,10 @@
 
 @section('content')
     @php($admin = auth()->user())
+    @php($canEditStatus = collect($workflowPhases)->contains(fn ($phase) => $admin->canAdmin((string) ($phase['permission'] ?? ''))) || $admin->canAdmin('workflow.approve') || $admin->canAdmin('*'))
+    @php($canEditDelivery = $admin->canAdmin('delivery.update') || $admin->canAdmin('*'))
+    @php($canEditClientReview = $admin->canAdmin('client_review.update') || $admin->canAdmin('*'))
+    @php($canVerifyOrders = $admin->canAdmin('orders.verify') || $admin->canAdmin('*'))
     <div class="mx-auto max-w-7xl space-y-6">
         <!-- Hero Section -->
         <div class="fade-in-up rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-8 text-white shadow-xl">
@@ -157,7 +161,7 @@
                     </div>
                 @endif
 
-                @if ($admin->canAdmin('delivery.update') || $admin->canAdmin('client_review.update') || $admin->canAdmin('invoices.manage') || $admin->canAdmin('orders.verify'))
+                @if ($canEditStatus || $canEditDelivery || $canEditClientReview || $canViewAmounts || $canVerifyOrders)
                     <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
                         <div class="flex items-center gap-3 mb-6">
                             <div class="p-2 rounded-xl bg-gradient-to-br from-slate-100 to-slate-50 border border-slate-200">
@@ -171,19 +175,27 @@
                             </div>
                         </div>
                         <div class="grid gap-5 sm:grid-cols-2">
-                            <div class="space-y-1"><label class="text-sm font-black text-slate-700">Job Status</label><select name="status" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800">@foreach ($jobStatuses as $status)<option @selected(old('status', $order->status) === $status)>{{ $status }}</option>@endforeach</select></div>
+                            @if ($canEditStatus && count($statusOptions) > 0)
+                                <div class="space-y-1"><label class="text-sm font-black text-slate-700">Job Status</label><select name="status" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800">@foreach ($statusOptions as $status)<option @selected(old('status', $order->status) === $status)>{{ $status }}</option>@endforeach</select></div>
+                            @endif
                             @if ($canViewAmounts)
                                 <div class="space-y-1"><label class="text-sm font-black text-slate-700">Payment Status</label><select name="payment_status" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800">@foreach ($paymentStatuses as $status)<option @selected(old('payment_status', $order->payment_status) === $status)>{{ $status }}</option>@endforeach</select></div>
                                 <div class="space-y-1"><label class="text-sm font-black text-slate-700">Amount Paid</label><input type="number" step="0.01" min="0" name="amount_paid" value="{{ old('amount_paid', $order->amount_paid) }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"></div>
                             @endif
-                            <div class="space-y-1"><label class="text-sm font-black text-slate-700">Delivery Method</label><select name="delivery_method" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"><option value="">Select method</option>@foreach ($deliveryMethods as $method)<option @selected(old('delivery_method', $order->delivery_method) === $method)>{{ $method }}</option>@endforeach</select></div>
-                            <div class="space-y-1"><label class="text-sm font-black text-slate-700">Estimated Delivery</label><input type="datetime-local" name="estimated_delivery_at" value="{{ old('estimated_delivery_at', $order->estimated_delivery_at?->format('Y-m-d\\TH:i')) }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"></div>
-                            <div class="space-y-1"><label class="text-sm font-black text-slate-700">Actual Delivery</label><input type="datetime-local" name="actual_delivery_at" value="{{ old('actual_delivery_at', $order->actual_delivery_at?->format('Y-m-d\\TH:i')) }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"></div>
-                            <div class="space-y-1"><label class="text-sm font-black text-slate-700">Dispatched By</label><select name="dispatched_by_id" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"><option value="">Select staff</option>@foreach ($staff as $person)<option value="{{ $person->id }}" @selected((int) old('dispatched_by_id', $order->dispatched_by_id) === $person->id)>{{ $person->displayName() }} · {{ $person->department }}</option>@endforeach</select></div>
-                            <div class="space-y-1"><label class="text-sm font-black text-slate-700">Client Review</label><select name="client_review_status" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"><option value="">Select review status</option>@foreach ($reviewStatuses as $status)<option @selected(old('client_review_status', $order->client_review_status) === $status)>{{ $status }}</option>@endforeach</select></div>
-                            <div class="space-y-1 sm:col-span-2"><label class="text-sm font-black text-slate-700">After-Sales Action</label><textarea name="after_sales_action" rows="3" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800">{{ old('after_sales_action', $order->after_sales_action) }}</textarea></div>
-                            <div class="space-y-1"><label class="text-sm font-black text-slate-700">After-Sales Resolved</label><input type="datetime-local" name="after_sales_resolved_at" value="{{ old('after_sales_resolved_at', $order->after_sales_resolved_at?->format('Y-m-d\\TH:i')) }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"></div>
-                            <div class="space-y-1"><label class="text-sm font-black text-slate-700">Verified At</label><input type="datetime-local" name="verified_at" value="{{ old('verified_at', $order->verified_at?->format('Y-m-d\\TH:i')) }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"></div>
+                            @if ($canEditDelivery)
+                                <div class="space-y-1"><label class="text-sm font-black text-slate-700">Delivery Method</label><select name="delivery_method" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"><option value="">Select method</option>@foreach ($deliveryMethods as $method)<option @selected(old('delivery_method', $order->delivery_method) === $method)>{{ $method }}</option>@endforeach</select></div>
+                                <div class="space-y-1"><label class="text-sm font-black text-slate-700">Estimated Delivery</label><input type="datetime-local" name="estimated_delivery_at" value="{{ old('estimated_delivery_at', $order->estimated_delivery_at?->format('Y-m-d\\TH:i')) }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"></div>
+                                <div class="space-y-1"><label class="text-sm font-black text-slate-700">Actual Delivery</label><input type="datetime-local" name="actual_delivery_at" value="{{ old('actual_delivery_at', $order->actual_delivery_at?->format('Y-m-d\\TH:i')) }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"></div>
+                                <div class="space-y-1"><label class="text-sm font-black text-slate-700">Dispatched By</label><select name="dispatched_by_id" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"><option value="">Select staff</option>@foreach ($staff as $person)<option value="{{ $person->id }}" @selected((int) old('dispatched_by_id', $order->dispatched_by_id) === $person->id)>{{ $person->displayName() }} · {{ $person->department }}</option>@endforeach</select></div>
+                            @endif
+                            @if ($canEditClientReview)
+                                <div class="space-y-1"><label class="text-sm font-black text-slate-700">Client Review</label><select name="client_review_status" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"><option value="">Select review status</option>@foreach ($reviewStatuses as $status)<option @selected(old('client_review_status', $order->client_review_status) === $status)>{{ $status }}</option>@endforeach</select></div>
+                                <div class="space-y-1 sm:col-span-2"><label class="text-sm font-black text-slate-700">After-Sales Action</label><textarea name="after_sales_action" rows="3" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800">{{ old('after_sales_action', $order->after_sales_action) }}</textarea></div>
+                                <div class="space-y-1"><label class="text-sm font-black text-slate-700">After-Sales Resolved</label><input type="datetime-local" name="after_sales_resolved_at" value="{{ old('after_sales_resolved_at', $order->after_sales_resolved_at?->format('Y-m-d\\TH:i')) }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"></div>
+                            @endif
+                            @if ($canVerifyOrders)
+                                <div class="space-y-1"><label class="text-sm font-black text-slate-700">Verified At</label><input type="datetime-local" name="verified_at" value="{{ old('verified_at', $order->verified_at?->format('Y-m-d\\TH:i')) }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"></div>
+                            @endif
                             @if ($admin->canAdmin('workflow.approve'))
                                 <div class="space-y-1"><label class="text-sm font-black text-slate-700">Phase Approval</label><select name="phase_approval_status" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"><option @selected(old('phase_approval_status', $order->phase_approval_status) === 'Pending Operations Approval')>Pending Operations Approval</option><option @selected(old('phase_approval_status', $order->phase_approval_status) === 'Approved')>Approved</option><option @selected(old('phase_approval_status', $order->phase_approval_status) === 'Returned for Critical Review')>Returned for Critical Review</option></select></div>
                                 <div class="space-y-1 sm:col-span-2"><label class="text-sm font-black text-slate-700">Operations Comment</label><textarea name="phase_approval_comment" rows="3" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800">{{ old('phase_approval_comment', $order->phase_approval_comment) }}</textarea></div>
@@ -281,7 +293,7 @@
                         <p class="text-sm font-black uppercase tracking-wider text-pink-700">SOP Phase Gates</p>
                     </div>
                     <div class="space-y-4">
-                        @foreach ($workflowPhases as $phase)
+                        @forelse ($visibleWorkflowPhases as $phase)
                             <div class="border-b border-slate-100 pb-3 last:border-0">
                                 <p class="font-black text-slate-950">{{ $phase['phase'] }}</p>
                                 <p class="mt-1 text-xs font-bold uppercase tracking-wide text-slate-500">{{ $phase['responsible'] }} · {{ $phase['status'] }}</p>
@@ -294,7 +306,9 @@
                                     @endforeach
                                 </ul>
                             </div>
-                        @endforeach
+                        @empty
+                            <p class="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500">No workflow phases are assigned to your role.</p>
+                        @endforelse
                     </div>
                 </div>
             </aside>

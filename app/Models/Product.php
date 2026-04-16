@@ -23,6 +23,7 @@ class Product extends Model
         'finish_price_options',
         'delivery_price_options',
         'paper_density',
+        'density_price_options',
         'is_active',
     ];
 
@@ -33,6 +34,7 @@ class Product extends Model
             'material_price_options' => 'array',
             'size_price_options' => 'array',
             'finish_price_options' => 'array',
+            'density_price_options' => 'array',
             'delivery_price_options' => 'array',
             'is_active' => 'boolean',
         ];

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Product;
 use App\Services\InvoiceService;
+use App\Services\PaystackService;
 use App\Support\JobAssetUpload;
 use App\Support\ProductOptionPricing;
 use App\Support\ReferenceCode;
@@ -21,28 +22,93 @@ class OrderController extends Controller
         $customer = Auth::user();
         $savedDeliveryAddresses = $customer?->deliveryAddresses()->get() ?? collect();
 
+        $sizeOptions = ProductOptionPricing::optionsForProductOrSetting(
+            $product,
+            'size_price_options',
+            'default_size_price_options',
+            $product->paper_size
+        );
+        $materialOptions = ProductOptionPricing::optionsForProductOrSetting(
+            $product,
+            'material_price_options',
+            'default_material_price_options',
+            $product->paper_type
+        );
+        $densityOptions = ProductOptionPricing::optionsForProductOrSetting(
+            $product,
+            'density_price_options',
+            'default_density_price_options',
+            $product->paper_density
+        );
+        $finishOptions = ProductOptionPricing::optionsForProductOrSetting(
+            $product,
+            'finish_price_options',
+            'default_finish_price_options',
+            $product->finishing
+        );
+        $deliveryOptions = ProductOptionPricing::optionsForProductOrSetting(
+            $product,
+            'delivery_price_options',
+            'default_delivery_price_options',
+            'Client Pickup'
+        );
+
         return view('orders.create', [
             'product' => $product,
             'serviceType' => $this->serviceTypeFor($product),
-            'sizeOptions' => $product->size_price_options ?: [['label' => $product->paper_size, 'price' => 0]],
-            'materialOptions' => $product->material_price_options ?: [['label' => $product->paper_type, 'price' => 0]],
-            'finishOptions' => $product->finish_price_options ?: [['label' => $product->finishing, 'price' => 0]],
-            'deliveryOptions' => $product->delivery_price_options ?: [
-                ['label' => 'Pickup', 'price' => 0],
-                ['label' => 'Deliver to address', 'price' => 0],
-            ],
+            'sizeOptions' => $sizeOptions,
+            'materialOptions' => $materialOptions,
+            'densityOptions' => $densityOptions,
+            'finishOptions' => $finishOptions,
+            'deliveryOptions' => $deliveryOptions,
             'savedDeliveryAddresses' => $savedDeliveryAddresses,
         ]);
     }
 
-    public function store(Request $request, Product $product, InvoiceService $invoiceService): RedirectResponse
-    {
+    public function store(
+        Request $request,
+        Product $product,
+        InvoiceService $invoiceService,
+        PaystackService $paystackService
+    ): RedirectResponse {
         $customer = Auth::user();
+
+        $sizeOptions = ProductOptionPricing::optionsForProductOrSetting(
+            $product,
+            'size_price_options',
+            'default_size_price_options',
+            $product->paper_size
+        );
+        $materialOptions = ProductOptionPricing::optionsForProductOrSetting(
+            $product,
+            'material_price_options',
+            'default_material_price_options',
+            $product->paper_type
+        );
+        $densityOptions = ProductOptionPricing::optionsForProductOrSetting(
+            $product,
+            'density_price_options',
+            'default_density_price_options',
+            $product->paper_density
+        );
+        $finishOptions = ProductOptionPricing::optionsForProductOrSetting(
+            $product,
+            'finish_price_options',
+            'default_finish_price_options',
+            $product->finishing
+        );
+        $deliveryOptions = ProductOptionPricing::optionsForProductOrSetting(
+            $product,
+            'delivery_price_options',
+            'default_delivery_price_options',
+            'Client Pickup'
+        );
 
         $validated = $request->validate([
             'quantity' => ['required', 'integer', 'min:'.$product->moq],
             'size_format' => ['nullable', 'string', 'max:255'],
             'material_substrate' => ['nullable', 'string', 'max:255'],
+            'paper_density' => ['nullable', 'string', 'max:255'],
             'finish_lamination' => ['nullable', 'string', 'max:255'],
             'delivery_method' => ['required', 'string', 'max:255'],
             'customer_name' => ['required', 'string', 'max:255'],
@@ -82,11 +148,12 @@ class OrderController extends Controller
 
         $quantity = (int) $validated['quantity'];
         $unitPrice = (float) $product->price;
-        $sizePrice = ProductOptionPricing::priceFor($product, 'size_price_options', $validated['size_format'] ?? null);
-        $materialPrice = ProductOptionPricing::priceFor($product, 'material_price_options', $validated['material_substrate'] ?? null);
-        $finishPrice = ProductOptionPricing::priceFor($product, 'finish_price_options', $validated['finish_lamination'] ?? null);
-        $deliveryPrice = ProductOptionPricing::priceFor($product, 'delivery_price_options', $validated['delivery_method'] ?? null);
-        $productionUnitPrice = $unitPrice + $sizePrice + $materialPrice + $finishPrice;
+        $sizePrice = ProductOptionPricing::priceFromOptions($sizeOptions, $validated['size_format'] ?? null);
+        $materialPrice = ProductOptionPricing::priceFromOptions($materialOptions, $validated['material_substrate'] ?? null);
+        $densityPrice = ProductOptionPricing::priceFromOptions($densityOptions, $validated['paper_density'] ?? null);
+        $finishPrice = ProductOptionPricing::priceFromOptions($finishOptions, $validated['finish_lamination'] ?? null);
+        $deliveryPrice = ProductOptionPricing::priceFromOptions($deliveryOptions, $validated['delivery_method'] ?? null);
+        $productionUnitPrice = $unitPrice + $sizePrice + $materialPrice + $densityPrice + $finishPrice;
         $batches = (int) ceil($quantity / max(1, $product->moq));
         $total = ($batches * $productionUnitPrice) + $deliveryPrice;
         $serviceType = $this->serviceTypeFor($product);
@@ -107,6 +174,7 @@ class OrderController extends Controller
                 'base_price' => $unitPrice,
                 'size_price' => $sizePrice,
                 'material_price' => $materialPrice,
+                'density_price' => $densityPrice,
                 'finish_price' => $finishPrice,
                 'delivery_price' => $deliveryPrice,
                 'moq_batches' => $batches,
@@ -120,13 +188,21 @@ class OrderController extends Controller
         $sent = $invoiceService->sendInvoice($invoice);
         session()->put('tracked_orders.'.$order->id, true);
 
+        $paymentInit = $paystackService->initializeForInvoice($invoice);
+
+        if (($paymentInit['ok'] ?? false) && filled($paymentInit['authorization_url'] ?? null)) {
+            return redirect()->away((string) $paymentInit['authorization_url']);
+        }
+
         return redirect()
             ->route('orders.success', $order)
             ->with(
-                $sent ? 'status' : 'warning',
-                $sent
-                    ? 'Your invoice has been emailed with a PDF attachment.'
-                    : 'Your invoice was created, but the email could not be sent. Our team will follow up.'
+                ($sent && ! $paystackService->enabled()) ? 'status' : 'warning',
+                $paystackService->enabled()
+                    ? ($paymentInit['message'] ?? 'Order submitted. We could not redirect to Paystack right now.')
+                    : ($sent
+                        ? 'Your invoice has been emailed with a PDF attachment. Payment gateway is not yet configured.'
+                        : 'Your invoice was created, but the email could not be sent. Our team will follow up.')
             );
     }
 

@@ -3,30 +3,34 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
-use App\Models\Product;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    public function __invoke(): View
-{
-    $userId = Auth::id();
+    public function __invoke(): View|RedirectResponse
+    {
+        $user = Auth::user();
 
-    // Count of ongoing orders for this user
-    $orders = Order::where('user_id', $userId)
-        ->where('status', 'ongoing')
-        ->count();
+        if ($user?->hasAdminAccess()) {
+            return redirect()->route('admin.dashboard');
+        }
 
-    // Recent orders for this user
-    $recentOrders = Order::where('user_id', $userId)
-        ->latest()
-        ->limit(5)
-        ->get();
+        $userId = Auth::id();
 
-    return view('dashboard.index', [
-        'orders' => $orders,
-        'recentOrders' => $recentOrders,
-    ]);
-}
+        $orders = Order::where('user_id', $userId)
+            ->where('status', 'ongoing')
+            ->count();
+
+        $recentOrders = Order::where('user_id', $userId)
+            ->latest()
+            ->limit(5)
+            ->get();
+
+        return view('dashboard.index', [
+            'orders' => $orders,
+            'recentOrders' => $recentOrders,
+        ]);
+    }
 }

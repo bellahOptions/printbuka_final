@@ -41,6 +41,7 @@ class Order extends Model
         'production_officer_id',
         'production_started_at',
         'material_substrate',
+        'paper_density',
         'finish_lamination',
         'qc_checked_by_id',
         'qc_checked_at',

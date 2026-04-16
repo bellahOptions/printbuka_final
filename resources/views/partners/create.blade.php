@@ -75,7 +75,7 @@
                     </div>
                     <div class="rounded-md bg-white p-5 text-slate-950">
                         <h3 class="font-black">Corporate Procurement</h3>
-                        <p class="mt-2 text-sm leading-6 text-slate-600">Reliable production and delivery support for staff and client gifting.</p>
+                        <p class="mt-2 text-sm leading-6 text-slate-600">Reliable production and delivery support for team and client gifting.</p>
                     </div>
                 </div>
             </div>

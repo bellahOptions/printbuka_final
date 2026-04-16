@@ -19,6 +19,18 @@ class AdminSiteSettingController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
+        $servicePriceKeys = [
+            'service_price_direct_image_printing',
+            'service_price_direct_image_printing_design',
+            'service_price_direct_image_printing_delivery',
+            'service_price_uv_dtf',
+            'service_price_dtf',
+            'service_price_dtf_design',
+            'service_price_dtf_delivery',
+            'service_dtf_size_price_options',
+            'service_price_laser_engraving',
+        ];
+
         $validated = $request->validate([
             'site_name' => ['nullable', 'string', 'max:255'],
             'notification_message' => ['nullable', 'string', 'max:1000'],
@@ -31,16 +43,57 @@ class AdminSiteSettingController extends Controller
             'paper_sizes' => ['nullable', 'string', 'max:5000'],
             'finishings' => ['nullable', 'string', 'max:5000'],
             'paper_densities' => ['nullable', 'string', 'max:5000'],
+            'default_material_price_options' => ['nullable', 'string', 'max:12000'],
+            'default_size_price_options' => ['nullable', 'string', 'max:12000'],
+            'default_finish_price_options' => ['nullable', 'string', 'max:12000'],
+            'default_density_price_options' => ['nullable', 'string', 'max:12000'],
+            'default_delivery_price_options' => ['nullable', 'string', 'max:12000'],
+            'service_price_direct_image_printing' => ['nullable', 'numeric', 'min:0', 'max:100000000'],
+            'service_price_direct_image_printing_design' => ['nullable', 'numeric', 'min:0', 'max:100000000'],
+            'service_price_direct_image_printing_delivery' => ['nullable', 'numeric', 'min:0', 'max:100000000'],
+            'service_price_uv_dtf' => ['nullable', 'numeric', 'min:0', 'max:100000000'],
+            'service_price_dtf' => ['nullable', 'numeric', 'min:0', 'max:100000000'],
+            'service_price_dtf_design' => ['nullable', 'numeric', 'min:0', 'max:100000000'],
+            'service_price_dtf_delivery' => ['nullable', 'numeric', 'min:0', 'max:100000000'],
+            'service_dtf_size_price_options' => ['nullable', 'string', 'max:12000'],
+            'service_price_laser_engraving' => ['nullable', 'numeric', 'min:0', 'max:100000000'],
+            'pending_job_reminder_hours' => ['nullable', 'integer', 'min:1', 'max:240'],
         ]);
+
+        if ($request->user()?->role !== 'super_admin') {
+            $requestedServicePricingUpdate = collect($servicePriceKeys)
+                ->contains(fn (string $key): bool => array_key_exists($key, $validated));
+
+            abort_if($requestedServicePricingUpdate, 403);
+        }
+
         $validated['maintenance_mode'] = $request->boolean('maintenance_mode') ? '1' : '0';
+        $validated['pending_job_reminder_hours'] = (string) ($validated['pending_job_reminder_hours'] ?? 24);
+        foreach ($servicePriceKeys as $key) {
+            if (array_key_exists($key, $validated) && $validated[$key] !== null && $key !== 'service_dtf_size_price_options') {
+                $validated[$key] = (string) $validated[$key];
+            }
+        }
 
         foreach ($validated as $key => $value) {
             SiteSetting::query()->updateOrCreate(
                 ['key' => $key],
-                ['value' => $value, 'group' => str_contains($key, 'maintenance') ? 'maintenance' : 'general']
+                ['value' => $value, 'group' => $this->settingGroup($key)]
             );
         }
 
         return back()->with('status', 'Site settings updated.');
+    }
+
+    private function settingGroup(string $key): string
+    {
+        return match (true) {
+            str_contains($key, 'maintenance') => 'maintenance',
+            str_contains($key, '_price_options') => 'pricing',
+            str_starts_with($key, 'service_price_') => 'service_pricing',
+            str_contains($key, 'paper_') || str_contains($key, 'finishings') => 'print_options',
+            str_contains($key, 'notification') || str_contains($key, 'announcement') => 'notifications',
+            default => 'general',
+        };
     }
 }

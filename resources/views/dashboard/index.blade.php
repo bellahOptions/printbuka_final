@@ -63,7 +63,7 @@
                                 <p class="mt-2 text-sm font-black text-pink-700">NGN {{ number_format($product->price, 2) }}</p>
                             </article>
                         @empty
-                            <p class="rounded-md border border-dashed border-slate-300 p-5 text-sm text-slate-600">No products yet. Please hold while our staff upload new products</p>
+                            <p class="rounded-md border border-dashed border-slate-300 p-5 text-sm text-slate-600">No products yet. Please check back soon.</p>
                         @endforelse
                     </div>
                 </section>
@@ -72,9 +72,6 @@
                     <p class="text-sm font-black uppercase tracking-wide text-cyan-700">Quick Actions</p>
                     <div class="mt-5 space-y-3">
                         <a href="{{ route('profile.edit') }}" class="block rounded-md border border-slate-200 px-5 py-4 text-sm font-black text-slate-800 transition hover:border-pink-300 hover:text-pink-700">Edit Profile</a>
-                        @if (auth()->user()->hasAdminAccess())
-                            <a href="{{ route('admin.dashboard') }}" class="block rounded-md bg-slate-950 px-5 py-4 text-sm font-black text-white transition hover:bg-pink-700">Open Admin Workflow</a>
-                        @endif
                         <a href="{{ route('products.index') }}#catalog" class="block rounded-md bg-pink-600 px-5 py-4 text-sm font-black text-white transition hover:bg-pink-700">Browse Catalog</a>
                         <a href="{{ route('products.index') }}#categories" class="block rounded-md border border-slate-200 px-5 py-4 text-sm font-black text-slate-800 transition hover:border-cyan-300 hover:text-cyan-700">Explore Categories</a>
                         <a href="{{ route('quotes.create') }}" class="block rounded-md border border-slate-200 px-5 py-4 text-sm font-black text-slate-800 transition hover:border-emerald-300 hover:text-emerald-700">Request a Quote</a>

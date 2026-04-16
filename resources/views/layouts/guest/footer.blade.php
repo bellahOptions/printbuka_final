@@ -44,6 +44,10 @@
                 <div class="mt-4 space-y-3 text-sm text-slate-300">
                     <a href="{{ route('orders.track') }}" class="block transition hover:text-white">Track Order</a>
                     <a href="{{ route('quotes.create') }}" class="block transition hover:text-white">Get Quote</a>
+                    <a href="{{ route('services.index') }}" class="block transition hover:text-white">Services</a>
+                    <a href="{{ route('policies.terms') }}" class="block transition hover:text-white">Terms & Conditions</a>
+                    <a href="{{ route('policies.privacy') }}" class="block transition hover:text-white">Privacy Policy</a>
+                    <a href="{{ route('policies.refund') }}" class="block transition hover:text-white">Refund Policy</a>
                     <a href="#" class="block transition hover:text-white">Artwork Guide</a>
                     <a href="#" class="block transition hover:text-white">Delivery</a>
                 </div>
@@ -59,8 +63,9 @@
                 <a href="https://www.aidigitalagency.com.ng" target="_blank" rel="noopener noreferrer" class="font-bold text-white transition hover:text-cyan-300">AI Digital Agency</a>
             </p>
             <div class="flex gap-5">
-                <a href="#" class="transition hover:text-white">Privacy</a>
-                <a href="#" class="transition hover:text-white">Terms</a>
+                <a href="{{ route('policies.privacy') }}" class="transition hover:text-white">Privacy</a>
+                <a href="{{ route('policies.terms') }}" class="transition hover:text-white">Terms</a>
+                <a href="{{ route('policies.refund') }}" class="transition hover:text-white">Refunds</a>
             </div>
         </div>
     </div>

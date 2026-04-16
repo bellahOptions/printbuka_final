@@ -10,6 +10,8 @@ class Invoice extends Model
     protected $fillable = [
         'order_id',
         'invoice_number',
+        'payment_reference',
+        'payment_gateway',
         'subtotal',
         'tax_amount',
         'discount_amount',
@@ -18,6 +20,7 @@ class Invoice extends Model
         'issued_at',
         'due_at',
         'sent_at',
+        'paid_at',
     ];
 
     protected function casts(): array
@@ -30,6 +33,7 @@ class Invoice extends Model
             'issued_at' => 'datetime',
             'due_at' => 'datetime',
             'sent_at' => 'datetime',
+            'paid_at' => 'datetime',
         ];
     }
 

@@ -50,8 +50,8 @@
             <div class="hidden bg-slate-950 p-10 text-white lg:flex lg:flex-col lg:justify-between">
                 <div>
                     <p class="text-sm font-black uppercase tracking-wide text-cyan-300">Security</p>
-                    <h2 class="mt-4 text-4xl leading-tight">Verified accounts protect your orders and staff tools.</h2>
-                    <p class="mt-5 text-sm leading-7 text-slate-300">This applies to both customer and admin/staff accounts.</p>
+                    <h2 class="mt-4 text-4xl leading-tight">Verified accounts protect your orders and account security.</h2>
+                    <p class="mt-5 text-sm leading-7 text-slate-300">Email verification helps keep your account safe and trusted.</p>
                 </div>
             </div>
         </section>

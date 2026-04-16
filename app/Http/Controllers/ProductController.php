@@ -13,6 +13,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::query()
+            ->with('category')
             ->where('is_active', true)
             ->orderBy('name')
             ->get();

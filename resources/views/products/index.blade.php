@@ -51,6 +51,18 @@
             'letterhead' => 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=900&q=80',
             'default' => 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=900&q=80',
         ];
+
+        $uvDtfProducts = $products->filter(function ($product) {
+            $haystack = strtolower(trim($product->name.' '.($product->category?->name ?? '')));
+
+            return str_contains($haystack, 'uv dtf') || str_contains($haystack, 'uv-dtf');
+        })->values();
+
+        $laserEngravingProducts = $products->filter(function ($product) {
+            $haystack = strtolower(trim($product->name.' '.($product->category?->name ?? '')));
+
+            return str_contains($haystack, 'laser engrav') || str_contains($haystack, 'laser');
+        })->values();
     @endphp
 
     <main class="bg-white text-slate-900">
@@ -99,6 +111,76 @@
                         </a>
                     @endforeach
                 </div>
+            </div>
+        </section>
+
+        <section id="uv-dtf-products" class="bg-slate-950 py-16 text-white">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-wrap items-end justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-black uppercase tracking-wide text-cyan-300">UV DTF Products</p>
+                        <h2 class="mt-2 text-4xl">Order UV DTF from Product Catalog</h2>
+                        <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-300">Service-page orders for UV DTF are handled here so clients choose exact items and specs before checkout.</p>
+                    </div>
+                    <a href="#catalog" class="rounded-md border border-white/30 px-5 py-3 text-sm font-black transition hover:border-white">View Full Catalog</a>
+                </div>
+
+                @if ($uvDtfProducts->isNotEmpty())
+                    <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                        @foreach ($uvDtfProducts as $product)
+                            <article class="rounded-md border border-white/15 bg-white/5 p-5 backdrop-blur">
+                                <h3 class="text-xl font-black text-white">{{ $product->name }}</h3>
+                                <p class="mt-2 text-sm leading-6 text-slate-300">{{ $product->short_description }}</p>
+                                <p class="mt-4 text-xs font-bold uppercase tracking-wide text-cyan-300">Starting at</p>
+                                <p class="mt-1 text-2xl font-black text-pink-300">NGN {{ number_format((float) $product->price, 2) }}</p>
+                                <div class="mt-5 grid grid-cols-2 gap-2">
+                                    <a href="{{ route('products.show', $product) }}" class="inline-flex justify-center rounded-md border border-white/20 px-4 py-3 text-sm font-black text-white transition hover:border-cyan-300 hover:text-cyan-200">View</a>
+                                    <a href="{{ route('orders.create', $product) }}" class="inline-flex justify-center rounded-md bg-pink-600 px-4 py-3 text-sm font-black text-white transition hover:bg-pink-700">Order</a>
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="mt-8 rounded-md border border-dashed border-white/25 bg-white/5 p-8">
+                        <p class="text-lg font-black text-white">No UV DTF products yet.</p>
+                        <p class="mt-2 text-sm text-slate-300">Add products with “UV DTF” in name or category to auto-populate this section.</p>
+                    </div>
+                @endif
+            </div>
+        </section>
+
+        <section id="laser-engraving-products" class="bg-[#f6f9ff] py-16">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-wrap items-end justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-black uppercase tracking-wide text-pink-700">Laser Engraving Products</p>
+                        <h2 class="mt-2 text-4xl text-slate-950">Order Laser Engraving from Product Catalog</h2>
+                        <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-600">Laser engraving requests are routed through products for better item-level selection and pricing control.</p>
+                    </div>
+                    <a href="#catalog" class="rounded-md border border-slate-300 px-5 py-3 text-sm font-black text-slate-800 transition hover:border-pink-300 hover:text-pink-700">View Full Catalog</a>
+                </div>
+
+                @if ($laserEngravingProducts->isNotEmpty())
+                    <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                        @foreach ($laserEngravingProducts as $product)
+                            <article class="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+                                <h3 class="text-xl font-black text-slate-950">{{ $product->name }}</h3>
+                                <p class="mt-2 text-sm leading-6 text-slate-600">{{ $product->short_description }}</p>
+                                <p class="mt-4 text-xs font-bold uppercase tracking-wide text-pink-700">Starting at</p>
+                                <p class="mt-1 text-2xl font-black text-pink-700">NGN {{ number_format((float) $product->price, 2) }}</p>
+                                <div class="mt-5 grid grid-cols-2 gap-2">
+                                    <a href="{{ route('products.show', $product) }}" class="inline-flex justify-center rounded-md border border-slate-200 px-4 py-3 text-sm font-black text-slate-800 transition hover:border-pink-300 hover:text-pink-700">View</a>
+                                    <a href="{{ route('orders.create', $product) }}" class="inline-flex justify-center rounded-md bg-slate-950 px-4 py-3 text-sm font-black text-white transition hover:bg-pink-700">Order</a>
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="mt-8 rounded-md border border-dashed border-slate-300 bg-white p-8">
+                        <p class="text-lg font-black text-slate-950">No Laser Engraving products yet.</p>
+                        <p class="mt-2 text-sm text-slate-600">Add products with “Laser” or “Engraving” in name or category to auto-populate this section.</p>
+                    </div>
+                @endif
             </div>
         </section>
 

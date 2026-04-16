@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\InvoiceService;
+use App\Services\JobWorkflowNotificationService;
 use App\Support\JobAssetUpload;
 use App\Support\ReferenceCode;
 use Illuminate\Http\RedirectResponse;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class AdminOrderController extends Controller
@@ -61,6 +63,9 @@ class AdminOrderController extends Controller
 
     public function show(Order $order): View
     {
+        /** @var User $user */
+        $user = request()->user();
+
         return view('admin.orders.show', [
             'order' => $order->load('product', 'invoice', 'briefReceiver', 'creatorAdmin', 'designer', 'productionOfficer', 'qcOfficer', 'dispatcher', 'verifier'),
             'staff' => User::query()
@@ -81,10 +86,16 @@ class AdminOrderController extends Controller
             'deliveryMethods' => config('printbuka_admin.delivery_methods'),
             'reviewStatuses' => config('printbuka_admin.review_statuses'),
             'canViewAmounts' => request()->user()->canAdmin('finance.view_amounts') || request()->user()->canAdmin('invoices.manage'),
+            'statusOptions' => $this->statusOptionsForUser($user, $order),
+            'visibleWorkflowPhases' => $this->visibleWorkflowPhasesForUser($user),
         ]);
     }
 
-    public function store(Request $request, InvoiceService $invoiceService): RedirectResponse
+    public function store(
+        Request $request,
+        InvoiceService $invoiceService,
+        JobWorkflowNotificationService $jobWorkflowNotificationService
+    ): RedirectResponse
     {
         $validated = $request->validate([
             'product_id' => ['nullable', 'exists:products,id'],
@@ -175,6 +186,7 @@ class AdminOrderController extends Controller
 
         $invoice = $invoiceService->createForOrder($order);
         $sent = $invoiceService->sendInvoice($invoice);
+        $jobWorkflowNotificationService->handleOrderCreated($order->fresh(['product', 'designer', 'creatorAdmin']));
 
         return redirect()
             ->route('admin.orders.show', $order)
@@ -186,8 +198,13 @@ class AdminOrderController extends Controller
             );
     }
 
-    public function update(Request $request, Order $order): RedirectResponse
+    public function update(
+        Request $request,
+        Order $order,
+        JobWorkflowNotificationService $jobWorkflowNotificationService
+    ): RedirectResponse
     {
+        $original = $order->getOriginal();
         $validated = $request->validate([
             'job_order_number' => ['nullable', 'string', 'max:255', Rule::unique('orders', 'job_order_number')->ignore($order->id)],
             'channel' => ['nullable', 'string', Rule::in(config('printbuka_admin.job_channels'))],
@@ -229,6 +246,13 @@ class AdminOrderController extends Controller
         ]);
         unset($validated['job_asset_files']);
 
+        $this->assertStatusTransitionAllowed(
+            $request->user(),
+            $order,
+            $validated['status'] ?? null,
+            $validated['payment_status'] ?? null
+        );
+
         if ($request->hasFile('design_file') && $request->user()->canAdmin('design.upload')) {
             $validated['final_design_path'] = $request->file('design_file')->store('designs', 'public');
             try {
@@ -255,8 +279,58 @@ class AdminOrderController extends Controller
 
         $order->fill($this->allowedChanges($request, $validated));
         $order->save();
+        $jobWorkflowNotificationService->handleOrderUpdated(
+            $order->fresh(['product', 'designer', 'creatorAdmin']),
+            $original
+        );
 
         return back()->with('status', 'Workflow update saved.');
+    }
+
+    private function assertStatusTransitionAllowed(
+        User $user,
+        Order $order,
+        ?string $requestedStatus,
+        ?string $incomingPaymentStatus
+    ): void {
+        if (! filled($requestedStatus) || $requestedStatus === $order->status) {
+            return;
+        }
+
+        $phaseOneStatus = (string) (config('printbuka_admin.workflow_phases.0.status') ?? 'Analyzing Job Brief');
+
+        if ($order->status === $phaseOneStatus && $requestedStatus !== $phaseOneStatus) {
+            $effectivePaymentStatus = (string) $order->payment_status;
+
+            if (filled($incomingPaymentStatus) && ($user->canAdmin('invoices.manage') || $user->canAdmin('*'))) {
+                $effectivePaymentStatus = $incomingPaymentStatus;
+            }
+
+            if (! in_array($effectivePaymentStatus, ['Invoice Settled (70%)', 'Invoice Settled (100%)'], true)) {
+                throw ValidationException::withMessages([
+                    'status' => 'A job cannot leave Phase 1 until payment is settled at 70% or 100%.',
+                ]);
+            }
+        }
+
+        if ($user->canAdmin('*') || $user->canAdmin('workflow.approve')) {
+            return;
+        }
+
+        $targetPhase = collect(config('printbuka_admin.workflow_phases', []))
+            ->first(fn (array $phase): bool => (string) ($phase['status'] ?? '') === $requestedStatus);
+
+        if (! is_array($targetPhase)) {
+            return;
+        }
+
+        $permission = (string) ($targetPhase['permission'] ?? '');
+
+        if ($permission !== '' && ! $user->canAdmin($permission)) {
+            throw ValidationException::withMessages([
+                'status' => 'You cannot move this job to that phase. It is not part of your role privileges.',
+            ]);
+        }
     }
 
     private function allowedChanges(Request $request, array $validated): array
@@ -296,5 +370,44 @@ class AdminOrderController extends Controller
         }
 
         return Arr::only($validated, array_unique($fields));
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function statusOptionsForUser(User $user, Order $order): array
+    {
+        $statuses = collect(config('printbuka_admin.job_statuses', []));
+
+        if ($user->canAdmin('*') || $user->canAdmin('workflow.approve')) {
+            return $statuses->values()->all();
+        }
+
+        $phaseStatuses = collect(config('printbuka_admin.workflow_phases', []))
+            ->filter(fn (array $phase): bool => $user->canAdmin((string) ($phase['permission'] ?? '')))
+            ->pluck('status')
+            ->map(fn ($status): string => (string) $status);
+
+        return $statuses
+            ->filter(fn ($status): bool => (string) $status === (string) $order->status || $phaseStatuses->contains((string) $status))
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function visibleWorkflowPhasesForUser(User $user): array
+    {
+        $phases = collect(config('printbuka_admin.workflow_phases', []));
+
+        if ($user->canAdmin('*') || $user->canAdmin('workflow.approve')) {
+            return $phases->values()->all();
+        }
+
+        return $phases
+            ->filter(fn (array $phase): bool => $user->canAdmin((string) ($phase['permission'] ?? '')))
+            ->values()
+            ->all();
     }
 }

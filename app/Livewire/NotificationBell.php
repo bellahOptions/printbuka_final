@@ -10,6 +10,10 @@ class NotificationBell extends Component
 {
     public function markAsRead(int $notificationId): void
     {
+        if (! auth()->check()) {
+            return;
+        }
+
         if (! Schema::hasTable('app_notifications')) {
             return;
         }
@@ -25,6 +29,10 @@ class NotificationBell extends Component
 
     public function markAllAsRead(): void
     {
+        if (! auth()->check()) {
+            return;
+        }
+
         if (! Schema::hasTable('app_notifications')) {
             return;
         }
@@ -38,6 +46,14 @@ class NotificationBell extends Component
 
     public function render()
     {
+        if (! auth()->check()) {
+            return view('livewire.notification-bell', [
+                'notifications' => collect(),
+                'surfaceNotifications' => collect(),
+                'count' => 0,
+            ]);
+        }
+
         if (! Schema::hasTable('app_notifications')) {
             return view('livewire.notification-bell', [
                 'notifications' => collect(),
