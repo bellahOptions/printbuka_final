@@ -7,6 +7,8 @@
         $pricingPayload = [
             'basePrice' => (float) $product->price,
             'moq' => (int) $product->moq,
+            'expressFee' => (float) ($expressSurcharge ?? 0),
+            'sampleFee' => (float) ($sampleSurcharge ?? 5000),
             'sizes' => $sizeOptions,
             'materials' => $materialOptions,
             'densities' => $densityOptions,
@@ -64,13 +66,39 @@
                             id="quantity"
                             name="quantity"
                             type="number"
-                            min="{{ $product->moq }}"
-                            value="{{ old('quantity', $product->moq) }}"
+                            min="{{ old('is_sample') ? 1 : $product->moq }}"
+                            value="{{ old('quantity', old('is_sample') ? 1 : $product->moq) }}"
                             class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
                             required
                         />
-                        <p class="mt-2 text-xs font-bold text-slate-500">Minimum order quantity is {{ $product->moq }}.</p>
+                        <p id="quantity-rule-hint" class="mt-2 text-xs font-bold text-slate-500">{{ old('is_sample') ? 'Sample orders must be between 1 and 2 units.' : 'Minimum order quantity is '.$product->moq.'.' }}</p>
                         @error('quantity')
+                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="rounded-md border border-slate-200 bg-slate-50 p-5">
+                        <p class="text-sm font-black uppercase tracking-wide text-cyan-700">Fulfilment Speed</p>
+                        <div class="mt-4 space-y-3">
+                            <label class="flex items-start gap-3 rounded-md border border-slate-200 bg-white p-4 text-sm font-semibold text-slate-700">
+                                <input id="is_express" name="is_express" type="checkbox" value="1" @checked(old('is_express')) class="mt-0.5 h-4 w-4 rounded border-slate-300 text-pink-600 focus:ring-pink-500" />
+                                <span>
+                                    Express order (+ NGN {{ number_format((float) ($expressSurcharge ?? 0), 2) }})
+                                    <span class="mt-1 block text-xs font-bold text-slate-500">Express delivery target is 48 hours from confirmed payment.</span>
+                                </span>
+                            </label>
+                            <label class="flex items-start gap-3 rounded-md border border-slate-200 bg-white p-4 text-sm font-semibold text-slate-700">
+                                <input id="is_sample" name="is_sample" type="checkbox" value="1" @checked(old('is_sample')) class="mt-0.5 h-4 w-4 rounded border-slate-300 text-pink-600 focus:ring-pink-500" />
+                                <span>
+                                    Sample order (+ NGN {{ number_format((float) ($sampleSurcharge ?? 5000), 2) }})
+                                    <span class="mt-1 block text-xs font-bold text-slate-500">Sample orders are auto-express and can only be 1 or 2 units.</span>
+                                </span>
+                            </label>
+                        </div>
+                        @error('is_express')
+                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                        @enderror
+                        @error('is_sample')
                             <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
                         @enderror
                     </div>
@@ -123,7 +151,9 @@
                                 <p>MOQ batches: <span id="live-order-batches">1</span></p>
                                 <p>Production per batch: <span id="live-production-price">NGN {{ number_format($product->price, 2) }}</span></p>
                                 <p>Delivery: <span id="live-delivery-price">NGN 0.00</span></p>
-                                <p>Base MOQ price: NGN {{ number_format($product->price, 2) }}</p>
+                                <p>Express fee: <span id="live-express-fee">NGN 0.00</span></p>
+                                <p>Sample fee: <span id="live-sample-fee">NGN 0.00</span></p>
+                                <p>Base unit price: NGN {{ number_format($product->price, 2) }}</p>
                             </div>
                         </div>
                     </div>
@@ -233,10 +263,16 @@
             const batchOutput = document.getElementById('live-order-batches');
             const productionOutput = document.getElementById('live-production-price');
             const deliveryOutput = document.getElementById('live-delivery-price');
+            const expressFeeOutput = document.getElementById('live-express-fee');
+            const sampleFeeOutput = document.getElementById('live-sample-fee');
+            const quantityRuleHint = document.getElementById('quantity-rule-hint');
+            const expressCheckbox = document.getElementById('is_express');
+            const sampleCheckbox = document.getElementById('is_sample');
             const savedAddresses = @json($savedAddressLookup);
             const savedAddressSelect = document.getElementById('delivery_address_id');
             const deliveryCityInput = document.getElementById('delivery_city');
             const deliveryAddressInput = document.getElementById('delivery_address');
+            const moq = Math.max(Number(pricing.moq || 1), 1);
 
             const selectedPrice = (group) => {
                 const select = document.querySelector(`[data-price-group="${group}"]`);
@@ -246,15 +282,63 @@
             };
 
             const recalculate = () => {
-                const quantity = Math.max(Number(quantityInput.value || pricing.moq), Number(pricing.moq || 1));
-                const batches = Math.ceil(quantity / Math.max(Number(pricing.moq || 1), 1));
-                const productionPrice = Number(pricing.basePrice || 0) + selectedPrice('sizes') + selectedPrice('materials') + selectedPrice('densities') + selectedPrice('finishes');
-                const deliveryPrice = selectedPrice('deliveries');
-                const total = (batches * productionPrice) + deliveryPrice;
+                const isSample = Boolean(sampleCheckbox?.checked);
+                const isExpress = Boolean(expressCheckbox?.checked || isSample);
 
-                batchOutput.textContent = batches;
+                const minimumQuantity = isSample ? 1 : moq;
+                const maximumQuantity = isSample ? 2 : null;
+                let quantity = Number(quantityInput.value || minimumQuantity);
+
+                if (Number.isNaN(quantity)) {
+                    quantity = minimumQuantity;
+                }
+
+                quantity = Math.max(quantity, minimumQuantity);
+
+                if (maximumQuantity !== null) {
+                    quantity = Math.min(quantity, maximumQuantity);
+                }
+
+                quantityInput.min = String(minimumQuantity);
+
+                if (maximumQuantity !== null) {
+                    quantityInput.max = String(maximumQuantity);
+                } else {
+                    quantityInput.removeAttribute('max');
+                }
+
+                if (String(quantityInput.value || '') !== String(quantity)) {
+                    quantityInput.value = String(quantity);
+                }
+
+                if (sampleCheckbox?.checked && expressCheckbox) {
+                    expressCheckbox.checked = true;
+                    expressCheckbox.disabled = true;
+                } else if (expressCheckbox) {
+                    expressCheckbox.disabled = false;
+                }
+
+                if (quantityRuleHint) {
+                    quantityRuleHint.textContent = isSample
+                        ? 'Sample orders must be between 1 and 2 units.'
+                        : `Minimum order quantity is ${moq}.`;
+                }
+
+                const batches = Math.ceil(quantity / moq);
+                const productionPrice = Number(pricing.basePrice || 0) + selectedPrice('sizes') + selectedPrice('materials') + selectedPrice('densities') + selectedPrice('finishes');
+                const productionTotal = isSample
+                    ? (quantity * productionPrice)
+                    : (batches * productionPrice);
+                const deliveryPrice = selectedPrice('deliveries');
+                const expressFee = isExpress && !isSample ? Number(pricing.expressFee || 0) : 0;
+                const sampleFee = isSample ? Number(pricing.sampleFee || 0) : 0;
+                const total = productionTotal + deliveryPrice + expressFee + sampleFee;
+
+                batchOutput.textContent = isSample ? 'N/A (sample)' : batches;
                 productionOutput.textContent = currency.format(productionPrice);
                 deliveryOutput.textContent = currency.format(deliveryPrice);
+                expressFeeOutput.textContent = currency.format(expressFee);
+                sampleFeeOutput.textContent = currency.format(sampleFee);
                 totalOutput.textContent = currency.format(total);
             };
 
@@ -284,6 +368,8 @@
 
             document.querySelectorAll('[data-price-group]').forEach((select) => select.addEventListener('change', recalculate));
             quantityInput.addEventListener('input', recalculate);
+            expressCheckbox?.addEventListener('change', recalculate);
+            sampleCheckbox?.addEventListener('change', recalculate);
             savedAddressSelect?.addEventListener('change', hydrateSavedAddress);
             recalculate();
             hydrateSavedAddress();

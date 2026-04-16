@@ -77,10 +77,6 @@ class InvoiceService
             return 'paid';
         }
 
-        if ($paid > 0) {
-            return 'partially_paid';
-        }
-
         return 'unpaid';
     }
 }

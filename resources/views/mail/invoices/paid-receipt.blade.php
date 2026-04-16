@@ -32,6 +32,10 @@
                                         <td style="padding:12px;border:1px solid #e2e8f0;font-weight:bold;">Paid At</td>
                                         <td style="padding:12px;border:1px solid #e2e8f0;">{{ $invoice->paid_at?->format('M d, Y h:i A') ?? now()->format('M d, Y h:i A') }}</td>
                                     </tr>
+                                    <tr>
+                                        <td style="padding:12px;border:1px solid #e2e8f0;font-weight:bold;">Estimated delivery</td>
+                                        <td style="padding:12px;border:1px solid #e2e8f0;">{{ $invoice->order->estimated_delivery_at?->format('M d, Y h:i A') ?? 'To be confirmed' }}</td>
+                                    </tr>
                                 </table>
                                 <p style="margin:0;line-height:1.6;">Thank you for choosing Printbuka.</p>
                             </td>

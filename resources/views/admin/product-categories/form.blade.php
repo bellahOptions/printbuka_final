@@ -9,6 +9,14 @@
                 @csrf
                 @if ($category->exists) @method('PUT') @endif
                 <div class="grid gap-5 sm:grid-cols-2">
+                    <label class="text-sm font-black">Parent Category
+                        <select name="parent_id" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
+                            <option value="">None (Top-level)</option>
+                            @foreach ($parentCategories as $parentCategory)
+                                <option value="{{ $parentCategory->id }}" @selected((int) old('parent_id', $category->parent_id) === $parentCategory->id)>{{ $parentCategory->name }}</option>
+                            @endforeach
+                        </select>
+                    </label>
                     <label class="text-sm font-black">Name<input name="name" value="{{ old('name', $category->name) }}" required class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold"></label>
                     <label class="text-sm font-black">Slug<input name="slug" value="{{ old('slug', $category->slug) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold"></label>
                     <label class="text-sm font-black">Tag<input name="tag" value="{{ old('tag', $category->tag) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold"></label>

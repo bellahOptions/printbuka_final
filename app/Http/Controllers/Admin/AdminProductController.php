@@ -24,7 +24,7 @@ class AdminProductController extends Controller
     {
         return view('admin.products.form', [
             'product' => new Product(['is_active' => true, 'moq' => 1, 'price' => 0]),
-            'categories' => ProductCategory::query()->orderBy('name')->get(),
+            'categories' => ProductCategory::query()->with('parent')->orderBy('name')->get(),
             'optionLines' => $this->optionLines(new Product),
             ...$this->paperAttributeOptions(),
         ]);
@@ -41,7 +41,7 @@ class AdminProductController extends Controller
     {
         return view('admin.products.form', [
             'product' => $product,
-            'categories' => ProductCategory::query()->orderBy('name')->get(),
+            'categories' => ProductCategory::query()->with('parent')->orderBy('name')->get(),
             'optionLines' => $this->optionLines($product),
             ...$this->paperAttributeOptions($product),
         ]);

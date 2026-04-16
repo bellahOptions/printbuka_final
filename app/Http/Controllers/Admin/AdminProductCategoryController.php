@@ -15,7 +15,11 @@ class AdminProductCategoryController extends Controller
     public function index(): View
     {
         return view('admin.product-categories.index', [
-            'categories' => ProductCategory::query()->withCount('products')->latest()->paginate(20),
+            'categories' => ProductCategory::query()
+                ->with('parent')
+                ->withCount('products')
+                ->latest()
+                ->paginate(20),
         ]);
     }
 
@@ -23,6 +27,10 @@ class AdminProductCategoryController extends Controller
     {
         return view('admin.product-categories.form', [
             'category' => new ProductCategory(['is_active' => true]),
+            'parentCategories' => ProductCategory::query()
+                ->whereNull('parent_id')
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 
@@ -37,6 +45,11 @@ class AdminProductCategoryController extends Controller
     {
         return view('admin.product-categories.form', [
             'category' => $productCategory,
+            'parentCategories' => ProductCategory::query()
+                ->whereNull('parent_id')
+                ->whereKeyNot($productCategory->id)
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 
@@ -57,6 +70,7 @@ class AdminProductCategoryController extends Controller
     private function validated(Request $request, ?ProductCategory $category = null): array
     {
         $validated = $request->validate([
+            'parent_id' => ['nullable', 'exists:product_categories,id'],
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('product_categories', 'slug')->ignore($category?->id)],
             'tag' => ['nullable', 'string', 'max:255'],
@@ -64,6 +78,10 @@ class AdminProductCategoryController extends Controller
             'image' => ['nullable', 'string', 'max:1000'],
             'is_active' => ['nullable', 'boolean'],
         ]);
+
+        if ($category && (int) ($validated['parent_id'] ?? 0) === $category->id) {
+            $validated['parent_id'] = null;
+        }
 
         $validated['slug'] = $validated['slug'] ?: Str::slug($validated['name']);
         $validated['is_active'] = $request->boolean('is_active');

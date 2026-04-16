@@ -33,6 +33,9 @@ class InvoiceLifecycleService
             $order->forceFill([
                 'amount_paid' => max($currentPaid, $total),
                 'payment_status' => 'Invoice Settled (100%)',
+                'estimated_delivery_at' => $order->is_express
+                    ? app(OrderFulfillmentService::class)->estimateExpressDelivery($invoice->paid_at ?? now())
+                    : $order->estimated_delivery_at,
             ])->save();
         }
 

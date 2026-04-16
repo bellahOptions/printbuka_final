@@ -199,7 +199,7 @@
                         </div>
                         <div class="space-y-1">
                             <label class="flex items-center gap-2 text-sm font-black text-slate-700">Brief Date</label>
-                            <input type="datetime-local" name="brief_received_at" value="{{ old('brief_received_at', now()->format('Y-m-d\\TH:i')) }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                            <p class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-slate-600">Automatically set to job creation date/time.</p>
                         </div>
                         <div class="space-y-1">
                             <label class="flex items-center gap-2 text-sm font-black text-slate-700">Material / Substrate</label>
@@ -292,9 +292,29 @@
                     </div>
 
                     <div class="grid gap-5 sm:grid-cols-2">
+                        <div class="space-y-2 sm:col-span-2">
+                            <p class="text-sm font-black text-slate-700">Fulfilment Speed</p>
+                            <label class="flex items-start gap-3 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700">
+                                <input id="order-is-express" type="checkbox" name="is_express" value="1" @checked(old('is_express')) class="mt-1 h-4 w-4 rounded border-slate-300 text-pink-600 focus:ring-pink-500">
+                                <span>
+                                    Express order (+₦{{ number_format((float) ($expressSurcharge ?? 0), 2) }})
+                                    <span class="mt-1 block text-xs font-bold text-slate-500">Estimated delivery is 48 hours from confirmed payment.</span>
+                                </span>
+                            </label>
+                            <label class="flex items-start gap-3 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700">
+                                <input id="order-is-sample" type="checkbox" name="is_sample" value="1" @checked(old('is_sample')) class="mt-1 h-4 w-4 rounded border-slate-300 text-pink-600 focus:ring-pink-500">
+                                <span>
+                                    Sample order (+₦{{ number_format((float) ($sampleSurcharge ?? 5000), 2) }})
+                                    <span class="mt-1 block text-xs font-bold text-slate-500">Sample orders are auto-express and limited to 2 units.</span>
+                                </span>
+                            </label>
+                            @error('is_express')<p class="text-sm font-semibold text-pink-700">{{ $message }}</p>@enderror
+                            @error('is_sample')<p class="text-sm font-semibold text-pink-700">{{ $message }}</p>@enderror
+                        </div>
                         <div class="space-y-1">
                             <label class="flex items-center gap-2 text-sm font-black text-slate-700">Quantity *</label>
-                            <input type="number" min="1" name="quantity" value="{{ old('quantity', 1) }}" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                            <input id="job-quantity" type="number" min="1" name="quantity" value="{{ old('quantity', 1) }}" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                            <p id="job-quantity-hint" class="text-xs font-bold text-slate-500">{{ old('is_sample') ? 'Sample quantity must be 1 or 2.' : 'Set quantity based on the requested production volume.' }}</p>
                         </div>
                         <div class="space-y-1">
                             <label class="flex items-center gap-2 text-sm font-black text-slate-700">Unit Price (₦) *</label>
@@ -384,6 +404,10 @@
             const deliveryMethod = document.getElementById('delivery-method');
             const deliveryCity = document.getElementById('delivery-city');
             const deliveryAddress = document.getElementById('delivery-address');
+            const quantityInput = document.getElementById('job-quantity');
+            const quantityHint = document.getElementById('job-quantity-hint');
+            const expressCheckbox = document.getElementById('order-is-express');
+            const sampleCheckbox = document.getElementById('order-is-sample');
 
             const hydrateFromOption = (option) => {
                 if (!option) return;
@@ -403,6 +427,36 @@
                     deliveryMethod.value = '';
                     deliveryCity.value = '';
                     deliveryAddress.value = '';
+                }
+            };
+
+            const syncSampleRules = () => {
+                if (!quantityInput) return;
+
+                const isSample = Boolean(sampleCheckbox?.checked);
+
+                if (isSample && expressCheckbox) {
+                    expressCheckbox.checked = true;
+                    expressCheckbox.disabled = true;
+                } else if (expressCheckbox) {
+                    expressCheckbox.disabled = false;
+                }
+
+                quantityInput.min = '1';
+
+                if (isSample) {
+                    quantityInput.max = '2';
+                    if (Number(quantityInput.value || 0) > 2) {
+                        quantityInput.value = '2';
+                    }
+                } else {
+                    quantityInput.removeAttribute('max');
+                }
+
+                if (quantityHint) {
+                    quantityHint.textContent = isSample
+                        ? 'Sample quantity must be 1 or 2.'
+                        : 'Set quantity based on the requested production volume.';
                 }
             };
 
@@ -433,7 +487,10 @@
 
             pickupRadio?.addEventListener('change', syncDeliveryState);
             deliveryRadio?.addEventListener('change', syncDeliveryState);
+            expressCheckbox?.addEventListener('change', syncSampleRules);
+            sampleCheckbox?.addEventListener('change', syncSampleRules);
             syncDeliveryState();
+            syncSampleRules();
         })();
     </script>
 @endsection

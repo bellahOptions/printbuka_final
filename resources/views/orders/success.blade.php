@@ -31,6 +31,17 @@
                     <p class="text-sm font-bold text-slate-500">Estimated total</p>
                     <p class="mt-1 text-2xl font-black text-pink-700">NGN {{ number_format($order->invoice?->total_amount ?? $order->total_price, 2) }}</p>
                 </div>
+                <div class="rounded-md border border-slate-200 p-5 sm:col-span-2">
+                    <p class="text-sm font-bold text-slate-500">Estimated delivery</p>
+                    <p class="mt-1 text-2xl font-black text-slate-950">
+                        {{ $order->estimated_delivery_at?->format('M d, Y h:i A') ?? 'Will update after payment confirmation.' }}
+                    </p>
+                    @if ($order->is_sample)
+                        <p class="mt-2 text-xs font-bold text-pink-700">Sample order (auto-express)</p>
+                    @elseif ($order->is_express)
+                        <p class="mt-2 text-xs font-bold text-pink-700">Express order</p>
+                    @endif
+                </div>
             </div>
 
             <div class="mt-8 flex flex-wrap justify-center gap-3">

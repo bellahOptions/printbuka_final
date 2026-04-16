@@ -37,6 +37,10 @@
                                         <td style="padding:12px;border:1px solid #e2e8f0;font-weight:bold;">Payment status</td>
                                         <td style="padding:12px;border:1px solid #e2e8f0;">{{ str($invoice->status)->replace('_', ' ')->title() }}</td>
                                     </tr>
+                                    <tr>
+                                        <td style="padding:12px;border:1px solid #e2e8f0;font-weight:bold;">Estimated delivery</td>
+                                        <td style="padding:12px;border:1px solid #e2e8f0;">{{ $invoice->order->estimated_delivery_at?->format('M d, Y h:i A') ?? 'To be confirmed' }}</td>
+                                    </tr>
                                 </table>
 
                                 <p style="margin:0;line-height:1.6;">You can track your order with order number <strong>{{ $invoice->order->job_order_number ?? $invoice->order->displayNumber() }}</strong> and this email address.</p>

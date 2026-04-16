@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Product;
 use App\Services\InvoiceService;
+use App\Services\OrderFulfillmentService;
 use App\Services\PaystackService;
 use App\Support\JobAssetUpload;
 use App\Support\ProductOptionPricing;
@@ -17,7 +18,7 @@ use Illuminate\View\View;
 
 class OrderController extends Controller
 {
-    public function create(Product $product): View
+    public function create(Product $product, OrderFulfillmentService $orderFulfillmentService): View
     {
         $customer = Auth::user();
         $savedDeliveryAddresses = $customer?->deliveryAddresses()->get() ?? collect();
@@ -62,6 +63,8 @@ class OrderController extends Controller
             'finishOptions' => $finishOptions,
             'deliveryOptions' => $deliveryOptions,
             'savedDeliveryAddresses' => $savedDeliveryAddresses,
+            'expressSurcharge' => $orderFulfillmentService->expressSurcharge(),
+            'sampleSurcharge' => $orderFulfillmentService->sampleSurcharge(),
         ]);
     }
 
@@ -69,9 +72,11 @@ class OrderController extends Controller
         Request $request,
         Product $product,
         InvoiceService $invoiceService,
-        PaystackService $paystackService
+        PaystackService $paystackService,
+        OrderFulfillmentService $orderFulfillmentService
     ): RedirectResponse {
         $customer = Auth::user();
+        $isSampleRequested = $request->boolean('is_sample');
 
         $sizeOptions = ProductOptionPricing::optionsForProductOrSetting(
             $product,
@@ -105,12 +110,22 @@ class OrderController extends Controller
         );
 
         $validated = $request->validate([
-            'quantity' => ['required', 'integer', 'min:'.$product->moq],
+            'quantity' => [
+                'required',
+                'integer',
+                Rule::when(
+                    $isSampleRequested,
+                    ['min:1', 'max:2'],
+                    ['min:'.$product->moq]
+                ),
+            ],
             'size_format' => ['nullable', 'string', 'max:255'],
             'material_substrate' => ['nullable', 'string', 'max:255'],
             'paper_density' => ['nullable', 'string', 'max:255'],
             'finish_lamination' => ['nullable', 'string', 'max:255'],
             'delivery_method' => ['required', 'string', 'max:255'],
+            'is_express' => ['nullable', 'boolean'],
+            'is_sample' => ['nullable', 'boolean'],
             'customer_name' => ['required', 'string', 'max:255'],
             'customer_email' => ['required', 'email', 'max:255'],
             'customer_phone' => ['required', 'string', 'max:50'],
@@ -128,6 +143,10 @@ class OrderController extends Controller
             'job_asset_files.*' => ['file', 'mimes:jpg,jpeg,png,webp', 'mimetypes:image/jpeg,image/png,image/webp', 'max:5120'],
         ]);
         unset($validated['job_asset_files']);
+
+        $isSample = (bool) ($validated['is_sample'] ?? false);
+        $isExpress = $isSample || (bool) ($validated['is_express'] ?? false);
+        unset($validated['is_express'], $validated['is_sample']);
 
         if ($customer && $customer->role === 'customer') {
             $validated['customer_name'] = $customer->displayName();
@@ -155,7 +174,11 @@ class OrderController extends Controller
         $deliveryPrice = ProductOptionPricing::priceFromOptions($deliveryOptions, $validated['delivery_method'] ?? null);
         $productionUnitPrice = $unitPrice + $sizePrice + $materialPrice + $densityPrice + $finishPrice;
         $batches = (int) ceil($quantity / max(1, $product->moq));
-        $total = ($batches * $productionUnitPrice) + $deliveryPrice;
+        $productionTotal = $isSample
+            ? ($quantity * $productionUnitPrice)
+            : ($batches * $productionUnitPrice);
+        $pricingAdjustments = $orderFulfillmentService->pricingAdjustments($isExpress, $isSample);
+        $total = $productionTotal + $deliveryPrice + $pricingAdjustments['total_adjustment'];
         $serviceType = $this->serviceTypeFor($product);
 
         $order = Order::create([
@@ -166,6 +189,11 @@ class OrderController extends Controller
             'job_order_number' => ReferenceCode::jobOrderNumber($serviceType),
             'channel' => 'Online',
             'job_type' => $product->name,
+            'priority' => $isExpress ? '🔴 Urgent' : '🟡 Normal',
+            'is_express' => $isExpress,
+            'is_sample' => $isSample,
+            'brief_received_at' => now(),
+            'estimated_delivery_at' => $orderFulfillmentService->estimateForNewOrder($isExpress, now()),
             'unit_price' => $productionUnitPrice,
             'total_price' => $total,
             'status' => 'Analyzing Job Brief',
@@ -177,8 +205,12 @@ class OrderController extends Controller
                 'density_price' => $densityPrice,
                 'finish_price' => $finishPrice,
                 'delivery_price' => $deliveryPrice,
+                'express_fee' => $pricingAdjustments['express_fee'],
+                'sample_fee' => $pricingAdjustments['sample_fee'],
                 'moq_batches' => $batches,
+                'pricing_mode' => $isSample ? 'sample_per_unit' : 'moq_batches',
                 'production_unit_price' => $productionUnitPrice,
+                'production_total' => $productionTotal,
                 'total' => $total,
             ],
             'job_image_assets' => JobAssetUpload::fromRequest($request),

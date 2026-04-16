@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Services\InvoiceService;
 use App\Services\JobWorkflowNotificationService;
+use App\Services\OrderFulfillmentService;
 use App\Support\JobAssetUpload;
 use App\Support\ReferenceCode;
 use Illuminate\Http\RedirectResponse;
@@ -34,7 +35,7 @@ class AdminOrderController extends Controller
         ]);
     }
 
-    public function create(): View
+    public function create(OrderFulfillmentService $orderFulfillmentService): View
     {
         return view('admin.orders.create', [
             'products' => Product::query()->orderBy('name')->get(),
@@ -58,6 +59,8 @@ class AdminOrderController extends Controller
             'materials' => config('printbuka_admin.materials'),
             'finishes' => config('printbuka_admin.finishes'),
             'deliveryMethods' => config('printbuka_admin.delivery_methods'),
+            'expressSurcharge' => $orderFulfillmentService->expressSurcharge(),
+            'sampleSurcharge' => $orderFulfillmentService->sampleSurcharge(),
         ]);
     }
 
@@ -94,9 +97,12 @@ class AdminOrderController extends Controller
     public function store(
         Request $request,
         InvoiceService $invoiceService,
-        JobWorkflowNotificationService $jobWorkflowNotificationService
+        JobWorkflowNotificationService $jobWorkflowNotificationService,
+        OrderFulfillmentService $orderFulfillmentService
     ): RedirectResponse
     {
+        $isSampleRequested = $request->boolean('is_sample');
+
         $validated = $request->validate([
             'product_id' => ['nullable', 'exists:products,id'],
             'customer_id' => [
@@ -108,8 +114,15 @@ class AdminOrderController extends Controller
             'channel' => ['required', 'string', Rule::in(config('printbuka_admin.job_channels'))],
             'job_type' => ['required', 'string', 'max:255'],
             'size_format' => ['nullable', 'string', 'max:255'],
-            'quantity' => ['required', 'integer', 'min:1'],
+            'quantity' => [
+                'required',
+                'integer',
+                'min:1',
+                Rule::when($isSampleRequested, ['max:2']),
+            ],
             'unit_price' => ['required', 'numeric', 'min:0'],
+            'is_express' => ['nullable', 'boolean'],
+            'is_sample' => ['nullable', 'boolean'],
             'customer_name' => ['required', 'string', 'max:255'],
             'customer_email' => ['required', 'email', 'max:255'],
             'customer_phone' => ['required', 'string', 'max:50'],
@@ -119,7 +132,6 @@ class AdminOrderController extends Controller
             'delivery_address' => ['nullable', 'required_if:delivery_preference,delivery', 'string', 'max:500'],
             'artwork_notes' => ['nullable', 'string', 'max:2000'],
             'priority' => ['required', 'string', 'max:255'],
-            'brief_received_at' => ['nullable', 'date'],
             'assigned_designer_id' => ['nullable', 'exists:users,id'],
             'material_substrate' => ['nullable', 'string', 'max:255'],
             'finish_lamination' => ['nullable', 'string', 'max:255'],
@@ -130,6 +142,10 @@ class AdminOrderController extends Controller
             'job_asset_files.*' => ['file', 'mimes:jpg,jpeg,png,webp,pdf,svg,zip', 'max:20480'],
         ]);
         unset($validated['job_asset_files']);
+
+        $isSample = (bool) ($validated['is_sample'] ?? false);
+        $isExpress = $isSample || (bool) ($validated['is_express'] ?? false);
+        unset($validated['is_express'], $validated['is_sample']);
 
         $selectedCustomer = null;
 
@@ -169,6 +185,12 @@ class AdminOrderController extends Controller
         $quantity = (int) $validated['quantity'];
         $unitPrice = (float) $validated['unit_price'];
         $amountPaid = (float) ($validated['amount_paid'] ?? 0);
+        $baseTotal = $quantity * $unitPrice;
+        $pricingAdjustments = $orderFulfillmentService->pricingAdjustments($isExpress, $isSample);
+        $total = $baseTotal + $pricingAdjustments['total_adjustment'];
+        $expressPaymentAnchor = $isExpress && $this->hasExpressPaymentAnchor($validated, $amountPaid)
+            ? now()
+            : null;
 
         $order = Order::query()->create([
             ...$validated,
@@ -176,11 +198,23 @@ class AdminOrderController extends Controller
             'created_by_admin_id' => Auth::id(),
             'service_type' => 'print',
             'job_order_number' => ReferenceCode::jobOrderNumber('print'),
-            'total_price' => $quantity * $unitPrice,
+            'priority' => $isExpress ? '🔴 Urgent' : ($validated['priority'] ?? '🟡 Normal'),
+            'is_express' => $isExpress,
+            'is_sample' => $isSample,
+            'total_price' => $total,
             'status' => 'Analyzing Job Brief',
             'brief_received_by_id' => Auth::id(),
-            'brief_received_at' => $validated['brief_received_at'] ?? now(),
+            'brief_received_at' => now(),
+            'estimated_delivery_at' => $orderFulfillmentService->estimateForNewOrder($isExpress, now(), $expressPaymentAnchor),
             'amount_paid' => $amountPaid,
+            'pricing_breakdown' => [
+                'unit_price' => $unitPrice,
+                'quantity' => $quantity,
+                'base_total' => $baseTotal,
+                'express_fee' => $pricingAdjustments['express_fee'],
+                'sample_fee' => $pricingAdjustments['sample_fee'],
+                'total' => $total,
+            ],
             'job_image_assets' => JobAssetUpload::fromRequest($request),
         ]);
 
@@ -409,5 +443,18 @@ class AdminOrderController extends Controller
             ->filter(fn (array $phase): bool => $user->canAdmin((string) ($phase['permission'] ?? '')))
             ->values()
             ->all();
+    }
+
+    private function hasExpressPaymentAnchor(array $validated, float $amountPaid): bool
+    {
+        if ($amountPaid > 0) {
+            return true;
+        }
+
+        return in_array(
+            (string) ($validated['payment_status'] ?? ''),
+            ['Invoice Settled (70%)', 'Invoice Settled (100%)'],
+            true
+        );
     }
 }

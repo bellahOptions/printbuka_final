@@ -173,8 +173,8 @@
                                 Status *
                             </label>
                             <select name="status" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
-                                @foreach (['unpaid' => 'Unpaid', 'partially_paid' => 'Partially Paid', 'paid' => 'Paid', 'draft' => 'Draft'] as $value => $label)
-                                    <option value="{{ $value }}" @selected(old('status', $invoice->status) === $value)>{{ $label }}</option>
+                                @foreach (($invoiceStatuses ?? ['unpaid', 'paid', 'disputed']) as $value)
+                                    <option value="{{ $value }}" @selected(old('status', $invoice->status) === $value)>{{ str($value)->replace('_', ' ')->title() }}</option>
                                 @endforeach
                             </select>
                         </div>

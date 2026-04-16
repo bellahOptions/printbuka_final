@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Services\InvoiceService;
+use App\Services\OrderFulfillmentService;
 use App\Services\PaystackService;
 use App\Support\ReferenceCode;
 use App\Support\ServiceCatalog;
@@ -18,7 +19,8 @@ class ServiceOrderController extends Controller
         Request $request,
         string $service,
         InvoiceService $invoiceService,
-        PaystackService $paystackService
+        PaystackService $paystackService,
+        OrderFulfillmentService $orderFulfillmentService
     ): RedirectResponse {
         $serviceData = ServiceCatalog::find($service);
         abort_if(! $serviceData, 404);
@@ -88,6 +90,9 @@ class ServiceOrderController extends Controller
             'quantity' => $quantity,
             'unit_price' => $unitPrice,
             'total_price' => $total,
+            'priority' => '🟡 Normal',
+            'brief_received_at' => now(),
+            'estimated_delivery_at' => $orderFulfillmentService->estimateForNewOrder(false, now()),
             'status' => 'Analyzing Job Brief',
             'payment_status' => 'Invoice Issued',
             'pricing_breakdown' => [

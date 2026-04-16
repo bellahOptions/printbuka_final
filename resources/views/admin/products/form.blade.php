@@ -18,7 +18,7 @@
                         <select id="product-category-select" name="product_category_id" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
                             <option value="">Unassigned</option>
                             @foreach ($categories as $category)
-                                <option value="{{ $category->id }}" @selected((int) old('product_category_id', $product->product_category_id) === $category->id)>{{ $category->name }}</option>
+                                <option value="{{ $category->id }}" @selected((int) old('product_category_id', $product->product_category_id) === $category->id)>{{ $category->parent ? $category->parent->name.' > '.$category->name : $category->name }}</option>
                             @endforeach
                         </select>
                         @error('product_category_id')<span class="mt-2 block text-xs font-bold text-pink-700">{{ $message }}</span>@enderror

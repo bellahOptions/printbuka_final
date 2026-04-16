@@ -44,6 +44,10 @@
                     <th>Payment Date</th>
                     <td>{{ $invoice->paid_at?->format('M d, Y h:i A') ?? now()->format('M d, Y h:i A') }}</td>
                 </tr>
+                <tr>
+                    <th>Estimated Delivery</th>
+                    <td>{{ $invoice->order->estimated_delivery_at?->format('M d, Y h:i A') ?? 'To be confirmed' }}</td>
+                </tr>
                 @if($invoice->payment_reference)
                     <tr>
                         <th>Payment Reference</th>

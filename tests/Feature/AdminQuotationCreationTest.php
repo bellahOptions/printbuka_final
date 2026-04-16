@@ -75,7 +75,7 @@ class AdminQuotationCreationTest extends TestCase
         $this->assertSame($customer->email, $order->customer_email);
         $this->assertMatchesRegularExpression('/^QTE-\d{8}(?:\d{6})?-[A-Z0-9]{6,8}$/', (string) $order->job_order_number);
         $this->assertMatchesRegularExpression('/^INV-\d{8}(?:\d{6})?-[A-Z0-9]{6,8}$/', (string) $invoice->invoice_number);
-        $this->assertSame('draft', $invoice->status);
+        $this->assertSame('unpaid', $invoice->status);
         $this->assertSame('50500.00', $invoice->total_amount);
     }
 

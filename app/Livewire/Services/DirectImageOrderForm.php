@@ -4,6 +4,7 @@ namespace App\Livewire\Services;
 
 use App\Models\Order;
 use App\Services\InvoiceService;
+use App\Services\OrderFulfillmentService;
 use App\Services\PaystackService;
 use App\Support\ProductOptionPricing;
 use App\Support\ReferenceCode;
@@ -191,7 +192,11 @@ class DirectImageOrderForm extends Component
         return ($quantity * $this->unitPrice) + $this->designPrice + $this->deliveryPrice;
     }
 
-    public function submit(InvoiceService $invoiceService, PaystackService $paystackService)
+    public function submit(
+        InvoiceService $invoiceService,
+        PaystackService $paystackService,
+        OrderFulfillmentService $orderFulfillmentService
+    )
     {
         $typeLabels = collect($this->paperTypeOptions)->pluck('label')->map(fn ($label): string => (string) $label)->all();
         $sizeLabels = collect($this->paperSizeOptions)->pluck('label')->map(fn ($label): string => (string) $label)->all();
@@ -267,6 +272,9 @@ class DirectImageOrderForm extends Component
             'quantity' => (int) $validated['quantity'],
             'unit_price' => $this->unitPrice,
             'total_price' => $this->estimatedTotal,
+            'priority' => '🟡 Normal',
+            'brief_received_at' => now(),
+            'estimated_delivery_at' => $orderFulfillmentService->estimateForNewOrder(false, now()),
             'customer_name' => $validated['customer_name'],
             'customer_email' => $validated['customer_email'],
             'customer_phone' => $validated['customer_phone'],

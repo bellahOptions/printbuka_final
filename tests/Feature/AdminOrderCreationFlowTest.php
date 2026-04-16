@@ -15,6 +15,7 @@ class AdminOrderCreationFlowTest extends TestCase
     public function test_admin_can_create_job_for_existing_customer_with_pickup_and_creator_tracking(): void
     {
         Mail::fake();
+        $manualBriefDate = now()->subDays(4)->format('Y-m-d H:i:s');
 
         $admin = $this->adminUser('customer_service');
         $customer = User::factory()->create([
@@ -36,6 +37,7 @@ class AdminOrderCreationFlowTest extends TestCase
                 'priority' => '🟡 Normal',
                 'payment_status' => 'Invoice Issued',
                 'delivery_preference' => 'pickup',
+                'brief_received_at' => $manualBriefDate,
                 'customer_id' => $customer->id,
                 'customer_name' => 'Wrong Name',
                 'customer_email' => 'wrong.email@example.com',
@@ -48,6 +50,7 @@ class AdminOrderCreationFlowTest extends TestCase
         $this->assertSame($customer->id, $order->user_id);
         $this->assertSame($admin->id, $order->created_by_admin_id);
         $this->assertSame($admin->id, $order->brief_received_by_id);
+        $this->assertNotSame($manualBriefDate, $order->brief_received_at?->format('Y-m-d H:i:s'));
         $this->assertSame($customer->displayName(), $order->customer_name);
         $this->assertSame($customer->email, $order->customer_email);
         $this->assertSame($customer->phone, $order->customer_phone);

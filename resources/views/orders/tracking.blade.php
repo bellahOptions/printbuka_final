@@ -28,6 +28,17 @@
                     <p class="text-sm font-bold text-slate-500">Ordered</p>
                     <p class="mt-1 text-2xl font-black text-slate-950">{{ $order->created_at->format('M d') }}</p>
                 </div>
+                <div class="rounded-md border border-slate-200 bg-white p-5 shadow-sm sm:col-span-2 lg:col-span-4">
+                    <p class="text-sm font-bold text-slate-500">Estimated delivery</p>
+                    <p class="mt-1 text-2xl font-black text-slate-950">
+                        {{ $order->estimated_delivery_at?->format('M d, Y h:i A') ?? 'Pending payment confirmation for delivery ETA.' }}
+                    </p>
+                    @if ($order->is_sample)
+                        <p class="mt-2 text-xs font-bold text-pink-700">Sample order (auto-express)</p>
+                    @elseif ($order->is_express)
+                        <p class="mt-2 text-xs font-bold text-pink-700">Express order</p>
+                    @endif
+                </div>
             </div>
 
             <div class="mt-8 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
@@ -48,7 +59,13 @@
                         </div>
                         <div class="flex justify-between gap-4 border-b border-slate-100 pb-3">
                             <span class="font-bold text-slate-500">{{ $order->service_type === 'quote' ? 'Request status' : 'Invoice status' }}</span>
-                            <span class="font-black text-slate-950">{{ $order->service_type === 'quote' ? $order->status : ucfirst($order->invoice?->status ?? 'pending') }}</span>
+                            <span class="font-black text-slate-950">{{ $order->service_type === 'quote' ? $order->status : str($order->invoice?->status ?? 'pending')->replace('_', ' ')->title() }}</span>
+                        </div>
+                        <div class="flex justify-between gap-4 border-b border-slate-100 pb-3">
+                            <span class="font-bold text-slate-500">Fulfilment</span>
+                            <span class="font-black text-slate-950">
+                                {{ $order->is_sample ? 'Sample · Express' : ($order->is_express ? 'Express' : 'Standard') }}
+                            </span>
                         </div>
                     </div>
                 </section>

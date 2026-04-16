@@ -18,6 +18,14 @@ use Illuminate\View\View;
 
 class AdminInvoiceController extends Controller
 {
+    /**
+     * @return array<int, string>
+     */
+    private function allowedInvoiceStatuses(): array
+    {
+        return ['unpaid', 'paid', 'disputed'];
+    }
+
     public function index(): View
     {
         return view('admin.invoices.index', [
@@ -29,11 +37,12 @@ class AdminInvoiceController extends Controller
     {
         return view('admin.invoices.form', [
             'invoice' => new Invoice([
-                'status' => 'draft',
+                'status' => 'unpaid',
                 'issued_at' => now(),
                 'invoice_number' => ReferenceCode::invoiceNumber(),
             ]),
             'orders' => Order::query()->latest()->get(),
+            'invoiceStatuses' => $this->allowedInvoiceStatuses(),
         ]);
     }
 
@@ -76,6 +85,7 @@ class AdminInvoiceController extends Controller
         return view('admin.invoices.form', [
             'invoice' => $invoice,
             'orders' => Order::query()->latest()->get(),
+            'invoiceStatuses' => $this->allowedInvoiceStatuses(),
         ]);
     }
 
@@ -171,7 +181,7 @@ class AdminInvoiceController extends Controller
                 'tax_amount' => $validated['tax_amount'],
                 'discount_amount' => $validated['discount_amount'],
                 'total_amount' => $total,
-                'status' => 'draft',
+                'status' => 'unpaid',
                 'issued_at' => now(),
                 'due_at' => $validated['due_at'] ?? now()->addDays(7),
                 'sent_at' => null,
@@ -204,7 +214,7 @@ class AdminInvoiceController extends Controller
             'tax_amount' => ['nullable', 'numeric', 'min:0'],
             'discount_amount' => ['nullable', 'numeric', 'min:0'],
             'total_amount' => ['required', 'numeric', 'min:0'],
-            'status' => ['required', 'string', 'max:255'],
+            'status' => ['required', 'string', Rule::in($this->allowedInvoiceStatuses())],
             'issued_at' => ['nullable', 'date'],
             'due_at' => ['nullable', 'date'],
             'sent_at' => ['nullable', 'date'],
@@ -213,6 +223,7 @@ class AdminInvoiceController extends Controller
         $validated['tax_amount'] ??= 0;
         $validated['discount_amount'] ??= 0;
         $validated['invoice_number'] = $validated['invoice_number'] ?: ($invoice?->invoice_number ?: ReferenceCode::invoiceNumber());
+        $validated['status'] = strtolower((string) $validated['status']);
 
         return $validated;
     }

@@ -54,6 +54,12 @@
                     <th>Status</th>
                     <td>{{ str($invoice->status)->replace('_', ' ')->title() }}</td>
                 </tr>
+                <tr>
+                    <th>Estimated Delivery</th>
+                    <td colspan="3">
+                        {{ $invoice->order->estimated_delivery_at?->format('M d, Y h:i A') ?? 'To be confirmed' }}
+                    </td>
+                </tr>
             </table>
         </div>
 
