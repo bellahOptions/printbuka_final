@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', ($invoice->exists ? 'Edit Invoice' : 'Create Invoice').' | Printbuka')
+@section('title', ($invoice->exists ? 'Edit '.$invoice->documentTypeLabel() : 'Create Invoice').' | Printbuka')
 
 @section('content')
     <div class="mx-auto max-w-5xl space-y-6">
@@ -16,9 +16,9 @@
             </div>
             <div class="flex items-start gap-4">
                 <div class="flex-1">
-                    <h1 class="text-4xl font-black tracking-tight lg:text-5xl">{{ $invoice->exists ? 'Edit invoice' : 'Create invoice' }}</h1>
+                    <h1 class="text-4xl font-black tracking-tight lg:text-5xl">{{ $invoice->exists ? 'Edit '.strtolower($invoice->documentTypeLabel()) : 'Create invoice' }}</h1>
                     <p class="mt-3 max-w-3xl text-base leading-relaxed text-slate-300">
-                        {{ $invoice->exists ? 'Update invoice details and payment status.' : 'Generate a new invoice for an existing order.' }}
+                        {{ $invoice->exists ? 'Update '.strtolower($invoice->documentTypeLabel()).' details and payment status.' : 'Generate a new invoice for an existing order.' }}
                     </p>
                 </div>
                 <div class="hidden sm:block">
@@ -229,7 +229,7 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>
-                            {{ $invoice->exists ? 'Update Invoice' : 'Save Invoice' }}
+                            {{ $invoice->exists ? 'Update '.$invoice->documentTypeLabel() : 'Save Invoice' }}
                         </span>
                         <div class="absolute inset-0 -translate-x-full group-hover:translate-x-0 transition-transform duration-500 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
                     </button>

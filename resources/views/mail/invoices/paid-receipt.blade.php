@@ -4,6 +4,9 @@
         <meta charset="utf-8">
         <title>Payment confirmed</title>
     </head>
+    @php
+        $documentType = $invoice->documentTypeLabel();
+    @endphp
     <body style="margin:0;background:#f8fafc;font-family:Arial,sans-serif;color:#0f172a;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:32px 16px;">
             <tr>
@@ -12,7 +15,7 @@
                         <tr>
                             <td style="background:#0f172a;color:#ffffff;padding:28px;">
                                 <h1 style="margin:0;font-size:28px;">Payment confirmed</h1>
-                                <p style="margin:12px 0 0;color:#cbd5e1;">Invoice {{ $invoice->invoice_number }} has been marked as paid.</p>
+                                <p style="margin:12px 0 0;color:#cbd5e1;">{{ $documentType }} {{ $invoice->invoice_number }} has been marked as paid.</p>
                             </td>
                         </tr>
                         <tr>

@@ -32,6 +32,9 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::resource('invoices', AdminInvoiceController::class)
             ->except('show')
             ->middleware('admin.permission:invoices.manage');
+        Route::patch('/invoices/{invoice}/mark-paid', [AdminInvoiceController::class, 'markAsPaid'])
+            ->middleware('admin.permission:invoices.manage')
+            ->name('invoices.mark-paid');
         Route::get('/invoices/quotations/create', [AdminInvoiceController::class, 'createQuotation'])
             ->middleware('admin.permission:invoices.manage')
             ->name('invoices.quotations.create');

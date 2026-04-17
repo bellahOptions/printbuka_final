@@ -4,6 +4,10 @@
         <meta charset="utf-8">
         <title>{{ $invoice->invoice_number }}</title>
     </head>
+    @php
+        $documentType = $invoice->documentTypeLabel();
+        $documentTypeLower = strtolower($documentType);
+    @endphp
     <body style="margin:0;background:#f8fafc;font-family:Arial,sans-serif;color:#0f172a;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:32px 16px;">
             <tr>
@@ -11,14 +15,14 @@
                     <table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border-radius:8px;overflow:hidden;">
                         <tr>
                             <td style="background:#0f172a;color:#ffffff;padding:28px;">
-                                <h1 style="margin:0;font-size:28px;">Your Printbuka invoice is ready</h1>
-                                <p style="margin:12px 0 0;color:#cbd5e1;">Invoice {{ $invoice->invoice_number }} for order {{ $invoice->order->job_order_number ?? $invoice->order->displayNumber() }} is attached as a PDF.</p>
+                                <h1 style="margin:0;font-size:28px;">Your Printbuka {{ $documentTypeLower }} is ready</h1>
+                                <p style="margin:12px 0 0;color:#cbd5e1;">{{ $documentType }} {{ $invoice->invoice_number }} for order {{ $invoice->order->job_order_number ?? $invoice->order->displayNumber() }} is attached as a PDF.</p>
                             </td>
                         </tr>
                         <tr>
                             <td style="padding:28px;">
                                 <p style="margin:0 0 16px;">Hello {{ $invoice->order->customer_name }},</p>
-                                <p style="margin:0 0 20px;line-height:1.6;">Thank you for placing your {{ $invoice->order->service_type }} order with Printbuka. Our team will review your artwork and delivery details, then follow up with the next production steps.</p>
+                                <p style="margin:0 0 20px;line-height:1.6;">Thank you for placing your {{ $invoice->order->service_type }} order with Printbuka. Your {{ $documentTypeLower }} is attached, and our team will follow up on the next production steps.</p>
 
                                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:24px 0;">
                                     <tr>

@@ -19,17 +19,20 @@ class InvoiceMail extends Mailable
 
     public function build(): self
     {
+        $documentType = $this->invoice->documentTypeLabel();
+        $documentTypeSlug = str($documentType)->lower()->replace(' ', '-')->value();
+
         $pdf = Pdf::loadView('invoices.pdf', [
             'invoice' => $this->invoice,
         ])->output();
 
         return $this
-            ->subject('Your Printbuka invoice '.$this->invoice->invoice_number)
+            ->subject('Your Printbuka '.strtolower($documentType).' '.$this->invoice->invoice_number)
             ->view('mail.invoices.created')
             ->with([
                 'invoice' => $this->invoice,
             ])
-            ->attachData($pdf, 'invoice-'.$this->invoice->invoice_number.'.pdf', [
+            ->attachData($pdf, $documentTypeSlug.'-'.$this->invoice->invoice_number.'.pdf', [
                 'mime' => 'application/pdf',
             ]);
     }

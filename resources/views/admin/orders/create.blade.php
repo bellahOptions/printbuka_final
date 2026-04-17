@@ -94,16 +94,22 @@
                         </select>
                     </div>
 
-                    <div class="relative my-4">
-                        <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-slate-200"></div>
-                        </div>
-                        <div class="relative flex justify-center">
-                            <span class="bg-white px-3 text-xs font-black uppercase tracking-wider text-slate-400">Or</span>
-                        </div>
+                    <div class="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-3">
+                        <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Need to add a new customer?</p>
+                        <button
+                            type="button"
+                            id="job-toggle-new-customer"
+                            class="rounded-lg border border-cyan-200 bg-white px-3 py-2 text-xs font-black uppercase tracking-wide text-cyan-700 transition-colors hover:bg-cyan-50"
+                            aria-expanded="false"
+                            aria-controls="job-new-customer-form"
+                        >
+                            Add New Customer
+                        </button>
                     </div>
 
-                    <livewire:admin.customer-quick-create />
+                    <div id="job-new-customer-form" class="hidden rounded-xl border border-cyan-100 bg-cyan-50/30 p-4">
+                        <livewire:admin.customer-quick-create />
+                    </div>
 
                     <div class="grid gap-5 sm:grid-cols-2 mt-4">
                         <div class="space-y-1">
@@ -398,6 +404,8 @@
             const nameInput = document.getElementById('job-customer-name');
             const emailInput = document.getElementById('job-customer-email');
             const phoneInput = document.getElementById('job-customer-phone');
+            const toggleNewCustomerButton = document.getElementById('job-toggle-new-customer');
+            const newCustomerForm = document.getElementById('job-new-customer-form');
             const pickupRadio = document.getElementById('delivery-preference-pickup');
             const deliveryRadio = document.getElementById('delivery-preference-delivery');
             const deliveryFields = document.getElementById('delivery-fields');
@@ -414,6 +422,13 @@
                 nameInput.value = option.getAttribute('data-customer-name') ?? nameInput.value;
                 emailInput.value = option.getAttribute('data-customer-email') ?? emailInput.value;
                 phoneInput.value = option.getAttribute('data-customer-phone') ?? phoneInput.value;
+            };
+
+            const setNewCustomerFormVisible = (visible) => {
+                if (!newCustomerForm || !toggleNewCustomerButton) return;
+                newCustomerForm.classList.toggle('hidden', !visible);
+                toggleNewCustomerButton.setAttribute('aria-expanded', visible ? 'true' : 'false');
+                toggleNewCustomerButton.textContent = visible ? 'Hide New Customer Form' : 'Add New Customer';
             };
 
             const syncDeliveryState = () => {
@@ -464,6 +479,10 @@
                 hydrateFromOption(event.target.selectedOptions?.[0]);
             });
 
+            toggleNewCustomerButton?.addEventListener('click', () => {
+                setNewCustomerFormVisible(newCustomerForm?.classList.contains('hidden'));
+            });
+
             window.addEventListener('admin-customer-created', (event) => {
                 const rawDetail = event.detail ?? {};
                 const detail = Array.isArray(rawDetail) ? (rawDetail[0] ?? {}) : rawDetail;
@@ -483,12 +502,14 @@
                 option.setAttribute('data-customer-phone', customer.phone ?? '');
                 customerSelect.value = customerId;
                 hydrateFromOption(option);
+                setNewCustomerFormVisible(false);
             });
 
             pickupRadio?.addEventListener('change', syncDeliveryState);
             deliveryRadio?.addEventListener('change', syncDeliveryState);
             expressCheckbox?.addEventListener('change', syncSampleRules);
             sampleCheckbox?.addEventListener('change', syncSampleRules);
+            setNewCustomerFormVisible(false);
             syncDeliveryState();
             syncSampleRules();
         })();

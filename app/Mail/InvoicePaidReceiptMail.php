@@ -19,12 +19,14 @@ class InvoicePaidReceiptMail extends Mailable
 
     public function build(): self
     {
+        $documentType = $this->invoice->documentTypeLabel();
+
         $pdf = Pdf::loadView('receipts.pdf', [
             'invoice' => $this->invoice,
         ])->output();
 
         return $this
-            ->subject('Payment confirmed - '.$this->invoice->invoice_number)
+            ->subject('Payment confirmed - '.$documentType.' '.$this->invoice->invoice_number)
             ->view('mail.invoices.paid-receipt')
             ->with([
                 'invoice' => $this->invoice,

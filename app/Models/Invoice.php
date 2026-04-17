@@ -41,4 +41,14 @@ class Invoice extends Model
     {
         return $this->belongsTo(Order::class);
     }
+
+    public function isQuotation(): bool
+    {
+        return strtolower((string) ($this->order?->service_type ?? '')) === 'quote';
+    }
+
+    public function documentTypeLabel(): string
+    {
+        return $this->isQuotation() ? 'Quotation' : 'Invoice';
+    }
 }
