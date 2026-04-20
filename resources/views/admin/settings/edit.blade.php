@@ -206,6 +206,38 @@
                 @if (auth()->user()?->role === 'super_admin')
                     <div>
                         <div class="flex items-center gap-3 mb-6">
+                            <div class="p-2 rounded-xl bg-gradient-to-br from-violet-100 to-violet-50 border border-violet-200">
+                                <svg class="w-5 h-5 text-violet-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a5 5 0 00-10 0v2m-2 0h14l-1 11H6L5 9z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-black text-slate-950">Company Account Details (Super Admin)</h2>
+                                <p class="text-sm text-slate-500">Used on quotations, invoices and invoice-related emails.</p>
+                            </div>
+                        </div>
+                        <div class="grid gap-5 sm:grid-cols-2 mb-8">
+                            <div class="space-y-1">
+                                <label class="text-sm font-black text-slate-700">Account Name</label>
+                                <input name="company_account_name" value="{{ old('company_account_name', $settings['company_account_name'] ?? '') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="Printbuka Limited">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-sm font-black text-slate-700">Account Number</label>
+                                <input name="company_account_number" value="{{ old('company_account_number', $settings['company_account_number'] ?? '') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="0123456789">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-sm font-black text-slate-700">Bank Name</label>
+                                <input name="company_account_bank_name" value="{{ old('company_account_bank_name', $settings['company_account_bank_name'] ?? '') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="GTBank">
+                            </div>
+                            <div class="space-y-1 sm:col-span-2">
+                                <label class="text-sm font-black text-slate-700">Account Note (Optional)</label>
+                                <textarea name="company_account_note" rows="3" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Use your invoice number as payment reference">{{ old('company_account_note', $settings['company_account_note'] ?? '') }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center gap-3 mb-6">
                             <div class="p-2 rounded-xl bg-gradient-to-br from-cyan-100 to-cyan-50 border border-cyan-200">
                                 <svg class="w-5 h-5 text-cyan-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V7m0 1v8m0 0v1m0-1a4 4 0 01-3.464-2M12 8a4 4 0 013.464 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>

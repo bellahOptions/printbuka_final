@@ -208,6 +208,6 @@ class AuthController extends Controller
     {
         return Auth::user()?->hasAdminAccess()
             ? route('admin.dashboard')
-            : route('dashboard');
+            : route('dashboard'); 
     }
 }

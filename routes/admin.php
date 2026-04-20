@@ -22,7 +22,7 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
 
         Route::resource('products', AdminProductController::class)
             ->except('show')
-            ->middleware('admin.permission:products.manage');
+            ->middleware('admin.permission:products.manage'); 
         Route::resource('product-categories', AdminProductCategoryController::class)
             ->except('show')
             ->middleware('admin.permission:product_categories.manage');

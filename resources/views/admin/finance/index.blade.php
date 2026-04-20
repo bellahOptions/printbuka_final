@@ -168,7 +168,7 @@
             <div class="rounded-xl border border-slate-200/60 bg-white p-5">
                 <p class="text-xs font-black uppercase tracking-wider text-slate-500">Average Transaction</p>
                 <p class="mt-2 text-2xl font-black text-slate-950">₦{{ number_format($entries->avg('amount') ?? 0, 2) }}</p>
-            </div>
+            </div> 
             <div class="rounded-xl border border-slate-200/60 bg-white p-5">
                 <p class="text-xs font-black uppercase tracking-wider text-slate-500">Largest Income</p>
                 <p class="mt-2 text-2xl font-black text-emerald-700">₦{{ number_format($entries->where('type', 'income')->max('amount') ?? 0, 2) }}</p>

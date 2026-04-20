@@ -1,188 +1,212 @@
+{{-- 
+    PrintBuka Registration Page - DaisyUI Redesign
+    Maintains brand identity while improving conversion flow
+--}}
+
 @extends('layouts.theme')
 
-@section('title', 'Register | Printbuka')
+@section('title', 'Create Account | PrintBuka')
 
 @section('content')
-    <main class="bg-[#f4fbfb] px-4 py-16 text-slate-900 sm:px-6 lg:px-8">
-        <section class="mx-auto grid max-w-6xl overflow-hidden rounded-md bg-white shadow-xl shadow-cyan-950/10 lg:grid-cols-[1.1fr_0.9fr]">
-            <div class="p-6 sm:p-10">
-                <p class="text-sm font-black uppercase tracking-wide text-pink-700">Create Account</p>
-                <h1 class="mt-2 text-4xl text-slate-950">Start printing with Printbuka.</h1>
-                <p class="mt-3 text-sm leading-6 text-slate-600">Already have an account? <a href="{{ route('login') }}" class="font-black text-pink-700 hover:text-pink-800">Login here</a>.</p>
+<main class="min-h-screen bg-gradient-to-br from-[#f4fbfb] to-white px-4 py-12 sm:px-6 lg:px-8">
+    {{-- Hero Section --}}
+    <div class="mx-auto max-w-7xl text-center mb-8 lg:mb-12">
+        <div class="inline-flex items-center gap-2 rounded-full bg-pink-50 px-4 py-1.5 text-sm font-medium text-pink-700">
+            🚀 Join the Print Revolution
+        </div>
+        <h1 class="mt-6 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+            Start Your <span class="text-pink-600">Printing Journey</span>
+        </h1>
+        <p class="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
+            Create an account to save designs, track orders, and access exclusive print deals.
+        </p>
+    </div>
 
-                <form w action="{{ route('register.store') }}" method="POST" class="mt-8 space-y-5">
+    <div class="mx-auto max-w-5xl">
+        <div class="grid overflow-hidden rounded-2xl bg-white shadow-2xl shadow-slate-200/50 lg:grid-cols-5">
+            
+            {{-- Left Column - Benefits (DaisyUI Stats) --}}
+            <div class="hidden lg:block lg:col-span-2 bg-gradient-to-br from-slate-900 to-slate-800 p-8 text-white">
+                <div class="flex h-full flex-col justify-between">
+                    <div class="space-y-8">
+                        <div>
+                            <p class="text-sm font-semibold uppercase tracking-wider text-cyan-300">Why Join PrintBuka?</p>
+                            <h2 class="mt-3 text-2xl font-bold">Your Creative Workspace Awaits</h2>
+                        </div>
+                        
+                        {{-- Stats Grid (DaisyUI Stats) --}}
+                        <div class="grid gap-4">
+                            <div class="stat bg-white/10 rounded-xl p-4">
+                                <div class="stat-value text-3xl text-cyan-300">50+</div>
+                                <div class="stat-title text-white/80 text-sm">Product Categories</div>
+                                <div class="stat-desc text-white/60 text-xs">From flyers to custom gifts</div>
+                            </div>
+                            <div class="stat bg-white/10 rounded-xl p-4">
+                                <div class="stat-value text-3xl text-pink-300">24hr</div>
+                                <div class="stat-title text-white/80 text-sm">Express Production</div>
+                                <div class="stat-desc text-white/60 text-xs">Rush orders available</div>
+                            </div>
+                            <div class="stat bg-white/10 rounded-xl p-4">
+                                <div class="stat-value text-3xl text-cyan-300">10k+</div>
+                                <div class="stat-title text-white/80 text-sm">Happy Businesses</div>
+                                <div class="stat-desc text-white/60 text-xs">Across Nigeria</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Testimonial Preview --}}
+                    <div class="mt-6 rounded-xl bg-white/10 p-4">
+                        <div class="flex items-center gap-2 text-cyan-300 text-sm">★★★★★</div>
+                        <p class="mt-2 text-sm italic text-white/80">"Best print quality in Lagos. Their DTF transfers are unmatched!"</p>
+                        <p class="mt-2 text-xs text-white/60">— Adeola O., Creative Director</p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Right Column - Registration Form --}}
+            <div class="lg:col-span-3 p-6 sm:p-8 lg:p-10">
+                {{-- Mobile Header --}}
+                <div class="mb-6 lg:hidden">
+                    <div class="flex items-center gap-2">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-pink-600">
+                            <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                        </div>
+                        <span class="text-xl font-black tracking-tight text-slate-900">PrintBuka</span>
+                    </div>
+                </div>
+
+                {{-- Form Header --}}
+                <div class="mb-6">
+                    <p class="text-sm font-bold uppercase tracking-wider text-pink-600">Get Started</p>
+                    <h3 class="mt-1 text-2xl font-bold text-slate-900">Create Free Account</h3>
+                    <p class="mt-1 text-sm text-slate-600">
+                        Already have an account? 
+                        <a href="{{ route('login') }}" class="link link-hover font-bold text-pink-600">Sign in here</a>
+                    </p>
+                </div>
+
+                {{-- Registration Form --}}
+                <form action="{{ route('register.store') }}" method="POST" class="space-y-5">
                     @csrf
 
-                    <div>
-                        <label for="name" class="text-sm font-black text-slate-800">First name</label>
-                        <input
-                            id="first_name"
-                            name="first_name"
-                            type="text"
-                            value="{{ old('first_name') }}"
-                            autocomplete="name"
-                            class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
-                            required
-                        />
-                        @error('first_name')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                     <div>
-                        <label for="last_name" class="text-sm font-black text-slate-800">Last name</label>
-                        <input
-                            id="last_name"
-                            name="last_name"
-                            type="text"
-                            value="{{ old('last_name') }}"
-                            autocomplete="name"
-                            class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
-                            required
-                        />
-                        @error('name')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="grid gap-5 grid-cols-2">
-                         <div>
-                        <label for="phone" class="text-sm font-black text-slate-800">Phone/Whatsapp</label>
-                        <input
-                            id="phone"
-                            name="phone"
-                            type="text"
-                            value="{{ old('phone') }}"
-                            autocomplete="phone"
-                            class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
-                            required
-                        />
-                        @error('phone')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                     <div>
-                        <label for="company" class="text-sm font-black text-slate-800">COmpany Name</label>
-                        <input
-                            id="comapny"
-                            name="companyName"
-                            type="text"
-                            value="{{ old('first_name') }}"
-                            autocomplete="companyName"
-                            class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
-                            required
-                        />
-                        @error('name')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    </div>
-                    <div>
-                        <label for="email" class="text-sm font-black text-slate-800">Email address</label>
-                        <input
-                            id="email"
-                            name="email"
-                            type="email"
-                            value="{{ old('email') }}"
-                            autocomplete="email"
-                            class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
-                            required
-                        />
-                        @error('email')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
-                        @enderror
-                    </div>
-
+                    {{-- Name Row (DaisyUI Grid) --}}
                     <div class="grid gap-5 sm:grid-cols-2">
-                        <div>
-                            <label for="password" class="text-sm font-black text-slate-800">Password</label>
-                            <div class="relative mt-2">
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    autocomplete="new-password"
-                                    class="min-h-12 w-full rounded-md border border-slate-200 px-4 pr-28 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
-                                    required
-                                />
-                                <button
-                                    type="button"
-                                    data-password-toggle
-                                    data-target="password"
-                                    class="absolute right-2 top-1/2 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:bg-slate-50"
-                                >
-                                    Show
-                                </button>
-                            </div>
-                            @error('password')
-                                <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
-                            @enderror
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-semibold text-slate-700">First Name</span></label>
+                            <input type="text" name="first_name" value="{{ old('first_name') }}" 
+                                class="input input-bordered w-full focus:input-primary @error('first_name') input-error @enderror"
+                                placeholder="John" required />
+                            @error('first_name') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
                         </div>
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-semibold text-slate-700">Last Name</span></label>
+                            <input type="text" name="last_name" value="{{ old('last_name') }}" 
+                                class="input input-bordered w-full focus:input-primary @error('last_name') input-error @enderror"
+                                placeholder="Doe" required />
+                            @error('last_name') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
 
-                        <div>
-                            <label for="password_confirmation" class="text-sm font-black text-slate-800">Confirm password</label>
-                            <div class="relative mt-2">
-                                <input
-                                    id="password_confirmation"
-                                    name="password_confirmation"
-                                    type="password"
-                                    autocomplete="new-password"
-                                    class="min-h-12 w-full rounded-md border border-slate-200 px-4 pr-28 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
-                                    required
-                                />
-                                <button
-                                    type="button"
-                                    data-password-toggle
-                                    data-target="password_confirmation"
-                                    class="absolute right-2 top-1/2 -translate-y-1/2 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 transition hover:bg-slate-50"
-                                >
-                                    Show
-                                </button>
+                    {{-- Contact Row --}}
+                    <div class="grid gap-5 sm:grid-cols-2">
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-semibold text-slate-700">Phone / WhatsApp</span></label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">+234</span>
+                                <input type="tel" name="phone" value="{{ old('phone') }}" 
+                                    class="input input-bordered w-full pl-14 focus:input-primary @error('phone') input-error @enderror"
+                                    placeholder="8012345678" required />
+                            </div>
+                            @error('phone') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                        </div>
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-semibold text-slate-700">Company Name</span></label>
+                            <input type="text" name="companyName" value="{{ old('companyName') }}" 
+                                class="input input-bordered w-full focus:input-primary"
+                                placeholder="Your Brand Ltd" />
+                        </div>
+                    </div>
+
+                    {{-- Email Field --}}
+                    <div class="form-control w-full">
+                        <label class="label"><span class="label-text font-semibold text-slate-700">Email Address</span></label>
+                        <input type="email" name="email" value="{{ old('email') }}" 
+                            class="input input-bordered w-full focus:input-primary @error('email') input-error @enderror"
+                            placeholder="hello@yourcompany.com" required />
+                        @error('email') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                    </div>
+
+                    {{-- Password Row --}}
+                    <div class="grid gap-5 sm:grid-cols-2">
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-semibold text-slate-700">Password</span></label>
+                            <div class="relative">
+                                <input id="password" name="password" type="password" 
+                                    class="input input-bordered w-full pr-24 focus:input-primary @error('password') input-error @enderror"
+                                    placeholder="••••••••" required />
+                                <button type="button" data-password-toggle data-target="password"
+                                    class="btn btn-ghost btn-xs absolute right-2 top-1/2 -translate-y-1/2">Show</button>
+                            </div>
+                            @error('password') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                        </div>
+                        <div class="form-control w-full">
+                            <label class="label"><span class="label-text font-semibold text-slate-700">Confirm Password</span></label>
+                            <div class="relative">
+                                <input id="password_confirmation" name="password_confirmation" type="password" 
+                                    class="input input-bordered w-full pr-24 focus:input-primary"
+                                    placeholder="••••••••" required />
+                                <button type="button" data-password-toggle data-target="password_confirmation"
+                                    class="btn btn-ghost btn-xs absolute right-2 top-1/2 -translate-y-1/2">Show</button>
                             </div>
                         </div>
                     </div>
 
-                    <p class="text-xs font-bold leading-6 text-slate-500">
-                        By creating an account, you agree to our
-                        <a href="{{ route('policies.terms') }}" class="font-black text-pink-700 hover:text-pink-800">Terms & Conditions</a>,
-                        <a href="{{ route('policies.privacy') }}" class="font-black text-pink-700 hover:text-pink-800">Privacy Policy</a>, and
-                        <a href="{{ route('policies.refund') }}" class="font-black text-pink-700 hover:text-pink-800">Refund Policy</a>.
-                    </p>
+                    {{-- Terms Agreement --}}
+                    <div class="form-control">
+                        <label class="label cursor-pointer justify-start gap-3">
+                            <input type="checkbox" class="checkbox checkbox-sm checkbox-pink-600" required />
+                            <span class="label-text text-slate-600 text-sm">
+                                I agree to the 
+                                <a href="{{ route('policies.terms') }}" class="link link-hover text-pink-600">Terms</a>, 
+                                <a href="{{ route('policies.privacy') }}" class="link link-hover text-pink-600">Privacy</a>, and 
+                                <a href="{{ route('policies.refund') }}" class="link link-hover text-pink-600">Refund</a> policies.
+                            </span>
+                        </label>
+                    </div>
 
-                    <button type="submit" class="min-h-12 w-full rounded-md bg-pink-600 px-5 text-sm font-black text-white transition hover:bg-pink-700">Create Account</button>
+                    {{-- Submit Button --}}
+                    <button type="submit" class="btn btn-block bg-pink-600 hover:bg-pink-700 border-pink-600 text-white font-bold shadow-md shadow-pink-200 mt-6">
+                        Create Free Account
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </button>
                 </form>
-            </div>
 
-            <div class="hidden bg-slate-950 p-10 text-white lg:flex lg:flex-col lg:justify-between">
-                <div>
-                    <p class="text-sm font-black uppercase tracking-wide text-cyan-300">Your dashboard</p>
-                    <h2 class="mt-4 text-5xl leading-tight">Keep print jobs, gifts and packaging in one place.</h2>
-                </div>
-                <div class="grid gap-3 text-sm font-bold">
-                    <div class="rounded-md bg-white px-4 py-3 text-slate-950">Save product choices</div>
-                    <div class="rounded-md bg-white px-4 py-3 text-slate-950">Track orders</div>
-                    <div class="rounded-md bg-white px-4 py-3 text-slate-950">Request branded gifts</div>
+                {{-- Trust Badge --}}
+                <div class="mt-6 flex items-center justify-center gap-4 text-xs text-slate-400">
+                    <span class="flex items-center gap-1">🔒 SSL Secure</span>
+                    <span class="flex items-center gap-1">💳 Secure Payments</span>
+                    <span class="flex items-center gap-1">🚚 Fast Delivery</span>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </div>
+</main>
 
-    <script>
-        (() => {
-            document.querySelectorAll('[data-password-toggle]').forEach((button) => {
-                const input = document.getElementById(button.dataset.target || '');
-                if (!input) {
-                    return;
-                }
-
-                button.addEventListener('click', () => {
-                    const shouldShow = input.type === 'password';
-                    input.type = shouldShow ? 'text' : 'password';
-                    button.textContent = shouldShow ? 'Hide' : 'Show';
-                });
+<script>
+    (() => {
+        document.querySelectorAll('[data-password-toggle]').forEach((button) => {
+            const input = document.getElementById(button.dataset.target || '');
+            if (!input) return;
+            button.addEventListener('click', () => {
+                const shouldShow = input.type === 'password';
+                input.type = shouldShow ? 'text' : 'password';
+                button.textContent = shouldShow ? 'Hide' : 'Show';
             });
-        })();
-    </script>
+        });
+    })();
+</script>
 @endsection

@@ -1,59 +1,68 @@
+{{-- 
+    PrintBuka Email Verification - DaisyUI Redesign
+--}}
+
 @extends('layouts.theme')
 
-@section('title', 'Verify Email | Printbuka')
+@section('title', 'Verify Email | PrintBuka')
 
 @section('content')
-    <main class="bg-[#f4fbfb] px-4 py-16 text-slate-900 sm:px-6 lg:px-8">
-        <section class="mx-auto grid max-w-4xl overflow-hidden rounded-md bg-white shadow-xl shadow-cyan-950/10 lg:grid-cols-[1fr_0.9fr]">
-            <div class="p-6 sm:p-10">
-                <p class="text-sm font-black uppercase tracking-wide text-pink-700">Email Verification</p>
-                <h1 class="mt-2 text-4xl text-slate-950">Verify your email before continuing.</h1>
-                <p class="mt-4 text-sm leading-6 text-slate-600">
-                    Open your email and click the verification link. If you did not receive it, request a new one below.
+<main class="min-h-screen bg-gradient-to-br from-[#f4fbfb] to-white px-4 py-16 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-md">
+        {{-- Icon --}}
+        <div class="mb-6 text-center">
+            <div class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-amber-100">
+                <svg class="h-8 w-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+            </div>
+        </div>
+
+        {{-- Main Card --}}
+        <div class="card bg-white shadow-xl rounded-2xl">
+            <div class="card-body p-6 sm:p-8 text-center">
+                <h2 class="card-title justify-center text-2xl">Verify Your Email</h2>
+                <p class="text-slate-600 text-sm mt-2">
+                    We sent a verification link to your email address. Click the link to activate your account.
                 </p>
 
                 @if (session('status'))
-                    <p class="mt-4 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">
-                        {{ session('status') }}
-                    </p>
+                    <div class="alert alert-success shadow-lg mt-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>{{ session('status') }}</span>
+                    </div>
                 @endif
 
-                <div class="mt-8">
-                    <form action="{{ route('verification.send') }}" method="POST" class="space-y-4">
-                        @csrf
-                        <div>
-                            <label for="email" class="text-sm font-black text-slate-800">Email address</label>
-                            <input
-                                id="email"
-                                name="email"
-                                type="email"
-                                value="{{ old('email', $email ?? '') }}"
-                                autocomplete="email"
-                                class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
-                                required
-                            />
-                            @error('email')
-                                <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        <button type="submit" class="min-h-12 rounded-md bg-pink-600 px-5 text-sm font-black text-white transition hover:bg-pink-700">
-                            Resend Verification Email
-                        </button>
-                    </form>
-                </div>
-                <p class="mt-4 text-sm font-bold text-slate-600">
-                    Already verified?
-                    <a href="{{ route('login') }}" class="font-black text-pink-700 hover:text-pink-800">Sign in here</a>.
+                {{-- Resend Form --}}
+                <form action="{{ route('verification.send') }}" method="POST" class="mt-6">
+                    @csrf
+                    <div class="form-control">
+                        <input type="email" name="email" value="{{ old('email', $email ?? '') }}" 
+                            class="input input-bordered w-full text-center @error('email') input-error @enderror"
+                            placeholder="Enter your email" required />
+                        @error('email') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                    </div>
+                    <button type="submit" class="btn btn-block bg-pink-600 hover:bg-pink-700 text-white mt-4">
+                        Resend Verification Email
+                    </button>
+                </form>
+
+                {{-- Divider --}}
+                <div class="divider text-xs text-slate-400">OR</div>
+
+                {{-- Login Link --}}
+                <a href="{{ route('login') }}" class="link link-hover text-sm text-pink-600 font-semibold">
+                    Return to Sign In
+                </a>
+
+                {{-- Help Text --}}
+                <p class="text-xs text-slate-400 mt-4">
+                    Didn't receive the email? Check your spam folder or contact support.
                 </p>
             </div>
-
-            <div class="hidden bg-slate-950 p-10 text-white lg:flex lg:flex-col lg:justify-between">
-                <div>
-                    <p class="text-sm font-black uppercase tracking-wide text-cyan-300">Security</p>
-                    <h2 class="mt-4 text-4xl leading-tight">Verified accounts protect your orders and account security.</h2>
-                    <p class="mt-5 text-sm leading-7 text-slate-300">Email verification helps keep your account safe and trusted.</p>
-                </div>
-            </div>
-        </section>
-    </main>
+        </div>
+    </div>
+</main>
 @endsection

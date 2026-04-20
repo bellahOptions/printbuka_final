@@ -13,7 +13,7 @@
                     @if (auth()->user()->canAdmin('orders.create'))
                         <a href="{{ route('admin.orders.create') }}" class="rounded-md bg-pink-600 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700">Create Job</a>
                     @endif
-                    <a href="{{ route('admin.dashboard') }}" class="rounded-md border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-800 transition hover:border-pink-300 hover:text-pink-700">Admin Dashboard</a>
+                    
                 </div>
             </div>
 

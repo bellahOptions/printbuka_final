@@ -1,212 +1,535 @@
 @extends('layouts.theme')
-@section('title', 'Printbuka | Online Print Shop in Nigeria')
+@section('title', 'Printbuka | No. 1 Online Print Shop in Nigeria')
 @section('content')
-    <main role="main" class="bg-white text-slate-900">
-        <section class="hero overflow-hidden bg-[#f4fbfb]">
-            <div class="mx-auto grid min-h-[620px] max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-16">
-                <div class="max-w-3xl">
-                    <p class="mb-4 inline-flex rounded-md bg-white px-4 py-2 text-sm font-bold text-pink-700 shadow-sm">Quality prints. Delivered nationwide.</p>
-                    <h1 class="max-w-3xl text-5xl leading-tight text-slate-950 sm:text-6xl lg:text-7xl">Print what your brand needs today.</h1>
-                    <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-600">Business cards, flyers, stickers, packaging and branded gifts made with sharp colour, clean finishing and reliable delivery.</p>
+<main class="bg-base-100 text-base-content">
 
-                    <div class="mt-8">
+    {{-- ===== HERO ===== --}}
+    <section class="bg-base-200 overflow-hidden">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+
+                {{-- Left copy --}}
+                <div>
+                    <div class="badge badge-outline badge-lg text-pink-700 border-pink-300 bg-white font-black mb-6">
+                        🇳🇬 Nigeria's #1 Online Print Shop
+                    </div>
+                    <h1 class="text-5xl lg:text-6xl font-black text-slate-950 leading-tight mb-6">
+                        Print. Brand.<br>
+                        <span class="text-pink-600">Gift.</span>
+                        Delivered.
+                    </h1>
+                    <p class="text-lg text-slate-600 leading-relaxed mb-8 max-w-xl">
+                        Business cards, flyers, stickers, branded gifts, UV-DTF, laser engraving and more — all from one trusted print partner. We ship nationwide in 3–7 days.
+                    </p>
+
+                    <div class="mb-8">
                         <livewire:product.search />
                     </div>
 
-                    <div class="mt-8 grid max-w-2xl gap-3 text-sm font-bold text-slate-700 sm:grid-cols-3">
-                        <div class="rounded-md bg-white px-4 py-3 shadow-sm">3-7 day delivery</div>
-                        <div class="rounded-md bg-white px-4 py-3 shadow-sm">Free file checks</div>
-                        <div class="rounded-md bg-white px-4 py-3 shadow-sm">Bulk order pricing</div>
+                    <div class="flex flex-wrap gap-3 mb-10">
+                        <a href="{{ route('products.index') }}" class="btn btn-neutral btn-lg font-black">Browse Products</a>
+                        <a href="{{ route('quotes.create') }}" class="btn btn-outline btn-lg font-black border-slate-300 hover:border-pink-500 hover:bg-pink-50 hover:text-pink-700">Get a Free Quote</a>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3 max-w-sm">
+                        <div class="bg-white rounded-xl p-3 text-center shadow-sm border border-slate-100">
+                            <p class="text-2xl font-black text-slate-950">15k+</p>
+                            <p class="text-xs font-bold text-slate-500 mt-0.5">Orders Done</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-3 text-center shadow-sm border border-slate-100">
+                            <p class="text-2xl font-black text-slate-950">36</p>
+                            <p class="text-xs font-bold text-slate-500 mt-0.5">States Served</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-3 text-center shadow-sm border border-slate-100">
+                            <p class="text-2xl font-black text-slate-950">24h</p>
+                            <p class="text-xs font-bold text-slate-500 mt-0.5">File Review</p>
+                        </div>
                     </div>
                 </div>
 
+                {{-- Right image + floating card --}}
                 <div class="relative">
-                    <img
-                        src="https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=1200&q=80"
-                        alt="Colourful print materials on a design desk"
-                        class="h-[460px] w-full rounded-md object-cover shadow-2xl shadow-cyan-900/10"
-                    />
-                    <div class="absolute bottom-6 left-6 max-w-xs rounded-md bg-white p-5 shadow-xl">
-                        <p class="text-sm font-bold text-pink-700">Popular now</p>
-                        <p class="mt-2 text-2xl font-black text-slate-950">Flyers from NGN 35,000</p>
-                        <p class="mt-2 text-sm text-slate-600">Launch offers, church events, menus and product promos.</p>
+                    <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-cyan-900/10">
+                        <img
+                            src="https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=1200&q=80"
+                            alt="Colourful print materials"
+                            class="w-full h-[480px] object-cover"
+                        />
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent"></div>
+                    </div>
+
+                    {{-- Floating promo card --}}
+                    <div class="absolute -bottom-5 -left-4 bg-white rounded-2xl shadow-xl p-5 max-w-[220px] border border-slate-100">
+                        <div class="badge badge-sm bg-pink-100 text-pink-700 border-0 font-black mb-2">🔥 Popular Now</div>
+                        <p class="text-xl font-black text-slate-950 leading-snug">Flyers from<br><span class="text-pink-600">NGN 35,000</span></p>
+                        <p class="text-xs text-slate-500 mt-1">per 500 copies</p>
+                        <a href="#" class="btn btn-sm btn-neutral w-full mt-3 font-black">Order Now</a>
+                    </div>
+
+                    {{-- Floating trust badge --}}
+                    <div class="absolute -top-4 -right-4 bg-white rounded-2xl shadow-lg p-4 border border-slate-100 text-center">
+                        <p class="text-3xl font-black text-emerald-600">✓</p>
+                        <p class="text-xs font-black text-slate-700 mt-1">Free File<br>Checks</p>
                     </div>
                 </div>
+
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="py-16">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div class="max-w-2xl">
-                        <p class="text-sm font-black uppercase tracking-wide text-pink-700">Product Categories</p>
-                        <h2 class="mt-2 text-4xl text-slate-950">Print, brand and gift from one place.</h2>
-                        <p class="mt-3 text-base leading-7 text-slate-600">Choose the job you need today, from campaign materials to branded items your customers and team can actually use.</p>
+    {{-- ===== SERVICES STRIP ===== --}}
+    <section class="bg-slate-950 py-5">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm font-bold text-slate-300">
+                <span class="flex items-center gap-2"><span class="text-cyan-400">●</span> Direct Image Printing</span>
+                <span class="flex items-center gap-2"><span class="text-pink-400">●</span> UV-DTF Transfer</span>
+                <span class="flex items-center gap-2"><span class="text-cyan-400">●</span> DTF Printing</span>
+                <span class="flex items-center gap-2"><span class="text-pink-400">●</span> Mini Laser Engraving</span>
+                <span class="flex items-center gap-2"><span class="text-cyan-400">●</span> Branded Gifts</span>
+                <span class="flex items-center gap-2"><span class="text-pink-400">●</span> Nationwide Delivery</span>
+            </div>
+        </div>
+    </section>
+
+    {{-- ===== PRODUCT CATEGORIES ===== --}}
+    <section class="py-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
+                <div>
+                    <div class="badge badge-outline text-pink-700 border-pink-300 font-black mb-3">Product Categories</div>
+                    <h2 class="text-4xl font-black text-slate-950">Everything you need to print,<br class="hidden lg:block"> brand and gift.</h2>
+                </div>
+                <a href="{{ route('categories.index') }}" class="btn btn-outline font-black border-slate-200 hover:border-pink-400 hover:text-pink-700 hover:bg-pink-50 shrink-0">All Categories</a>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-5">
+
+                {{-- Big feature card --}}
+                <a href="#" class="group relative lg:row-span-2 rounded-2xl overflow-hidden bg-slate-950 min-h-[380px] flex flex-col justify-end">
+                    <img src="https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=1200&q=80"
+                         alt="Branded gifts" class="absolute inset-0 h-full w-full object-cover opacity-60 transition duration-500 group-hover:scale-105 group-hover:opacity-70" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent"></div>
+                    <div class="relative p-7 text-white">
+                        <div class="badge badge-sm bg-pink-600 border-0 text-white font-black mb-3">Core Service</div>
+                        <h3 class="text-3xl font-black mb-3">Branded Gifts</h3>
+                        <p class="text-sm text-white/80 leading-relaxed mb-4">Mugs, shirts, tote bags, notebooks, hampers and corporate gift sets. Perfect for events, client appreciation and team moments.</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="badge bg-white/15 border-0 text-white text-xs font-bold">Mugs</span>
+                            <span class="badge bg-white/15 border-0 text-white text-xs font-bold">T-shirts</span>
+                            <span class="badge bg-white/15 border-0 text-white text-xs font-bold">Gift Sets</span>
+                            <span class="badge bg-white/15 border-0 text-white text-xs font-bold">Tote Bags</span>
+                        </div>
                     </div>
-                    <a href="#" class="inline-flex w-fit rounded-md border border-slate-200 px-5 py-3 text-sm font-black text-slate-800 transition hover:border-pink-300 hover:text-pink-700">Explore Categories</a>
+                </a>
+
+                {{-- Small cards grid --}}
+                <a href="#" class="group card bg-base-100 border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition overflow-hidden">
+                    <figure class="h-44 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=900&q=80"
+                             alt="Business stationery" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                    </figure>
+                    <div class="card-body p-5">
+                        <p class="text-xs font-black uppercase tracking-wide text-pink-600">Print</p>
+                        <h3 class="card-title text-base font-black text-slate-950">Business Essentials</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">Cards, letterheads, envelopes, ID cards and office stationery.</p>
+                    </div>
+                </a>
+
+                <a href="#" class="group card bg-base-100 border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition overflow-hidden">
+                    <figure class="h-44 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=900&q=80"
+                             alt="Marketing flyers" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                    </figure>
+                    <div class="card-body p-5">
+                        <p class="text-xs font-black uppercase tracking-wide text-cyan-600">Campaigns</p>
+                        <h3 class="card-title text-base font-black text-slate-950">Marketing Prints</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">Flyers, posters, brochures, postcards, catalogues and menus.</p>
+                    </div>
+                </a>
+
+                <a href="#" class="group card bg-base-100 border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition overflow-hidden">
+                    <figure class="h-44 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1605902711622-cfb43c44367f?auto=format&fit=crop&w=900&q=80"
+                             alt="Packaging" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                    </figure>
+                    <div class="card-body p-5">
+                        <p class="text-xs font-black uppercase tracking-wide text-emerald-600">Packaging</p>
+                        <h3 class="card-title text-base font-black text-slate-950">Labels & Packaging</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">Stickers, labels, paper bags, courier bags and product sleeves.</p>
+                    </div>
+                </a>
+
+                <a href="#" class="group card bg-base-100 border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition overflow-hidden">
+                    <figure class="h-44 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=900&q=80"
+                             alt="Event materials" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                    </figure>
+                    <div class="card-body p-5">
+                        <p class="text-xs font-black uppercase tracking-wide text-amber-600">Events</p>
+                        <h3 class="card-title text-base font-black text-slate-950">Event Materials</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">Banners, roll-ups, name tags, programmes and branded giveaways.</p>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    {{-- ===== SPECIALIST SERVICES ===== --}}
+    <section class="bg-base-200 py-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+            <div class="text-center mb-12">
+                <div class="badge badge-outline text-cyan-700 border-cyan-400 font-black mb-3">Specialist Services</div>
+                <h2 class="text-4xl font-black text-slate-950">Advanced print tech, available now.</h2>
+                <p class="text-slate-500 mt-3 max-w-xl mx-auto">We go beyond standard printing. These specialist services are available directly through our product catalog.</p>
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+                <div class="card bg-base-100 border border-slate-200 hover:shadow-lg transition hover:-translate-y-1">
+                    <div class="card-body p-6">
+                        <div class="w-12 h-12 rounded-xl bg-pink-100 flex items-center justify-center mb-4">
+                            <span class="text-2xl">🖨️</span>
+                        </div>
+                        <h3 class="font-black text-slate-950 text-lg">Direct Image Printing</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed mt-2">Vibrant full-colour prints directly onto your chosen substrate. Ideal for branded items, gifts and promotional materials.</p>
+                        <div class="card-actions mt-4">
+                            <a href="{{ route('services.index') }}" class="btn btn-sm btn-outline font-black border-slate-200 hover:border-pink-400 hover:text-pink-700">Learn More</a>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="mt-8 grid gap-5 lg:grid-cols-4">
-                    <a href="#" class="group relative min-h-[360px] overflow-hidden rounded-md bg-slate-950 lg:col-span-2">
-                        <img src="https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=1200&q=80" alt="Branded gifts and desk items" class="absolute inset-0 h-full w-full object-cover opacity-70 transition duration-500 group-hover:scale-105" />
-                        <div class="absolute inset-0 bg-slate-950/35"></div>
-                        <div class="relative flex h-full flex-col justify-end p-6 text-white sm:p-8">
-                            <p class="mb-3 w-fit rounded-md bg-white px-3 py-1 text-sm font-black text-pink-700">Core Service</p>
-                            <h3 class="text-3xl font-black">Branded Gifts</h3>
-                            <p class="mt-3 max-w-xl text-sm leading-6 text-white/90">Mugs, shirts, tote bags, notebooks, hampers and corporate gift sets for clients, events and team appreciation.</p>
-                            <div class="mt-5 flex flex-wrap gap-2 text-xs font-bold">
-                                <span class="rounded-md bg-white/90 px-3 py-2 text-slate-950">Mugs</span>
-                                <span class="rounded-md bg-white/90 px-3 py-2 text-slate-950">T-shirts</span>
-                                <span class="rounded-md bg-white/90 px-3 py-2 text-slate-950">Gift sets</span>
-                                <span class="rounded-md bg-white/90 px-3 py-2 text-slate-950">Tote bags</span>
+                <div class="card bg-base-100 border border-slate-200 hover:shadow-lg transition hover:-translate-y-1">
+                    <div class="card-body p-6">
+                        <div class="w-12 h-12 rounded-xl bg-cyan-100 flex items-center justify-center mb-4">
+                            <span class="text-2xl">✨</span>
+                        </div>
+                        <h3 class="font-black text-slate-950 text-lg">UV-DTF Transfer</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed mt-2">UV-cured transfers that stick to almost any surface — glass, metal, plastic, wood. Crystal-clear finish that lasts.</p>
+                        <div class="card-actions mt-4">
+                            <a href="{{ route('products.index') }}#uv-dtf-products" class="btn btn-sm btn-outline font-black border-slate-200 hover:border-cyan-400 hover:text-cyan-700">Order Now</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card bg-base-100 border border-slate-200 hover:shadow-lg transition hover:-translate-y-1">
+                    <div class="card-body p-6">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center mb-4">
+                            <span class="text-2xl">👕</span>
+                        </div>
+                        <h3 class="font-black text-slate-950 text-lg">DTF Printing</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed mt-2">Direct-to-Film transfers for garments and fabric. No minimum order, full-colour, soft feel on any t-shirt or hoodie.</p>
+                        <div class="card-actions mt-4">
+                            <a href="{{ route('services.index') }}" class="btn btn-sm btn-outline font-black border-slate-200 hover:border-emerald-400 hover:text-emerald-700">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card bg-base-100 border border-slate-200 hover:shadow-lg transition hover:-translate-y-1">
+                    <div class="card-body p-6">
+                        <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center mb-4">
+                            <span class="text-2xl">⚡</span>
+                        </div>
+                        <h3 class="font-black text-slate-950 text-lg">Laser Engraving</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed mt-2">Precision mini laser engraving on wood, acrylic, leather, keyrings and more. Perfect for personalised gifts and awards.</p>
+                        <div class="card-actions mt-4">
+                            <a href="{{ route('products.index') }}#laser-engraving-products" class="btn btn-sm btn-outline font-black border-slate-200 hover:border-amber-400 hover:text-amber-700">Order Now</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    {{-- ===== POPULAR PRODUCTS ===== --}}
+    <section class="py-20">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
+            <div>
+                <div class="badge badge-outline text-pink-700 border-pink-300 font-black mb-3">Popular Products</div>
+                <h2 class="text-4xl font-black text-slate-950">Start with the essentials.</h2>
+            </div>
+            <a href="{{ route('products.index') }}" class="btn btn-outline font-black border-slate-200 hover:border-pink-400 hover:text-pink-700 hover:bg-pink-50 shrink-0">See All Products</a>
+        </div>
+
+        @if($featuredProducts->isNotEmpty())
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                @foreach($featuredProducts as $product)
+                    @php
+                        $name = strtolower($product->name);
+                        $image = match(true) {
+                            str_contains($name, 'business'), str_contains($name, 'card')  => 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=900&q=80',
+                            str_contains($name, 'flyer'), str_contains($name, 'poster')   => 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=900&q=80',
+                            str_contains($name, 'sticker'), str_contains($name, 'label')  => 'https://images.unsplash.com/photo-1605902711622-cfb43c44367f?auto=format&fit=crop&w=900&q=80',
+                            str_contains($name, 'brochure'), str_contains($name, 'menu')  => 'https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=900&q=80',
+                            str_contains($name, 'letterhead')                             => 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=900&q=80',
+                            str_contains($name, 'mug'), str_contains($name, 'gift'), str_contains($name, 'shirt'), str_contains($name, 'tote') => 'https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=900&q=80',
+                            default => 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=900&q=80',
+                        };
+                    @endphp
+
+                    <article class="card bg-base-100 border border-slate-200 shadow-sm hover:-translate-y-1 hover:shadow-lg transition">
+                        <figure>
+                            <a href="{{ route('products.show', $product) }}">
+                                <img src="{{ $image }}" alt="{{ $product->name }}" class="h-48 w-full object-cover" />
+                            </a>
+                        </figure>
+                        <div class="card-body p-5">
+                            <h3 class="card-title font-black text-slate-950 text-lg">
+                                <a href="{{ route('products.show', $product) }}" class="hover:text-pink-600 transition">
+                                    {{ $product->name }}
+                                </a>
+                            </h3>
+                            <p class="text-sm text-slate-500">{{ $product->short_description }}</p>
+
+                            @if($product->moq)
+                                <div class="flex gap-2 mt-2 flex-wrap">
+                                    <span class="badge badge-sm bg-slate-100 border-0 text-slate-600 font-bold">MOQ: {{ $product->moq }}</span>
+                                    @if($product->paper_size)
+                                        <span class="badge badge-sm bg-slate-100 border-0 text-slate-600 font-bold">{{ $product->paper_size }}</span>
+                                    @endif
+                                </div>
+                            @endif
+
+                            <div class="mt-3">
+                                <p class="text-xs font-bold text-slate-400">starting at</p>
+                                <p class="text-xl font-black text-pink-600">
+                                    NGN {{ number_format($product->price, 0) }}
+                                    @if($product->moq)
+                                        <span class="text-sm font-bold text-slate-400">/ {{ $product->moq }}</span>
+                                    @endif
+                                </p>
+                            </div>
+
+                            <div class="card-actions mt-4 grid grid-cols-2 gap-2">
+                                <a href="{{ route('products.show', $product) }}" class="btn btn-sm btn-outline font-black border-slate-200 hover:border-pink-400 hover:text-pink-700">View</a>
+                                <a href="{{ route('orders.create', $product) }}" class="btn btn-sm btn-neutral font-black">Order</a>
                             </div>
                         </div>
-                    </a>
-
-                    <a href="#" class="group overflow-hidden rounded-md border border-slate-200 bg-white transition hover:-translate-y-1 hover:shadow-lg">
-                        <img src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=900&q=80" alt="Business stationery prints" class="h-44 w-full object-cover transition duration-500 group-hover:scale-105" />
-                        <div class="p-5">
-                            <h3 class="font-black text-slate-950">Business Essentials</h3>
-                            <p class="mt-2 text-sm leading-6 text-slate-600">Business cards, letterheads, envelopes, ID cards and office documents.</p>
-                        </div>
-                    </a>
-
-                    <a href="#" class="group overflow-hidden rounded-md border border-slate-200 bg-white transition hover:-translate-y-1 hover:shadow-lg">
-                        <img src="https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=900&q=80" alt="Marketing flyers and posters" class="h-44 w-full object-cover transition duration-500 group-hover:scale-105" />
-                        <div class="p-5">
-                            <h3 class="font-black text-slate-950">Marketing Prints</h3>
-                            <p class="mt-2 text-sm leading-6 text-slate-600">Flyers, posters, brochures, postcards, catalogues and menus.</p>
-                        </div>
-                    </a>
-
-                    <a href="#" class="group overflow-hidden rounded-md border border-slate-200 bg-white transition hover:-translate-y-1 hover:shadow-lg">
-                        <img src="https://images.unsplash.com/photo-1605902711622-cfb43c44367f?auto=format&fit=crop&w=900&q=80" alt="Branded packaging materials" class="h-44 w-full object-cover transition duration-500 group-hover:scale-105" />
-                        <div class="p-5">
-                            <h3 class="font-black text-slate-950">Packaging</h3>
-                            <p class="mt-2 text-sm leading-6 text-slate-600">Stickers, labels, paper bags, courier bags and product sleeves.</p>
-                        </div>
-                    </a>
-
-                    <a href="#" class="group overflow-hidden rounded-md border border-slate-200 bg-white transition hover:-translate-y-1 hover:shadow-lg">
-                        <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=900&q=80" alt="Event materials on conference chairs" class="h-44 w-full object-cover transition duration-500 group-hover:scale-105" />
-                        <div class="p-5">
-                            <h3 class="font-black text-slate-950">Event Materials</h3>
-                            <p class="mt-2 text-sm leading-6 text-slate-600">Banners, roll-ups, name tags, programmes and branded giveaways.</p>
-                        </div>
-                    </a>
-                </div>
+                    </article>
+                @endforeach
             </div>
-        </section>
+        @else
+            <div class="text-center py-12 text-slate-400">
+                <p class="text-lg font-black">No products available yet.</p>
+                <p class="text-sm mt-1">Check back soon.</p>
+            </div>
+        @endif
 
-        <section class="py-16">
-            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                        <p class="text-sm font-black uppercase tracking-wide text-pink-700">Popular Products</p>
-                        <h2 class="mt-2 text-4xl text-slate-950">Start with the print essentials.</h2>
+    </div>
+</section>
+    {{-- ===== HOW IT WORKS ===== --}}
+    <section class="bg-slate-950 py-20 text-white">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+            <div class="text-center mb-14">
+                <div class="badge badge-outline text-cyan-300 border-cyan-600 font-black mb-3">How It Works</div>
+                <h2 class="text-4xl font-black">Order in 3 simple steps.</h2>
+                <p class="text-slate-400 mt-3 max-w-lg mx-auto">From choosing your product to delivery at your door — we keep it fast, simple and stress-free.</p>
+            </div>
+
+            <div class="grid sm:grid-cols-3 gap-6">
+                <div class="card bg-white text-slate-950 border-0">
+                    <div class="card-body p-7">
+                        <div class="w-12 h-12 rounded-xl bg-pink-600 flex items-center justify-center mb-5">
+                            <span class="text-white font-black text-xl">1</span>
+                        </div>
+                        <h3 class="font-black text-xl mb-2">Choose Your Product</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">Browse our full catalog and pick the product, size and quantity that works for your job.</p>
                     </div>
-                    <a href="#" class="inline-flex w-fit rounded-md border border-slate-200 px-5 py-3 text-sm font-black text-slate-800 transition hover:border-pink-300 hover:text-pink-700">See All Products</a>
                 </div>
-
-                <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                    <article class="rounded-md border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-                        <img src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=900&q=80" alt="Printed business cards" class="h-48 w-full rounded-t-md object-cover" />
-                        <div class="p-5">
-                            <h3 class="text-lg font-black text-slate-950">Business Cards</h3>
-                            <p class="mt-2 text-sm text-slate-600">Premium cards for founders, teams and sales reps.</p>
-                            <p class="mt-4 text-sm font-bold text-slate-500">starting at</p>
-                            <p class="text-xl font-black text-pink-700">NGN 8,500 per 100</p>
+                <div class="card bg-white text-slate-950 border-0">
+                    <div class="card-body p-7">
+                        <div class="w-12 h-12 rounded-xl bg-cyan-600 flex items-center justify-center mb-5">
+                            <span class="text-white font-black text-xl">2</span>
                         </div>
-                    </article>
-
-                    <article class="rounded-md border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-                        <img src="https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=900&q=80" alt="Flyers and posters on a table" class="h-48 w-full rounded-t-md object-cover" />
-                        <div class="p-5">
-                            <h3 class="text-lg font-black text-slate-950">Flyers</h3>
-                            <p class="mt-2 text-sm text-slate-600">Bright handouts for campaigns, launches and events.</p>
-                            <p class="mt-4 text-sm font-bold text-slate-500">starting at</p>
-                            <p class="text-xl font-black text-pink-700">NGN 35,000 per 500</p>
+                        <h3 class="font-black text-xl mb-2">Share Your Artwork</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">Upload your design or describe what you need. Our team reviews your file within 24 hours — for free.</p>
+                    </div>
+                </div>
+                <div class="card bg-white text-slate-950 border-0">
+                    <div class="card-body p-7">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center mb-5">
+                            <span class="text-white font-black text-xl">3</span>
                         </div>
-                    </article>
-
-                    <article class="rounded-md border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-                        <img src="https://images.unsplash.com/photo-1605902711622-cfb43c44367f?auto=format&fit=crop&w=900&q=80" alt="Branded stickers and packaging" class="h-48 w-full rounded-t-md object-cover" />
-                        <div class="p-5">
-                            <h3 class="text-lg font-black text-slate-950">Stickers</h3>
-                            <p class="mt-2 text-sm text-slate-600">Labels and seals for packaging that feels finished.</p>
-                            <p class="mt-4 text-sm font-bold text-slate-500">starting at</p>
-                            <p class="text-xl font-black text-pink-700">NGN 12,000 per 100</p>
-                        </div>
-                    </article>
-
-                    <article class="rounded-md border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-                        <img src="https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=900&q=80" alt="Printed brochures" class="h-48 w-full rounded-t-md object-cover" />
-                        <div class="p-5">
-                            <h3 class="text-lg font-black text-slate-950">Brochures</h3>
-                            <p class="mt-2 text-sm text-slate-600">Folded print pieces for menus, catalogues and guides.</p>
-                            <p class="mt-4 text-sm font-bold text-slate-500">starting at</p>
-                            <p class="text-xl font-black text-pink-700">NGN 65,000 per 200</p>
-                        </div>
-                    </article>
+                        <h3 class="font-black text-xl mb-2">We Print & Deliver</h3>
+                        <p class="text-sm text-slate-500 leading-relaxed">We produce and ship your order nationwide within 3–7 working days. Track every step of the way.</p>
+                    </div>
                 </div>
             </div>
-        </section>
 
-        <section class="bg-slate-950 py-16 text-white">
-            <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
+            <div class="text-center mt-10">
+                <a href="{{ route('orders.track') }}" class="btn btn-outline text-white border-white/30 hover:bg-white hover:text-slate-950 font-black mr-3">Track an Order</a>
+                <a href="{{ route('quotes.create') }}" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black">Get a Free Quote</a>
+            </div>
+
+        </div>
+    </section>
+
+    {{-- ===== WHY PRINTBUKA ===== --}}
+    <section class="py-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+
                 <div>
-                    <p class="text-sm font-black uppercase tracking-wide text-cyan-300">Why Printbuka</p>
-                    <h2 class="mt-2 text-4xl">Prints that arrive ready to work.</h2>
-                    <p class="mt-4 text-slate-300">Every order gets checked before production, printed on the right stock and finished for the job it needs to do.</p>
+                    <img src="https://images.unsplash.com/photo-1525909002-1b05e0c869d8?auto=format&fit=crop&w=1100&q=80"
+                         alt="Designer at work" class="w-full h-[440px] object-cover rounded-2xl shadow-xl shadow-slate-200" />
                 </div>
 
-                <div class="grid gap-4 sm:grid-cols-3">
-                    <div class="rounded-md bg-white p-5 text-slate-950">
-                        <p class="text-3xl font-black text-pink-700">01</p>
-                        <h3 class="mt-4 font-black">Fast Turnaround</h3>
-                        <p class="mt-2 text-sm text-slate-600">Most orders move from approved artwork to delivery within days.</p>
+                <div>
+                    <div class="badge badge-outline text-pink-700 border-pink-300 font-black mb-4">Why Printbuka</div>
+                    <h2 class="text-4xl font-black text-slate-950 mb-6 leading-tight">Your print partner from launch week to every week after.</h2>
+
+                    <div class="space-y-4">
+                        <div class="flex gap-4 p-5 rounded-xl border border-slate-100 hover:border-pink-200 hover:bg-pink-50 transition">
+                            <div class="w-10 h-10 rounded-lg bg-pink-100 flex items-center justify-center shrink-0">
+                                <span class="text-pink-600 font-black text-lg">⚡</span>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-slate-950 mb-1">Fast Turnaround</h3>
+                                <p class="text-sm text-slate-500 leading-relaxed">Most orders move from approved artwork to delivery within 3–7 working days.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 p-5 rounded-xl border border-slate-100 hover:border-cyan-200 hover:bg-cyan-50 transition">
+                            <div class="w-10 h-10 rounded-lg bg-cyan-100 flex items-center justify-center shrink-0">
+                                <span class="text-cyan-600 font-black text-lg">✦</span>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-slate-950 mb-1">Sharp Finishing</h3>
+                                <p class="text-sm text-slate-500 leading-relaxed">Matte, gloss, die-cut and folded finishing options that make a strong impression.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 p-5 rounded-xl border border-slate-100 hover:border-emerald-200 hover:bg-emerald-50 transition">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
+                                <span class="text-emerald-600 font-black text-lg">💬</span>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-slate-950 mb-1">Real Human Support</h3>
+                                <p class="text-sm text-slate-500 leading-relaxed">Talk to our print team before anything goes to press. Free artwork review on every order.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 p-5 rounded-xl border border-slate-100 hover:border-amber-200 hover:bg-amber-50 transition">
+                            <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
+                                <span class="text-amber-600 font-black text-lg">🚚</span>
+                            </div>
+                            <div>
+                                <h3 class="font-black text-slate-950 mb-1">Nationwide Delivery</h3>
+                                <p class="text-sm text-slate-500 leading-relaxed">We deliver to all 36 states in Nigeria. Bulk order discounts available.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="rounded-md bg-white p-5 text-slate-950">
-                        <p class="text-3xl font-black text-cyan-700">02</p>
-                        <h3 class="mt-4 font-black">Sharp Finishing</h3>
-                        <p class="mt-2 text-sm text-slate-600">Matte, gloss, folding and die-cut options for a polished result.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    {{-- ===== TESTIMONIALS ===== --}}
+    <section class="bg-base-200 py-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+            <div class="text-center mb-12">
+                <div class="badge badge-outline text-pink-700 border-pink-300 font-black mb-3">Customer Reviews</div>
+                <h2 class="text-4xl font-black text-slate-950">Trusted by businesses across Nigeria.</h2>
+            </div>
+
+            <div class="grid sm:grid-cols-3 gap-6">
+
+                <div class="card bg-base-100 border border-slate-200 shadow-sm">
+                    <div class="card-body p-6">
+                        <div class="flex gap-1 mb-3">
+                            @for($i = 0; $i < 5; $i++)
+                                <span class="text-amber-400">★</span>
+                            @endfor
+                        </div>
+                        <p class="text-sm text-slate-600 leading-relaxed italic">"This print shop exhibits professionalism in all senses. They are reliable and they deliver promptly. They pay close attention to details when it comes to printing."</p>
+                        <div class="flex items-center gap-3 mt-4">
+                            <div class="avatar placeholder">
+                                <div class="bg-pink-100 text-pink-700 rounded-full w-9">
+                                    <span class="text-xs font-black">KG</span>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm font-black text-slate-950">KGS Client</p>
+                                <p class="text-xs text-slate-400">Yearbook Order</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="rounded-md bg-white p-5 text-slate-950">
-                        <p class="text-3xl font-black text-emerald-700">03</p>
-                        <h3 class="mt-4 font-black">Helpful Support</h3>
-                        <p class="mt-2 text-sm text-slate-600">Talk to a real print team before your money goes to press.</p>
+                </div>
+
+                <div class="card bg-base-100 border border-slate-200 shadow-sm">
+                    <div class="card-body p-6">
+                        <div class="flex gap-1 mb-3">
+                            @for($i = 0; $i < 5; $i++)
+                                <span class="text-amber-400">★</span>
+                            @endfor
+                        </div>
+                        <p class="text-sm text-slate-600 leading-relaxed italic">"Quality work, fast turnaround, and the team actually managed my design too. Printbuka is my go-to print shop for everything business-related."</p>
+                        <div class="flex items-center gap-3 mt-4">
+                            <div class="avatar placeholder">
+                                <div class="bg-cyan-100 text-cyan-700 rounded-full w-9">
+                                    <span class="text-xs font-black">AB</span>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm font-black text-slate-950">Adaeze B.</p>
+                                <p class="text-xs text-slate-400">Business Cards + Flyers</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card bg-base-100 border border-slate-200 shadow-sm">
+                    <div class="card-body p-6">
+                        <div class="flex gap-1 mb-3">
+                            @for($i = 0; $i < 5; $i++)
+                                <span class="text-amber-400">★</span>
+                            @endfor
+                        </div>
+                        <p class="text-sm text-slate-600 leading-relaxed italic">"Ordered branded mugs for a corporate event and they came out perfect. Delivery was on time. Highly recommend Printbuka for any gifting or print need."</p>
+                        <div class="flex items-center gap-3 mt-4">
+                            <div class="avatar placeholder">
+                                <div class="bg-emerald-100 text-emerald-700 rounded-full w-9">
+                                    <span class="text-xs font-black">TK</span>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm font-black text-slate-950">Tunde K.</p>
+                                <p class="text-xs text-slate-400">Branded Mugs Order</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    {{-- ===== CTA BANNER ===== --}}
+    <section class="py-20">
+        <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+            <div class="bg-slate-950 rounded-3xl p-10 lg:p-16 text-white text-center relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-pink-600/10 rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 w-48 h-48 bg-cyan-500/10 rounded-full translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
+                <div class="relative">
+                    <div class="badge badge-outline text-cyan-300 border-cyan-700 font-black mb-4">20% off your first order</div>
+                    <h2 class="text-4xl lg:text-5xl font-black mb-4">Ready to start printing?</h2>
+                    <p class="text-slate-400 max-w-lg mx-auto mb-8 leading-relaxed">Join 15,000+ businesses across Nigeria who trust Printbuka for quality prints, branded gifts and fast delivery.</p>
+                    <div class="flex flex-wrap justify-center gap-3">
+                        <a href="{{ route('register') }}" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black btn-lg">Create Free Account</a>
+                        <a href="{{ route('products.index') }}" class="btn btn-outline text-white border-white/30 hover:bg-white hover:text-slate-950 font-black btn-lg">Browse Products</a>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="bg-[#f4fbfb] py-16">
-            <div class="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
-                <img
-                    src="https://images.unsplash.com/photo-1525909002-1b05e0c869d8?auto=format&fit=crop&w=1100&q=80"
-                    alt="Designer arranging printed stationery"
-                    class="h-[420px] w-full rounded-md object-cover shadow-xl shadow-slate-200"
-                />
-                <div class="flex flex-col justify-center">
-                    <p class="text-sm font-black uppercase tracking-wide text-pink-700">Trusted by growing teams</p>
-                    <h2 class="mt-2 text-4xl text-slate-950">Your print partner for launch week, campaign week and every week after.</h2>
-                    <div class="mt-8 grid gap-4 sm:grid-cols-3">
-                        <div>
-                            <p class="text-4xl font-black text-slate-950">15k+</p>
-                            <p class="mt-1 text-sm font-bold text-slate-600">orders handled</p>
-                        </div>
-                        <div>
-                            <p class="text-4xl font-black text-slate-950">24h</p>
-                            <p class="mt-1 text-sm font-bold text-slate-600">file review</p>
-                        </div>
-                        <div>
-                            <p class="text-4xl font-black text-slate-950">36</p>
-                            <p class="mt-1 text-sm font-bold text-slate-600">states served</p>
-                        </div>
-                    </div>
-                    <a href="#" class="mt-8 inline-flex w-fit rounded-md bg-slate-950 px-6 py-3 text-sm font-black text-white transition hover:bg-pink-700">Start an Order</a>
-                </div>
-            </div>
-        </section>
-    </main>
+</main>
 @endsection

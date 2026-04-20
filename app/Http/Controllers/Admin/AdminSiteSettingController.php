@@ -30,6 +30,12 @@ class AdminSiteSettingController extends Controller
             'service_dtf_size_price_options',
             'service_price_laser_engraving',
         ];
+        $companyAccountKeys = [
+            'company_account_name',
+            'company_account_number',
+            'company_account_bank_name',
+            'company_account_note',
+        ];
 
         $validated = $request->validate([
             'site_name' => ['nullable', 'string', 'max:255'],
@@ -39,6 +45,10 @@ class AdminSiteSettingController extends Controller
             'maintenance_message' => ['nullable', 'string', 'max:2000'],
             'contact_email' => ['nullable', 'email', 'max:255'],
             'contact_phone' => ['nullable', 'string', 'max:255'],
+            'company_account_name' => ['nullable', 'string', 'max:255'],
+            'company_account_number' => ['nullable', 'string', 'max:255'],
+            'company_account_bank_name' => ['nullable', 'string', 'max:255'],
+            'company_account_note' => ['nullable', 'string', 'max:500'],
             'paper_types' => ['nullable', 'string', 'max:5000'],
             'paper_sizes' => ['nullable', 'string', 'max:5000'],
             'finishings' => ['nullable', 'string', 'max:5000'],
@@ -61,10 +71,10 @@ class AdminSiteSettingController extends Controller
         ]);
 
         if ($request->user()?->role !== 'super_admin') {
-            $requestedServicePricingUpdate = collect($servicePriceKeys)
+            $requestedSuperAdminOnlyUpdate = collect(array_merge($servicePriceKeys, $companyAccountKeys))
                 ->contains(fn (string $key): bool => array_key_exists($key, $validated));
 
-            abort_if($requestedServicePricingUpdate, 403);
+            abort_if($requestedSuperAdminOnlyUpdate, 403);
         }
 
         $validated['maintenance_mode'] = $request->boolean('maintenance_mode') ? '1' : '0';
@@ -91,6 +101,7 @@ class AdminSiteSettingController extends Controller
             str_contains($key, 'maintenance') => 'maintenance',
             str_contains($key, '_price_options') => 'pricing',
             str_starts_with($key, 'service_price_') => 'service_pricing',
+            str_starts_with($key, 'company_account_') => 'finance',
             str_contains($key, 'paper_') || str_contains($key, 'finishings') => 'print_options',
             str_contains($key, 'notification') || str_contains($key, 'announcement') => 'notifications',
             default => 'general',

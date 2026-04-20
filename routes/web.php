@@ -3,24 +3,30 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeliveryAddressController;
+use App\Http\Controllers\Local\InvoiceDesignPreviewController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PolicyPageController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceOrderController;
 use App\Http\Controllers\TrackOrderController;
+use App\Http\Controllers\UserInvoiceController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\SupportController;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
@@ -44,6 +50,10 @@ Route::get('/get-quote', [QuoteController::class, 'create'])->name('quotes.creat
 Route::post('/get-quote', [QuoteController::class, 'store'])->name('quotes.store');
 Route::get('/get-quote/{order}/success', [QuoteController::class, 'success'])->name('quotes.success');
 Route::get('/payments/paystack/callback', [PaymentController::class, 'paystackCallback'])->name('payments.paystack.callback');
+
+Route::get('/blog', [BlogController::class, 'index'])->name('blog');
+
+
 
 Route::middleware('user.guest')->group(function (): void {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -77,5 +87,28 @@ Route::middleware('user.auth')->group(function (): void {
         Route::put('/profile/addresses/{deliveryAddress}', [DeliveryAddressController::class, 'update'])->name('profile.addresses.update');
         Route::delete('/profile/addresses/{deliveryAddress}', [DeliveryAddressController::class, 'destroy'])->name('profile.addresses.destroy');
         Route::put('/profile/addresses/{deliveryAddress}/default', [DeliveryAddressController::class, 'setDefault'])->name('profile.addresses.default');
+
+        //INVOICE MGT
+Route::get('/manage-invoices', [UserInvoiceController::class, 'index'])->name('invoice.index');
     });
+    Route::get('/{invoice}', [UserInvoiceController::class, 'show'])->name('show');
+    Route::get('/{invoice}/download', [UserInvoiceController::class, 'download'])->name('download');
+
+    //Tickets, support, etc routes can go here for authenticated users regardless of email verification status
+    Route::get('/support-tickets', [SupportController::class, 'index'])->name('support.tickets.index');
+    Route::get('/support-tickets/create', [SupportController::class, 'create'])->name('support.tickets.create');
+    Route::post('/support-tickets', [SupportController::class, 'store'])->name('support.tickets.store');
+    Route::get('/support-tickets/{ticket}', [SupportController::class, 'show'])->name('support.tickets.show');
 });
+
+if (app()->environment('local')) {
+    Route::prefix('/local-previews/invoices')
+        ->name('local-previews.invoices.')
+        ->group(function (): void {
+            Route::get('/', [InvoiceDesignPreviewController::class, 'index'])->name('index');
+            Route::get('/pdf', [InvoiceDesignPreviewController::class, 'invoicePdf'])->name('pdf');
+            Route::get('/receipt-pdf', [InvoiceDesignPreviewController::class, 'receiptPdf'])->name('receipt-pdf');
+            Route::get('/email', [InvoiceDesignPreviewController::class, 'invoiceEmail'])->name('email');
+            Route::get('/paid-receipt-email', [InvoiceDesignPreviewController::class, 'paidReceiptEmail'])->name('paid-receipt-email');
+        });
+}

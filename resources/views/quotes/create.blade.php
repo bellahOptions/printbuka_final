@@ -11,9 +11,7 @@
                 <p class="mt-4 text-sm leading-7 text-slate-300">Share the job details, quantity, delivery location and any artwork files you already have.</p>
 
                 <div class="mt-6 space-y-3 rounded-md bg-white p-5 text-sm font-bold text-slate-700">
-                    <p>Online requests go straight into the job tracker as quote requests.</p>
-                    <p>Attach artwork, logos or images so the team can price the work faster.</p>
-                    <p>No invoice is issued until our team reviews the quote.</p>
+                    <p>Attach artwork, logos or images so the team can can provide accurate pricing faster.</p>
                 </div>
             </aside>
 

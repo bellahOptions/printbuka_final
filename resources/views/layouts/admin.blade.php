@@ -126,7 +126,7 @@
 
             /* Mobile header safe area */
             .mobile-header {
-                padding-top: env(safe-area-inset-top, 0px);
+                padding-top: 10px;
             }
 
             ::-webkit-scrollbar { width: 6px; height: 6px; }

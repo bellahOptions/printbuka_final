@@ -6,10 +6,9 @@
     <main class="bg-[#f4fbfb] px-4 py-16 text-slate-900 sm:px-6 lg:px-8">
         <section class="mx-auto max-w-6xl space-y-8">
             <div class="rounded-md bg-slate-950 p-6 text-white lg:p-8">
-                <a href="{{ route('dashboard') }}" class="text-sm font-black text-cyan-300">Dashboard</a>
                 <h1 class="mt-3 text-4xl">Edit profile.</h1>
                 <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
-                    Update your profile details. Your registered email address is locked and cannot be changed here.
+                    Update your profile details.
                 </p>
             </div>
 
@@ -81,7 +80,7 @@
                     <div class="space-y-5 rounded-md border border-slate-200 bg-slate-50 p-5">
                         <p class="text-sm font-black uppercase tracking-wide text-pink-700">Profile Image</p>
                         @if ($user->profilePhotoUrl())
-                            <img src="{{ $user->profilePhotoUrl() }}" alt="{{ $user->displayName() }}" class="h-28 w-28 rounded-full border border-slate-200 object-cover">
+                            <img src="/{{ $user->profilePhotoUrl() }}" alt="{{ $user->displayName() }}" class="h-28 w-28 rounded-full border border-slate-200 object-cover">
                         @else
                             <div class="flex h-28 w-28 items-center justify-center rounded-full border border-slate-200 bg-white text-2xl font-black text-slate-700">{{ $user->profileInitials() }}</div>
                         @endif

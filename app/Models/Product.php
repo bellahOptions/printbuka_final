@@ -18,6 +18,7 @@ class Product extends Model
         'paper_type',
         'material_price_options',
         'paper_size',
+        'is_featured',
         'size_price_options',
         'finishing',
         'finish_price_options',
@@ -37,6 +38,7 @@ class Product extends Model
             'density_price_options' => 'array',
             'delivery_price_options' => 'array',
             'is_active' => 'boolean',
+            'is_featured' => 'boolean',
         ];
     }
 
@@ -49,4 +51,8 @@ class Product extends Model
     {
         return $this->hasMany(Order::class);
     }
+    public function scopeFeatured($query)
+{
+    return $query->where('is_featured', true)->where('is_active', true);
+}
 }
