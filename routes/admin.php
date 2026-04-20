@@ -12,11 +12,11 @@ use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\AdminSiteSettingController;
 use App\Http\Controllers\Admin\AdminStaffController;
 use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Route; 
 
 Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
     Route::prefix('admin')->name('admin.')->middleware(['admin.permission:admin.view', 'admin.activity'])->group(function (): void {
-        Route::get('/', AdminDashboardController::class)->name('dashboard');
+        Route::get('/dashboard', AdminDashboardController::class)->name('dashboard');
         Route::get('/profile', [ProfileController::class, 'editAdmin'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'updateAdmin'])->name('profile.update');
 

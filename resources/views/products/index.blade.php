@@ -276,7 +276,7 @@
             @if($products->isNotEmpty())
 
                 <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                    @foreach($products as $product)
+                    @foreach($products as $product) 
                         @php
                             $pName = strtolower($product->name);
                             $img   = $productImages['default'];

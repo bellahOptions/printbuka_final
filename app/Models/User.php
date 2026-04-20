@@ -99,4 +99,29 @@ class User extends Authenticatable
     public function orders() : HasMany {
         return $this->hasMany(Order::class, 'user_id');
     }
+
+    public function getProfilePhotoUrlAttribute(): string
+{
+    if (!$this->photo) {
+        return asset('favicon.png');
+    }
+    
+    // Check if it's a full URL
+    if (filter_var($this->photo, FILTER_VALIDATE_URL)) {
+        return $this->photo;
+    }
+    
+    // Check if it's stored in storage
+    if (Storage::disk('public')->exists($this->photo)) {
+        return Storage::url($this->photo);
+    }
+    
+    // Check if it exists in public directory
+    if (file_exists(public_path($this->photo))) {
+        return asset($this->photo);
+    }
+    
+    // Fallback to default
+    return asset('favicon.png');
+}
 }

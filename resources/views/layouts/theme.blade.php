@@ -7,6 +7,7 @@
         <title>@yield('title', $title ?? ($siteSettings['site_name'] ?? config('app.name')))</title>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireStyles
+        
     </head>
     <body>
         @include('layouts.guest.nav')

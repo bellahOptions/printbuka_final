@@ -115,8 +115,11 @@ class ProfileController extends Controller
             ];
         }
 
+        // Decide photo folder by user type
+        $photoFolder = $user->hasAdminAccess() ? 'staff-photos' : 'user-photos';
+
         if ($request->boolean('remove_photo')) {
-            if (filled($user->photo) && Str::startsWith($user->photo, 'staff-photos/')) {
+            if (filled($user->photo)) {
                 Storage::disk('public')->delete($user->photo);
             }
 
@@ -124,9 +127,9 @@ class ProfileController extends Controller
         }
 
         if ($request->hasFile('photo')) {
-            $newPhotoPath = $request->file('photo')->store('staff-photos', 'public');
+            $newPhotoPath = $request->file('photo')->store($photoFolder, 'public');
 
-            if (filled($user->photo) && Str::startsWith($user->photo, 'staff-photos/')) {
+            if (filled($user->photo)) {
                 Storage::disk('public')->delete($user->photo);
             }
 

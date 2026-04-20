@@ -79,8 +79,8 @@
 
                     <div class="space-y-5 rounded-md border border-slate-200 bg-slate-50 p-5">
                         <p class="text-sm font-black uppercase tracking-wide text-pink-700">Profile Image</p>
-                        @if ($user->profilePhotoUrl())
-                            <img src="/{{ $user->profilePhotoUrl() }}" alt="{{ $user->displayName() }}" class="h-28 w-28 rounded-full border border-slate-200 object-cover">
+                        @if ($user->getProfilePhotoUrlAttribute())
+                            <img src=" {{ $user->getProfilePhotoUrlAttribute() }}" alt="{{ $user->displayName() }}" class="h-28 w-28 rounded-full border border-slate-200 object-cover">
                         @else
                             <div class="flex h-28 w-28 items-center justify-center rounded-full border border-slate-200 bg-white text-2xl font-black text-slate-700">{{ $user->profileInitials() }}</div>
                         @endif

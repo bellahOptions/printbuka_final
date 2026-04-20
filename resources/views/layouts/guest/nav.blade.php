@@ -2,10 +2,9 @@
 $username = auth()->check()
     ? auth()->user()->first_name . ' ' . auth()->user()->last_name
     : 'Guest';
-
-$profileImg = auth()->check()
-    ? auth()->user()->photo
-    : 'default.png';
+$profileImg = auth()->check() 
+    ? auth()->user()->profile_photo_url 
+    : asset('favicon.png');
 @endphp
 
 {{-- ===== TOP INFO BAR ===== --}}
@@ -114,71 +113,72 @@ $profileImg = auth()->check()
                     </div>
                 </div>
 
-               @auth
-    <livewire:notification-bell />
-    
-    {{-- User Dropdown Menu --}}
-    <div class="dropdown dropdown-end">
-        <label tabindex="0" class="btn btn-ghost btn-sm gap-2 font-bold text-slate-700 hover:text-pink-600">
-            <div class="avatar">
-                <div class="w-7 rounded-full">
-                    <img src="{{ $profileImg ?? asset('favicon.png') }}" alt="{{ $username }}" />
-                </div>
-            </div>
-            <span class="hidden md:inline">{{ $username }}</span>
-            <svg class="h-4 w-4 hidden md:inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-        </label>
-        
-        <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-2xl bg-white rounded-box w-56 mt-2 border border-slate-100">
-            {{-- User Info Header --}}
-            <li class="menu-title text-slate-400 text-xs border-b border-slate-100 pb-2 mb-2">
-                <span>Signed in as</span>
-                <span class="text-slate-700 font-bold text-sm block truncate">{{ $username }}</span>
-            </li>
-            
-            {{-- Edit Profile Link --}}
-            <li>
-                <a href="{{ route('profile.edit') }}" class="gap-3 text-slate-700 hover:text-pink-600 hover:bg-pink-50">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                    </svg>
-                    Edit Profile
-                </a>
-            </li>
-            
-            {{-- Support/Tickets Link --}}
-            <li>
-                <a href="{{ route('support.tickets.index') ?? '#' }}" class="gap-3 text-slate-700 hover:text-pink-600 hover:bg-pink-50">
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    Support Tickets
-                </a>
-            </li>
-            
-            {{-- Divider --}}
-            <li class="border-t border-slate-100 my-1"></li>
-            
-            {{-- Logout Link --}}
-            <li>
-                <form action="{{ route('logout') }}" method="POST" class="block">
-                    @csrf
-                    <button type="submit" class="w-full text-left gap-3 text-red-600 hover:bg-red-50 hover:text-red-700">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                        </svg>
-                        Logout
-                    </button>
-                </form>
-            </li>
-        </ul>
-    </div>
-@else
-    <a href="{{ route('login') }}" class="btn btn-ghost btn-sm font-bold text-slate-700 hover:text-pink-600 hidden sm:inline-flex">Sign In</a>
-    <a href="{{ route('register') }}" class="btn btn-sm bg-pink-600 border-0 text-white hover:bg-pink-700 font-black">Create Account</a>
-@endauth
+                @auth
+                    <livewire:notification-bell />
+                    
+                    {{-- User Dropdown Menu --}}
+                    <div class="dropdown dropdown-end">
+                        <label tabindex="0" class="btn btn-ghost btn-sm gap-2 font-bold text-slate-700 hover:text-pink-600">
+                            <div class="avatar">
+                                <div class="w-7 rounded-full">
+                                    <img src="{{ $profileImg }}" alt="{{ $username }}" 
+                                         onerror="this.onerror=null; this.src='{{ asset('favicon.png') }}';" />
+                                </div>
+                            </div>
+                            <span class="hidden md:inline">{{ $username }}</span>
+                            <svg class="h-4 w-4 hidden md:inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </label>
+                        
+                        <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-2xl bg-white rounded-box w-56 mt-2 border border-slate-100">
+                            {{-- User Info Header --}}
+                            <li class="menu-title text-slate-400 text-xs border-b border-slate-100 pb-2 mb-2">
+                                <span>Signed in as</span>
+                                <span class="text-slate-700 font-bold text-sm block truncate">{{ $username }}</span>
+                            </li>
+                            
+                            {{-- Edit Profile Link --}}
+                            <li>
+                                <a href="{{ route('profile.edit') }}" class="gap-3 text-slate-700 hover:text-pink-600 hover:bg-pink-50">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                    Edit Profile
+                                </a>
+                            </li>
+                            
+                            {{-- Support/Tickets Link --}}
+                            <li>
+                                <a href="{{ route('support.index') }}" class="gap-3 text-slate-700 hover:text-pink-600 hover:bg-pink-50">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                    Support Tickets
+                                </a>
+                            </li>
+                            
+                            {{-- Divider --}}
+                            <li class="border-t border-slate-100 my-1"></li>
+                            
+                            {{-- Logout Link --}}
+                            <li>
+                                <form action="{{ route('logout') }}" method="POST" class="block">
+                                    @csrf
+                                    <button type="submit" class="w-full text-left gap-3 text-red-600 hover:bg-red-50 hover:text-red-700">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                                        </svg>
+                                        Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                @else
+                    <a href="{{ route('login') }}" class="btn btn-ghost btn-sm font-bold text-slate-700 hover:text-pink-600 hidden sm:inline-flex">Sign In</a>
+                    <a href="{{ route('register') }}" class="btn btn-sm bg-pink-600 border-0 text-white hover:bg-pink-700 font-black">Create Account</a>
+                @endauth
             </div>
 
         </div>
