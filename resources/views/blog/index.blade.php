@@ -1,6 +1,7 @@
 @extends('layouts.theme')
 
 @section('title', 'Printbuka Blog')
+@section('meta_description', 'Read Printbuka blog guides and updates on design, printing, branding, and gifting.')
 
 @section('content')
 <main class="bg-base-100 py-14">

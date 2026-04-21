@@ -3,7 +3,10 @@
 @section('title', 'My Invoices | PrintBuka')
 
 @section('content')
-<main class="min-h-screen bg-gradient-to-br from-slate-50 to-white py-12">
+@php
+    $paymentRouteExists = \Illuminate\Support\Facades\Route::has('payment.process');
+@endphp
+<main class="invoice-page min-h-screen bg-gradient-to-br from-slate-50 to-white py-12">
     <section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
         {{-- Page Header --}}
@@ -172,8 +175,8 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                                                 </svg>
                                             </a>
-                                            @if($invoice->status === 'pending')
-                                                <a href="{{ route('payment.process', $invoice) ?? '#' }}" 
+                                            @if($invoice->status === 'pending' && $paymentRouteExists)
+                                                <a href="{{ route('payment.process', $invoice) }}" 
                                                    class="btn btn-xs btn-pink-600 text-white hover:bg-pink-700"
                                                    title="Pay Now">
                                                     Pay Now
@@ -214,4 +217,10 @@
         </div>
     </section>
 </main>
+<style>
+    .invoice-page,
+    .invoice-page * {
+        font-family: "Open Sans", Arial, sans-serif;
+    }
+</style>
 @endsection

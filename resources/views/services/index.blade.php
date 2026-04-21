@@ -1,6 +1,7 @@
 @extends('layouts.theme')
 
 @section('title', 'Services | Printbuka')
+@section('meta_description', 'Explore Printbuka services including direct image printing, UV-DTF, DTF, and laser engraving.')
 
 @section('content')
     @php

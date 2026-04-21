@@ -3,7 +3,23 @@
 @section('title', $invoice->documentTypeLabel() . ' ' . ($invoice->invoice_number ?? '#' . $invoice->id) . ' | PrintBuka')
 
 @section('content')
-<main class="min-h-screen bg-gradient-to-br from-slate-50 to-white py-12">
+@php
+    $settings = \App\Support\SiteSettings::all();
+    $companyName = (string) ($settings['site_name'] ?? config('app.name', 'Printbuka'));
+    $companyAddressLine1 = (string) ($settings['company_address_line_1'] ?? '63, Akeju Street, off Shipeolu St, Somolu, Lagos');
+    $companyAddressLine2 = (string) ($settings['company_address_line_2'] ?? '100001, Lagos');
+    $companyEmail = (string) ($settings['contact_email'] ?? 'sales@printbuka.com.ng');
+    $companyPhone = (string) ($settings['contact_phone'] ?? '08035245784, 09054784526');
+    $companyAccountName = trim((string) ($settings['company_account_name'] ?? ''));
+    $companyAccountNumber = trim((string) ($settings['company_account_number'] ?? ''));
+    $companyAccountBankName = trim((string) ($settings['company_account_bank_name'] ?? ''));
+    $companyAccountNote = trim((string) ($settings['company_account_note'] ?? ''));
+    $hasCompanyAccountDetails = $companyAccountName !== '' || $companyAccountNumber !== '' || $companyAccountBankName !== '' || $companyAccountNote !== '';
+    $paymentLink = \Illuminate\Support\Facades\Route::has('payment.process')
+        ? route('payment.process', $invoice)
+        : null;
+@endphp
+<main class="invoice-page min-h-screen bg-gradient-to-br from-slate-50 to-white py-12">
     <section class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         
         {{-- Back Button --}}
@@ -57,11 +73,11 @@
                     <div>
                         <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-400 mb-3">From</h3>
                         <div class="space-y-1">
-                            <p class="font-bold text-slate-800 text-lg">PrintBuka Limited</p>
-                            <p class="text-sm text-slate-600">123 Printing Avenue, Ikeja</p>
-                            <p class="text-sm text-slate-600">Lagos, Nigeria</p>
-                            <p class="text-sm text-slate-600">hello@printbuka.com</p>
-                            <p class="text-sm text-slate-600">+234 801 234 5678</p>
+                            <p class="font-bold text-slate-800 text-lg">{{ $companyName }}</p>
+                            <p class="text-sm text-slate-600">{{ $companyAddressLine1 }}</p>
+                            <p class="text-sm text-slate-600">{{ $companyAddressLine2 }}</p>
+                            <p class="text-sm text-slate-600">{{ $companyEmail }}</p>
+                            <p class="text-sm text-slate-600">{{ $companyPhone }}</p>
                         </div>
                     </div>
                     <div>
@@ -141,6 +157,26 @@
                     </div>
                 </div>
 
+                @if($hasCompanyAccountDetails)
+                <div class="mt-6 rounded-xl border border-cyan-100 bg-cyan-50/60 p-4">
+                    <h4 class="text-sm font-semibold text-cyan-900 mb-2">Company Account Details</h4>
+                    <div class="grid gap-2 text-sm text-cyan-900 sm:grid-cols-2">
+                        @if($companyAccountBankName !== '')
+                            <p><span class="font-semibold">Bank:</span> {{ $companyAccountBankName }}</p>
+                        @endif
+                        @if($companyAccountName !== '')
+                            <p><span class="font-semibold">Account name:</span> {{ $companyAccountName }}</p>
+                        @endif
+                        @if($companyAccountNumber !== '')
+                            <p><span class="font-semibold">Account number:</span> {{ $companyAccountNumber }}</p>
+                        @endif
+                    </div>
+                    @if($companyAccountNote !== '')
+                        <p class="mt-2 text-xs text-cyan-800"><span class="font-semibold">Note:</span> {{ $companyAccountNote }}</p>
+                    @endif
+                </div>
+                @endif
+
                 {{-- Payment Info --}}
                 @if($invoice->status === 'paid' && $invoice->paid_at)
                 <div class="mt-6 p-4 rounded-xl bg-emerald-50 border border-emerald-100">
@@ -171,12 +207,14 @@
                                 @endif
                             </div>
                         </div>
-                        <a href="{{ route('payment.process', $invoice) ?? '#' }}" class="btn btn-sm bg-pink-600 hover:bg-pink-700 text-white border-0">
-                            Proceed to Payment
-                            <svg class="h-4 w-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                            </svg>
-                        </a>
+                        @if($paymentLink)
+                            <a href="{{ $paymentLink }}" class="btn btn-sm bg-pink-600 hover:bg-pink-700 text-white border-0">
+                                Proceed to Payment
+                                <svg class="h-4 w-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                </svg>
+                            </a>
+                        @endif
                     </div>
                 </div>
                 @endif
@@ -210,6 +248,11 @@
 </main>
 
 <style>
+    .invoice-page,
+    .invoice-page * {
+        font-family: "Open Sans", Arial, sans-serif;
+    }
+
     @media print {
         .btn, .dropdown, .navbar, footer, .badge a:not(.print-friendly) {
             display: none !important;

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Support\SafeCache;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -19,17 +20,47 @@ class ProductController extends Controller
             'max_price' => $request->query('max_price'),
         ];
 
-        $filterCategories = ProductCategory::query()
-            ->where('is_active', true)
-            ->with('parent:id,name')
-            ->orderBy('parent_id')
-            ->orderBy('name')
-            ->get();
+        $filterCategoryIds = SafeCache::remember('products:index:filter-category-ids:v1', now()->addMinutes(5), function (): array {
+            return ProductCategory::query()
+                ->where('is_active', true)
+                ->orderBy('parent_id')
+                ->orderBy('name')
+                ->pluck('id')
+                ->all();
+        });
 
-        $categories = ProductCategory::publicTreeQuery()->get();
+        $filterCategories = $filterCategoryIds === []
+            ? collect()
+            : ProductCategory::query()
+                ->whereIn('id', $filterCategoryIds)
+                ->with('parent:id,name')
+                ->orderBy('parent_id')
+                ->orderBy('name')
+                ->get();
+
+        $publicCategoryIds = SafeCache::remember('products:index:public-category-ids:v1', now()->addMinutes(5), function (): array {
+            return ProductCategory::publicTreeQuery()
+                ->pluck('id')
+                ->all();
+        });
+
+        $categories = $publicCategoryIds === []
+            ? collect()
+            : ProductCategory::query()
+                ->whereIn('id', $publicCategoryIds)
+                ->withActiveProductsCount()
+                ->with([
+                    'children' => fn ($childrenQuery) => $childrenQuery
+                        ->where('is_active', true)
+                        ->whereHas('products', fn ($productsQuery) => $productsQuery->where('is_active', true))
+                        ->withActiveProductsCount()
+                        ->orderBy('name'),
+                ])
+                ->orderBy('name')
+                ->get();
 
         return view('products.index', [
-            'activeProductCount' => Product::query()->where('is_active', true)->count(),
+            'activeProductCount' => SafeCache::remember('products:index:active-count:v1', now()->addMinutes(5), fn (): int => Product::query()->where('is_active', true)->count()),
             'categories' => $categories,
             'filterCategories' => $filterCategories,
             'filters' => $filters,
@@ -40,11 +71,13 @@ class ProductController extends Controller
     {
         abort_if(! $category->is_active, 404);
 
-        $categoryIds = $category->children()
-            ->where('is_active', true)
-            ->pluck('id')
-            ->push($category->id)
-            ->all();
+        $categoryIds = SafeCache::remember("products:category:{$category->id}:visible-child-ids:v1", now()->addMinutes(5), function () use ($category): array {
+            return $category->children()
+                ->where('is_active', true)
+                ->pluck('id')
+                ->push($category->id)
+                ->all();
+        });
 
         $products = Product::query()
             ->whereIn('product_category_id', $categoryIds)

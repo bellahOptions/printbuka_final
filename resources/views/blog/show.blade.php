@@ -1,6 +1,9 @@
 @extends('layouts.theme')
 
 @section('title', $post->title . ' | Printbuka Blog')
+@section('meta_description', \Illuminate\Support\Str::limit($post->excerpt ?: strip_tags($safeContent), 155))
+@section('og_type', 'article')
+@section('og_image', $post->featuredImageUrl() ?: asset('logo.png'))
 
 @section('content')
 <main class="bg-base-100 py-12">

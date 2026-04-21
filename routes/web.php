@@ -21,7 +21,117 @@ use App\Http\Controllers\ServiceOrderController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\TrackOrderController;
 use App\Http\Controllers\UserInvoiceController;
+use App\Models\BlogPost;
+use App\Models\Product;
+use App\Models\ProductCategory;
+use App\Support\SafeCache;
+use App\Support\SiteSettings;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/sitemap.xml', function () {
+    $urls = SafeCache::remember('seo:sitemap:urls:v1', now()->addMinutes(10), function (): array {
+        $staticUrls = [
+            ['loc' => route('home'), 'lastmod' => now()->toDateString(), 'changefreq' => 'daily', 'priority' => '1.0'],
+            ['loc' => route('products.index'), 'lastmod' => now()->toDateString(), 'changefreq' => 'daily', 'priority' => '0.9'],
+            ['loc' => route('categories.index'), 'lastmod' => now()->toDateString(), 'changefreq' => 'weekly', 'priority' => '0.7'],
+            ['loc' => route('services.index'), 'lastmod' => now()->toDateString(), 'changefreq' => 'weekly', 'priority' => '0.8'],
+            ['loc' => route('quotes.create'), 'lastmod' => now()->toDateString(), 'changefreq' => 'weekly', 'priority' => '0.6'],
+            ['loc' => route('partners.create'), 'lastmod' => now()->toDateString(), 'changefreq' => 'monthly', 'priority' => '0.5'],
+            ['loc' => route('orders.track'), 'lastmod' => now()->toDateString(), 'changefreq' => 'weekly', 'priority' => '0.5'],
+            ['loc' => route('blog'), 'lastmod' => now()->toDateString(), 'changefreq' => 'daily', 'priority' => '0.8'],
+            ['loc' => route('policies.terms'), 'lastmod' => now()->toDateString(), 'changefreq' => 'monthly', 'priority' => '0.3'],
+            ['loc' => route('policies.privacy'), 'lastmod' => now()->toDateString(), 'changefreq' => 'monthly', 'priority' => '0.3'],
+            ['loc' => route('policies.refund'), 'lastmod' => now()->toDateString(), 'changefreq' => 'monthly', 'priority' => '0.3'],
+        ];
+
+        $productUrls = Product::query()
+            ->where('is_active', true)
+            ->select(['id', 'updated_at'])
+            ->latest('updated_at')
+            ->get()
+            ->map(fn (Product $product): array => [
+                'loc' => route('products.show', $product->id),
+                'lastmod' => optional($product->updated_at)->toDateString(),
+                'changefreq' => 'weekly',
+                'priority' => '0.8',
+            ])
+            ->values()
+            ->all();
+
+        $categoryUrls = ProductCategory::query()
+            ->topLevel()
+            ->visibleInCustomerCatalog()
+            ->select(['id', 'slug', 'updated_at'])
+            ->get()
+            ->map(fn (ProductCategory $category): array => [
+                'loc' => route('products.category', $category->slug),
+                'lastmod' => optional($category->updated_at)->toDateString(),
+                'changefreq' => 'weekly',
+                'priority' => '0.7',
+            ])
+            ->values()
+            ->all();
+
+        $blogUrls = BlogPost::query()
+            ->where('status', 'published')
+            ->where(function ($query): void {
+                $query->whereNull('published_at')->orWhere('published_at', '<=', now());
+            })
+            ->select(['id', 'slug', 'updated_at'])
+            ->latest('published_at')
+            ->latest('id')
+            ->get()
+            ->map(fn (BlogPost $post): array => [
+                'loc' => route('blog.show', $post->slug),
+                'lastmod' => optional($post->updated_at)->toDateString(),
+                'changefreq' => 'weekly',
+                'priority' => '0.6',
+            ])
+            ->values()
+            ->all();
+
+        return array_merge($staticUrls, $productUrls, $categoryUrls, $blogUrls);
+    });
+
+    return response()
+        ->view('sitemap.xml', ['urls' => $urls])
+        ->header('Content-Type', 'application/xml; charset=UTF-8');
+})->name('sitemap');
+
+Route::get('/llms.txt', function () {
+    $content = SafeCache::remember('seo:llms-txt:v1', now()->addMinutes(10), function (): string {
+        $siteName = (string) SiteSettings::get('site_name', config('app.name', 'Printbuka'));
+        $contactEmail = (string) SiteSettings::get('contact_email', 'sales@printbuka.com.ng');
+
+        return implode(PHP_EOL, [
+            '# '.$siteName,
+            '',
+            '> '.$siteName.' is an online print shop in Nigeria for products, branded gifts, and specialist print services.',
+            '',
+            '## Canonical',
+            '- '.route('home'),
+            '- '.route('products.index'),
+            '- '.route('categories.index'),
+            '- '.route('services.index'),
+            '- '.route('blog'),
+            '',
+            '## Policies',
+            '- '.route('policies.privacy'),
+            '- '.route('policies.terms'),
+            '- '.route('policies.refund'),
+            '',
+            '## Crawl Hints',
+            '- Sitemap: '.route('sitemap'),
+            '- Robots: '.url('/robots.txt'),
+            '- Language: en',
+            '',
+            '## Contact',
+            '- Email: '.$contactEmail,
+        ]);
+    });
+
+    return response($content.PHP_EOL, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
+})->name('llms');
 
 Route::middleware('customer.portal')->group(function (): void {
     Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -95,11 +205,11 @@ Route::middleware('user.auth')->group(function (): void {
             Route::delete('/profile/addresses/{deliveryAddress}', [DeliveryAddressController::class, 'destroy'])->name('profile.addresses.destroy');
             Route::put('/profile/addresses/{deliveryAddress}/default', [DeliveryAddressController::class, 'setDefault'])->name('profile.addresses.default');
 
-            Route::get('/manage-invoices', [UserInvoiceController::class, 'index'])->name('invoice.index');
+            Route::get('/manage-invoices', [UserInvoiceController::class, 'index'])->name('user.invoices.index');
         });
 
-        Route::get('/{invoice}', [UserInvoiceController::class, 'show'])->name('show')->whereNumber('invoice');
-        Route::get('/{invoice}/download', [UserInvoiceController::class, 'download'])->name('download')->whereNumber('invoice');
+        Route::get('/manage-invoices/{invoice}', [UserInvoiceController::class, 'show'])->name('user.invoices.show')->whereNumber('invoice');
+        Route::get('/manage-invoices/{invoice}/download', [UserInvoiceController::class, 'download'])->name('user.invoices.download')->whereNumber('invoice');
 
         Route::get('/support-tickets', [SupportController::class, 'index'])->name('support.tickets.index');
         Route::get('/support-tickets/create', [SupportController::class, 'create'])->name('support.tickets.create');

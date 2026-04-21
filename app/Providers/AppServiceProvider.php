@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\ProductCategory;
+use App\Support\SafeCache;
 use App\Support\SiteSettings;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\ServiceProvider;
@@ -46,7 +47,39 @@ class AppServiceProvider extends ServiceProvider
         View::share('siteSettings', SiteSettings::all());
 
         View::composer(['layouts.guest.nav', 'layouts.guest.footer', 'welcome'], function ($view): void {
-            $publicCategories = ProductCategory::publicTreeQuery()->get();
+            $cachedCategories = SafeCache::remember('public:category-tree:v1', now()->addMinutes(5), function (): array {
+                return ProductCategory::publicTreeQuery()
+                    ->limit(6)
+                    ->get()
+                    ->map(function (ProductCategory $category): array {
+                        return [
+                            'name' => $category->name,
+                            'slug' => $category->slug,
+                            'tag' => $category->tag,
+                            'description' => $category->description,
+                            'image_url' => $category->imageUrl(),
+                            'children' => $category->children
+                                ->map(fn (ProductCategory $child): array => [
+                                    'name' => $child->name,
+                                    'slug' => $child->slug,
+                                    'active_products_count' => (int) ($child->active_products_count ?? 0),
+                                ])
+                                ->values()
+                                ->all(),
+                        ];
+                    })
+                    ->values()
+                    ->all();
+            });
+
+            $publicCategories = collect($cachedCategories)
+                ->map(function (array $category): array {
+                    $category['children'] = collect($category['children'] ?? []);
+
+                    return $category;
+                })
+                ->values();
+
             $view->with('menuCategories', $publicCategories->take(6)->values());
             $view->with('homeCategories', $publicCategories->take(5)->values());
         });

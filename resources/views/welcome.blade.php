@@ -1,5 +1,6 @@
 @extends('layouts.theme')
 @section('title', 'Printbuka | No. 1 Online Print Shop in Nigeria')
+@section('meta_description', 'Order quality prints, branded gifts, UV-DTF, DTF, and laser engraving from Printbuka with nationwide delivery across Nigeria.')
 @section('content')
 <main class="bg-base-100 text-base-content">
 
@@ -117,22 +118,22 @@
                 @forelse(($homeCategories ?? collect()) as $category)
                     @php
                         $fallbackImage = $categoryFallbackImages[$loop->index % count($categoryFallbackImages)];
-                        $categoryImage = $category->imageUrl() ?: $fallbackImage;
-                        $categorySummary = $category->description ?: 'Explore print and branded products in this category.';
+                        $categoryImage = ($category['image_url'] ?? null) ?: $fallbackImage;
+                        $categorySummary = ($category['description'] ?? null) ?: 'Explore print and branded products in this category.';
                     @endphp
-                    <a href="{{ route('products.category', $category) }}" class="group card bg-base-100 border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition overflow-hidden">
+                    <a href="{{ route('products.category', $category['slug']) }}" class="group card bg-base-100 border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition overflow-hidden">
                         <figure class="h-52 overflow-hidden">
-                            <img src="{{ $categoryImage }}" alt="{{ $category->name }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                            <img src="{{ $categoryImage }}" alt="{{ $category['name'] }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
                         </figure>
                         <div class="card-body p-5">
-                            <p class="text-xs font-black uppercase tracking-wide text-pink-600">{{ $category->tag ?: 'Category' }}</p>
-                            <h3 class="card-title text-base font-black text-slate-950">{{ $category->name }}</h3>
+                            <p class="text-xs font-black uppercase tracking-wide text-pink-600">{{ ($category['tag'] ?? null) ?: 'Category' }}</p>
+                            <h3 class="card-title text-base font-black text-slate-950">{{ $category['name'] }}</h3>
                             <p class="text-sm text-slate-500 leading-relaxed">{{ \Illuminate\Support\Str::limit($categorySummary, 95) }}</p>
 
-                            @if($category->children->isNotEmpty())
+                            @if(($category['children'] ?? collect())->isNotEmpty())
                                 <div class="mt-2 flex flex-wrap gap-2">
-                                    @foreach($category->children->take(3) as $childCategory)
-                                        <span class="badge badge-sm bg-slate-100 border-0 text-slate-600 font-bold">{{ $childCategory->name }}</span>
+                                    @foreach(($category['children'] ?? collect())->take(3) as $childCategory)
+                                        <span class="badge badge-sm bg-slate-100 border-0 text-slate-600 font-bold">{{ $childCategory['name'] }}</span>
                                     @endforeach
                                 </div>
                             @endif

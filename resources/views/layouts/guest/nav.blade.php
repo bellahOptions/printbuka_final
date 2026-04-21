@@ -78,13 +78,13 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
                                                 @forelse(($menuCategories ?? collect())->take(4) as $menuCategory)
                                                     @php
                                                         $accent = $menuAccentClasses[$loop->index % count($menuAccentClasses)];
-                                                        $categorySummary = $menuCategory->children->isNotEmpty()
-                                                            ? $menuCategory->children->take(3)->pluck('name')->implode(', ')
-                                                            : ($menuCategory->description ?: 'Browse this category.');
+                                                        $categorySummary = $menuCategory['children']->isNotEmpty()
+                                                            ? $menuCategory['children']->take(3)->pluck('name')->implode(', ')
+                                                            : (($menuCategory['description'] ?? null) ?: 'Browse this category.');
                                                     @endphp
-                                                    <a href="{{ route('products.category', $menuCategory) }}" class="block rounded-xl border border-slate-200 p-4 transition {{ $accent['card'] }}">
-                                                        <p class="text-xs font-black uppercase mb-1 {{ $accent['label'] }}">{{ $menuCategory->tag ?: 'Category' }}</p>
-                                                        <p class="font-black text-slate-950 text-sm">{{ $menuCategory->name }}</p>
+                                                    <a href="{{ route('products.category', $menuCategory['slug']) }}" class="block rounded-xl border border-slate-200 p-4 transition {{ $accent['card'] }}">
+                                                        <p class="text-xs font-black uppercase mb-1 {{ $accent['label'] }}">{{ ($menuCategory['tag'] ?? null) ?: 'Category' }}</p>
+                                                        <p class="font-black text-slate-950 text-sm">{{ $menuCategory['name'] }}</p>
                                                         <p class="text-xs text-slate-500 mt-1">{{ \Illuminate\Support\Str::limit($categorySummary, 56) }}</p>
                                                     </a>
                                                 @empty
@@ -107,7 +107,7 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
                     @endif
 
                     @if ($isCustomer)
-                        <li><a href="{{ route('invoice.index') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50">Invoices & Receipts</a></li>
+                        <li><a href="{{ route('user.invoices.index') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50">Invoices & Receipts</a></li>
                         <li><a href="{{ route('support.index') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50">Support</a></li>
                     @endif
 

@@ -209,6 +209,54 @@ class OrderController extends Controller
         $pricingAdjustments = $orderFulfillmentService->pricingAdjustments($isExpress, $isSample);
         $total = $productionTotal + $deliveryPrice + $pricingAdjustments['total_adjustment'];
         $serviceType = $this->serviceTypeFor($product);
+        $productLineQuantity = $isSample ? $quantity : $batches;
+        $productLineLabel = $isSample
+            ? $product->name.' (sample order · '.$quantity.' unit'.($quantity === 1 ? '' : 's').')'
+            : $product->name.' ('.number_format($quantity).' units / '.$batches.' MOQ batch'.($batches === 1 ? '' : 'es').')';
+        $selectedOptionSummary = collect([
+            filled($validated['size_format'] ?? null) ? 'Size: '.$validated['size_format'] : null,
+            filled($validated['material_substrate'] ?? null) ? 'Material: '.$validated['material_substrate'] : null,
+            filled($validated['paper_density'] ?? null) ? 'Density: '.$validated['paper_density'] : null,
+            filled($validated['finish_lamination'] ?? null) ? 'Finish: '.$validated['finish_lamination'] : null,
+        ])->filter()->values()->all();
+
+        if ($selectedOptionSummary !== []) {
+            $productLineLabel .= ' ['.implode(', ', $selectedOptionSummary).']';
+        }
+
+        $lineItems = [[
+            'description' => $productLineLabel,
+            'quantity' => $productLineQuantity,
+            'rate' => $productionUnitPrice,
+            'amount' => $productionTotal,
+        ]];
+
+        if ($deliveryPrice > 0) {
+            $lineItems[] = [
+                'description' => 'Delivery ('.($validated['delivery_method'] ?? 'Delivery').')',
+                'quantity' => 1,
+                'rate' => $deliveryPrice,
+                'amount' => $deliveryPrice,
+            ];
+        }
+
+        if ($pricingAdjustments['express_fee'] > 0) {
+            $lineItems[] = [
+                'description' => 'Express surcharge',
+                'quantity' => 1,
+                'rate' => (float) $pricingAdjustments['express_fee'],
+                'amount' => (float) $pricingAdjustments['express_fee'],
+            ];
+        }
+
+        if ($pricingAdjustments['sample_fee'] > 0) {
+            $lineItems[] = [
+                'description' => 'Sample order fee',
+                'quantity' => 1,
+                'rate' => (float) $pricingAdjustments['sample_fee'],
+                'amount' => (float) $pricingAdjustments['sample_fee'],
+            ];
+        }
 
         $order = Order::create([
             ...$validated,
@@ -229,6 +277,14 @@ class OrderController extends Controller
             'status' => 'Analyzing Job Brief',
             'payment_status' => 'Invoice Issued',
             'pricing_breakdown' => [
+                'line_items' => $lineItems,
+                'selected_options' => [
+                    'size_format' => $validated['size_format'] ?? null,
+                    'material_substrate' => $validated['material_substrate'] ?? null,
+                    'paper_density' => $validated['paper_density'] ?? null,
+                    'finish_lamination' => $validated['finish_lamination'] ?? null,
+                    'delivery_method' => $validated['delivery_method'] ?? null,
+                ],
                 'base_price' => $unitPrice,
                 'size_price' => $sizePrice,
                 'material_price' => $materialPrice,

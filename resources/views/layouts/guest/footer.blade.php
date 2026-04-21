@@ -49,7 +49,7 @@
                     <h3 class="footer-title text-cyan-300 opacity-100 mb-4 text-xs font-black uppercase tracking-wide">Gifts & Services</h3>
                     <nav class="flex flex-col gap-3 text-sm text-slate-400">
                         @forelse(($menuCategories ?? collect())->take(3) as $menuCategory)
-                            <a href="{{ route('products.category', $menuCategory) }}" class="hover:text-white transition">{{ $menuCategory->name }}</a>
+                            <a href="{{ route('products.category', $menuCategory['slug']) }}" class="hover:text-white transition">{{ $menuCategory['name'] }}</a>
                         @empty
                             <a href="{{ route('categories.index') }}" class="hover:text-white transition">Browse Categories</a>
                         @endforelse

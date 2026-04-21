@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SiteSetting;
+use App\Support\SiteSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -95,6 +96,8 @@ class AdminSiteSettingController extends Controller
                 ['value' => $value, 'group' => $this->settingGroup($key)]
             );
         }
+
+        SiteSettings::clearCache();
 
         return back()->with('status', 'Site settings updated.');
     }

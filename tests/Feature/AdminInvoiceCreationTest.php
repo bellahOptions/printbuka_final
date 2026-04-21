@@ -75,6 +75,77 @@ class AdminInvoiceCreationTest extends TestCase
         $this->assertSame('product:'.$product->id, $order->pricing_breakdown['catalog_item_key'] ?? null);
     }
 
+    public function test_admin_invoice_applies_selected_product_option_prices_and_delivery_fee(): void
+    {
+        Mail::fake();
+
+        $admin = $this->adminUser('super_admin');
+
+        $product = Product::query()->create([
+            'name' => 'Flyers',
+            'moq' => 100,
+            'price' => 2500,
+            'short_description' => 'Flyer print',
+            'description' => 'Flyer print product.',
+            'paper_type' => 'Art Paper',
+            'material_price_options' => [
+                ['label' => 'Art Paper', 'price' => 200],
+            ],
+            'paper_size' => 'A4',
+            'size_price_options' => [
+                ['label' => 'A4', 'price' => 0],
+                ['label' => 'A3', 'price' => 500],
+            ],
+            'finishing' => 'Gloss',
+            'finish_price_options' => [
+                ['label' => 'Gloss', 'price' => 25],
+            ],
+            'paper_density' => '300gsm',
+            'density_price_options' => [
+                ['label' => '300gsm', 'price' => 50],
+            ],
+            'delivery_price_options' => [
+                ['label' => 'Client Pickup', 'price' => 0],
+                ['label' => 'Dispatch Rider', 'price' => 1000],
+            ],
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('admin.invoices.store'), [
+                'customer_name' => 'Option Pricing Client',
+                'customer_email' => 'option.pricing@example.com',
+                'customer_phone' => '08012345678',
+                'catalog_item_key' => 'product:'.$product->id,
+                'quantity' => 2,
+                'size_format' => 'A3',
+                'material_substrate' => 'Art Paper',
+                'paper_density' => '300gsm',
+                'finish_lamination' => 'Gloss',
+                'delivery_method' => 'Dispatch Rider',
+                'tax_amount' => 0,
+                'discount_amount' => 0,
+                'send_email' => 0,
+            ])
+            ->assertRedirect(route('admin.invoices.index'))
+            ->assertSessionHas('status');
+
+        $order = Order::query()->latest('id')->firstOrFail();
+        $invoice = Invoice::query()->where('order_id', $order->id)->firstOrFail();
+        $lineItems = (array) ($order->pricing_breakdown['line_items'] ?? []);
+
+        $this->assertSame('7550.00', (string) $invoice->subtotal);
+        $this->assertSame('7550.00', (string) $invoice->total_amount);
+        $this->assertSame('A3', $order->size_format);
+        $this->assertSame('Art Paper', $order->material_substrate);
+        $this->assertSame('300gsm', $order->paper_density);
+        $this->assertSame('Gloss', $order->finish_lamination);
+        $this->assertSame('Dispatch Rider', $order->delivery_method);
+        $this->assertCount(2, $lineItems);
+        $this->assertSame('Delivery (Dispatch Rider)', $lineItems[1]['description'] ?? null);
+        $this->assertSame(1000.0, (float) ($lineItems[1]['amount'] ?? 0));
+    }
+
     public function test_invoice_creation_rejects_non_catalog_item_keys(): void
     {
         $admin = $this->adminUser('super_admin');

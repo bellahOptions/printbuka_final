@@ -1,6 +1,8 @@
 @extends('layouts.theme')
 
 @section('title', $category->name . ' | Printbuka')
+@section('meta_description', \Illuminate\Support\Str::limit($category->description ?: ('Browse available '.strtolower($category->name).' products from Printbuka.'), 155))
+@section('og_image', $category->imageUrl() ?: asset('logo.png'))
 
 @section('content')
 <main class="min-h-screen bg-gradient-to-br from-slate-50 to-white py-12">

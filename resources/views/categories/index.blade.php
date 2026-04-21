@@ -1,6 +1,7 @@
 @extends('layouts.theme')
 
 @section('title', 'Product Categories | Printbuka')
+@section('meta_description', 'Explore Printbuka product categories and discover active products available for quick ordering.')
 
 @section('content')
 <main class="min-h-screen bg-gradient-to-br from-slate-50 to-white py-12">

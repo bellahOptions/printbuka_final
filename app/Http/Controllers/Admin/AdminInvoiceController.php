@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Services\InvoiceLifecycleService;
 use App\Services\InvoiceService;
+use App\Support\ProductOptionPricing;
 use App\Support\ReferenceCode;
 use App\Support\ServiceCatalog;
 use Illuminate\Http\RedirectResponse;
@@ -45,6 +46,7 @@ class AdminInvoiceController extends Controller
                 ];
             })
             ->values();
+        $products = Product::query()->where('is_active', true)->orderBy('name')->get();
 
         return view('admin.invoices.create', [
             'customers' => User::query()
@@ -52,10 +54,11 @@ class AdminInvoiceController extends Controller
                 ->orderBy('first_name')
                 ->orderBy('last_name')
                 ->get(),
-            'products' => Product::query()->where('is_active', true)->orderBy('name')->get(),
+            'products' => $products,
             'services' => $services,
             'sizes' => config('printbuka_admin.sizes'),
             'invoiceStatuses' => $this->allowedInvoiceStatuses(),
+            'productOptionCatalog' => $this->productOptionCatalog($products),
         ]);
     }
 
@@ -121,11 +124,15 @@ class AdminInvoiceController extends Controller
             'customer_phone' => ['required', 'string', 'max:50'],
             'catalog_item_key' => ['required', 'string', 'max:255'],
             'quantity' => ['required', 'integer', 'min:1'],
+            'size_format' => ['nullable', 'string', 'max:255'],
+            'material_substrate' => ['nullable', 'string', 'max:255'],
+            'paper_density' => ['nullable', 'string', 'max:255'],
+            'finish_lamination' => ['nullable', 'string', 'max:255'],
+            'delivery_method' => ['nullable', 'string', 'max:255'],
             'tax_amount' => ['nullable', 'numeric', 'min:0'],
             'discount_amount' => ['nullable', 'numeric', 'min:0'],
             'invoice_status' => ['nullable', 'string', Rule::in($this->allowedInvoiceStatuses())],
             'due_at' => ['nullable', 'date'],
-            'size_format' => ['nullable', 'string', 'max:255'],
             'delivery_city' => ['nullable', 'string', 'max:255'],
             'delivery_address' => ['nullable', 'string', 'max:500'],
             'artwork_notes' => ['nullable', 'string', 'max:2000'],
@@ -152,21 +159,31 @@ class AdminInvoiceController extends Controller
 
         $quantity = (int) $validated['quantity'];
         $unitPrice = (float) $catalogItem['unit_price'];
-        $subtotal = $quantity * $unitPrice;
+        $productPricing = null;
+
+        if (($catalogItem['source_type'] ?? null) === 'product' && filled($catalogItem['product_id'])) {
+            $product = Product::query()->find((int) $catalogItem['product_id']);
+            if ($product) {
+                $productPricing = $this->productPricingForInvoice($product, $validated, $quantity);
+                $unitPrice = (float) ($productPricing['effective_unit_price'] ?? $unitPrice);
+            }
+        }
+
+        $subtotal = (float) ($productPricing['subtotal'] ?? ($quantity * $unitPrice));
         $total = max(0, $subtotal + $validated['tax_amount'] - $validated['discount_amount']);
         $invoiceStatus = strtolower((string) ($validated['invoice_status'] ?? 'unpaid'));
 
-        $lineItems = [[
+        $lineItems = (array) ($productPricing['line_items'] ?? [[
             'description' => (string) $catalogItem['name'],
             'quantity' => $quantity,
             'rate' => $unitPrice,
             'amount' => $subtotal,
-        ]];
+        ]]);
 
         $order = null;
         $invoice = null;
 
-        DB::transaction(function () use (&$order, &$invoice, $validated, $customer, $catalogItem, $quantity, $unitPrice, $subtotal, $total, $invoiceStatus, $lineItems, $request): void {
+        DB::transaction(function () use (&$order, &$invoice, $validated, $customer, $catalogItem, $quantity, $unitPrice, $subtotal, $total, $invoiceStatus, $lineItems, $request, $productPricing): void {
             $order = Order::query()->create([
                 'product_id' => $catalogItem['product_id'],
                 'user_id' => $customer?->id,
@@ -174,7 +191,7 @@ class AdminInvoiceController extends Controller
                 'service_type' => (string) $catalogItem['service_type'],
                 'channel' => 'Manual',
                 'job_type' => (string) $catalogItem['name'],
-                'size_format' => $validated['size_format'] ?? null,
+                'size_format' => $productPricing['selected_options']['size_format'] ?? ($validated['size_format'] ?? null),
                 'quantity' => $quantity,
                 'unit_price' => $unitPrice,
                 'total_price' => $subtotal,
@@ -184,6 +201,10 @@ class AdminInvoiceController extends Controller
                 'delivery_city' => $validated['delivery_city'] ?? null,
                 'delivery_address' => $validated['delivery_address'] ?? null,
                 'artwork_notes' => $validated['artwork_notes'] ?? null,
+                'material_substrate' => $productPricing['selected_options']['material_substrate'] ?? ($validated['material_substrate'] ?? null),
+                'paper_density' => $productPricing['selected_options']['paper_density'] ?? ($validated['paper_density'] ?? null),
+                'finish_lamination' => $productPricing['selected_options']['finish_lamination'] ?? ($validated['finish_lamination'] ?? null),
+                'delivery_method' => $productPricing['selected_options']['delivery_method'] ?? ($validated['delivery_method'] ?? null),
                 'status' => 'Analyzing Job Brief',
                 'job_order_number' => ReferenceCode::jobOrderNumber((string) $catalogItem['service_type']),
                 'priority' => '🟡 Normal',
@@ -197,6 +218,10 @@ class AdminInvoiceController extends Controller
                     'line_items' => $lineItems,
                     'quantity' => $quantity,
                     'unit_price' => $unitPrice,
+                    'selected_options' => $productPricing['selected_options'] ?? [],
+                    'option_prices' => $productPricing['option_prices'] ?? [],
+                    'delivery_option_price' => (float) ($productPricing['delivery_option_price'] ?? 0),
+                    'effective_unit_price' => (float) ($productPricing['effective_unit_price'] ?? $unitPrice),
                     'subtotal' => $subtotal,
                     'tax_amount' => $validated['tax_amount'],
                     'discount_amount' => $validated['discount_amount'],
@@ -250,7 +275,7 @@ class AdminInvoiceController extends Controller
     }
 
     /**
-     * @return array{name:string,unit_price:float,service_type:string,product_id:int|null}|null
+     * @return array{name:string,unit_price:float,service_type:string,product_id:int|null,source_type:string}|null
      */
     private function resolveCatalogItem(string $catalogItemKey): ?array
     {
@@ -267,6 +292,7 @@ class AdminInvoiceController extends Controller
                 'unit_price' => (float) $product->price,
                 'service_type' => $this->serviceTypeForProduct($product),
                 'product_id' => $product->id,
+                'source_type' => 'product',
             ];
         }
 
@@ -283,10 +309,144 @@ class AdminInvoiceController extends Controller
                 'unit_price' => ServiceCatalog::priceForSlug($slug),
                 'service_type' => ServiceCatalog::serviceTypeForSlug($slug),
                 'product_id' => null,
+                'source_type' => 'service',
             ];
         }
 
         return null;
+    }
+
+    /**
+     * @param  \Illuminate\Support\Collection<int, Product>  $products
+     * @return array<int, array<string, mixed>>
+     */
+    private function productOptionCatalog($products): array
+    {
+        return $products
+            ->mapWithKeys(function (Product $product): array {
+                $sizeOptions = ProductOptionPricing::optionsForProductOrSetting($product, 'size_price_options', 'default_size_price_options', $product->paper_size);
+                $materialOptions = ProductOptionPricing::optionsForProductOrSetting($product, 'material_price_options', 'default_material_price_options', $product->paper_type);
+                $densityOptions = ProductOptionPricing::optionsForProductOrSetting($product, 'density_price_options', 'default_density_price_options', $product->paper_density);
+                $finishOptions = ProductOptionPricing::optionsForProductOrSetting($product, 'finish_price_options', 'default_finish_price_options', $product->finishing);
+                $deliveryOptions = ProductOptionPricing::optionsForProductOrSetting($product, 'delivery_price_options', 'default_delivery_price_options', 'Client Pickup');
+
+                return [
+                    $product->id => [
+                        'base_price' => (float) $product->price,
+                        'defaults' => [
+                            'size_format' => $this->selectedOptionLabel($sizeOptions, null, $product->paper_size),
+                            'material_substrate' => $this->selectedOptionLabel($materialOptions, null, $product->paper_type),
+                            'paper_density' => $this->selectedOptionLabel($densityOptions, null, $product->paper_density),
+                            'finish_lamination' => $this->selectedOptionLabel($finishOptions, null, $product->finishing),
+                            'delivery_method' => $this->selectedOptionLabel($deliveryOptions, null, 'Client Pickup'),
+                        ],
+                        'options' => [
+                            'size_format' => $sizeOptions,
+                            'material_substrate' => $materialOptions,
+                            'paper_density' => $densityOptions,
+                            'finish_lamination' => $finishOptions,
+                            'delivery_method' => $deliveryOptions,
+                        ],
+                    ],
+                ];
+            })
+            ->all();
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     * @return array<string, mixed>
+     */
+    private function productPricingForInvoice(Product $product, array $validated, int $quantity): array
+    {
+        $sizeOptions = ProductOptionPricing::optionsForProductOrSetting($product, 'size_price_options', 'default_size_price_options', $product->paper_size);
+        $materialOptions = ProductOptionPricing::optionsForProductOrSetting($product, 'material_price_options', 'default_material_price_options', $product->paper_type);
+        $densityOptions = ProductOptionPricing::optionsForProductOrSetting($product, 'density_price_options', 'default_density_price_options', $product->paper_density);
+        $finishOptions = ProductOptionPricing::optionsForProductOrSetting($product, 'finish_price_options', 'default_finish_price_options', $product->finishing);
+        $deliveryOptions = ProductOptionPricing::optionsForProductOrSetting($product, 'delivery_price_options', 'default_delivery_price_options', 'Client Pickup');
+
+        $selectedOptions = [
+            'size_format' => $this->selectedOptionLabel($sizeOptions, (string) ($validated['size_format'] ?? ''), $product->paper_size),
+            'material_substrate' => $this->selectedOptionLabel($materialOptions, (string) ($validated['material_substrate'] ?? ''), $product->paper_type),
+            'paper_density' => $this->selectedOptionLabel($densityOptions, (string) ($validated['paper_density'] ?? ''), $product->paper_density),
+            'finish_lamination' => $this->selectedOptionLabel($finishOptions, (string) ($validated['finish_lamination'] ?? ''), $product->finishing),
+            'delivery_method' => $this->selectedOptionLabel($deliveryOptions, (string) ($validated['delivery_method'] ?? ''), 'Client Pickup'),
+        ];
+
+        $optionPrices = [
+            'size_price' => ProductOptionPricing::priceFromOptions($sizeOptions, $selectedOptions['size_format']),
+            'material_price' => ProductOptionPricing::priceFromOptions($materialOptions, $selectedOptions['material_substrate']),
+            'density_price' => ProductOptionPricing::priceFromOptions($densityOptions, $selectedOptions['paper_density']),
+            'finish_price' => ProductOptionPricing::priceFromOptions($finishOptions, $selectedOptions['finish_lamination']),
+        ];
+        $deliveryOptionPrice = ProductOptionPricing::priceFromOptions($deliveryOptions, $selectedOptions['delivery_method']);
+        $effectiveUnitPrice = (float) $product->price + array_sum($optionPrices);
+        $productSubtotal = $quantity * $effectiveUnitPrice;
+        $subtotal = $productSubtotal + $deliveryOptionPrice;
+
+        $lineItems = [[
+            'description' => $this->productDescriptionWithOptions((string) $product->name, $selectedOptions),
+            'quantity' => $quantity,
+            'rate' => $effectiveUnitPrice,
+            'amount' => $productSubtotal,
+        ]];
+
+        if ($deliveryOptionPrice > 0) {
+            $lineItems[] = [
+                'description' => 'Delivery ('.$selectedOptions['delivery_method'].')',
+                'quantity' => 1,
+                'rate' => $deliveryOptionPrice,
+                'amount' => $deliveryOptionPrice,
+            ];
+        }
+
+        return [
+            'selected_options' => $selectedOptions,
+            'option_prices' => $optionPrices,
+            'delivery_option_price' => $deliveryOptionPrice,
+            'effective_unit_price' => $effectiveUnitPrice,
+            'subtotal' => $subtotal,
+            'line_items' => $lineItems,
+        ];
+    }
+
+    /**
+     * @param  array<int, array{label: string, price: float}>  $options
+     */
+    private function selectedOptionLabel(array $options, ?string $selected, ?string $fallback): ?string
+    {
+        $selected = filled($selected) ? trim((string) $selected) : null;
+        $fallback = filled($fallback) ? trim((string) $fallback) : null;
+        $labels = collect($options)->pluck('label')->filter()->values();
+
+        if ($selected !== null && $labels->contains($selected)) {
+            return $selected;
+        }
+
+        if ($fallback !== null && $labels->contains($fallback)) {
+            return $fallback;
+        }
+
+        return $labels->first();
+    }
+
+    /**
+     * @param  array<string, string|null>  $selectedOptions
+     */
+    private function productDescriptionWithOptions(string $productName, array $selectedOptions): string
+    {
+        $parts = collect([
+            filled($selectedOptions['size_format'] ?? null) ? 'Size: '.$selectedOptions['size_format'] : null,
+            filled($selectedOptions['material_substrate'] ?? null) ? 'Material: '.$selectedOptions['material_substrate'] : null,
+            filled($selectedOptions['paper_density'] ?? null) ? 'Density: '.$selectedOptions['paper_density'] : null,
+            filled($selectedOptions['finish_lamination'] ?? null) ? 'Finish: '.$selectedOptions['finish_lamination'] : null,
+        ])->filter()->values()->all();
+
+        if ($parts === []) {
+            return $productName;
+        }
+
+        return $productName.' ('.implode(', ', $parts).')';
     }
 
     private function serviceTypeForProduct(Product $product): string

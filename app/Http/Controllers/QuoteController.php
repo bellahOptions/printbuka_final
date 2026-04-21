@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Support\ExternalAssetLinks;
 use App\Support\JobAssetUpload;
 use App\Support\ReferenceCode;
@@ -19,6 +20,9 @@ class QuoteController extends Controller
     {
         return view('quotes.create', [
             'products' => Product::query()->where('is_active', true)->orderBy('name')->get(),
+            'categories' => ProductCategory::publicTreeQuery()
+                ->limit(6)
+                ->get(),
             'jobTypes' => config('printbuka_admin.job_types'),
             'sizes' => config('printbuka_admin.sizes'),
             'materials' => config('printbuka_admin.materials'),

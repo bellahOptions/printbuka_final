@@ -132,11 +132,36 @@
 
                     <div class="space-y-1">
                         <label class="flex items-center gap-2 text-sm font-black text-slate-700">Size / Format</label>
-                        <select name="size_format" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
-                            <option value="">— Select size —</option>
-                            @foreach ($sizes as $size)
-                                <option @selected(old('size_format') === $size)>{{ $size }}</option>
-                            @endforeach
+                        <select id="catalog-size-format" name="size_format" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                            <option value="">— Auto / Default —</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Material / Substrate</label>
+                        <select id="catalog-material-substrate" name="material_substrate" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                            <option value="">— Auto / Default —</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Paper Density</label>
+                        <select id="catalog-paper-density" name="paper_density" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                            <option value="">— Auto / Default —</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Finish / Lamination</label>
+                        <select id="catalog-finish-lamination" name="finish_lamination" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                            <option value="">— Auto / Default —</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1 sm:col-span-2">
+                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Delivery Method</label>
+                        <select id="catalog-delivery-method" name="delivery_method" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                            <option value="">— Auto / Default —</option>
                         </select>
                     </div>
                 </div>
@@ -350,6 +375,19 @@
             const totalDisplay = document.getElementById('catalog-total');
             const itemNameDisplay = document.getElementById('catalog-item-name');
             const mobileAmountDisplay = document.getElementById('catalog-mobile-amount');
+            const sizeSelect = document.getElementById('catalog-size-format');
+            const materialSelect = document.getElementById('catalog-material-substrate');
+            const densitySelect = document.getElementById('catalog-paper-density');
+            const finishSelect = document.getElementById('catalog-finish-lamination');
+            const deliverySelect = document.getElementById('catalog-delivery-method');
+            const productOptionCatalog = @json($productOptionCatalog);
+            const previousOptionSelections = {
+                size_format: @json(old('size_format')),
+                material_substrate: @json(old('material_substrate')),
+                paper_density: @json(old('paper_density')),
+                finish_lamination: @json(old('finish_lamination')),
+                delivery_method: @json(old('delivery_method')),
+            };
 
             const formatter = new Intl.NumberFormat('en-NG', {
                 minimumFractionDigits: 2,
@@ -371,27 +409,134 @@
                 toggleNewCustomerButton.textContent = visible ? 'Hide New Customer Form' : 'Add New Customer';
             };
 
+            const selectedCatalogOption = () => catalogSelect?.selectedOptions?.[0] ?? null;
+
+            const selectedProductId = () => {
+                const selectedValue = selectedCatalogOption()?.value ?? '';
+                if (!selectedValue.startsWith('product:')) {
+                    return null;
+                }
+
+                return selectedValue.slice('product:'.length);
+            };
+
+            const activeProductOptionPayload = () => {
+                const productId = selectedProductId();
+
+                if (!productId) {
+                    return null;
+                }
+
+                return productOptionCatalog?.[productId] ?? null;
+            };
+
+            const optionPriceFor = (options, label) => {
+                if (!Array.isArray(options) || !label) {
+                    return 0;
+                }
+
+                const match = options.find((option) => String(option?.label ?? '') === String(label));
+                return parseAmount(match?.price);
+            };
+
+            const fillSelectOptions = (select, options, selectedValue) => {
+                if (!select) {
+                    return;
+                }
+
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.textContent = '— Auto / Default —';
+
+                select.replaceChildren(placeholder);
+
+                const normalizedOptions = Array.isArray(options) ? options : [];
+
+                normalizedOptions.forEach((option) => {
+                    const label = String(option?.label ?? '').trim();
+                    if (!label) {
+                        return;
+                    }
+
+                    const optionElement = document.createElement('option');
+                    const price = parseAmount(option?.price);
+                    optionElement.value = label;
+                    optionElement.textContent = price > 0
+                        ? `${label} (+ ₦${formatter.format(price)})`
+                        : label;
+                    select.appendChild(optionElement);
+                });
+
+                if (selectedValue && Array.from(select.options).some((option) => option.value === selectedValue)) {
+                    select.value = selectedValue;
+                } else {
+                    select.value = '';
+                }
+            };
+
+            const populateProductOptionSelectors = () => {
+                const payload = activeProductOptionPayload();
+                const isProduct = Boolean(payload);
+                const selectors = [sizeSelect, materialSelect, densitySelect, finishSelect, deliverySelect];
+                selectors.forEach((select) => {
+                    if (!select) {
+                        return;
+                    }
+                    select.disabled = !isProduct;
+                });
+
+                if (!isProduct) {
+                    fillSelectOptions(sizeSelect, [], null);
+                    fillSelectOptions(materialSelect, [], null);
+                    fillSelectOptions(densitySelect, [], null);
+                    fillSelectOptions(finishSelect, [], null);
+                    fillSelectOptions(deliverySelect, [], null);
+                    return;
+                }
+
+                fillSelectOptions(sizeSelect, payload.options?.size_format, previousOptionSelections.size_format ?? payload.defaults?.size_format ?? '');
+                fillSelectOptions(materialSelect, payload.options?.material_substrate, previousOptionSelections.material_substrate ?? payload.defaults?.material_substrate ?? '');
+                fillSelectOptions(densitySelect, payload.options?.paper_density, previousOptionSelections.paper_density ?? payload.defaults?.paper_density ?? '');
+                fillSelectOptions(finishSelect, payload.options?.finish_lamination, previousOptionSelections.finish_lamination ?? payload.defaults?.finish_lamination ?? '');
+                fillSelectOptions(deliverySelect, payload.options?.delivery_method, previousOptionSelections.delivery_method ?? payload.defaults?.delivery_method ?? '');
+
+                previousOptionSelections.size_format = null;
+                previousOptionSelections.material_substrate = null;
+                previousOptionSelections.paper_density = null;
+                previousOptionSelections.finish_lamination = null;
+                previousOptionSelections.delivery_method = null;
+            };
+
             const updateCatalogPrice = () => {
-                const option = catalogSelect?.selectedOptions?.[0];
-                const unitPrice = parseAmount(option?.getAttribute('data-unit-price'));
+                const option = selectedCatalogOption();
+                const baseUnitPrice = parseAmount(option?.getAttribute('data-unit-price'));
                 const itemName = option?.getAttribute('data-item-name') || '—';
                 const quantity = Math.max(1, parseInt(quantityInput?.value ?? '1', 10) || 1);
                 const tax = parseAmount(taxInput?.value);
                 const discount = parseAmount(discountInput?.value);
-                const subtotal = quantity * unitPrice;
+                const payload = activeProductOptionPayload();
+                const sizePrice = optionPriceFor(payload?.options?.size_format, sizeSelect?.value || payload?.defaults?.size_format);
+                const materialPrice = optionPriceFor(payload?.options?.material_substrate, materialSelect?.value || payload?.defaults?.material_substrate);
+                const densityPrice = optionPriceFor(payload?.options?.paper_density, densitySelect?.value || payload?.defaults?.paper_density);
+                const finishPrice = optionPriceFor(payload?.options?.finish_lamination, finishSelect?.value || payload?.defaults?.finish_lamination);
+                const deliveryPrice = optionPriceFor(payload?.options?.delivery_method, deliverySelect?.value || payload?.defaults?.delivery_method);
+                const effectiveUnitPrice = baseUnitPrice + sizePrice + materialPrice + densityPrice + finishPrice;
+                const subtotal = (quantity * effectiveUnitPrice) + deliveryPrice;
                 const total = Math.max(0, subtotal + tax - discount);
                 const adjustments = tax - discount;
 
                 if (unitPriceInput) {
-                    unitPriceInput.value = unitPrice.toFixed(2);
+                    unitPriceInput.value = effectiveUnitPrice.toFixed(2);
                 }
 
                 if (unitPriceDisplay) {
-                    unitPriceDisplay.value = formatter.format(unitPrice);
+                    unitPriceDisplay.value = formatter.format(effectiveUnitPrice);
                 }
 
                 if (itemNameDisplay) {
-                    itemNameDisplay.textContent = itemName;
+                    itemNameDisplay.textContent = deliveryPrice > 0
+                        ? `${itemName} (+ Delivery ₦${formatter.format(deliveryPrice)})`
+                        : itemName;
                 }
 
                 if (subtotalDisplay) {
@@ -461,8 +606,16 @@
             quantityInput?.addEventListener('input', updateCatalogPrice);
             taxInput?.addEventListener('input', updateCatalogPrice);
             discountInput?.addEventListener('input', updateCatalogPrice);
+            sizeSelect?.addEventListener('change', updateCatalogPrice);
+            materialSelect?.addEventListener('change', updateCatalogPrice);
+            densitySelect?.addEventListener('change', updateCatalogPrice);
+            finishSelect?.addEventListener('change', updateCatalogPrice);
+            deliverySelect?.addEventListener('change', updateCatalogPrice);
+
+            catalogSelect?.addEventListener('change', populateProductOptionSelectors);
 
             setNewCustomerFormVisible(false);
+            populateProductOptionSelectors();
             updateCatalogPrice();
         })();
     </script>

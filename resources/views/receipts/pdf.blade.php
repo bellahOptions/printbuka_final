@@ -20,6 +20,32 @@
             $companyAccountNote = trim((string) ($settings['company_account_note'] ?? ''));
             $hasCompanyAccountDetails = $companyAccountName !== '' || $companyAccountNumber !== '' || $companyAccountBankName !== '' || $companyAccountNote !== '';
 
+            $embedFont = static function (array $paths): ?string {
+                foreach ($paths as $path) {
+                    if (file_exists($path)) {
+                        return 'data:font/ttf;base64,'.base64_encode(file_get_contents($path));
+                    }
+                }
+
+                return null;
+            };
+
+            $openSansRegular = $embedFont([
+                public_path('fonts/OpenSans-Regular.ttf'),
+                public_path('fonts/open-sans/OpenSans-Regular.ttf'),
+                public_path('fonts/open-sans/static/OpenSans-Regular.ttf'),
+            ]);
+            $openSansSemiBold = $embedFont([
+                public_path('fonts/OpenSans-SemiBold.ttf'),
+                public_path('fonts/open-sans/OpenSans-SemiBold.ttf'),
+                public_path('fonts/open-sans/static/OpenSans-SemiBold.ttf'),
+            ]);
+            $openSansBold = $embedFont([
+                public_path('fonts/OpenSans-Bold.ttf'),
+                public_path('fonts/open-sans/OpenSans-Bold.ttf'),
+                public_path('fonts/open-sans/static/OpenSans-Bold.ttf'),
+            ]);
+
             $issuedAt = $invoice->issued_at ?? now();
             $paidAt = $invoice->paid_at ?? now();
 
@@ -70,6 +96,33 @@
         @endphp
         <title>{{ $documentType }} {{ $invoice->invoice_number }}</title>
         <style>
+            @if ($openSansRegular !== null)
+                @font-face {
+                    font-family: 'Open Sans';
+                    font-style: normal;
+                    font-weight: 400;
+                    src: url('{{ $openSansRegular }}') format('truetype');
+                }
+            @endif
+
+            @if ($openSansSemiBold !== null)
+                @font-face {
+                    font-family: 'Open Sans';
+                    font-style: normal;
+                    font-weight: 600;
+                    src: url('{{ $openSansSemiBold }}') format('truetype');
+                }
+            @endif
+
+            @if ($openSansBold !== null)
+                @font-face {
+                    font-family: 'Open Sans';
+                    font-style: normal;
+                    font-weight: 700;
+                    src: url('{{ $openSansBold }}') format('truetype');
+                }
+            @endif
+
             * {
                 box-sizing: border-box;
             }
@@ -77,7 +130,7 @@
             body {
                 margin: 0;
                 padding: 20px;
-                font-family: DejaVu Sans, sans-serif;
+                font-family: 'Open Sans', 'DejaVu Sans', Arial, sans-serif;
                 background: #e9eff9;
                 color: #13203a;
                 font-size: 12px;
@@ -97,6 +150,7 @@
             .receipt-footer-table {
                 width: 100%;
                 border-collapse: collapse;
+                table-layout: fixed;
             }
 
             .header-table td,
@@ -229,6 +283,7 @@
                 color: #13203a;
                 font-weight: 700;
                 font-size: 11px;
+                word-break: break-word;
             }
 
             .status-paid-highlight {
@@ -250,6 +305,7 @@
             .items-table {
                 width: 100%;
                 border-collapse: collapse;
+                table-layout: fixed;
             }
 
             .items-table th {
@@ -279,6 +335,7 @@
                 font-weight: 700;
                 color: #0f1a2e;
                 width: 55%;
+                word-break: break-word;
             }
 
             .col-qty,
@@ -296,6 +353,7 @@
             .totals-row {
                 margin-top: 12px;
                 text-align: right;
+                page-break-inside: avoid;
             }
 
             .totals-box {
@@ -353,13 +411,14 @@
                 margin-top: 18px;
                 border-top: 1px solid #eef3fa;
                 padding-top: 12px;
+                page-break-inside: avoid;
             }
 
             .payment-block {
-                display: inline-block;
+                display: block;
                 background: #fafcff;
                 border: 1px solid #e3eaf3;
-                border-radius: 999px;
+                border-radius: 12px;
                 padding: 9px 14px;
                 color: #13294b;
                 font-size: 11px;
@@ -396,6 +455,29 @@
                 text-transform: uppercase;
                 color: #687e9e;
                 margin-bottom: 4px;
+            }
+
+            .account-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .account-table td {
+                border: 0;
+                padding: 2px 0;
+                vertical-align: top;
+                word-break: break-word;
+            }
+
+            .account-label {
+                width: 102px;
+                color: #5a7394;
+                font-weight: 700;
+            }
+
+            .account-value {
+                color: #102544;
+                font-weight: 600;
             }
 
             .thankyou-message {
@@ -567,18 +649,32 @@
                         @if ($hasCompanyAccountDetails)
                             <div class="account-block">
                                 <div class="account-title">Company account details</div>
-                                @if ($companyAccountBankName !== '')
-                                    <div><strong>Bank:</strong> {{ $companyAccountBankName }}</div>
-                                @endif
-                                @if ($companyAccountName !== '')
-                                    <div><strong>Account name:</strong> {{ $companyAccountName }}</div>
-                                @endif
-                                @if ($companyAccountNumber !== '')
-                                    <div><strong>Account number:</strong> {{ $companyAccountNumber }}</div>
-                                @endif
-                                @if ($companyAccountNote !== '')
-                                    <div><strong>Note:</strong> {{ $companyAccountNote }}</div>
-                                @endif
+                                <table class="account-table">
+                                    @if ($companyAccountBankName !== '')
+                                        <tr>
+                                            <td class="account-label">Bank</td>
+                                            <td class="account-value">{{ $companyAccountBankName }}</td>
+                                        </tr>
+                                    @endif
+                                    @if ($companyAccountName !== '')
+                                        <tr>
+                                            <td class="account-label">Account name</td>
+                                            <td class="account-value">{{ $companyAccountName }}</td>
+                                        </tr>
+                                    @endif
+                                    @if ($companyAccountNumber !== '')
+                                        <tr>
+                                            <td class="account-label">Account number</td>
+                                            <td class="account-value">{{ $companyAccountNumber }}</td>
+                                        </tr>
+                                    @endif
+                                    @if ($companyAccountNote !== '')
+                                        <tr>
+                                            <td class="account-label">Note</td>
+                                            <td class="account-value">{{ $companyAccountNote }}</td>
+                                        </tr>
+                                    @endif
+                                </table>
                             </div>
                         @endif
                     </td>

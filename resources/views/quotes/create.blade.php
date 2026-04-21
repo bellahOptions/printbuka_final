@@ -3,125 +3,267 @@
 @section('title', 'Get Quote | Printbuka')
 
 @section('content')
-    <main class="bg-slate-50 py-12 text-slate-900">
-        <section class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
-            <aside class="h-fit rounded-md bg-slate-950 p-6 text-white lg:sticky lg:top-28">
-                <p class="text-sm font-black uppercase tracking-wide text-cyan-300">Get Quote</p>
-                <h1 class="mt-3 text-4xl leading-tight">Tell us what you need printed.</h1>
-                <p class="mt-4 text-sm leading-7 text-slate-300">Share the job details, quantity, delivery location and any artwork files you already have.</p>
+    @php
+        $quoteCategories = collect($categories ?? []);
+    @endphp
+    <main class="min-h-screen bg-gradient-to-br from-slate-50 to-white py-12">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
+                
+                {{-- Left Sidebar --}}
+                <aside class="h-fit rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white lg:sticky lg:top-28 shadow-xl">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="h-10 w-10 rounded-xl bg-pink-500/20 flex items-center justify-center">
+                            <svg class="h-5 w-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <p class="text-sm font-black uppercase tracking-wide text-cyan-300">Get Quote</p>
+                    </div>
+                    <h1 class="mt-2 text-3xl font-bold leading-tight lg:text-4xl">Tell us what you need printed.</h1>
+                    <p class="mt-4 text-sm leading-7 text-slate-300">Share the job details, quantity, delivery location and any artwork files you already have.</p>
 
-                <div class="mt-6 space-y-3 rounded-md bg-white p-5 text-sm font-bold text-slate-700">
-                    <p>Attach artwork, logos or images so the team can can provide accurate pricing faster.</p>
-                </div>
-            </aside>
-
-            <section class="rounded-md border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-                <p class="text-sm font-black uppercase tracking-wide text-pink-700">Quote Request</p>
-                <h2 class="mt-2 text-4xl text-slate-950">Send the brief.</h2>
-                <p class="mt-3 text-sm leading-6 text-slate-600">We will review the request and contact you with pricing and next steps.</p>
-
-                @if ($errors->any())
-                    <p class="mt-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-800">Check the highlighted details and try again.</p>
-                @endif
-
-                <form action="{{ route('quotes.store') }}" method="POST" enctype="multipart/form-data" class="mt-8 space-y-6">
-                    @csrf
-
-                    <div class="grid gap-5 sm:grid-cols-2">
-                        <label class="text-sm font-black text-slate-800">Product
-                            <select name="product_id" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold">
-                                <option value="">Custom job</option>
-                                @foreach ($products as $product)
-                                    <option value="{{ $product->id }}" @selected((int) old('product_id') === $product->id)>{{ $product->name }}</option>
+                    {{-- Categories Quick Links --}}
+                    @if($quoteCategories->isNotEmpty())
+                        <div class="mt-6">
+                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Popular Categories</p>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach($quoteCategories->take(6) as $category)
+                                    <a href="{{ route('products.category', $category->slug) }}" 
+                                       class="text-xs px-3 py-1.5 rounded-full bg-white/10 hover:bg-pink-500/30 transition text-slate-300 hover:text-white">
+                                        {{ $category->name }}
+                                    </a>
                                 @endforeach
-                            </select>
-                        </label>
-                        <label class="text-sm font-black text-slate-800">Job Type
-                            <select name="job_type" required class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold">
-                                <option value="">Select job type</option>
-                                @foreach ($jobTypes as $jobType)
-                                    <option @selected(old('job_type') === $jobType)>{{ $jobType }}</option>
-                                @endforeach
-                            </select>
-                            @error('job_type')<span class="mt-2 block text-sm font-semibold text-pink-700">{{ $message }}</span>@enderror
-                        </label>
-                        <label class="text-sm font-black text-slate-800">Size / Format
-                            <select name="size_format" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold">
-                                <option value="">Select size</option>
-                                @foreach ($sizes as $size)
-                                    <option @selected(old('size_format') === $size)>{{ $size }}</option>
-                                @endforeach
-                            </select>
-                        </label>
-                        <label class="text-sm font-black text-slate-800">Quantity
-                            <input type="number" min="1" name="quantity" value="{{ old('quantity', 1) }}" required class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold">
-                            @error('quantity')<span class="mt-2 block text-sm font-semibold text-pink-700">{{ $message }}</span>@enderror
-                        </label>
-                        <label class="text-sm font-black text-slate-800">Budget (Subject to negotiation & approval)
-                            <div class="relative mt-2">
-                                <span class="pointer-events-none absolute inset-y-0 left-4 flex items-center font-black text-slate-500">₦</span>
-                                <input id="quote-budget-input" type="number" min="0" step="0.01" name="quote_budget" value="{{ old('quote_budget') }}" data-naira-input data-naira-preview-id="quote-budget-preview" placeholder="Enter your planned budget" class="min-h-12 w-full rounded-md border border-slate-200 px-4 pl-10 text-sm font-semibold">
                             </div>
-                            <span id="quote-budget-preview" class="mt-2 block text-xs font-bold text-slate-500">₦0.00</span>
-                            <span class="mt-1 block text-xs font-bold text-slate-500">Final pricing is still subject to Printbuka review, negotiation, and approval.</span>
-                            @error('quote_budget')<span class="mt-2 block text-sm font-semibold text-pink-700">{{ $message }}</span>@enderror
-                        </label>
-                        <label class="text-sm font-black text-slate-800">Material / Substrate
-                            <select name="material_substrate" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold">
-                                <option value="">Select material</option>
-                                @foreach ($materials as $material)
-                                    <option @selected(old('material_substrate') === $material)>{{ $material }}</option>
-                                @endforeach
-                            </select>
-                        </label>
-                        <label class="text-sm font-black text-slate-800">Finish / Lamination
-                            <select name="finish_lamination" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold">
-                                <option value="">Select finish</option>
-                                @foreach ($finishes as $finish)
-                                    <option @selected(old('finish_lamination') === $finish)>{{ $finish }}</option>
-                                @endforeach
-                            </select>
-                        </label>
+                        </div>
+                    @endif
+
+                    <div class="mt-8 rounded-2xl bg-white/10 p-5 backdrop-blur-sm">
+                        <div class="flex items-start gap-3">
+                            <svg class="h-5 w-5 text-cyan-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-bold text-white">Attach artwork, logos or images</p>
+                                <p class="text-xs text-slate-300 mt-1">The team can provide accurate pricing faster with visual references.</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="grid gap-5 sm:grid-cols-2">
-                        <label class="text-sm font-black text-slate-800">Full Name<input name="customer_name" value="{{ old('customer_name', auth()->user()?->displayName() ?? '') }}" required class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold"></label>
-                        <label class="text-sm font-black text-slate-800">Phone Number<input name="customer_phone" value="{{ old('customer_phone') }}" required class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold"></label>
-                        <label class="text-sm font-black text-slate-800 sm:col-span-2">Email Address<input type="email" name="customer_email" value="{{ old('customer_email', auth()->user()->email ?? '') }}" required class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold"></label>
-                        <label class="text-sm font-black text-slate-800">Delivery City<input name="delivery_city" value="{{ old('delivery_city') }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold"></label>
-                        <label class="text-sm font-black text-slate-800">Delivery Address<input name="delivery_address" value="{{ old('delivery_address') }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold"></label>
+                    {{-- Contact Info --}}
+                    <div class="mt-6 pt-6 border-t border-white/10">
+                        <p class="text-xs text-slate-400">Need help? Call us</p>
+                        <p class="text-sm font-bold text-white">📞 {{ $siteSettings['contact_phone'] ?? '08035245784' }}</p>
+                        <p class="text-xs text-slate-400 mt-2">✉️ {{ $siteSettings['contact_email'] ?? 'sales@printbuka.com.ng' }}</p>
                     </div>
+                </aside>
 
-                    <label class="block text-sm font-black text-slate-800">Artwork / Brief Notes
-                        <textarea name="artwork_notes" rows="5" class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold" placeholder="Mention colours, deadline, file status, product references or finishing instructions.">{{ old('artwork_notes') }}</textarea>
-                    </label>
+                {{-- Right Side - Quote Form --}}
+                <section class="card bg-white rounded-2xl shadow-xl border border-slate-100">
+                    <div class="card-body p-6 sm:p-8">
+                        <div class="mb-6">
+                            <div class="badge bg-pink-100 text-pink-700 border-0 mb-2">Quote Request</div>
+                            <h2 class="text-2xl font-bold text-slate-900 sm:text-3xl">Send the brief.</h2>
+                            <p class="mt-2 text-sm text-slate-500">We will review the request and contact you with pricing and next steps.</p>
+                        </div>
 
-                    <div class="space-y-2">
-                        <label class="block text-sm font-black text-slate-800">Artwork / Image Assets</label>
-                        <livewire:uploads.secure-image-upload
-                            input-name="job_asset_image_paths"
-                            :multiple="true"
-                            directory="job-assets/images"
-                            :max-size-kb="5120"
-                            :max-files="20"
-                            :initial-paths="old('job_asset_image_paths', [])"
-                        />
-                        <span class="block text-xs font-bold text-slate-500">Upload images securely via Livewire (JPG, PNG, WEBP up to 5MB each).</span>
-                        @error('job_asset_image_paths')<span class="block text-sm font-semibold text-pink-700">{{ $message }}</span>@enderror
-                        @error('job_asset_image_paths.*')<span class="block text-sm font-semibold text-pink-700">{{ $message }}</span>@enderror
+                        @if ($errors->any())
+                            <div class="alert alert-error shadow-lg mb-6">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span>Please check the highlighted details and try again.</span>
+                            </div>
+                        @endif
+
+                        <form action="{{ route('quotes.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                            @csrf
+
+                            {{-- Product & Job Type Row --}}
+                            <div class="grid gap-5 sm:grid-cols-2">
+                                <div class="form-control w-full">
+                                    <label class="label">
+                                        <span class="label-text font-semibold text-slate-700">Product (Optional)</span>
+                                    </label>
+                                    <select name="product_id" class="select select-bordered w-full focus:select-primary">
+                                        <option value="">Custom job / Not listed</option>
+                                        @foreach ($products as $product)
+                                            <option value="{{ $product->id }}" @selected((int) old('product_id') === $product->id)>{{ $product->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="form-control w-full">
+                                    <label class="label">
+                                        <span class="label-text font-semibold text-slate-700">Job Type *</span>
+                                    </label>
+                                    <select name="job_type" class="select select-bordered w-full focus:select-primary @error('job_type') select-error @enderror" required>
+                                        <option value="">Select job type</option>
+                                        @foreach ($jobTypes as $jobType)
+                                            <option @selected(old('job_type') === $jobType)>{{ $jobType }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('job_type') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+
+                            {{-- Size & Quantity Row --}}
+                            <div class="grid gap-5 sm:grid-cols-2">
+                                <div class="form-control w-full">
+                                    <label class="label">
+                                        <span class="label-text font-semibold text-slate-700">Size / Format</span>
+                                    </label>
+                                    <select name="size_format" class="select select-bordered w-full focus:select-primary">
+                                        <option value="">Select size</option>
+                                        @foreach ($sizes as $size)
+                                            <option @selected(old('size_format') === $size)>{{ $size }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="form-control w-full">
+                                    <label class="label">
+                                        <span class="label-text font-semibold text-slate-700">Quantity *</span>
+                                    </label>
+                                    <input type="number" min="1" name="quantity" value="{{ old('quantity', 1) }}" 
+                                        class="input input-bordered w-full focus:input-primary @error('quantity') input-error @enderror" required />
+                                    @error('quantity') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+
+                            {{-- Budget Field --}}
+                            <div class="form-control w-full">
+                                <label class="label">
+                                    <span class="label-text font-semibold text-slate-700">Budget (Subject to negotiation & approval)</span>
+                                </label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold">₦</span>
+                                    <input type="number" min="0" step="0.01" name="quote_budget" value="{{ old('quote_budget') }}" 
+                                        id="quote-budget-input"
+                                        data-naira-input data-naira-preview-id="quote-budget-preview"
+                                        placeholder="Enter your planned budget"
+                                        class="input input-bordered w-full pl-10 focus:input-primary @error('quote_budget') input-error @enderror" />
+                                </div>
+                                <span id="quote-budget-preview" class="mt-2 text-xs font-semibold text-slate-500">₦0.00</span>
+                                <span class="mt-1 text-xs text-slate-400">Final pricing is still subject to Printbuka review, negotiation, and approval.</span>
+                                @error('quote_budget') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                            </div>
+
+                            {{-- Material & Finish Row --}}
+                            <div class="grid gap-5 sm:grid-cols-2">
+                                <div class="form-control w-full">
+                                    <label class="label">
+                                        <span class="label-text font-semibold text-slate-700">Material / Substrate</span>
+                                    </label>
+                                    <select name="material_substrate" class="select select-bordered w-full focus:select-primary">
+                                        <option value="">Select material</option>
+                                        @foreach ($materials as $material)
+                                            <option @selected(old('material_substrate') === $material)>{{ $material }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="form-control w-full">
+                                    <label class="label">
+                                        <span class="label-text font-semibold text-slate-700">Finish / Lamination</span>
+                                    </label>
+                                    <select name="finish_lamination" class="select select-bordered w-full focus:select-primary">
+                                        <option value="">Select finish</option>
+                                        @foreach ($finishes as $finish)
+                                            <option @selected(old('finish_lamination') === $finish)>{{ $finish }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            {{-- Customer Information --}}
+                            <div class="grid gap-5 sm:grid-cols-2">
+                                <div class="form-control w-full">
+                                    <label class="label"><span class="label-text font-semibold text-slate-700">Full Name *</span></label>
+                                    <input type="text" name="customer_name" value="{{ old('customer_name', auth()->user()?->displayName() ?? '') }}" 
+                                        class="input input-bordered w-full focus:input-primary @error('customer_name') input-error @enderror" required />
+                                    @error('customer_name') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div class="form-control w-full">
+                                    <label class="label"><span class="label-text font-semibold text-slate-700">Phone Number *</span></label>
+                                    <input type="tel" name="customer_phone" value="{{ old('customer_phone') }}" 
+                                        class="input input-bordered w-full focus:input-primary @error('customer_phone') input-error @enderror" required />
+                                    @error('customer_phone') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div class="form-control w-full sm:col-span-2">
+                                    <label class="label"><span class="label-text font-semibold text-slate-700">Email Address *</span></label>
+                                    <input type="email" name="customer_email" value="{{ old('customer_email', auth()->user()->email ?? '') }}" 
+                                        class="input input-bordered w-full focus:input-primary @error('customer_email') input-error @enderror" required />
+                                    @error('customer_email') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div class="form-control w-full">
+                                    <label class="label"><span class="label-text font-semibold text-slate-700">Delivery City</span></label>
+                                    <input type="text" name="delivery_city" value="{{ old('delivery_city') }}" 
+                                        class="input input-bordered w-full focus:input-primary" />
+                                </div>
+
+                                <div class="form-control w-full">
+                                    <label class="label"><span class="label-text font-semibold text-slate-700">Delivery Address</span></label>
+                                    <input type="text" name="delivery_address" value="{{ old('delivery_address') }}" 
+                                        class="input input-bordered w-full focus:input-primary" />
+                                </div>
+                            </div>
+
+                            {{-- Artwork Notes --}}
+                            <div class="form-control w-full">
+                                <label class="label">
+                                    <span class="label-text font-semibold text-slate-700">Artwork / Brief Notes</span>
+                                </label>
+                                <textarea name="artwork_notes" rows="5" 
+                                    class="textarea textarea-bordered w-full focus:textarea-primary"
+                                    placeholder="Mention colours, deadline, file status, product references or finishing instructions.">{{ old('artwork_notes') }}</textarea>
+                            </div>
+
+                            {{-- Image Uploads --}}
+                            <div class="space-y-3">
+                                <label class="font-semibold text-slate-700">Artwork / Image Assets</label>
+                                <livewire:uploads.secure-image-upload
+                                    input-name="job_asset_image_paths"
+                                    :multiple="true"
+                                    directory="job-assets/images"
+                                    :max-size-kb="5120"
+                                    :max-files="20"
+                                    :initial-paths="old('job_asset_image_paths', [])"
+                                />
+                                <p class="text-xs text-slate-400">Upload images securely (JPG, PNG, WEBP up to 5MB each).</p>
+                                @error('job_asset_image_paths') <span class="text-xs text-pink-600">{{ $message }}</span> @enderror
+                                @error('job_asset_image_paths.*') <span class="text-xs text-pink-600">{{ $message }}</span> @enderror
+                            </div>
+
+                            {{-- External Drive Links --}}
+                            <div class="form-control w-full">
+                                <label class="label">
+                                    <span class="label-text font-semibold text-slate-700">External Drive Links (For PDF, SVG, ZIP Files)</span>
+                                </label>
+                                <textarea name="asset_drive_links" rows="4" 
+                                    class="textarea textarea-bordered w-full focus:textarea-primary font-mono text-sm"
+                                    placeholder="Paste one link per line (Google Drive, OneDrive, MediaFire, Dropbox, WeTransfer, Mega).">{{ old('asset_drive_links') }}</textarea>
+                                <p class="mt-2 text-xs text-slate-400">Document and ZIP uploads are blocked for security. Share them as external links instead.</p>
+                                @error('asset_drive_links') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                            </div>
+
+                            {{-- Submit Button --}}
+                            <button type="submit" class="btn btn-block bg-pink-600 hover:bg-pink-700 border-0 text-white font-bold shadow-md shadow-pink-200 mt-6">
+                                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                                Submit Quote Request
+                            </button>
+                        </form>
                     </div>
-
-                    <label class="block text-sm font-black text-slate-800">External Drive Links (For PDF, SVG, ZIP Files)
-                        <textarea name="asset_drive_links" rows="4" class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold" placeholder="Paste one link per line (Google Drive, OneDrive, MediaFire, Dropbox, WeTransfer, Mega).">{{ old('asset_drive_links') }}</textarea>
-                        <span class="mt-2 block text-xs font-bold text-slate-500">Document and ZIP uploads are blocked for security. Share them as external links instead.</span>
-                        @error('asset_drive_links')<span class="mt-2 block text-sm font-semibold text-pink-700">{{ $message }}</span>@enderror
-                    </label>
-
-                    <button type="submit" class="min-h-12 w-full rounded-md bg-pink-600 px-5 text-sm font-black text-white transition hover:bg-pink-700">Submit Quote Request</button>
-                </form>
-            </section>
-        </section>
+                </section>
+            </div>
+        </div>
     </main>
+
     <script>
         (() => {
             const formatter = new Intl.NumberFormat('en-NG', {

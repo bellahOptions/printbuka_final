@@ -1,6 +1,9 @@
 @extends('layouts.theme')
 
 @section('title', $product->name.' | Printbuka')
+@section('meta_description', \Illuminate\Support\Str::limit($product->short_description ?: $product->description, 155))
+@section('og_type', 'product')
+@section('og_image', $product->featuredImageUrl() ?: asset('logo.png'))
 
 @section('content')
     @php

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\SafeCache;
 use App\Support\ServiceCatalog;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -10,16 +11,18 @@ class ServiceController extends Controller
 {
     public function index(): View
     {
-        $services = collect(ServiceCatalog::all())
-            ->map(function (array $service, string $slug): array {
-                return [
-                    ...$service,
-                    'slug' => $slug,
-                    'price' => ServiceCatalog::priceForSlug($slug),
-                ];
-            })
-            ->values()
-            ->all();
+        $services = SafeCache::remember('services:index:v1', now()->addMinutes(5), function (): array {
+            return collect(ServiceCatalog::all())
+                ->map(function (array $service, string $slug): array {
+                    return [
+                        ...$service,
+                        'slug' => $slug,
+                        'price' => ServiceCatalog::priceForSlug($slug),
+                    ];
+                })
+                ->values()
+                ->all();
+        });
 
         return view('services.index', [
             'services' => $services,

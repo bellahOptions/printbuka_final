@@ -1,6 +1,7 @@
 @extends('layouts.theme')
 
 @section('title', 'All Products | Printbuka')
+@section('meta_description', 'Browse Printbuka products with live search and smart filters for cards, flyers, stickers, gifts, and more.')
 
 @section('content')
 

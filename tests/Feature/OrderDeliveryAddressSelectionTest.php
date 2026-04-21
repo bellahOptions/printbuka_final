@@ -194,6 +194,62 @@ class OrderDeliveryAddressSelectionTest extends TestCase
         $this->assertStringContainsString('dropbox.com', (string) $order->artwork_notes);
     }
 
+    public function test_order_pricing_breakdown_stores_option_driven_line_items_for_invoice_rendering(): void
+    {
+        Mail::fake();
+
+        $user = User::factory()->create([
+            'role' => 'customer',
+            'is_active' => true,
+            'email_verified_at' => now(),
+            'first_name' => 'Chiamaka',
+            'last_name' => 'Okoro',
+            'phone' => '08022223333',
+            'email' => 'chiamaka@example.com',
+        ]);
+
+        $product = Product::query()->create([
+            'name' => 'Flyers',
+            'moq' => 100,
+            'price' => 2000,
+            'short_description' => 'Flyer print',
+            'description' => 'Flyer print',
+            'paper_type' => 'Matte',
+            'material_price_options' => [['label' => 'Matte', 'price' => 0]],
+            'paper_size' => 'A4',
+            'size_price_options' => [
+                ['label' => 'A4', 'price' => 0],
+                ['label' => 'A3', 'price' => 500],
+            ],
+            'finishing' => 'Gloss',
+            'finish_price_options' => [['label' => 'Gloss', 'price' => 0]],
+            'delivery_price_options' => [
+                ['label' => 'Pickup', 'price' => 0],
+                ['label' => 'Deliver to address', 'price' => 1000],
+            ],
+            'paper_density' => '350gsm',
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('orders.store', $product), $this->orderPayload([
+                'quantity' => 100,
+                'size_format' => 'A3',
+                'delivery_method' => 'Deliver to address',
+            ]))
+            ->assertSessionHasNoErrors();
+
+        $order = Order::query()->latest('id')->firstOrFail();
+        $invoice = $order->invoice()->firstOrFail();
+        $lineItems = (array) ($order->pricing_breakdown['line_items'] ?? []);
+
+        $this->assertCount(2, $lineItems);
+        $this->assertStringContainsString('Size: A3', (string) ($lineItems[0]['description'] ?? ''));
+        $this->assertSame('Delivery (Deliver to address)', $lineItems[1]['description'] ?? null);
+        $this->assertSame(1000.0, (float) ($lineItems[1]['amount'] ?? 0));
+        $this->assertSame('3500.00', (string) $invoice->subtotal);
+    }
+
     private function createProduct(): Product
     {
         return Product::query()->create([

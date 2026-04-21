@@ -1,6 +1,7 @@
 @extends('layouts.theme')
 
 @section('title', $service['name'].' | Printbuka Services')
+@section('meta_description', \Illuminate\Support\Str::limit($service['summary'] ?? ('Order '.$service['name'].' from Printbuka.'), 155))
 
 @section('content')
     @php
