@@ -1,6 +1,7 @@
 <?php
 
 use App\Services\PendingJobReminderService;
+use App\Services\StaffActivitySummaryService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -14,4 +15,13 @@ Artisan::command('jobs:send-pending-reminders', function () {
     $this->info('Pending job reminders sent: '.$sent);
 })->purpose('Send reminder emails for jobs stuck in workflow phases');
 
+Artisan::command('staff:send-daily-activity-summary', function () {
+    $sent = app(StaffActivitySummaryService::class)->sendDailySummary();
+    $this->info('HR daily activity summaries sent: '.$sent);
+})->purpose('Send end-of-business-day staff activity summaries to HR');
+
 Schedule::command('jobs:send-pending-reminders')->everySixHours();
+Schedule::command('staff:send-daily-activity-summary')
+    ->weekdays()
+    ->timezone(config('app.business_timezone', 'Africa/Lagos'))
+    ->at('20:00');

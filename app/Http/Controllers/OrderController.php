@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Services\InvoiceService;
 use App\Services\OrderFulfillmentService;
 use App\Services\PaystackService;
+use App\Support\ExternalAssetLinks;
 use App\Support\JobAssetUpload;
 use App\Support\ProductOptionPricing;
 use App\Support\ReferenceCode;
@@ -14,6 +15,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class OrderController extends Controller
@@ -139,10 +141,37 @@ class OrderController extends Controller
                 ),
             ],
             'artwork_notes' => ['nullable', 'string', 'max:2000'],
+            'asset_drive_links' => ['nullable', 'string', 'max:4000'],
             'job_asset_files' => ['nullable', 'array', 'max:5'],
             'job_asset_files.*' => ['file', 'mimes:jpg,jpeg,png,webp', 'mimetypes:image/jpeg,image/png,image/webp', 'max:5120'],
+            'job_asset_image_paths' => ['nullable', 'array', 'max:5'],
+            'job_asset_image_paths.*' => ['string', 'max:255'],
         ]);
+        $invalidLinks = ExternalAssetLinks::invalidLinks($validated['asset_drive_links'] ?? null);
+
+        if ($invalidLinks !== []) {
+            throw ValidationException::withMessages([
+                'asset_drive_links' => 'Use valid external links from Google Drive, OneDrive, MediaFire, Dropbox, WeTransfer, or Mega only.',
+            ]);
+        }
+
+        $validated['artwork_notes'] = ExternalAssetLinks::appendToNotes(
+            $validated['artwork_notes'] ?? null,
+            $validated['asset_drive_links'] ?? null
+        );
+
+        unset($validated['asset_drive_links']);
         unset($validated['job_asset_files']);
+        unset($validated['job_asset_image_paths']);
+
+        $uploadedFileCount = count((array) $request->file('job_asset_files'));
+        $uploadedPathCount = count((array) $request->input('job_asset_image_paths'));
+
+        if (($uploadedFileCount + $uploadedPathCount) > 5) {
+            throw ValidationException::withMessages([
+                'job_asset_files' => 'You can upload at most 5 artwork images.',
+            ]);
+        }
 
         $isSample = (bool) ($validated['is_sample'] ?? false);
         $isExpress = $isSample || (bool) ($validated['is_express'] ?? false);

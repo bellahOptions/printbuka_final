@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AdminBlogPostController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminFinanceController;
 use App\Http\Controllers\Admin\AdminInvoiceController;
+use App\Http\Controllers\Admin\AdminNewsletterController;
 use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminPolicyController;
@@ -50,6 +51,12 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::delete('/notifications/{notification}', [AdminNotificationController::class, 'destroy'])
             ->middleware('admin.permission:*')
             ->name('notifications.destroy');
+        Route::get('/newsletters', [AdminNewsletterController::class, 'index'])
+            ->middleware('admin.permission:newsletters.manage')
+            ->name('newsletters.index');
+        Route::post('/newsletters', [AdminNewsletterController::class, 'store'])
+            ->middleware('admin.permission:newsletters.manage')
+            ->name('newsletters.store');
         Route::resource('finance', AdminFinanceController::class)
             ->except('show')
             ->middleware('admin.permission:finance.view');
@@ -63,7 +70,7 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
             ->middleware('admin.permission:staff.view')
             ->name('staff.index');
         Route::put('/staff/{user}', [AdminStaffController::class, 'update'])
-            ->middleware('admin.permission:*')
+            ->middleware('super.admin')
             ->name('staff.update');
         Route::get('/orders', [AdminOrderController::class, 'index'])
             ->middleware('admin.permission:orders.view')

@@ -85,12 +85,12 @@ class DirectImageOrderFormTest extends TestCase
             'size_format' => 'A4',
             'delivery_method' => 'Delivery Address',
             'delivery_city' => 'Lagos',
-            'total_price' => 8100,
+            'total_price' => 4100,
         ]);
 
         $this->assertDatabaseHas('invoices', [
             'payment_gateway' => 'paystack',
-            'total_amount' => 8100,
+            'total_amount' => 4100,
         ]);
     }
 

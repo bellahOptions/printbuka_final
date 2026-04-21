@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Support\LivewireSecureUploads;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -113,5 +114,70 @@ class StaffProfilePhotoUploadTest extends TestCase
             ->assertSessionHasErrors('photo');
 
         $this->assertNull($staff->fresh()->photo);
+    }
+
+    public function test_non_super_admin_cannot_update_staff_assignment_or_photo(): void
+    {
+        $manager = User::factory()->create([
+            'role' => 'management',
+            'department' => 'Management',
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        $staff = User::factory()->create([
+            'role' => 'designer',
+            'department' => 'Design',
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        $this->actingAs($manager)
+            ->put(route('admin.staff.update', $staff), [
+                'role' => 'operations_manager',
+                'department' => 'Operations',
+                'is_active' => 1,
+            ])
+            ->assertForbidden();
+
+        $staff->refresh();
+
+        $this->assertSame('designer', $staff->role);
+        $this->assertSame('Design', $staff->department);
+    }
+
+    public function test_super_admin_can_update_staff_photo_via_livewire_secure_path(): void
+    {
+        Storage::fake('public');
+
+        $admin = User::factory()->create([
+            'role' => 'super_admin',
+            'department' => 'Management',
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        $staff = User::factory()->create([
+            'role' => 'designer',
+            'department' => 'Design',
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        $livewirePath = 'staff-photos/livewire-staff.jpg';
+        Storage::disk('public')->put($livewirePath, 'photo-content');
+
+        $this->actingAs($admin)
+            ->withSession([LivewireSecureUploads::SESSION_KEY => [$livewirePath]])
+            ->put(route('admin.staff.update', $staff), [
+                'role' => $staff->role,
+                'department' => $staff->department,
+                'is_active' => 1,
+                'photo_upload_path' => $livewirePath,
+            ])
+            ->assertSessionHasNoErrors()
+            ->assertSessionHas('status');
+
+        $this->assertSame($livewirePath, $staff->fresh()->photo);
     }
 }

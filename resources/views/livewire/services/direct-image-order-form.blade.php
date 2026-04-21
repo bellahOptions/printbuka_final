@@ -50,8 +50,12 @@
                 @if ($has_design === 'yes')
                     <div class="mt-4">
                         <label class="text-sm font-black text-slate-800">Upload Design/Artwork</label>
-                        <input type="file" wire:model="design_file" accept=".jpg,.jpeg,.png,.webp,.pdf,.svg,.zip" class="mt-2 block w-full rounded-md border border-slate-200 bg-white px-4 py-3 text-sm font-semibold">
+                        <input type="file" wire:model="design_file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="mt-2 block w-full rounded-md border border-slate-200 bg-white px-4 py-3 text-sm font-semibold">
+                        <p class="mt-2 text-xs font-semibold text-slate-500">Only image uploads are allowed. For PDF, SVG, or ZIP files, share an external drive link below.</p>
                         @error('design_file') <span class="mt-1 block text-xs font-bold text-red-600">{{ $message }}</span> @enderror
+                        <label class="mt-4 block text-sm font-black text-slate-800">External Drive Links (Optional)</label>
+                        <textarea wire:model.live="asset_drive_links" rows="3" class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" placeholder="Paste one link per line (Google Drive, OneDrive, MediaFire, Dropbox, WeTransfer, Mega)."></textarea>
+                        @error('asset_drive_links') <span class="mt-1 block text-xs font-bold text-red-600">{{ $message }}</span> @enderror
                     </div>
                 @else
                     <div class="mt-4">

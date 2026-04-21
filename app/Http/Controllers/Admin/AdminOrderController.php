@@ -10,6 +10,7 @@ use App\Services\InvoiceService;
 use App\Services\JobWorkflowNotificationService;
 use App\Services\OrderFulfillmentService;
 use App\Support\JobAssetUpload;
+use App\Support\LivewireSecureUploads;
 use App\Support\ReferenceCode;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -139,9 +140,11 @@ class AdminOrderController extends Controller
             'payment_status' => ['required', 'string', 'max:255'],
             'internal_notes' => ['nullable', 'string', 'max:3000'],
             'job_asset_files' => ['nullable', 'array'],
-            'job_asset_files.*' => ['file', 'mimes:jpg,jpeg,png,webp,pdf,svg,zip', 'max:20480'],
+            'job_asset_files.*' => ['file', 'mimes:pdf,svg,zip', 'max:20480'],
+            'job_asset_image_paths' => ['nullable', 'array'],
+            'job_asset_image_paths.*' => ['string', 'max:255'],
         ]);
-        unset($validated['job_asset_files']);
+        unset($validated['job_asset_files'], $validated['job_asset_image_paths']);
 
         $isSample = (bool) ($validated['is_sample'] ?? false);
         $isExpress = $isSample || (bool) ($validated['is_express'] ?? false);
@@ -253,9 +256,12 @@ class AdminOrderController extends Controller
             'design_started_at' => ['nullable', 'date'],
             'design_approved_by_client' => ['nullable', 'boolean'],
             'design_approved_at' => ['nullable', 'date'],
-            'design_file' => ['nullable', 'file', 'max:10240'],
+            'design_file' => ['nullable', 'file', 'mimes:pdf,svg,zip', 'max:10240'],
+            'design_image_path' => ['nullable', 'string', 'max:255'],
             'job_asset_files' => ['nullable', 'array'],
-            'job_asset_files.*' => ['file', 'mimes:jpg,jpeg,png,webp,pdf,svg,zip', 'max:20480'],
+            'job_asset_files.*' => ['file', 'mimes:pdf,svg,zip', 'max:20480'],
+            'job_asset_image_paths' => ['nullable', 'array'],
+            'job_asset_image_paths.*' => ['string', 'max:255'],
             'production_officer_id' => ['nullable', 'exists:users,id'],
             'production_started_at' => ['nullable', 'date'],
             'material_substrate' => ['nullable', 'string', 'max:255'],
@@ -278,7 +284,7 @@ class AdminOrderController extends Controller
             'phase_approval_status' => ['nullable', 'string', 'max:255'],
             'phase_approval_comment' => ['nullable', 'string', 'max:3000'],
         ]);
-        unset($validated['job_asset_files']);
+        unset($validated['job_asset_files'], $validated['job_asset_image_paths'], $validated['design_image_path']);
 
         $this->assertStatusTransitionAllowed(
             $request->user(),
@@ -287,8 +293,28 @@ class AdminOrderController extends Controller
             $validated['payment_status'] ?? null
         );
 
+        $designImagePath = null;
+        $designImagePathInput = filled($request->input('design_image_path'))
+            ? (string) $request->input('design_image_path')
+            : null;
+
+        if (! $request->hasFile('design_file') && $designImagePathInput !== null) {
+            $designImagePath = LivewireSecureUploads::consumePath($request, $designImagePathInput, ['designs/images']);
+
+            if ($designImagePath === null) {
+                throw ValidationException::withMessages([
+                    'design_image_path' => 'The uploaded design image is invalid or expired. Please upload it again.',
+                ]);
+            }
+        }
+
         if ($request->hasFile('design_file') && $request->user()->canAdmin('design.upload')) {
             $validated['final_design_path'] = $request->file('design_file')->store('designs', 'public');
+        } elseif ($designImagePath !== null && $request->user()->canAdmin('design.upload')) {
+            $validated['final_design_path'] = $designImagePath;
+        }
+
+        if (array_key_exists('final_design_path', $validated) && filled($validated['final_design_path'])) {
             try {
                 Mail::raw(
                     'Hello '.$order->customer_name.",\n\nYour Printbuka design file for ".$order->displayNumber()." is attached for review.\n\nPrintbuka",

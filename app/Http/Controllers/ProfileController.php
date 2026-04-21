@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\LivewireSecureUploads;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -33,7 +33,7 @@ class ProfileController extends Controller
             return redirect()->route('admin.profile.edit');
         }
 
-        $this->updateProfile($request, $user, false);
+        $this->updateProfile($request, $user);
 
         return back()->with('status', 'Profile updated successfully.');
     }
@@ -45,7 +45,7 @@ class ProfileController extends Controller
 
     public function updateAdmin(Request $request): RedirectResponse
     {
-        $this->updateProfile($request, $request->user(), true);
+        $this->updateProfile($request, $request->user());
 
         return redirect()->route('admin.profile.edit')->with('status', 'Profile updated successfully.');
     }
@@ -63,13 +63,11 @@ class ProfileController extends Controller
         return [
             'user' => $user,
             'deliveryAddresses' => $user->deliveryAddresses()->get(),
-            'departments' => array_values(config('printbuka_admin.departments', [])),
-            'staffSignupRoles' => config('printbuka_admin.staff_signup_roles', []),
             'roleLabels' => config('printbuka_admin.role_labels', []),
         ];
     }
 
-    private function updateProfile(Request $request, User $user, bool $allowStaffFields): void
+    private function updateProfile(Request $request, User $user): void
     {
         $rules = [
             'first_name' => ['required', 'string', 'max:255'],
@@ -79,6 +77,7 @@ class ProfileController extends Controller
             'address' => ['nullable', 'string', 'max:255'],
             'date_of_birth' => ['nullable', 'date', 'before:today'],
             'remove_photo' => ['nullable', 'boolean'],
+            'photo_upload_path' => ['nullable', 'string', 'max:255'],
             'photo' => [
                 'nullable',
                 'file',
@@ -91,12 +90,6 @@ class ProfileController extends Controller
             'password' => ['nullable', 'confirmed', Password::min(8)->mixedCase()->numbers()],
         ];
 
-        if ($allowStaffFields) {
-            $rules['department'] = ['nullable', 'string', Rule::in(array_values(config('printbuka_admin.departments', [])))];
-            $rules['requested_role'] = ['nullable', 'string', Rule::in(array_keys(config('printbuka_admin.staff_signup_roles', [])))];
-            $rules['other_role'] = ['nullable', 'string', 'max:255'];
-        }
-
         $validated = $request->validate($rules);
 
         $updates = Arr::only($validated, [
@@ -107,13 +100,6 @@ class ProfileController extends Controller
             'address',
             'date_of_birth',
         ]);
-
-        if ($allowStaffFields) {
-            $updates = [
-                ...$updates,
-                ...Arr::only($validated, ['department', 'requested_role', 'other_role']),
-            ];
-        }
 
         // Decide photo folder by user type
         $photoFolder = $user->hasAdminAccess() ? 'staff-photos' : 'user-photos';
@@ -134,6 +120,24 @@ class ProfileController extends Controller
             }
 
             $updates['photo'] = $newPhotoPath;
+        } elseif (filled($validated['photo_upload_path'] ?? null) && ! $request->boolean('remove_photo')) {
+            $livewirePhotoPath = LivewireSecureUploads::consumePath(
+                $request,
+                (string) $validated['photo_upload_path'],
+                [$photoFolder]
+            );
+
+            if (! $livewirePhotoPath) {
+                throw ValidationException::withMessages([
+                    'photo' => 'The uploaded photo is invalid or expired. Please upload it again.',
+                ]);
+            }
+
+            if (filled($user->photo)) {
+                Storage::disk('public')->delete($user->photo);
+            }
+
+            $updates['photo'] = $livewirePhotoPath;
         }
 
         if (filled($validated['password'] ?? null)) {

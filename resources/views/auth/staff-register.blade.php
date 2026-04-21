@@ -61,21 +61,8 @@
                         <input type="text" name="address" value="{{ old('address') }}" class="input input-bordered w-full" required />
                     </div>
 
-                    {{-- Role Selection --}}
-                    <div class="grid gap-5 sm:grid-cols-2">
-                        <div class="form-control">
-                            <label class="label"><span class="label-text font-semibold">Requested Role *</span></label>
-                            <select name="requested_role" class="select select-bordered w-full" required>
-                                <option value="">Select department</option>
-                                @foreach ($staffRoles as $value => $label)
-                                    <option value="{{ $value }}" @selected(old('requested_role') === $value)>{{ $label }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-control">
-                            <label class="label"><span class="label-text font-semibold">Other Role (optional)</span></label>
-                            <input type="text" name="other_role" value="{{ old('other_role') }}" class="input input-bordered w-full" placeholder="If 'Other' selected above" />
-                        </div>
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-slate-700">
+                        Role and department are assigned only by the Super Admin after approval.
                     </div>
 
                     {{-- Email & Password --}}

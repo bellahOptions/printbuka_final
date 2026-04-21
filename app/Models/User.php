@@ -71,15 +71,17 @@ class User extends Authenticatable
 
     public function profilePhotoUrl(): ?string
     {
-        if (filled($this->photo)) {
-            return Storage::disk('public')->url($this->photo);
+        $photoUrl = $this->resolvedPhotoUrl($this->photo);
+
+        if ($photoUrl !== null) {
+            return $photoUrl;
         }
 
         if (filled($this->avatar) && filter_var($this->avatar, FILTER_VALIDATE_URL)) {
             return $this->avatar;
         }
 
-        return null;
+        return $this->generatedAvatarDataUrl();
     }
 
     public function profileInitials(): string
@@ -96,32 +98,62 @@ class User extends Authenticatable
         return $initials !== '' ? $initials : 'PB';
     }
 
-    public function orders() : HasMany {
+    public function orders(): HasMany
+    {
         return $this->hasMany(Order::class, 'user_id');
     }
 
     public function getProfilePhotoUrlAttribute(): string
-{
-    if (!$this->photo) {
-        return asset('favicon.png');
+    {
+        return $this->profilePhotoUrl() ?? asset('favicon.png');
     }
-    
-    // Check if it's a full URL
-    if (filter_var($this->photo, FILTER_VALIDATE_URL)) {
-        return $this->photo;
+
+    private function resolvedPhotoUrl(?string $photo): ?string
+    {
+        if (! filled($photo)) {
+            return null;
+        }
+
+        $candidate = (string) $photo;
+
+        if (filter_var($candidate, FILTER_VALIDATE_URL)) {
+            return $candidate;
+        }
+
+        if (Storage::disk('public')->exists($candidate)) {
+            return Storage::url($candidate);
+        }
+
+        if (file_exists(public_path($candidate))) {
+            return asset($candidate);
+        }
+
+        return null;
     }
-    
-    // Check if it's stored in storage
-    if (Storage::disk('public')->exists($this->photo)) {
-        return Storage::url($this->photo);
+
+    private function generatedAvatarDataUrl(): string
+    {
+        $palette = [
+            '#0f766e',
+            '#7c3aed',
+            '#db2777',
+            '#ea580c',
+            '#2563eb',
+            '#334155',
+        ];
+
+        $seed = (string) ($this->id ?? '').'|'.(string) ($this->email ?? '').'|'.(string) ($this->first_name ?? '');
+        $index = (int) (abs((int) crc32($seed)) % count($palette));
+        $bg = $palette[$index];
+        $initials = htmlspecialchars($this->profileInitials(), ENT_QUOTES | ENT_XML1, 'UTF-8');
+
+        $svg = <<<SVG
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160" role="img" aria-label="{$initials}">
+  <rect width="160" height="160" fill="{$bg}" />
+  <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="700">{$initials}</text>
+</svg>
+SVG;
+
+        return 'data:image/svg+xml;base64,'.base64_encode($svg);
     }
-    
-    // Check if it exists in public directory
-    if (file_exists(public_path($this->photo))) {
-        return asset($this->photo);
-    }
-    
-    // Fallback to default
-    return asset('favicon.png');
-}
 }

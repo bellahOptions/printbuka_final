@@ -5,6 +5,7 @@ $username = auth()->check()
 $profileImg = auth()->check() 
     ? auth()->user()->profile_photo_url 
     : asset('favicon.png');
+$isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
 @endphp
 
 {{-- ===== TOP INFO BAR ===== --}}
@@ -14,6 +15,9 @@ $profileImg = auth()->check()
             <a href="{{ route('services.index') }}" class="hover:text-white transition">Services</a>
             <a href="{{ route('orders.track') }}" class="hover:text-white transition">Track Order</a>
             <a href="{{ route('quotes.create') }}" class="hover:text-white transition">Get Free Quote</a>
+            @if ($isCustomer)
+                <a href="{{ route('support.index') }}" class="hover:text-white transition">Support</a>
+            @endif
         </div>
         <div class="flex items-center gap-6">
             <span>📞 {{ $siteSettings['contact_phone'] ?? '08035245784, 09054784526' }}</span>
@@ -45,9 +49,7 @@ $profileImg = auth()->check()
             <div class="navbar-center hidden lg:flex">
                 <ul class="menu menu-horizontal gap-1 px-1 text-sm font-bold text-slate-700">
 
-                    @auth
-                        <li><a href="{{ route('invoice.index') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50">Invoices & Receipts</a></li>
-                    @else
+                    @if (! auth()->check() || $isCustomer)
                         {{-- Products dropdown --}}
                         <li>
                             <details class="group">
@@ -95,6 +97,17 @@ $profileImg = auth()->check()
                         <li><a href="{{ route('services.index') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50">Services</a></li>
                         <li><a href="{{ route('partners.create') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50">Become a Partner</a></li>
                         <li><a href="{{ route('blog') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50">Blog</a></li>
+                    @endif
+
+                    @if ($isCustomer)
+                        <li><a href="{{ route('invoice.index') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50">Invoices & Receipts</a></li>
+                        <li><a href="{{ route('support.index') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50">Support</a></li>
+                    @endif
+
+                    @auth
+                        @if (! $isCustomer)
+                            <li><a href="{{ route('admin.dashboard') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50">Admin Dashboard</a></li>
+                        @endif
                     @endauth
                 </ul>
             </div>
@@ -138,25 +151,36 @@ $profileImg = auth()->check()
                                 <span class="text-slate-700 font-bold text-sm block truncate">{{ $username }}</span>
                             </li>
                             
-                            {{-- Edit Profile Link --}}
-                            <li>
-                                <a href="{{ route('profile.edit') }}" class="gap-3 text-slate-700 hover:text-pink-600 hover:bg-pink-50">
-                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                    </svg>
-                                    Edit Profile
-                                </a>
-                            </li>
-                            
-                            {{-- Support/Tickets Link --}}
-                            <li>
-                                <a href="{{ route('support.index') }}" class="gap-3 text-slate-700 hover:text-pink-600 hover:bg-pink-50">
-                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    </svg>
-                                    Support Tickets
-                                </a>
-                            </li>
+                            @if ($isCustomer)
+                                {{-- Edit Profile Link --}}
+                                <li>
+                                    <a href="{{ route('profile.edit') }}" class="gap-3 text-slate-700 hover:text-pink-600 hover:bg-pink-50">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                        </svg>
+                                        Edit Profile
+                                    </a>
+                                </li>
+                                
+                                {{-- Support/Tickets Link --}}
+                                <li>
+                                    <a href="{{ route('support.index') }}" class="gap-3 text-slate-700 hover:text-pink-600 hover:bg-pink-50">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        </svg>
+                                        Support Tickets
+                                    </a>
+                                </li>
+                            @else
+                                <li>
+                                    <a href="{{ route('admin.dashboard') }}" class="gap-3 text-slate-700 hover:text-pink-600 hover:bg-pink-50">
+                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                        </svg>
+                                        Go to Admin
+                                    </a>
+                                </li>
+                            @endif
                             
                             {{-- Divider --}}
                             <li class="border-t border-slate-100 my-1"></li>
@@ -196,19 +220,32 @@ $profileImg = auth()->check()
         </div>
 
         <ul class="menu menu-lg gap-1 p-0 font-bold text-slate-700">
-            <li><a href="{{ route('products.index') }}" class="hover:text-pink-600 hover:bg-pink-50">All Products</a></li>
-            <li><a href="{{ route('categories.index') }}" class="hover:text-pink-600 hover:bg-pink-50">Categories</a></li>
-            <li><a href="{{ route('services.index') }}" class="hover:text-pink-600 hover:bg-pink-50">Services</a></li>
-            <li><a href="{{ route('quotes.create') }}" class="hover:text-pink-600 hover:bg-pink-50">Get a Quote</a></li>
-            <li><a href="{{ route('orders.track') }}" class="hover:text-pink-600 hover:bg-pink-50">Track Order</a></li>
-            <li><a href="{{ route('partners.create') }}" class="hover:text-pink-600 hover:bg-pink-50">Become a Partner</a></li>
-            <li><a href="{{ route('blog') }}" class="hover:text-pink-600 hover:bg-pink-50">Blog</a></li>
+            @if (! auth()->check() || $isCustomer)
+                <li><a href="{{ route('products.index') }}" class="hover:text-pink-600 hover:bg-pink-50">All Products</a></li>
+                <li><a href="{{ route('categories.index') }}" class="hover:text-pink-600 hover:bg-pink-50">Categories</a></li>
+                <li><a href="{{ route('services.index') }}" class="hover:text-pink-600 hover:bg-pink-50">Services</a></li>
+                <li><a href="{{ route('quotes.create') }}" class="hover:text-pink-600 hover:bg-pink-50">Get a Quote</a></li>
+                <li><a href="{{ route('orders.track') }}" class="hover:text-pink-600 hover:bg-pink-50">Track Order</a></li>
+                <li><a href="{{ route('partners.create') }}" class="hover:text-pink-600 hover:bg-pink-50">Become a Partner</a></li>
+                <li><a href="{{ route('blog') }}" class="hover:text-pink-600 hover:bg-pink-50">Blog</a></li>
+                @if ($isCustomer)
+                    <li><a href="{{ route('support.index') }}" class="hover:text-pink-600 hover:bg-pink-50">Support</a></li>
+                @endif
+            @elseif (auth()->check())
+                <li><a href="{{ route('admin.dashboard') }}" class="hover:text-pink-600 hover:bg-pink-50">Admin Dashboard</a></li>
+                <li><a href="{{ route('admin.orders.index') }}" class="hover:text-pink-600 hover:bg-pink-50">Manage Jobs</a></li>
+                <li><a href="{{ route('admin.profile.edit') }}" class="hover:text-pink-600 hover:bg-pink-50">Profile</a></li>
+            @endif
         </ul>
 
         <div class="divider"></div>
 
         @auth
-            <a href="{{ route('profile.edit') }}" class="btn btn-outline btn-block font-black border-slate-200 hover:border-pink-400 hover:text-pink-700 mb-3">My Profile</a>
+            @if ($isCustomer)
+                <a href="{{ route('profile.edit') }}" class="btn btn-outline btn-block font-black border-slate-200 hover:border-pink-400 hover:text-pink-700 mb-3">My Profile</a>
+            @else
+                <a href="{{ route('admin.profile.edit') }}" class="btn btn-outline btn-block font-black border-slate-200 hover:border-pink-400 hover:text-pink-700 mb-3">Admin Profile</a>
+            @endif
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black btn-block">Logout</button>

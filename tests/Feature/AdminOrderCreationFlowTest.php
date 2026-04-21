@@ -4,8 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\Order;
 use App\Models\User;
+use App\Support\LivewireSecureUploads;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class AdminOrderCreationFlowTest extends TestCase
@@ -85,6 +87,66 @@ class AdminOrderCreationFlowTest extends TestCase
                 'delivery_method' => 'Dispatch Rider',
             ])
             ->assertSessionHasErrors(['delivery_city', 'delivery_address']);
+    }
+
+    public function test_admin_order_creation_accepts_livewire_secure_image_assets(): void
+    {
+        Mail::fake();
+        Storage::fake('public');
+
+        $admin = $this->adminUser('customer_service');
+        $imagePath = 'job-assets/images/admin-livewire-artwork.jpg';
+        Storage::disk('public')->put($imagePath, 'image-content');
+
+        $this->actingAs($admin)
+            ->withSession([LivewireSecureUploads::SESSION_KEY => [$imagePath]])
+            ->post(route('admin.orders.store'), [
+                'channel' => 'Manual',
+                'job_type' => 'Business Cards',
+                'quantity' => 20,
+                'unit_price' => 1500,
+                'priority' => '🟡 Normal',
+                'payment_status' => 'Invoice Issued',
+                'delivery_preference' => 'pickup',
+                'customer_name' => 'Secure Upload Client',
+                'customer_email' => 'secure.upload@example.com',
+                'customer_phone' => '08030001111',
+                'job_asset_image_paths' => [$imagePath],
+            ])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect();
+
+        $order = Order::query()->latest('id')->firstOrFail();
+
+        $this->assertSame($imagePath, $order->job_image_assets[0]['path'] ?? null);
+    }
+
+    public function test_admin_order_creation_rejects_tampered_livewire_image_assets(): void
+    {
+        Mail::fake();
+        Storage::fake('public');
+
+        $admin = $this->adminUser('customer_service');
+        $tamperedPath = 'job-assets/images/admin-tampered-artwork.jpg';
+        Storage::disk('public')->put($tamperedPath, 'image-content');
+
+        $this->actingAs($admin)
+            ->from(route('admin.orders.create'))
+            ->post(route('admin.orders.store'), [
+                'channel' => 'Manual',
+                'job_type' => 'Business Cards',
+                'quantity' => 20,
+                'unit_price' => 1500,
+                'priority' => '🟡 Normal',
+                'payment_status' => 'Invoice Issued',
+                'delivery_preference' => 'pickup',
+                'customer_name' => 'Secure Upload Client',
+                'customer_email' => 'secure.upload@example.com',
+                'customer_phone' => '08030001111',
+                'job_asset_image_paths' => [$tamperedPath],
+            ])
+            ->assertRedirect(route('admin.orders.create'))
+            ->assertSessionHasErrors('job_asset_image_paths');
     }
 
     private function adminUser(string $role): User

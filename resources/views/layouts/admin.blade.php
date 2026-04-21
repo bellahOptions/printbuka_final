@@ -267,6 +267,14 @@
                                 Invoices
                             </a>
                         @endif
+                        @if (auth()->user()?->canAdmin('newsletters.manage'))
+                            <a href="{{ route('admin.newsletters.index') }}" class="{{ $sidebarLinkClass('admin.newsletters.*') }}">
+                                <svg class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-pink-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8m-16 9h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                </svg>
+                                Newsletters
+                            </a>
+                        @endif
                         @if (auth()->user()?->canAdmin('finance.view'))
                             <a href="{{ route('admin.finance.index') }}" class="{{ $sidebarLinkClass('admin.finance.*') }}">
                                 <svg class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-pink-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -398,6 +406,13 @@
                 </header>
 
                 <main class="flex-1 p-4 sm:p-6 lg:p-8">
+                    <div class="-mx-4 -mt-4 mb-4 sm:-mx-6 sm:-mt-6 sm:mb-6 lg:-mx-8 lg:-mt-8 lg:mb-8">
+                        @include('layouts.partials.breadcrumbs', [
+                            'rootLabel' => 'Dashboard',
+                            'rootRoute' => 'admin.dashboard',
+                            'skipSegments' => ['admin'],
+                        ])
+                    </div>
                     @yield('content')
                 </main>
             </div>

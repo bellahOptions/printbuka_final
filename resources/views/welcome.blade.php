@@ -261,7 +261,7 @@
                 @foreach($featuredProducts as $product)
                     @php
                         $name = strtolower($product->name);
-                        $image = match(true) {
+                        $image = $product->featuredImageUrl() ?? match(true) {
                             str_contains($name, 'business'), str_contains($name, 'card')  => 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=900&q=80',
                             str_contains($name, 'flyer'), str_contains($name, 'poster')   => 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=900&q=80',
                             str_contains($name, 'sticker'), str_contains($name, 'label')  => 'https://images.unsplash.com/photo-1605902711622-cfb43c44367f?auto=format&fit=crop&w=900&q=80',

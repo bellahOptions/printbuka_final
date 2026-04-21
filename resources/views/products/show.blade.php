@@ -5,7 +5,8 @@
 @section('content')
     @php
         $name = strtolower($product->name);
-        $image = match (true) {
+        $galleryImages = $product->additionalImageUrls();
+        $image = $product->featuredImageUrl() ?? match (true) {
             str_contains($name, 'business') => 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=1200&q=80',
             str_contains($name, 'flyer') => 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=1200&q=80',
             str_contains($name, 'sticker') => 'https://images.unsplash.com/photo-1605902711622-cfb43c44367f?auto=format&fit=crop&w=1200&q=80',
@@ -35,6 +36,13 @@
 
                 <div>
                     <img src="{{ $image }}" alt="{{ $product->name }}" class="h-[440px] w-full rounded-md object-cover shadow-2xl shadow-cyan-900/10" />
+                    @if (! empty($galleryImages))
+                        <div class="mt-4 grid grid-cols-3 gap-3">
+                            @foreach ($galleryImages as $galleryImage)
+                                <img src="{{ $galleryImage }}" alt="{{ $product->name }} gallery image" class="h-24 w-full rounded-md border border-slate-200 object-cover bg-white" />
+                            @endforeach
+                        </div>
+                    @endif
                     <div class="mt-5 rounded-md border border-slate-200 bg-white p-6 shadow-lg">
                         <p class="text-sm font-bold text-slate-500">starting at</p>
                         <p class="mt-1 text-4xl font-black text-pink-700">NGN {{ number_format($product->price, 2) }}</p>

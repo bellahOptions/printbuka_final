@@ -127,9 +127,13 @@
 
             <div class="mt-6 space-y-5">
                 @forelse ($pendingStaff as $person)
-                    <form action="{{ route('admin.staff.update', $person) }}" method="POST" enctype="multipart/form-data" class="grid gap-4 rounded-xl border border-slate-200 bg-slate-50/70 p-5 xl:grid-cols-[1.2fr_0.8fr_0.8fr_auto] xl:items-end">
-                        @csrf
-                        @method('PUT')
+                    @if ($canAssignRoles)
+                        <form action="{{ route('admin.staff.update', $person) }}" method="POST" enctype="multipart/form-data" class="grid gap-4 rounded-xl border border-slate-200 bg-slate-50/70 p-5 xl:grid-cols-[1.2fr_0.8fr_0.8fr_auto] xl:items-end">
+                            @csrf
+                            @method('PUT')
+                    @else
+                        <div class="grid gap-4 rounded-xl border border-slate-200 bg-slate-50/70 p-5 xl:grid-cols-[1.2fr_0.8fr_0.8fr_auto] xl:items-end">
+                    @endif
                         <div>
                             <div class="flex items-start gap-4">
                                 @if ($person->profilePhotoUrl())
@@ -149,7 +153,16 @@
                             </div>
                             <label class="mt-3 block text-xs font-black uppercase tracking-wider text-slate-500">
                                 Profile Image (JPG/PNG/WebP)
-                                <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="mt-2 block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 file:mr-3 file:rounded-md file:border-0 file:bg-pink-50 file:px-3 file:py-2 file:text-xs file:font-black file:uppercase file:tracking-wider file:text-pink-700 hover:file:bg-pink-100">
+                                <div class="mt-2">
+                                    <livewire:uploads.secure-image-upload
+                                        :key="'pending-staff-photo-'.$person->id"
+                                        input-name="photo_upload_path"
+                                        directory="staff-photos"
+                                        :max-size-kb="2048"
+                                        :max-files="1"
+                                        :multiple="false"
+                                    />
+                                </div>
                             </label>
                             @error('photo')
                                 <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
@@ -157,7 +170,7 @@
                         </div>
                         <label class="text-sm font-black text-slate-800">
                             Final Role
-                            <select name="role" class="mt-2 min-h-12 w-full rounded-xl border border-slate-200 bg-white px-4 font-semibold text-slate-950 outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+                            <select name="role" @disabled(! $canAssignRoles) class="mt-2 min-h-12 w-full rounded-xl border border-slate-200 bg-white px-4 font-semibold text-slate-950 outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 disabled:bg-slate-100 disabled:text-slate-500">
                                 @foreach ($roles as $value => $label)
                                     <option value="{{ $value }}" @selected(old('role', $person->requested_role) === $value)>{{ $label }}</option>
                                 @endforeach
@@ -165,20 +178,30 @@
                         </label>
                         <label class="text-sm font-black text-slate-800">
                             Department
-                            <select name="department" class="mt-2 min-h-12 w-full rounded-xl border border-slate-200 bg-white px-4 font-semibold text-slate-950 outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+                            <select name="department" @disabled(! $canAssignRoles) class="mt-2 min-h-12 w-full rounded-xl border border-slate-200 bg-white px-4 font-semibold text-slate-950 outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 disabled:bg-slate-100 disabled:text-slate-500">
                                 @foreach ($departments as $value => $label)
                                     <option value="{{ $label }}" @selected(old('department', $person->department) === $label)>{{ $label }}</option>
                                 @endforeach
                             </select>
                         </label>
                         <div class="flex flex-wrap gap-3">
-                            <label class="flex min-h-12 items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-800">
-                                <input type="checkbox" name="is_active" value="1" checked class="h-5 w-5 rounded border-slate-300 text-pink-600">
-                                Approve
-                            </label>
-                            <button class="btn-primary rounded-xl bg-gradient-to-r from-pink-600 to-pink-700 px-5 py-3 text-sm font-black text-white shadow-lg shadow-pink-600/20 transition-all duration-300 hover:shadow-xl hover:shadow-pink-600/30">Save</button>
+                            @if ($canAssignRoles)
+                                <label class="flex min-h-12 items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-800">
+                                    <input type="checkbox" name="is_active" value="1" checked class="h-5 w-5 rounded border-slate-300 text-pink-600">
+                                    Approve
+                                </label>
+                                <button class="btn-primary rounded-xl bg-gradient-to-r from-pink-600 to-pink-700 px-5 py-3 text-sm font-black text-white shadow-lg shadow-pink-600/20 transition-all duration-300 hover:shadow-xl hover:shadow-pink-600/30">Save</button>
+                            @else
+                                <p class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-wide text-slate-500">
+                                    Super Admin assigns role/department
+                                </p>
+                            @endif
                         </div>
-                    </form>
+                    @if ($canAssignRoles)
+                        </form>
+                    @else
+                        </div>
+                    @endif
                 @empty
                     <p class="rounded-xl border border-dashed border-slate-300 p-6 text-sm font-semibold text-slate-500">No staff registrations are pending.</p>
                 @endforelse
@@ -241,15 +264,28 @@
                                 </td>
                                 <td class="px-5 py-4 font-semibold text-slate-500">{{ $person->approved_at?->format('M j, Y') ?? 'Pending' }}</td>
                                 <td class="px-5 py-4">
-                                    <form action="{{ route('admin.staff.update', $person) }}" method="POST" enctype="multipart/form-data" class="flex items-center gap-2">
-                                        @csrf
-                                        @method('PUT')
-                                        <input type="hidden" name="role" value="{{ $person->role }}">
-                                        <input type="hidden" name="department" value="{{ $person->department }}">
-                                        <input type="hidden" name="is_active" value="{{ $person->is_active ? 1 : 0 }}">
-                                        <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" required class="block max-w-[190px] rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-600 file:mr-2 file:rounded file:border-0 file:bg-pink-50 file:px-2 file:py-1 file:text-[11px] file:font-black file:uppercase file:tracking-wider file:text-pink-700">
-                                        <button class="rounded-md bg-pink-600 px-3 py-2 text-xs font-black uppercase tracking-wider text-white transition hover:bg-pink-700">Upload</button>
-                                    </form>
+                                    @if ($canAssignRoles)
+                                        <form action="{{ route('admin.staff.update', $person) }}" method="POST" enctype="multipart/form-data" class="flex items-center gap-2">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="role" value="{{ $person->role }}">
+                                            <input type="hidden" name="department" value="{{ $person->department }}">
+                                            <input type="hidden" name="is_active" value="{{ $person->is_active ? 1 : 0 }}">
+                                            <div class="max-w-[190px]">
+                                                <livewire:uploads.secure-image-upload
+                                                    :key="'active-staff-photo-'.$person->id"
+                                                    input-name="photo_upload_path"
+                                                    directory="staff-photos"
+                                                    :max-size-kb="2048"
+                                                    :max-files="1"
+                                                    :multiple="false"
+                                                />
+                                            </div>
+                                            <button class="rounded-md bg-pink-600 px-3 py-2 text-xs font-black uppercase tracking-wider text-white transition hover:bg-pink-700">Upload</button>
+                                        </form>
+                                    @else
+                                        <span class="text-xs font-black uppercase tracking-wide text-slate-500">Super Admin Only</span>
+                                    @endif
                                 </td>
                             </tr>
                         @empty

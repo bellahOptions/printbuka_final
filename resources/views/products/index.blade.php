@@ -279,9 +279,16 @@
                     @foreach($products as $product) 
                         @php
                             $pName = strtolower($product->name);
-                            $img   = $productImages['default'];
-                            foreach ($productImages as $kw => $url) {
-                                if ($kw !== 'default' && str_contains($pName, $kw)) { $img = $url; break; }
+                            $uploadedImage = $product->featuredImageUrl();
+                            $img = $uploadedImage ?: $productImages['default'];
+
+                            if (! $uploadedImage) {
+                                foreach ($productImages as $kw => $url) {
+                                    if ($kw !== 'default' && str_contains($pName, $kw)) {
+                                        $img = $url;
+                                        break;
+                                    }
+                                }
                             }
                         @endphp
 

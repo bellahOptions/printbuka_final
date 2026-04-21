@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Services\InvoiceService;
 use App\Services\OrderFulfillmentService;
 use App\Services\PaystackService;
+use App\Support\ExternalAssetLinks;
 use App\Support\ProductOptionPricing;
 use App\Support\ReferenceCode;
 use App\Support\ServiceCatalog;
@@ -34,6 +35,8 @@ class DirectImageOrderForm extends Component
     public string $has_design = 'yes';
 
     public mixed $design_file = null;
+
+    public ?string $asset_drive_links = null;
 
     public ?string $design_brief = null;
 
@@ -206,7 +209,8 @@ class DirectImageOrderForm extends Component
             'paper_type' => ['required', Rule::in($typeLabels)],
             'paper_size' => ['required', Rule::in($sizeLabels)],
             'has_design' => ['required', Rule::in(['yes', 'no'])],
-            'design_file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf,svg,zip', 'max:20480'],
+            'design_file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'mimetypes:image/jpeg,image/png,image/webp', 'max:5120'],
+            'asset_drive_links' => ['nullable', 'string', 'max:4000'],
             'design_brief' => ['nullable', 'string', 'max:3000'],
             'delivery_type' => ['required', Rule::in(['pickup', 'delivery'])],
             'delivery_address_id' => [
@@ -220,8 +224,17 @@ class DirectImageOrderForm extends Component
             'customer_phone' => ['required', 'string', 'max:50'],
         ]);
 
-        if ($validated['has_design'] === 'yes' && ! $this->design_file) {
-            $this->addError('design_file', 'Please upload your design/artwork file.');
+        $invalidLinks = ExternalAssetLinks::invalidLinks($validated['asset_drive_links'] ?? null);
+
+        if ($invalidLinks !== []) {
+            $this->addError('asset_drive_links', 'Use valid external links from Google Drive, OneDrive, MediaFire, Dropbox, WeTransfer, or Mega.');
+
+            return;
+        }
+
+        if ($validated['has_design'] === 'yes' && ! $this->design_file && ! filled($validated['asset_drive_links'] ?? null)) {
+            $this->addError('design_file', 'Upload an image file or provide external drive links for non-image files.');
+            $this->addError('asset_drive_links', 'Provide external links if your artwork is in PDF, SVG, or ZIP format.');
 
             return;
         }
@@ -262,6 +275,12 @@ class DirectImageOrderForm extends Component
             ];
         }
 
+        $artworkNotes = $validated['has_design'] === 'no'
+            ? (string) $validated['design_brief']
+            : 'Customer uploaded design/artwork image file.';
+
+        $artworkNotes = ExternalAssetLinks::appendToNotes($artworkNotes, $validated['asset_drive_links'] ?? null);
+
         $order = Order::query()->create([
             'product_id' => null,
             'user_id' => Auth::id(),
@@ -283,9 +302,7 @@ class DirectImageOrderForm extends Component
             'delivery_method' => $validated['delivery_type'] === 'pickup' ? 'Client Pickup' : 'Delivery Address',
             'material_substrate' => $validated['paper_type'],
             'size_format' => $validated['paper_size'],
-            'artwork_notes' => $validated['has_design'] === 'no'
-                ? (string) $validated['design_brief']
-                : 'Customer uploaded design/artwork file.',
+            'artwork_notes' => $artworkNotes,
             'job_image_assets' => $assets,
             'status' => 'Analyzing Job Brief',
             'payment_status' => 'Invoice Issued',

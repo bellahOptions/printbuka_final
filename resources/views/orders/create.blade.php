@@ -237,13 +237,38 @@
                     </div>
 
                     <div>
-                        <label for="job_asset_files" class="text-sm font-black text-slate-800">Artwork / Image Assets</label>
-                        <input id="job_asset_files" name="job_asset_files[]" type="file" multiple accept="image/jpeg,image/png,image/webp" class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" />
+                        <label class="text-sm font-black text-slate-800">Artwork / Image Assets</label>
+                        <div class="mt-2">
+                            <livewire:uploads.secure-image-upload
+                                :key="'order-job-images-'.($product->id ?? 'product')"
+                                input-name="job_asset_image_paths"
+                                directory="job-assets/images"
+                                :max-size-kb="5120"
+                                :max-files="5"
+                                :multiple="true"
+                                :initial-paths="old('job_asset_image_paths', [])"
+                            />
+                        </div>
                         <p class="mt-2 text-xs font-bold text-slate-500">Upload up to 5 images only: JPG, PNG or WebP. Maximum 5MB per image. PDFs, SVGs, archives and executable files are blocked for security.</p>
                         @error('job_asset_files')
                             <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
                         @enderror
                         @error('job_asset_files.*')
+                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                        @enderror
+                        @error('job_asset_image_paths')
+                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                        @enderror
+                        @error('job_asset_image_paths.*')
+                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="asset_drive_links" class="text-sm font-black text-slate-800">External Drive Links (For PDF, SVG, ZIP Files)</label>
+                        <textarea id="asset_drive_links" name="asset_drive_links" rows="4" class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" placeholder="Paste one link per line (Google Drive, OneDrive, MediaFire, Dropbox, WeTransfer, Mega).">{{ old('asset_drive_links') }}</textarea>
+                        <p class="mt-2 text-xs font-bold text-slate-500">Document and ZIP uploads are blocked for security. Share non-image files with external links.</p>
+                        @error('asset_drive_links')
                             <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
                         @enderror
                     </div>

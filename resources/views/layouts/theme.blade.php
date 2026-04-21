@@ -11,6 +11,7 @@
     </head>
     <body>
         @include('layouts.guest.nav')
+        @include('layouts.partials.breadcrumbs', ['rootLabel' => 'Home', 'rootRoute' => 'home'])
         @yield('content')
         @include('layouts.guest.footer')
         @livewireScripts

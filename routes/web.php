@@ -28,12 +28,18 @@
     })->name('home');
     Route::get('/', [HomeController::class, 'index'])->name('home');
 
-    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
-    Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
-    Route::get('/products/{product}/order', [OrderController::class, 'create'])->name('orders.create');
-    Route::post('/products/{product}/order', [OrderController::class, 'store'])->name('orders.store');
-    Route::get('/orders/{order}/success', [OrderController::class, 'success'])->name('orders.success');
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
+Route::get('/products/{product}/order', [OrderController::class, 'create'])
+    ->middleware('customer.portal')
+    ->name('orders.create');
+Route::post('/products/{product}/order', [OrderController::class, 'store'])
+    ->middleware('customer.portal')
+    ->name('orders.store');
+Route::get('/orders/{order}/success', [OrderController::class, 'success'])
+    ->middleware('customer.portal')
+    ->name('orders.success');
     Route::get('/track-order', [TrackOrderController::class, 'create'])->name('orders.track');
     Route::post('/track-order', [TrackOrderController::class, 'store'])->name('orders.track.store');
     Route::get('/track-order/{order}', [TrackOrderController::class, 'show'])->name('orders.track.show');
@@ -44,11 +50,19 @@
     Route::get('/refund-policy', [PolicyPageController::class, 'refund'])->name('policies.refund');
     Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
     Route::get('/services/{service}', [ServiceController::class, 'show'])->name('services.show');
-    Route::post('/services/{service}/order', [ServiceOrderController::class, 'store'])->name('services.orders.store');
-    Route::get('/services/{service}/orders/{order}/success', [ServiceOrderController::class, 'success'])->name('services.orders.success');
-    Route::get('/get-quote', [QuoteController::class, 'create'])->name('quotes.create');
-    Route::post('/get-quote', [QuoteController::class, 'store'])->name('quotes.store');
-    Route::get('/get-quote/{order}/success', [QuoteController::class, 'success'])->name('quotes.success');
+Route::post('/services/{service}/order', [ServiceOrderController::class, 'store'])
+    ->middleware('customer.portal')
+    ->name('services.orders.store');
+Route::get('/services/{service}/orders/{order}/success', [ServiceOrderController::class, 'success'])->name('services.orders.success');
+Route::get('/get-quote', [QuoteController::class, 'create'])
+    ->middleware('customer.portal')
+    ->name('quotes.create');
+Route::post('/get-quote', [QuoteController::class, 'store'])
+    ->middleware('customer.portal')
+    ->name('quotes.store');
+Route::get('/get-quote/{order}/success', [QuoteController::class, 'success'])
+    ->middleware('customer.portal')
+    ->name('quotes.success');
     Route::get('/payments/paystack/callback', [PaymentController::class, 'paystackCallback'])->name('payments.paystack.callback');
 
     Route::get('/blog', [BlogController::class, 'index'])->name('blog');
@@ -76,9 +90,10 @@
         Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
     });
 
-    Route::middleware('user.auth')->group(function (): void {
-        Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::middleware('user.auth')->group(function (): void {
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+    Route::middleware('customer.portal')->group(function (): void {
         Route::middleware('user.verified')->group(function (): void {
             Route::get('/dashboard', DashboardController::class)->name('dashboard');
             Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -91,8 +106,8 @@
             //INVOICE MGT
             Route::get('/manage-invoices', [UserInvoiceController::class, 'index'])->name('invoice.index');
         });
-        Route::get('/{invoice}', [UserInvoiceController::class, 'show'])->name('show');
-        Route::get('/{invoice}/download', [UserInvoiceController::class, 'download'])->name('download');
+        Route::get('/{invoice}', [UserInvoiceController::class, 'show'])->name('show')->whereNumber('invoice');
+        Route::get('/{invoice}/download', [UserInvoiceController::class, 'download'])->name('download')->whereNumber('invoice');
 
         //Tickets, support, etc routes can go here for authenticated users regardless of email verification status
         Route::get('/support-tickets', [SupportController::class, 'index'])->name('support.tickets.index');
@@ -104,12 +119,13 @@
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     });
+});
 
-    // Support Ticket Routes
-    Route::middleware(['auth'])->prefix('support')->name('support.')->group(function () {
-        Route::get('/', [SupportController::class, 'index'])->name('index');
-        Route::get('/create', [SupportController::class, 'create'])->name('create');
-        Route::post('/', [SupportController::class, 'store'])->name('store');
+// Support Ticket Routes
+Route::middleware(['user.auth', 'customer.portal'])->prefix('support')->name('support.')->group(function () {
+    Route::get('/', [SupportController::class, 'index'])->name('index');
+    Route::get('/create', [SupportController::class, 'create'])->name('create');
+    Route::post('/', [SupportController::class, 'store'])->name('store');
         Route::get('/{ticket}', [SupportController::class, 'show'])->name('show');
         Route::post('/{ticket}/reply', [SupportController::class, 'reply'])->name('reply');
         Route::put('/{ticket}/close', [SupportController::class, 'close'])->name('close');

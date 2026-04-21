@@ -12,6 +12,8 @@
         $useCases = (array) ($service['use_cases'] ?? []);
         $processSteps = (array) ($service['process_steps'] ?? []);
         $trustPoints = (array) ($service['trust_points'] ?? []);
+        $pricingMode = (string) ($service['pricing_mode'] ?? 'fixed');
+        $pricingFactors = (array) ($service['pricing_factors'] ?? []);
         $productSectionRedirect = match ($service['slug']) {
             'uv-dtf' => route('products.index').'#uv-dtf-products',
             'laser-engraving' => route('products.index').'#laser-engraving-products',
@@ -44,9 +46,17 @@
 
                 <div class="grid gap-4 bg-white px-6 py-6 sm:grid-cols-3 sm:px-10">
                     <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
-                        <p class="text-xs font-black uppercase tracking-wide text-slate-500">Starting Price</p>
-                        <p class="mt-2 text-2xl font-black text-pink-700">NGN {{ number_format((float) $service['price'], 2) }}</p>
-                        <p class="mt-1 text-xs font-semibold text-slate-500">Displayed using current pricing configuration.</p>
+                        @if ($pricingMode === 'variable')
+                            <p class="text-xs font-black uppercase tracking-wide text-slate-500">Pricing Model</p>
+                            <p class="mt-2 text-2xl font-black text-pink-700">Variable Pricing</p>
+                            @if ($pricingFactors !== [])
+                                <p class="mt-1 text-xs font-semibold text-slate-500">Based on: {{ implode(', ', $pricingFactors) }}.</p>
+                            @endif
+                        @else
+                            <p class="text-xs font-black uppercase tracking-wide text-slate-500">Starting Price</p>
+                            <p class="mt-2 text-2xl font-black text-pink-700">NGN {{ number_format((float) $service['price'], 2) }}</p>
+                            <p class="mt-1 text-xs font-semibold text-slate-500">Displayed using current pricing configuration.</p>
+                        @endif
                     </div>
                     <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
                         <p class="text-xs font-black uppercase tracking-wide text-slate-500">Production Confidence</p>

@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Product;
+use App\Support\ExternalAssetLinks;
 use App\Support\JobAssetUpload;
 use App\Support\ReferenceCode;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class QuoteController extends Controller
@@ -40,11 +42,31 @@ class QuoteController extends Controller
             'material_substrate' => ['nullable', 'string', 'max:255'],
             'finish_lamination' => ['nullable', 'string', 'max:255'],
             'artwork_notes' => ['nullable', 'string', 'max:2000'],
-            'job_asset_files' => ['nullable', 'array'],
-            'job_asset_files.*' => ['file', 'mimes:jpg,jpeg,png,webp,pdf,svg,zip', 'max:20480'],
+            'asset_drive_links' => ['nullable', 'string', 'max:4000'],
+            'job_asset_image_paths' => ['nullable', 'array'],
+            'job_asset_image_paths.*' => ['string', 'max:255'],
         ]);
 
-        unset($validated['job_asset_files']);
+        if ($request->hasFile('job_asset_files')) {
+            throw ValidationException::withMessages([
+                'asset_drive_links' => 'Document or ZIP uploads are blocked. Please share a Google Drive, OneDrive, or MediaFire link instead.',
+            ]);
+        }
+
+        $invalidLinks = ExternalAssetLinks::invalidLinks($validated['asset_drive_links'] ?? null);
+
+        if ($invalidLinks !== []) {
+            throw ValidationException::withMessages([
+                'asset_drive_links' => 'Use valid external links from Google Drive, OneDrive, MediaFire, Dropbox, WeTransfer, or Mega only.',
+            ]);
+        }
+
+        $validated['artwork_notes'] = ExternalAssetLinks::appendToNotes(
+            $validated['artwork_notes'] ?? null,
+            $validated['asset_drive_links'] ?? null
+        );
+
+        unset($validated['asset_drive_links'], $validated['job_asset_image_paths']);
 
         $order = Order::query()->create([
             ...$validated,

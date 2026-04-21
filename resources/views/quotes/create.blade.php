@@ -96,10 +96,25 @@
                         <textarea name="artwork_notes" rows="5" class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold" placeholder="Mention colours, deadline, file status, product references or finishing instructions.">{{ old('artwork_notes') }}</textarea>
                     </label>
 
-                    <label class="block text-sm font-black text-slate-800">Artwork / Image Assets
-                        <input type="file" name="job_asset_files[]" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.svg,.zip" class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold">
-                        <span class="mt-2 block text-xs font-bold text-slate-500">Upload images, PDFs, SVG files or ZIP archives up to 20MB each.</span>
-                        @error('job_asset_files.*')<span class="mt-2 block text-sm font-semibold text-pink-700">{{ $message }}</span>@enderror
+                    <div class="space-y-2">
+                        <label class="block text-sm font-black text-slate-800">Artwork / Image Assets</label>
+                        <livewire:uploads.secure-image-upload
+                            input-name="job_asset_image_paths"
+                            :multiple="true"
+                            directory="job-assets/images"
+                            :max-size-kb="5120"
+                            :max-files="20"
+                            :initial-paths="old('job_asset_image_paths', [])"
+                        />
+                        <span class="block text-xs font-bold text-slate-500">Upload images securely via Livewire (JPG, PNG, WEBP up to 5MB each).</span>
+                        @error('job_asset_image_paths')<span class="block text-sm font-semibold text-pink-700">{{ $message }}</span>@enderror
+                        @error('job_asset_image_paths.*')<span class="block text-sm font-semibold text-pink-700">{{ $message }}</span>@enderror
+                    </div>
+
+                    <label class="block text-sm font-black text-slate-800">External Drive Links (For PDF, SVG, ZIP Files)
+                        <textarea name="asset_drive_links" rows="4" class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold" placeholder="Paste one link per line (Google Drive, OneDrive, MediaFire, Dropbox, WeTransfer, Mega).">{{ old('asset_drive_links') }}</textarea>
+                        <span class="mt-2 block text-xs font-bold text-slate-500">Document and ZIP uploads are blocked for security. Share them as external links instead.</span>
+                        @error('asset_drive_links')<span class="mt-2 block text-sm font-semibold text-pink-700">{{ $message }}</span>@enderror
                     </label>
 
                     <button type="submit" class="min-h-12 w-full rounded-md bg-pink-600 px-5 text-sm font-black text-white transition hover:bg-pink-700">Submit Quote Request</button>

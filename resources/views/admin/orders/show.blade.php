@@ -85,7 +85,32 @@
                             <div class="space-y-1"><label class="text-sm font-black text-slate-700">Brief Date</label><input type="datetime-local" name="brief_received_at" value="{{ old('brief_received_at', $order->brief_received_at?->format('Y-m-d\\TH:i')) }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"></div>
                             <div class="space-y-1 sm:col-span-2"><label class="text-sm font-black text-slate-700">Assigned Designer</label><select name="assigned_designer_id" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"><option value="">Select designer</option>@foreach ($staff as $person)<option value="{{ $person->id }}" @selected((int) old('assigned_designer_id', $order->assigned_designer_id) === $person->id)>{{ $person->displayName() }} · {{ $person->department }}</option>@endforeach</select></div>
                             <div class="space-y-1 sm:col-span-2"><label class="text-sm font-black text-slate-700">Artwork Notes</label><textarea name="artwork_notes" rows="4" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800">{{ old('artwork_notes', $order->artwork_notes) }}</textarea></div>
-                            <div class="space-y-1 sm:col-span-2"><label class="text-sm font-black text-slate-700">Add Job Image / Artwork Assets</label><input type="file" name="job_asset_files[]" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.svg,.zip" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"><p class="mt-2 text-xs text-slate-500">New files are added to the existing client assets.</p></div>
+                            <div class="space-y-1 sm:col-span-2">
+                                <label class="text-sm font-black text-slate-700">Add Job Image Assets</label>
+                                <livewire:uploads.secure-image-upload
+                                    input-name="job_asset_image_paths"
+                                    :multiple="true"
+                                    directory="job-assets/images"
+                                    :max-size-kb="5120"
+                                    :max-files="20"
+                                    :initial-paths="old('job_asset_image_paths', [])"
+                                />
+                                <p class="mt-2 text-xs text-slate-500">Upload images via secure Livewire flow. New images are added to existing assets.</p>
+                                @error('job_asset_image_paths')
+                                    <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                                @enderror
+                                @error('job_asset_image_paths.*')
+                                    <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div class="space-y-1 sm:col-span-2">
+                                <label class="text-sm font-black text-slate-700">Add Artwork Documents (PDF, SVG, ZIP)</label>
+                                <input type="file" name="job_asset_files[]" multiple accept=".pdf,.svg,.zip" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800">
+                                <p class="mt-2 text-xs text-slate-500">Use this field for non-image artwork documents only.</p>
+                                @error('job_asset_files.*')
+                                    <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
                     </div>
                 @endif
@@ -112,7 +137,27 @@
                                 Design approved by client
                             </label>
                             @if ($admin->canAdmin('design.upload'))
-                                <div class="space-y-1 sm:col-span-2"><label class="text-sm font-black text-slate-700">Upload Final Design</label><input type="file" name="design_file" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800"></div>
+                                <div class="space-y-1 sm:col-span-2">
+                                    <label class="text-sm font-black text-slate-700">Upload Final Design Image</label>
+                                    <livewire:uploads.secure-image-upload
+                                        input-name="design_image_path"
+                                        directory="designs/images"
+                                        :max-size-kb="10240"
+                                        :max-files="1"
+                                        :initial-path="old('design_image_path')"
+                                    />
+                                    <p class="mt-2 text-xs text-slate-500">Use this field for final design images (JPG, PNG, WEBP).</p>
+                                    @error('design_image_path')
+                                        <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div class="space-y-1 sm:col-span-2">
+                                    <label class="text-sm font-black text-slate-700">Upload Final Design Document (PDF, SVG, ZIP)</label>
+                                    <input type="file" name="design_file" accept=".pdf,.svg,.zip" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800">
+                                    @error('design_file')
+                                        <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             @endif
                         </div>
                     </div>

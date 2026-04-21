@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -114,9 +113,7 @@ class AuthController extends Controller
 
     public function showStaffRegister(): View
     {
-        return view('auth.staff-register', [
-            'staffRoles' => config('printbuka_admin.staff_signup_roles'),
-        ]);
+        return view('auth.staff-register');
     }
 
     public function register(Request $request): RedirectResponse
@@ -152,8 +149,6 @@ class AuthController extends Controller
             'phone' => ['required', 'string', 'max:22'],
             'address' => ['required', 'string', 'max:255'],
             'date_of_birth' => ['required', 'date'],
-            'requested_role' => ['required', 'string', Rule::in(array_keys(config('printbuka_admin.staff_signup_roles', [])))],
-            'other_role' => ['nullable', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
         ]);
@@ -163,6 +158,8 @@ class AuthController extends Controller
             'companyName' => 'Printbuka',
             'role' => 'staff_pending',
             'department' => null,
+            'requested_role' => null,
+            'other_role' => null,
             'is_active' => false,
         ]);
         $staff->sendEmailVerificationNotification();

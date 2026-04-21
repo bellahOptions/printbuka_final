@@ -5,7 +5,11 @@
 @section('content')
     @php
         $serviceCount = count($services);
-        $startingPrice = collect($services)->min('price') ?? 0;
+        $fixedServicePrices = collect($services)
+            ->filter(fn (array $service): bool => (string) ($service['pricing_mode'] ?? 'fixed') !== 'variable')
+            ->pluck('price')
+            ->filter(fn ($price): bool => is_numeric($price) && (float) $price > 0);
+        $startingPrice = $fixedServicePrices->min();
     @endphp
 
     <style>
@@ -63,7 +67,13 @@
                     </div>
                     <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
                         <p class="text-xs font-black uppercase tracking-[0.15em] text-slate-500">Starting From</p>
-                        <p class="mt-2 text-2xl font-black text-pink-700">NGN {{ number_format((float) $startingPrice, 2) }}</p>
+                        <p class="mt-2 text-2xl font-black text-pink-700">
+                            @if ($startingPrice !== null)
+                                NGN {{ number_format((float) $startingPrice, 2) }}
+                            @else
+                                Custom Pricing
+                            @endif
+                        </p>
                     </div>
                     <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
                         <p class="text-xs font-black uppercase tracking-[0.15em] text-slate-500">Checkout</p>
@@ -122,8 +132,16 @@
                             </ul>
 
                             <div class="mt-5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                <p class="text-xs font-black uppercase tracking-[0.15em] text-slate-500">Starting Price</p>
-                                <p class="mt-1 text-2xl font-black text-pink-700">NGN {{ number_format((float) $service['price'], 2) }}</p>
+                                @if (($service['pricing_mode'] ?? 'fixed') === 'variable')
+                                    <p class="text-xs font-black uppercase tracking-[0.15em] text-slate-500">Pricing Model</p>
+                                    <p class="mt-1 text-xl font-black text-pink-700">Variable Pricing</p>
+                                    @if (filled($service['pricing_factors'] ?? []))
+                                        <p class="mt-1 text-xs font-semibold text-slate-500">Based on: {{ implode(', ', (array) $service['pricing_factors']) }}</p>
+                                    @endif
+                                @else
+                                    <p class="text-xs font-black uppercase tracking-[0.15em] text-slate-500">Starting Price</p>
+                                    <p class="mt-1 text-2xl font-black text-pink-700">NGN {{ number_format((float) $service['price'], 2) }}</p>
+                                @endif
                             </div>
 
                             <div class="mt-6 flex flex-wrap items-center gap-3">

@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\LivewireSecureUploads;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class AdminStaffController extends Controller
@@ -49,11 +51,14 @@ class AdminStaffController extends Controller
                 ->get(),
             'roles' => config('printbuka_admin.role_labels'),
             'departments' => config('printbuka_admin.departments'),
+            'canAssignRoles' => request()->user()?->role === 'super_admin',
         ]);
     }
 
     public function update(Request $request, User $user): RedirectResponse
     {
+        abort_unless(($request->user()?->role ?? null) === 'super_admin', 403);
+
         $request->merge([
             'role' => $request->input('role') ?: null,
             'department' => $request->input('department') ?: null,
@@ -63,6 +68,7 @@ class AdminStaffController extends Controller
             'role' => ['nullable', 'string', Rule::in(array_keys(config('printbuka_admin.roles', [])))],
             'department' => ['nullable', 'string', Rule::in(array_values(config('printbuka_admin.departments', [])))],
             'is_active' => ['nullable', 'boolean'],
+            'photo_upload_path' => ['nullable', 'string', 'max:255'],
             'photo' => [
                 'nullable',
                 'file',
@@ -89,6 +95,24 @@ class AdminStaffController extends Controller
             }
 
             $updates['photo'] = $newPhotoPath;
+        } elseif (filled($validated['photo_upload_path'] ?? null)) {
+            $livewirePhotoPath = LivewireSecureUploads::consumePath(
+                $request,
+                (string) $validated['photo_upload_path'],
+                ['staff-photos']
+            );
+
+            if (! $livewirePhotoPath) {
+                throw ValidationException::withMessages([
+                    'photo' => 'The uploaded photo is invalid or expired. Please upload it again.',
+                ]);
+            }
+
+            if (filled($user->photo) && Str::startsWith($user->photo, 'staff-photos/')) {
+                Storage::disk('public')->delete($user->photo);
+            }
+
+            $updates['photo'] = $livewirePhotoPath;
         }
 
         $user->update($updates);

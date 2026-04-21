@@ -4,8 +4,8 @@ return [
     'services' => [
         'direct-image-printing' => [
             'name' => 'Direct Image Printing',
-            'setting_key' => 'service_price_direct_image_printing',
-            'default_price' => 2500,
+            'pricing_mode' => 'variable',
+            'pricing_factors' => ['Paper Type', 'Paper Size', 'Paper Density'],
             'summary' => 'High-clarity direct image printing for flexible brand applications with sharp color output.',
             'hero_kicker' => 'Fast Brand Execution',
             'hero_title' => 'Direct Image Printing That Keeps Brand Quality Consistent',
@@ -38,8 +38,8 @@ return [
         ],
         'uv-dtf' => [
             'name' => 'UV DTF',
-            'setting_key' => 'service_price_uv_dtf',
-            'default_price' => 3500,
+            'pricing_mode' => 'variable',
+            'pricing_factors' => ['Item Type (e.g. Pen, Notepad, Bottle)'],
             'summary' => 'Durable UV DTF transfers for branded hard-surface applications with premium finishing.',
             'hero_kicker' => 'Premium Surface Branding',
             'hero_title' => 'UV DTF Transfers Built for Professional, Long-Lasting Results',
@@ -72,8 +72,8 @@ return [
         ],
         'dtf' => [
             'name' => 'DTF',
-            'setting_key' => 'service_price_dtf',
-            'default_price' => 3000,
+            'pricing_mode' => 'variable',
+            'pricing_factors' => ['Film Size (A6, A5, A4, A3, A2)'],
             'summary' => 'Direct-to-film transfer service for vibrant textile branding and apparel printing.',
             'hero_kicker' => 'Apparel Branding',
             'hero_title' => 'DTF Printing for Durable Fabric Branding at Scale',
@@ -106,8 +106,8 @@ return [
         ],
         'laser-engraving' => [
             'name' => 'Laser Engraving',
-            'setting_key' => 'service_price_laser_engraving',
-            'default_price' => 5000,
+            'pricing_mode' => 'variable',
+            'pricing_factors' => ['Item Type (e.g. Pen, Notepad, Bottle)'],
             'summary' => 'Precision laser engraving for corporate gifts, plaques, and permanent custom markings.',
             'hero_kicker' => 'Precision Finishing',
             'hero_title' => 'Laser Engraving for Permanent, Premium Brand Impressions',

@@ -46,28 +46,20 @@
                         <input type="date" name="date_of_birth" value="{{ old('date_of_birth', $user->date_of_birth?->format('Y-m-d')) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
                         @error('date_of_birth') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
                     </label>
-                    <label class="text-sm font-black">Department
-                        <select name="department" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
-                            <option value="">Select department</option>
-                            @foreach ($departments as $department)
-                                <option value="{{ $department }}" @selected(old('department', $user->department) === $department)>{{ $department }}</option>
-                            @endforeach
-                        </select>
-                        @error('department') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
-                    </label>
-                    <label class="text-sm font-black">Requested Role
-                        <select name="requested_role" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
-                            <option value="">Select role</option>
-                            @foreach ($staffSignupRoles as $value => $label)
-                                <option value="{{ $value }}" @selected(old('requested_role', $user->requested_role) === $value)>{{ $label }}</option>
-                            @endforeach
-                        </select>
-                        @error('requested_role') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
-                    </label>
-                    <label class="text-sm font-black sm:col-span-2">Other Role
-                        <input name="other_role" value="{{ old('other_role', $user->other_role) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
-                        @error('other_role') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
-                    </label>
+                    <div class="sm:col-span-2 rounded-md border border-slate-200 bg-slate-50 p-4">
+                        <p class="text-xs font-black uppercase tracking-wide text-slate-500">Access Assignment</p>
+                        <p class="mt-2 text-sm font-semibold text-slate-700">
+                            Role and department are assigned by the Super Admin only.
+                        </p>
+                        <div class="mt-3 flex flex-wrap items-center gap-2">
+                            <span class="rounded-md bg-white px-3 py-1 text-xs font-black text-slate-700">
+                                Role: {{ $roleLabels[$user->role] ?? $user->role }}
+                            </span>
+                            <span class="rounded-md bg-white px-3 py-1 text-xs font-black text-slate-700">
+                                Department: {{ $user->department ?: 'Unassigned' }}
+                            </span>
+                        </div>
+                    </div>
                     <label class="text-sm font-black sm:col-span-2">Registered Email
                         <input value="{{ $user->email }}" readonly disabled class="mt-2 min-h-12 w-full rounded-md border border-slate-200 bg-slate-100 px-4 font-semibold text-slate-500">
                     </label>
@@ -80,11 +72,22 @@
                     @else
                         <div class="flex h-28 w-28 items-center justify-center rounded-full border border-slate-200 bg-white text-2xl font-black text-slate-700">{{ $user->profileInitials() }}</div>
                     @endif
-                    <label class="block text-sm font-black">
+                    <div class="block text-sm font-black">
                         Upload New Photo
-                        <input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" class="mt-2 block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-semibold file:mr-3 file:rounded file:border-0 file:bg-pink-50 file:px-3 file:py-2 file:text-xs file:font-black file:text-pink-700">
+                        <div class="mt-2">
+                            <livewire:uploads.secure-image-upload
+                                :key="'admin-profile-photo-'.$user->id"
+                                input-name="photo_upload_path"
+                                directory="staff-photos"
+                                :max-size-kb="2048"
+                                :max-files="1"
+                                :multiple="false"
+                                :initial-path="old('photo_upload_path')"
+                            />
+                        </div>
                         @error('photo') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
-                    </label>
+                        @error('photo_upload_path') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
+                    </div>
                     <label class="flex items-center gap-3 text-sm font-bold text-slate-700">
                         <input type="checkbox" name="remove_photo" value="1" class="h-5 w-5 rounded border-slate-300 text-pink-600">
                         Remove current photo

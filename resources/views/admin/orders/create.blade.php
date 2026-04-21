@@ -226,9 +226,30 @@
                             <textarea name="artwork_notes" rows="4" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Describe artwork requirements...">{{ old('artwork_notes') }}</textarea>
                         </div>
                         <div class="space-y-1 sm:col-span-2">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Job Image / Artwork Assets</label>
-                            <input type="file" name="job_asset_files[]" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.svg,.zip" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
-                            <p class="mt-2 text-xs text-slate-500">Upload client artwork, images, PDFs, SVG files or ZIP archives up to 20MB each.</p>
+                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Job Image Assets</label>
+                            <livewire:uploads.secure-image-upload
+                                input-name="job_asset_image_paths"
+                                :multiple="true"
+                                directory="job-assets/images"
+                                :max-size-kb="5120"
+                                :max-files="20"
+                                :initial-paths="old('job_asset_image_paths', [])"
+                            />
+                            <p class="mt-2 text-xs text-slate-500">Upload image assets securely via Livewire (JPG, PNG, WEBP up to 5MB each).</p>
+                            @error('job_asset_image_paths')
+                                <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                            @enderror
+                            @error('job_asset_image_paths.*')
+                                <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div class="space-y-1 sm:col-span-2">
+                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Artwork Documents (PDF, SVG, ZIP)</label>
+                            <input type="file" name="job_asset_files[]" multiple accept=".pdf,.svg,.zip" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                            <p class="mt-2 text-xs text-slate-500">Use this field for non-image artwork assets (PDF, SVG, ZIP up to 20MB each).</p>
+                            @error('job_asset_files.*')
+                                <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
                 </div>

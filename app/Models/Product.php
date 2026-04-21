@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -24,6 +25,8 @@ class Product extends Model
         'finish_price_options',
         'delivery_price_options',
         'paper_density',
+        'featured_image',
+        'additional_images',
         'density_price_options',
         'is_active',
     ];
@@ -37,6 +40,7 @@ class Product extends Model
             'finish_price_options' => 'array',
             'density_price_options' => 'array',
             'delivery_price_options' => 'array',
+            'additional_images' => 'array',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
         ];
@@ -55,4 +59,25 @@ class Product extends Model
 {
     return $query->where('is_featured', true)->where('is_active', true);
 }
+
+    public function featuredImageUrl(): ?string
+    {
+        if (! filled($this->featured_image)) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->featured_image);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function additionalImageUrls(): array
+    {
+        return collect((array) $this->additional_images)
+            ->filter(fn ($path): bool => filled($path))
+            ->map(fn (string $path): string => Storage::disk('public')->url($path))
+            ->values()
+            ->all();
+    }
 }

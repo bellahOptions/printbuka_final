@@ -80,12 +80,12 @@ class DtfOrderFormTest extends TestCase
             'size_format' => 'A3',
             'delivery_method' => 'Delivery Address',
             'delivery_city' => 'Lagos',
-            'total_price' => 14500,
+            'total_price' => 5500,
         ]);
 
         $this->assertDatabaseHas('invoices', [
             'payment_gateway' => 'paystack',
-            'total_amount' => 14500,
+            'total_amount' => 5500,
         ]);
     }
 

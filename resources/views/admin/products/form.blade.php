@@ -27,7 +27,7 @@
                 </div>
                 <div class="flex gap-3">
                     @if($product->exists)
-                        <a href="{{ route('admin.products.show', $product) }}" class="btn btn-outline btn-pink-600">
+                        <a href="{{ route('products.show', $product) }}" class="btn btn-outline btn-pink-600">
                             <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -41,7 +41,7 @@
 
         {{-- Main Form Card --}}
         <div class="card bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
-            <form action="{{ $product->exists ? route('admin.products.update', $product) : route('admin.products.store') }}" method="POST" class="p-6 sm:p-8">
+            <form action="{{ $product->exists ? route('admin.products.update', $product) : route('admin.products.store') }}" method="POST" enctype="multipart/form-data" class="p-6 sm:p-8">
                 @csrf
                 @if ($product->exists) @method('PUT') @endif
 
@@ -135,6 +135,101 @@
                             @error('description') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
                         </div>
                     </div>
+                </div>
+
+                {{-- Product Images Section --}}
+                <div class="mb-8 pb-6 border-b border-slate-100">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                            <svg class="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-lg font-bold text-slate-900">Product Images</h2>
+                    </div>
+
+                    <div class="grid gap-5 sm:grid-cols-2">
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text font-semibold text-slate-700">Featured Image</span>
+                            </label>
+                            <livewire:uploads.secure-image-upload
+                                :key="'product-featured-image-'.($product->id ?: 'create')"
+                                input-name="featured_image_path"
+                                directory="product-images/featured"
+                                :max-size-kb="4096"
+                                :max-files="1"
+                                :multiple="false"
+                                :initial-path="old('featured_image_path')"
+                            />
+                            <label class="label">
+                                <span class="label-text-alt text-slate-500">One image for product cards and main product display.</span>
+                            </label>
+                            @error('featured_image') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                            @error('featured_image_path') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text font-semibold text-slate-700">Additional Images</span>
+                            </label>
+                            <livewire:uploads.secure-image-upload
+                                :key="'product-gallery-images-'.($product->id ?: 'create')"
+                                input-name="additional_image_paths"
+                                directory="product-images/gallery"
+                                :max-size-kb="4096"
+                                :max-files="12"
+                                :multiple="true"
+                                :initial-paths="old('additional_image_paths', [])"
+                            />
+                            <label class="label">
+                                <span class="label-text-alt text-slate-500">Upload multiple gallery images (up to 12).</span>
+                            </label>
+                            @error('additional_images') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                            @error('additional_images.*') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                            @error('additional_image_paths') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                            @error('additional_image_paths.*') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+
+                    @if ($product->exists && ($product->featured_image || !empty($product->additional_images)))
+                        <div class="mt-5 grid gap-5 sm:grid-cols-2">
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                <p class="text-xs font-black uppercase tracking-wide text-slate-500 mb-3">Current Featured Image</p>
+                                @if ($product->featuredImageUrl())
+                                    <img src="{{ $product->featuredImageUrl() }}" alt="{{ $product->name }}" class="h-40 w-full rounded-lg border border-slate-200 object-cover bg-white" />
+                                    <label class="label cursor-pointer justify-start gap-3 mt-2">
+                                        <input type="checkbox" name="remove_featured_image" value="1" class="checkbox checkbox-sm" @checked(old('remove_featured_image'))>
+                                        <span class="label-text text-sm text-slate-700">Remove featured image</span>
+                                    </label>
+                                @else
+                                    <p class="text-sm font-semibold text-slate-500">No featured image uploaded yet.</p>
+                                @endif
+                            </div>
+
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                <div class="flex items-center justify-between gap-3 mb-3">
+                                    <p class="text-xs font-black uppercase tracking-wide text-slate-500">Current Gallery Images</p>
+                                    @if (!empty($product->additional_images))
+                                        <label class="label cursor-pointer justify-start gap-2 m-0 p-0">
+                                            <input type="checkbox" name="remove_additional_images" value="1" class="checkbox checkbox-sm" @checked(old('remove_additional_images'))>
+                                            <span class="label-text text-xs text-slate-700">Clear gallery</span>
+                                        </label>
+                                    @endif
+                                </div>
+
+                                @if (!empty($product->additional_images))
+                                    <div class="grid grid-cols-3 gap-2">
+                                        @foreach ($product->additionalImageUrls() as $imageUrl)
+                                            <img src="{{ $imageUrl }}" alt="{{ $product->name }} gallery image" class="h-20 w-full rounded-lg border border-slate-200 object-cover bg-white" />
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <p class="text-sm font-semibold text-slate-500">No additional images uploaded yet.</p>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 {{-- Specifications Section --}}
