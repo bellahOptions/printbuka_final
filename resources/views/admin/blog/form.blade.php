@@ -92,7 +92,7 @@
                                 @php
                                     $url = filter_var($path, FILTER_VALIDATE_URL)
                                         ? $path
-                                        : \Illuminate\Support\Facades\Storage::disk('public')->url($path);
+                                        : \App\Support\MediaUrl::resolve($path);
                                 @endphp
                                 <div class="rounded-md border border-slate-200 p-2">
                                     <img src="{{ $url }}" alt="Additional blog image" class="h-24 w-full rounded object-cover">

@@ -3,6 +3,7 @@
 namespace App\Livewire\Uploads;
 
 use App\Support\LivewireSecureUploads;
+use App\Support\MediaUrl;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
@@ -172,17 +173,7 @@ class SecureImageUpload extends Component
 
     public function imageUrl(?string $path): ?string
     {
-        if (! filled($path)) {
-            return null;
-        }
-
-        $candidate = (string) $path;
-
-        if (! Storage::disk('public')->exists($candidate)) {
-            return null;
-        }
-
-        return Storage::disk('public')->url($candidate);
+        return MediaUrl::resolve($path);
     }
 
     private function deleteStoredPath(string $path): void
@@ -226,4 +217,3 @@ class SecureImageUpload extends Component
         return view('livewire.uploads.secure-image-upload');
     }
 }
-

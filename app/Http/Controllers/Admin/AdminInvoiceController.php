@@ -30,9 +30,7 @@ class AdminInvoiceController extends Controller
 
     public function index(): View
     {
-        return view('admin.invoices.index', [
-            'invoices' => Invoice::query()->with('order')->latest()->paginate(20),
-        ]);
+        return view('admin.invoices.index');
     }
 
     public function create(): View
@@ -92,8 +90,7 @@ class AdminInvoiceController extends Controller
         Request $request,
         InvoiceService $invoiceService,
         InvoiceLifecycleService $invoiceLifecycleService
-    ): RedirectResponse
-    {
+    ): RedirectResponse {
         if (! $request->filled('order_id')) {
             return $this->storeCatalogInvoice($request, $invoiceService, $invoiceLifecycleService);
         }
@@ -116,8 +113,7 @@ class AdminInvoiceController extends Controller
         Request $request,
         InvoiceService $invoiceService,
         InvoiceLifecycleService $invoiceLifecycleService
-    ): RedirectResponse
-    {
+    ): RedirectResponse {
         $validated = $request->validate([
             'customer_id' => ['nullable', 'integer', Rule::exists('users', 'id')->where(fn ($query) => $query->where('role', 'customer'))],
             'customer_name' => ['required', 'string', 'max:255'],
@@ -326,8 +322,7 @@ class AdminInvoiceController extends Controller
         Request $request,
         Invoice $invoice,
         InvoiceLifecycleService $invoiceLifecycleService
-    ): RedirectResponse
-    {
+    ): RedirectResponse {
         $previousStatus = (string) $invoice->status;
         $invoice->update($this->validated($request, $invoice));
         $invoiceLifecycleService->handleStatusChange($invoice->fresh(['order.product']), $previousStatus);
@@ -363,8 +358,7 @@ class AdminInvoiceController extends Controller
         Request $request,
         InvoiceService $invoiceService,
         InvoiceLifecycleService $invoiceLifecycleService
-    ): RedirectResponse
-    {
+    ): RedirectResponse {
         $validated = $request->validate([
             'customer_id' => ['nullable', 'integer', Rule::exists('users', 'id')->where(fn ($query) => $query->where('role', 'customer'))],
             'customer_name' => ['required', 'string', 'max:255'],

@@ -117,11 +117,7 @@
                 @forelse(($homeCategories ?? collect()) as $category)
                     @php
                         $fallbackImage = $categoryFallbackImages[$loop->index % count($categoryFallbackImages)];
-                        $categoryImage = filled($category->image)
-                            ? (\Illuminate\Support\Str::startsWith($category->image, ['http://', 'https://'])
-                                ? $category->image
-                                : asset('storage/' . ltrim($category->image, '/')))
-                            : $fallbackImage;
+                        $categoryImage = $category->imageUrl() ?: $fallbackImage;
                         $categorySummary = $category->description ?: 'Explore print and branded products in this category.';
                     @endphp
                     <a href="{{ route('products.category', $category) }}" class="group card bg-base-100 border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition overflow-hidden">

@@ -7,11 +7,11 @@
         <p class="text-xs font-black uppercase tracking-wide text-slate-500">Updated {{ $lastUpdated }}</p>
     </div>
 
-    <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
         @foreach ($cards as $card)
             <article class="rounded-md border border-slate-200 bg-slate-50 p-5">
                 <p class="text-xs font-black uppercase tracking-wide text-slate-500">{{ $card['label'] }}</p>
-                <p class="mt-3 text-4xl font-black leading-none text-slate-950">{{ number_format($card['value']) }}</p>
+                <p class="mt-3 text-3xl font-black leading-none {{ $card['tone'] ?? 'text-slate-950' }}">{{ number_format($card['value']) }}</p>
             </article>
         @endforeach
     </div>

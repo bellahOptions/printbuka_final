@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use App\Support\MediaUrl;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -58,18 +58,15 @@ class Product extends Model
     {
         return $this->hasMany(Order::class);
     }
+
     public function scopeFeatured($query)
-{
-    return $query->where('is_featured', true)->where('is_active', true);
-}
+    {
+        return $query->where('is_featured', true)->where('is_active', true);
+    }
 
     public function featuredImageUrl(): ?string
     {
-        if (! filled($this->featured_image)) {
-            return null;
-        }
-
-        return Storage::disk('public')->url($this->featured_image);
+        return MediaUrl::resolve($this->featured_image);
     }
 
     /**
@@ -78,8 +75,8 @@ class Product extends Model
     public function additionalImageUrls(): array
     {
         return collect((array) $this->additional_images)
+            ->map(fn ($path): ?string => is_string($path) ? MediaUrl::resolve($path) : null)
             ->filter(fn ($path): bool => filled($path))
-            ->map(fn (string $path): string => Storage::disk('public')->url($path))
             ->values()
             ->all();
     }

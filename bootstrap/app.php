@@ -1,17 +1,17 @@
 <?php
 
-use App\Http\Middleware\EnsureUserIsAuthenticated;
-use App\Http\Middleware\EnsureUserEmailIsVerified;
+use App\Http\Middleware\EnforceSiteMaintenance;
 use App\Http\Middleware\EnsureAdminPermission;
 use App\Http\Middleware\EnsureCustomerPortalAccess;
-use App\Http\Middleware\EnforceSiteMaintenance;
+use App\Http\Middleware\EnsureSuperAdmin;
+use App\Http\Middleware\EnsureUserEmailIsVerified;
+use App\Http\Middleware\EnsureUserIsAuthenticated;
 use App\Http\Middleware\LogStaffActivity;
 use App\Http\Middleware\RedirectIfUserAuthenticated;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Support\Facades\Route;
-use App\Http\Middleware\EnsureSuperAdmin;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -26,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             EnforceSiteMaintenance::class,
+            LogStaffActivity::class,
         ]);
 
         $middleware->alias([

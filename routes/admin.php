@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminActivityLogController;
 use App\Http\Controllers\Admin\AdminBlogPostController;
+use App\Http\Controllers\Admin\AdminCustomerController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminFinanceController;
 use App\Http\Controllers\Admin\AdminInvoiceController;
@@ -14,17 +16,17 @@ use App\Http\Controllers\Admin\AdminSiteSettingController;
 use App\Http\Controllers\Admin\AdminStaffController;
 use App\Http\Controllers\Admin\AdminSupportTicketController;
 use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route; 
+use Illuminate\Support\Facades\Route;
 
 Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
-    Route::prefix('admin')->name('admin.')->middleware(['admin.permission:admin.view', 'admin.activity'])->group(function (): void {
+    Route::prefix('admin')->name('admin.')->middleware(['admin.permission:admin.view'])->group(function (): void {
         Route::get('/dashboard', AdminDashboardController::class)->name('dashboard');
         Route::get('/profile', [ProfileController::class, 'editAdmin'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'updateAdmin'])->name('profile.update');
 
         Route::resource('products', AdminProductController::class)
             ->except('show')
-            ->middleware('admin.permission:products.manage'); 
+            ->middleware('admin.permission:products.manage');
         Route::resource('product-categories', AdminProductCategoryController::class)
             ->except('show')
             ->middleware('admin.permission:product_categories.manage');
@@ -73,6 +75,21 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::put('/staff/{user}', [AdminStaffController::class, 'update'])
             ->middleware('super.admin')
             ->name('staff.update');
+        Route::get('/customers', [AdminCustomerController::class, 'index'])
+            ->middleware('admin.permission:customers.manage')
+            ->name('customers.index');
+        Route::patch('/customers/{customer}/status', [AdminCustomerController::class, 'updateStatus'])
+            ->middleware('admin.permission:customers.manage')
+            ->name('customers.update-status');
+        Route::post('/customers/{customer}/message', [AdminCustomerController::class, 'sendMessage'])
+            ->middleware('admin.permission:customers.manage')
+            ->name('customers.send-message');
+        Route::delete('/customers/{customer}', [AdminCustomerController::class, 'destroy'])
+            ->middleware('super.admin')
+            ->name('customers.destroy');
+        Route::get('/audit-logs', [AdminActivityLogController::class, 'index'])
+            ->middleware('super.admin')
+            ->name('activity-logs.index');
         Route::get('/orders', [AdminOrderController::class, 'index'])
             ->middleware('admin.permission:orders.view')
             ->name('orders.index');

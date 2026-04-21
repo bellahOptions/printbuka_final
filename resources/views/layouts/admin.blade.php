@@ -267,6 +267,14 @@
                                 Staff
                             </a>
                         @endif
+                        @if (auth()->user()?->canAdmin('customers.manage'))
+                            <a href="{{ route('admin.customers.index') }}" class="{{ $sidebarLinkClass('admin.customers.*') }}">
+                                <svg class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-pink-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5V8a2 2 0 00-2-2h-3m-7 14H5a2 2 0 01-2-2V8a2 2 0 012-2h3m4 14v-4a2 2 0 00-2-2H8a2 2 0 00-2 2v4m6 0h2m-6 0H6m6-14V4a2 2 0 00-2-2H8a2 2 0 00-2 2v2m6 0H6"/>
+                                </svg>
+                                Customers
+                            </a>
+                        @endif
                         @if (auth()->user()?->canAdmin('invoices.manage'))
                             <a href="{{ route('admin.invoices.index') }}" class="{{ $sidebarLinkClass('admin.invoices.*') }}">
                                 <svg class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-pink-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -312,6 +320,12 @@
                                 Settings
                             </a>
                             @if (auth()->user()?->role === 'super_admin')
+                                <a href="{{ route('admin.activity-logs.index') }}" class="{{ $sidebarLinkClass('admin.activity-logs.*') }}">
+                                    <svg class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-pink-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2V7m3 10v-4m3 8H6a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/>
+                                    </svg>
+                                    Audit Logs
+                                </a>
                                 <a href="{{ route('admin.policies.edit') }}" class="{{ $sidebarLinkClass('admin.policies.*') }}">
                                     <svg class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-pink-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h6l5 5v11a2 2 0 01-2 2z"/>

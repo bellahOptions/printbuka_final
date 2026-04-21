@@ -30,6 +30,8 @@
         'notifications' => 'Notifications',
         'finance' => 'Finance',
         'staff' => 'Staff',
+        'customers' => 'Customers',
+        'audit-logs' => 'Audit Logs',
     ];
 
     $formatLabel = static function (string $segment) use ($labelMap): string {
@@ -88,4 +90,3 @@
         </div>
     </div>
 </div>
-

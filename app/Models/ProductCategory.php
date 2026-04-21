@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\MediaUrl;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -95,5 +96,15 @@ class ProductCategory extends Model
         return self::publicTreeQuery()
             ->limit($limit)
             ->get();
+    }
+
+    public function imageUrl(): ?string
+    {
+        return MediaUrl::resolve($this->image);
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->imageUrl();
     }
 }

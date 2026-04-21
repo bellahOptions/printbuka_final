@@ -14,7 +14,7 @@
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach($categories as $category)
                     @php
-                        $image = $category->image ?: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=900&q=80';
+                        $image = $category->imageUrl() ?: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=900&q=80';
                     @endphp
                     <article class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
                         <a href="{{ route('products.category', $category) }}" class="block">

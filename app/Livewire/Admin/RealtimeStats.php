@@ -6,7 +6,6 @@ use App\Models\FinanceEntry;
 use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\StaffActivity;
-use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -17,6 +16,7 @@ class RealtimeStats extends Component
     {
         $user = auth()->user();
         $canViewFinance = $user->canAdmin('*') || $user->canAdmin('finance.view');
+        $visitorStats = $this->visitorStats();
         $monthStart = now()->startOfMonth();
         $monthEnd = now()->endOfMonth();
         $financeCards = [];
@@ -51,6 +51,8 @@ class RealtimeStats extends Component
                 ['label' => 'Active Jobs', 'value' => Order::query()->whereNotIn('status', ['Delivered', 'Cancelled'])->count(), 'tone' => 'text-cyan-700'],
                 ['label' => 'Delivered', 'value' => Order::query()->where('status', 'Delivered')->count(), 'tone' => 'text-emerald-700'],
                 ['label' => 'Staff Online', 'value' => $this->onlineStaffCount(), 'tone' => 'text-amber-700'],
+                ['label' => 'Visitors Online', 'value' => $visitorStats['online'], 'tone' => 'text-indigo-700'],
+                ['label' => 'Visitors Today', 'value' => $visitorStats['today'], 'tone' => 'text-violet-700'],
             ],
             'financeCards' => $financeCards,
             'jobStatusCounts' => $this->jobStatusCounts(),
@@ -73,5 +75,27 @@ class RealtimeStats extends Component
         return collect(config('printbuka_admin.job_statuses'))->mapWithKeys(fn (string $status): array => [
             $status => Order::query()->where('status', $status)->count(),
         ]);
+    }
+
+    /**
+     * @return array{online:int,today:int}
+     */
+    private function visitorStats(): array
+    {
+        $onlineWindow = now()->subMinutes(5)->timestamp;
+        $todayStart = now()->startOfDay()->timestamp;
+
+        $visitorSessions = DB::table('sessions')
+            ->leftJoin('users', 'sessions.user_id', '=', 'users.id')
+            ->where(function ($query): void {
+                $query
+                    ->whereNull('sessions.user_id')
+                    ->orWhere('users.role', 'customer');
+            });
+
+        return [
+            'online' => (int) (clone $visitorSessions)->where('sessions.last_activity', '>=', $onlineWindow)->count(),
+            'today' => (int) (clone $visitorSessions)->where('sessions.last_activity', '>=', $todayStart)->count(),
+        ];
     }
 }

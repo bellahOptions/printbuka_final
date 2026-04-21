@@ -24,8 +24,8 @@
                         <p class="mt-2 max-w-2xl text-sm text-slate-300">{{ $category->description }}</p>
                         <p class="mt-4 text-sm text-slate-400">{{ $products->total() }} products available</p>
                     </div>
-                    @if($category->image)
-                        <img src="{{ $category->image }}" alt="{{ $category->name }}" class="h-32 w-32 rounded-2xl object-cover shadow-lg" />
+                    @if($category->imageUrl())
+                        <img src="{{ $category->imageUrl() }}" alt="{{ $category->name }}" class="h-32 w-32 rounded-2xl object-cover shadow-lg" />
                     @endif
                 </div>
             </div>

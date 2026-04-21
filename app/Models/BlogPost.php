@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Support\MediaUrl;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 class BlogPost extends Model
 {
@@ -35,15 +35,7 @@ class BlogPost extends Model
 
     public function featuredImageUrl(): ?string
     {
-        if (! filled($this->featured_image)) {
-            return null;
-        }
-
-        if (filter_var($this->featured_image, FILTER_VALIDATE_URL)) {
-            return (string) $this->featured_image;
-        }
-
-        return Storage::disk('public')->url((string) $this->featured_image);
+        return MediaUrl::resolve($this->featured_image);
     }
 
     /**
@@ -52,14 +44,8 @@ class BlogPost extends Model
     public function additionalImageUrls(): array
     {
         return collect((array) $this->additional_images)
+            ->map(fn ($path): ?string => is_string($path) ? MediaUrl::resolve($path) : null)
             ->filter(fn ($path): bool => filled($path))
-            ->map(function (string $path): string {
-                if (filter_var($path, FILTER_VALIDATE_URL)) {
-                    return $path;
-                }
-
-                return Storage::disk('public')->url($path);
-            })
             ->values()
             ->all();
     }

@@ -2,21 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
+use App\Support\MediaUrl;
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 #[Fillable(['first_name', 'last_name', 'phone', 'companyName', 'email', 'password', 'google_id', 'avatar', 'email_verified_at', 'role', 'department', 'requested_role', 'other_role', 'address', 'date_of_birth', 'photo', 'approved_by_id', 'approved_at', 'is_active'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
-    implements MustVerifyEmailContract
+class User extends Authenticatable implements MustVerifyEmailContract
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -110,25 +109,7 @@ class User extends Authenticatable
 
     private function resolvedPhotoUrl(?string $photo): ?string
     {
-        if (! filled($photo)) {
-            return null;
-        }
-
-        $candidate = (string) $photo;
-
-        if (filter_var($candidate, FILTER_VALIDATE_URL)) {
-            return $candidate;
-        }
-
-        if (Storage::disk('public')->exists($candidate)) {
-            return Storage::url($candidate);
-        }
-
-        if (file_exists(public_path($candidate))) {
-            return asset($candidate);
-        }
-
-        return null;
+        return MediaUrl::resolve($photo);
     }
 
     private function generatedAvatarDataUrl(): string

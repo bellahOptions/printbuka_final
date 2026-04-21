@@ -20,9 +20,7 @@ class AdminProductController extends Controller
 {
     public function index(): View
     {
-        return view('admin.products.index', [
-            'products' => Product::query()->with('category')->latest()->paginate(20),
-        ]);
+        return view('admin.products.index');
     }
 
     public function create(): View

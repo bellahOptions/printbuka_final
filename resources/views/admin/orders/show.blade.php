@@ -343,7 +343,7 @@
             <h2 class="text-lg font-black text-slate-950">Client Artwork Assets</h2>
             <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 @forelse (($order->job_image_assets ?? []) as $asset)
-                    <a href="{{ \Illuminate\Support\Facades\Storage::url($asset['path']) }}" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-slate-200 p-4 text-sm font-black text-slate-800 hover:border-pink-300 hover:bg-pink-50">
+                    <a href="{{ \App\Support\MediaUrl::resolve($asset['path']) }}" target="_blank" rel="noopener noreferrer" class="rounded-xl border border-slate-200 p-4 text-sm font-black text-slate-800 hover:border-pink-300 hover:bg-pink-50">
                         {{ $asset['name'] ?? basename($asset['path']) }}
                     </a>
                 @empty

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
+use App\Support\MediaUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -161,7 +162,7 @@ class AdminBlogPostController extends Controller
 
         if ($newlyUploaded->isNotEmpty()) {
             $inlineImagesHtml = $newlyUploaded
-                ->map(fn (string $path): string => '<p><img src="'.e(Storage::disk('public')->url($path)).'" alt="Blog image" /></p>')
+                ->map(fn (string $path): string => '<p><img src="'.e(MediaUrl::resolve($path) ?? '').'" alt="Blog image" /></p>')
                 ->implode('');
 
             $payload['content'] = $this->sanitizeHtml($payload['content'].' '.$inlineImagesHtml);

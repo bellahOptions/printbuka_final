@@ -26,14 +26,7 @@ class AdminOrderController extends Controller
 {
     public function index(): View
     {
-        return view('admin.orders.index', [
-            'orders' => Order::query()
-                ->with('product', 'invoice', 'designer', 'productionOfficer', 'creatorAdmin', 'briefReceiver')
-                ->latest()
-                ->paginate(20),
-            'workflowPhases' => config('printbuka_admin.workflow_phases'),
-            'canViewAmounts' => request()->user()->canAdmin('finance.view_amounts') || request()->user()->canAdmin('invoices.manage'),
-        ]);
+        return view('admin.orders.index');
     }
 
     public function create(OrderFulfillmentService $orderFulfillmentService): View
@@ -110,8 +103,7 @@ class AdminOrderController extends Controller
         InvoiceService $invoiceService,
         JobWorkflowNotificationService $jobWorkflowNotificationService,
         OrderFulfillmentService $orderFulfillmentService
-    ): RedirectResponse
-    {
+    ): RedirectResponse {
         $isSampleRequested = $request->boolean('is_sample');
 
         $validated = $request->validate([
@@ -248,8 +240,7 @@ class AdminOrderController extends Controller
         Request $request,
         Order $order,
         JobWorkflowNotificationService $jobWorkflowNotificationService
-    ): RedirectResponse
-    {
+    ): RedirectResponse {
         $original = $order->getOriginal();
         $this->rejectImmutableFieldEdits($request);
 
