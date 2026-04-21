@@ -3,68 +3,58 @@
 namespace App\Http\Controllers;
 
 use App\Models\BlogPost;
-use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class BlogController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): View
     {
-         $showPosts = BlogPost::query()
-         ->latest()
-         ->limit(10)
-         ->get();
+        $posts = BlogPost::query()
+            ->where('status', 'published')
+            ->where(function ($query): void {
+                $query->whereNull('published_at')->orWhere('published_at', '<=', now());
+            })
+            ->latest('published_at')
+            ->latest('id')
+            ->paginate(9);
 
-         return view('blog.index', compact('showPosts'));
+        return view('blog.index', [
+            'posts' => $posts,
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function show(BlogPost $post): View
     {
-        //
+        abort_unless(
+            $post->status === 'published'
+                && (! $post->published_at || $post->published_at->lte(now())),
+            404
+        );
+
+        $relatedPosts = BlogPost::query()
+            ->where('id', '!=', $post->id)
+            ->where('status', 'published')
+            ->where(function ($query): void {
+                $query->whereNull('published_at')->orWhere('published_at', '<=', now());
+            })
+            ->latest('published_at')
+            ->limit(3)
+            ->get();
+
+        return view('blog.show', [
+            'post' => $post,
+            'safeContent' => $this->sanitizeHtmlForRender((string) $post->content),
+            'relatedPosts' => $relatedPosts,
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    private function sanitizeHtmlForRender(string $html): string
     {
-        //
-    }
+        $html = preg_replace('/<(script|style)\\b[^>]*>.*?<\\/\\1>/is', '', $html) ?: '';
+        $allowedTags = '<p><br><strong><b><em><i><u><ul><ol><li><blockquote><h1><h2><h3><h4><h5><h6><a><img><figure><figcaption><hr>';
+        $sanitized = strip_tags($html, $allowedTags);
+        $sanitized = preg_replace('/\s+on[a-z]+\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)/i', '', $sanitized) ?: '';
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return preg_replace("/(href|src)\\s*=\\s*([\"'])\\s*javascript:[^\\2]*\\2/i", '$1="#"', $sanitized) ?: '';
     }
 }

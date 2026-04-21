@@ -125,6 +125,7 @@ class AdminProductImageUploadTest extends TestCase
     private function validPayload(array $overrides = []): array
     {
         return array_merge([
+            'service_type' => 'print',
             'name' => 'Sample Product',
             'moq' => 10,
             'price' => 4500,

@@ -41,7 +41,7 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
                 </label>
 
                 <a href="{{ route('home') }}" class="flex items-center gap-2">
-                    <img src="{{ asset('logo.png') }}" class="h-9 w-auto" alt="Printbuka" />
+                    <img src="{{ asset('logo.png') }}" class="h-6 md:h-9 w-auto" alt="Printbuka" />
                 </a>
             </div>
 
@@ -66,27 +66,34 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
                                                 <p class="text-xs text-slate-500 leading-relaxed mb-4">Business printing, packaging, event materials and branded gifts — all in one print shop.</p>
                                                 <a href="{{ route('categories.index') }}" class="btn btn-sm bg-pink-600 border-0 text-white hover:bg-pink-700 font-black">View Categories</a>
                                             </div>
+                                            @php
+                                                $menuAccentClasses = [
+                                                    ['label' => 'text-pink-600', 'card' => 'hover:border-pink-300 hover:bg-pink-50'],
+                                                    ['label' => 'text-cyan-600', 'card' => 'hover:border-cyan-300 hover:bg-cyan-50'],
+                                                    ['label' => 'text-emerald-600', 'card' => 'hover:border-emerald-300 hover:bg-emerald-50'],
+                                                    ['label' => 'text-amber-600', 'card' => 'hover:border-amber-300 hover:bg-amber-50'],
+                                                ];
+                                            @endphp
                                             <div class="grid grid-cols-2 gap-3">
-                                                <a href="{{ route('categories.index') }}" class="block rounded-xl border border-slate-200 p-4 hover:border-pink-300 hover:bg-pink-50 transition">
-                                                    <p class="text-xs font-black text-pink-600 uppercase mb-1">Print</p>
-                                                    <p class="font-black text-slate-950 text-sm">Business Essentials</p>
-                                                    <p class="text-xs text-slate-500 mt-1">Cards, letterheads, ID cards, envelopes.</p>
-                                                </a>
-                                                <a href="{{ route('categories.index') }}" class="block rounded-xl border border-slate-200 p-4 hover:border-cyan-300 hover:bg-cyan-50 transition">
-                                                    <p class="text-xs font-black text-cyan-600 uppercase mb-1">Campaigns</p>
-                                                    <p class="font-black text-slate-950 text-sm">Marketing Prints</p>
-                                                    <p class="text-xs text-slate-500 mt-1">Flyers, posters, brochures, menus.</p>
-                                                </a>
-                                                <a href="{{ route('categories.index') }}" class="block rounded-xl border border-slate-200 p-4 hover:border-emerald-300 hover:bg-emerald-50 transition">
-                                                    <p class="text-xs font-black text-emerald-600 uppercase mb-1">Packaging</p>
-                                                    <p class="font-black text-slate-950 text-sm">Labels & Bags</p>
-                                                    <p class="text-xs text-slate-500 mt-1">Stickers, labels, bags, sleeves.</p>
-                                                </a>
-                                                <a href="{{ route('categories.index') }}" class="block rounded-xl border border-slate-200 p-4 hover:border-amber-300 hover:bg-amber-50 transition">
-                                                    <p class="text-xs font-black text-amber-600 uppercase mb-1">Gifts</p>
-                                                    <p class="font-black text-slate-950 text-sm">Branded Gifts</p>
-                                                    <p class="text-xs text-slate-500 mt-1">Mugs, shirts, tote bags, gift sets.</p>
-                                                </a>
+                                                @forelse(($menuCategories ?? collect())->take(4) as $menuCategory)
+                                                    @php
+                                                        $accent = $menuAccentClasses[$loop->index % count($menuAccentClasses)];
+                                                        $categorySummary = $menuCategory->children->isNotEmpty()
+                                                            ? $menuCategory->children->take(3)->pluck('name')->implode(', ')
+                                                            : ($menuCategory->description ?: 'Browse this category.');
+                                                    @endphp
+                                                    <a href="{{ route('products.category', $menuCategory) }}" class="block rounded-xl border border-slate-200 p-4 transition {{ $accent['card'] }}">
+                                                        <p class="text-xs font-black uppercase mb-1 {{ $accent['label'] }}">{{ $menuCategory->tag ?: 'Category' }}</p>
+                                                        <p class="font-black text-slate-950 text-sm">{{ $menuCategory->name }}</p>
+                                                        <p class="text-xs text-slate-500 mt-1">{{ \Illuminate\Support\Str::limit($categorySummary, 56) }}</p>
+                                                    </a>
+                                                @empty
+                                                    <a href="{{ route('categories.index') }}" class="block rounded-xl border border-slate-200 p-4 hover:border-pink-300 hover:bg-pink-50 transition col-span-2">
+                                                        <p class="text-xs font-black text-pink-600 uppercase mb-1">Categories</p>
+                                                        <p class="font-black text-slate-950 text-sm">Browse all categories</p>
+                                                        <p class="text-xs text-slate-500 mt-1">Explore currently available products by category.</p>
+                                                    </a>
+                                                @endforelse
                                             </div>
                                         </div>
                                     </li>

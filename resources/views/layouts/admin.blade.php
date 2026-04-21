@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="light" style="color-scheme: light;">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="color-scheme" content="light">
+        <meta name="supported-color-schemes" content="light">
         <title>@yield('title', $title ?? ($siteSettings['site_name'] ?? config('app.name')))</title>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireStyles
@@ -251,6 +253,12 @@
                             </svg>
                             Jobs
                         </a>
+                        <a href="{{ route('admin.support.index') }}" class="{{ $sidebarLinkClass('admin.support.*') }}">
+                            <svg class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-pink-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4-.806L3 20l1.2-3.6A7.42 7.42 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                            </svg>
+                            IT Support Tickets
+                        </a>
                         @if ($canSeeStaffMenu)
                             <a href="{{ route('admin.staff.index') }}" class="{{ $sidebarLinkClass('admin.staff.*') }}">
                                 <svg class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-pink-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -413,6 +421,20 @@
                             'skipSegments' => ['admin'],
                         ])
                     </div>
+                    @if (session('warning'))
+                        <div id="staff-duty-modal" class="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/65 p-4">
+                            <div class="w-full max-w-lg rounded-2xl border border-amber-200 bg-white p-6 shadow-2xl">
+                                <p class="text-xs font-black uppercase tracking-wider text-amber-700">Access Restricted</p>
+                                <h2 class="mt-2 text-2xl font-black text-slate-950">Website view is disabled during duty hours</h2>
+                                <p class="mt-3 text-sm font-semibold leading-6 text-slate-600">{{ session('warning') }}</p>
+                                <div class="mt-6 flex justify-end">
+                                    <button type="button" data-close-duty-modal class="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-black text-white transition hover:bg-slate-700">
+                                        Continue To Dashboard
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                     @yield('content')
                 </main>
             </div>
@@ -486,6 +508,20 @@
                 } else {
                     lgQuery.addListener(handleBreakpoint);
                 }
+            })();
+
+            (() => {
+                const modal = document.getElementById('staff-duty-modal');
+                if (!modal) return;
+
+                const close = () => modal.remove();
+
+                modal.querySelector('[data-close-duty-modal]')?.addEventListener('click', close);
+                modal.addEventListener('click', (event) => {
+                    if (event.target === modal) {
+                        close();
+                    }
+                });
             })();
         </script>
         @livewireScripts

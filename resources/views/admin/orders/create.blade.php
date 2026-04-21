@@ -198,10 +198,7 @@
                         </div>
                         <div class="space-y-1">
                             <label class="flex items-center gap-2 text-sm font-black text-slate-700">Assigned Designer</label>
-                            <select name="assigned_designer_id" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
-                                <option value="">— Select designer —</option>
-                                @foreach ($staff as $person)<option value="{{ $person->id }}" @selected((int) old('assigned_designer_id') === $person->id)>{{ $person->displayName() }} · {{ $person->department }}</option>@endforeach
-                            </select>
+                            <p class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-slate-600">Automatically assigned by workload balancing after job creation.</p>
                         </div>
                         <div class="space-y-1">
                             <label class="flex items-center gap-2 text-sm font-black text-slate-700">Brief Date</label>
@@ -223,7 +220,7 @@
                         </div>
                         <div class="space-y-1 sm:col-span-2">
                             <label class="flex items-center gap-2 text-sm font-black text-slate-700">Artwork Notes</label>
-                            <textarea name="artwork_notes" rows="4" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Describe artwork requirements...">{{ old('artwork_notes') }}</textarea>
+                            <p class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-slate-600">This field is customer-managed and is locked for staff/admin editing.</p>
                         </div>
                         <div class="space-y-1 sm:col-span-2">
                             <label class="flex items-center gap-2 text-sm font-black text-slate-700">Job Image Assets</label>

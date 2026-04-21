@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Mail\DailyStaffActivitySummaryMail;
+use App\Mail\StaffSignupAlertMail;
 use App\Models\StaffActivity;
 use App\Models\User;
 use App\Services\StaffActivitySummaryService;
@@ -18,7 +19,14 @@ class StaffGovernanceAndSummaryTest extends TestCase
 
     public function test_staff_signup_cannot_self_assign_role_or_department(): void
     {
+        Mail::fake();
         Notification::fake();
+        $superAdmin = User::factory()->create([
+            'role' => 'super_admin',
+            'is_active' => true,
+            'email_verified_at' => now(),
+            'email' => 'super-admin@example.com',
+        ]);
 
         $this->post(route('staff.register.store'), [
             'first_name' => 'Jane',
@@ -44,6 +52,10 @@ class StaffGovernanceAndSummaryTest extends TestCase
         $this->assertFalse((bool) $staff->is_active);
 
         Notification::assertSentTo($staff, VerifyEmail::class);
+        Mail::assertSent(StaffSignupAlertMail::class, function (StaffSignupAlertMail $mail) use ($superAdmin, $staff): bool {
+            return $mail->hasTo($superAdmin->email)
+                && $mail->staff->is($staff);
+        });
     }
 
     public function test_daily_staff_activity_summary_is_sent_to_active_hr_users(): void

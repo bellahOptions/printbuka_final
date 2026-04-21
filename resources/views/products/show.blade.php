@@ -23,7 +23,7 @@
                 <div>
                     <a href="{{ route('products.index') }}" class="text-sm font-black text-pink-700 hover:text-pink-800">Back to all products</a>
                     <p class="mt-6 inline-flex rounded-md bg-white px-4 py-2 text-sm font-black text-pink-700 shadow-sm">MOQ {{ $product->moq }}</p>
-                    <h1 class="mt-5 max-w-3xl text-5xl leading-tight text-slate-950 sm:text-6xl">{{ $product->name }}</h1>
+                    <h1 class="mt-5 max-w-3xl break-words text-4xl leading-tight text-slate-950 sm:text-5xl lg:text-6xl">{{ $product->name }}</h1>
                     <p class="mt-5 max-w-2xl text-lg leading-8 text-slate-600">{{ $product->description }}</p>
 
                     <div class="mt-8 grid gap-3 text-sm font-bold text-slate-700 sm:grid-cols-2">
@@ -35,7 +35,7 @@
                 </div>
 
                 <div>
-                    <img src="{{ $image }}" alt="{{ $product->name }}" class="h-[440px] w-full rounded-md object-cover shadow-2xl shadow-cyan-900/10" />
+                    <img src="{{ $image }}" alt="{{ $product->name }}" class="h-[280px] w-full rounded-md object-cover shadow-2xl shadow-cyan-900/10 sm:h-[440px]" />
                     @if (! empty($galleryImages))
                         <div class="mt-4 grid grid-cols-3 gap-3">
                             @foreach ($galleryImages as $galleryImage)

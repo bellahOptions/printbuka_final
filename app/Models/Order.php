@@ -61,6 +61,7 @@ class Order extends Model
         'verified_by_id',
         'verified_at',
         'phase_approval_status',
+        'requested_next_status',
         'phase_approval_comment',
         'phase_approved_by_id',
         'phase_approved_at',
@@ -149,5 +150,29 @@ class Order extends Model
     public function displayNumber(): string
     {
         return '#'.str_pad((string) $this->id, 5, '0', STR_PAD_LEFT);
+    }
+
+    public static function autoAssignableDesignerId(): ?int
+    {
+        $designers = User::query()
+            ->where('role', 'designer')
+            ->where('is_active', true)
+            ->orderBy('id')
+            ->get(['id']);
+
+        if ($designers->isEmpty()) {
+            return null;
+        }
+
+        $activeWorkload = self::query()
+            ->selectRaw('assigned_designer_id, COUNT(*) as total')
+            ->whereNotNull('assigned_designer_id')
+            ->whereNotIn('status', ['Delivered', 'Cancelled'])
+            ->groupBy('assigned_designer_id')
+            ->pluck('total', 'assigned_designer_id');
+
+        return $designers
+            ->sortBy(fn (User $designer): array => [(int) ($activeWorkload[$designer->id] ?? 0), (int) $designer->id])
+            ->first()?->id;
     }
 }

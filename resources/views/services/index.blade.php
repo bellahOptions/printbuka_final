@@ -112,8 +112,8 @@
                     @foreach ($services as $service)
                         @php
                             $orderUrl = match ($service['slug']) {
-                                'uv-dtf' => route('products.index').'#uv-dtf-products',
-                                'laser-engraving' => route('products.index').'#laser-engraving-products',
+                                'uv-dtf' => route('products.index').'#catalog',
+                                'laser-engraving' => route('products.index').'#catalog',
                                 default => route('services.show', $service['slug']).'#service-order-form',
                             };
                         @endphp

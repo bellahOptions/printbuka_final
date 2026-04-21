@@ -5,7 +5,9 @@
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
-@plugin "daisyui";
+@plugin "daisyui" {
+    themes: light --default;
+}
 
 @theme {
     --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
@@ -16,9 +18,36 @@
 @layer base {
     html,
     body {
+        color-scheme: light;
         font-family: var(--font-sans);
         font-optical-sizing: auto;
         letter-spacing: 0;
+        overflow-x: clip;
+    }
+
+    img,
+    video,
+    canvas,
+    iframe {
+        max-width: 100%;
+    }
+
+    /* Keep oversized display headings from overlapping on small phones. */
+    @media (max-width: 640px) {
+        .text-6xl {
+            font-size: 2.5rem !important;
+            line-height: 1.1 !important;
+        }
+
+        .text-5xl {
+            font-size: 2rem !important;
+            line-height: 1.15 !important;
+        }
+
+        .text-4xl {
+            font-size: 1.75rem !important;
+            line-height: 1.2 !important;
+        }
     }
 
     h1,

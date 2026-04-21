@@ -3,50 +3,72 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductCategory;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request): View
     {
-        $products = Product::query()
-            ->with('category')
+        $filters = [
+            'search' => trim((string) $request->query('search', '')),
+            'category' => trim((string) $request->query('category', '')),
+            'sort' => trim((string) $request->query('sort', 'name_asc')),
+            'min_price' => $request->query('min_price'),
+            'max_price' => $request->query('max_price'),
+        ];
+
+        $filterCategories = ProductCategory::query()
             ->where('is_active', true)
+            ->with('parent:id,name')
+            ->orderBy('parent_id')
             ->orderBy('name')
             ->get();
 
+        $categories = ProductCategory::publicTreeQuery()->get();
+
         return view('products.index', [
+            'activeProductCount' => Product::query()->where('is_active', true)->count(),
+            'categories' => $categories,
+            'filterCategories' => $filterCategories,
+            'filters' => $filters,
+        ]);
+    }
+
+    public function byCategory(ProductCategory $category): View
+    {
+        abort_if(! $category->is_active, 404);
+
+        $categoryIds = $category->children()
+            ->where('is_active', true)
+            ->pluck('id')
+            ->push($category->id)
+            ->all();
+
+        $products = Product::query()
+            ->whereIn('product_category_id', $categoryIds)
+            ->where('is_active', true)
+            ->latest()
+            ->paginate(12);
+
+        return view('categories.show', [
+            'category' => $category,
             'products' => $products,
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function show(Product $product): View
     {
-        //
-    }
+        abort_if(! $product->is_active, 404);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        $product->increment('view_count');
+        $product->refresh();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Product $product)
-    {
         $relatedProducts = Product::query()
             ->where('is_active', true)
             ->whereKeyNot($product->id)
+            ->inRandomOrder()
             ->limit(4)
             ->get();
 
@@ -54,29 +76,5 @@ class ProductController extends Controller
             'product' => $product,
             'relatedProducts' => $relatedProducts,
         ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Product $product)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Product $product)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Product $product)
-    {
-        //
     }
 }

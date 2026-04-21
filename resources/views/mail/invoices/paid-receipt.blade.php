@@ -1,45 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light" style="color-scheme: light;">
     <head>
         <meta charset="utf-8">
-        <meta name="color-scheme" content="light dark">
-        <meta name="supported-color-schemes" content="light dark">
+        <meta name="color-scheme" content="light">
+        <meta name="supported-color-schemes" content="light">
         <title>Payment confirmed</title>
         <style>
             .logo-dark {
                 display: none !important;
-            }
-
-            @media (prefers-color-scheme: dark) {
-                .logo-light {
-                    display: none !important;
-                }
-
-                .logo-dark {
-                    display: inline-block !important;
-                }
-
-                .email-body {
-                    background: #0b1220 !important;
-                }
-
-                .email-card {
-                    background: #111827 !important;
-                }
-
-                .email-content,
-                .email-content p,
-                .email-content td {
-                    color: #e5e7eb !important;
-                }
-            }
-
-            [data-ogsc] .logo-light {
-                display: none !important;
-            }
-
-            [data-ogsc] .logo-dark {
-                display: inline-block !important;
             }
         </style>
     </head>

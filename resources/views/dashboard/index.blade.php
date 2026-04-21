@@ -14,7 +14,7 @@
                             <h1 class="text-3xl font-bold lg:text-4xl">Welcome back, {{ auth()->user()->first_name }}! 👋</h1>
                             <p class="mt-2 max-w-2xl text-sm text-slate-300">Manage your Printbuka account, track orders, and access exclusive print deals from one dashboard.</p>
                         </div>
-
+                            {{--
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
                             <button type="submit" class="btn bg-white/10 hover:bg-white/20 border-0 text-white font-semibold">
@@ -23,7 +23,7 @@
                                 </svg>
                                 Logout
                             </button>
-                        </form>
+                        </form>--}}
                     </div>
                 </div>
             </div>
@@ -100,8 +100,8 @@
 
                         <div class="mt-4 space-y-3">
                             @forelse ($recentOrders as $order)
-                                <div class="flex items-center justify-between p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition">
-                                    <div class="flex items-center gap-4">
+                                <div class="flex sm:grid sm:grid-cols-1 sm:flex-col items-center justify-between p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition">
+                                    <div class="flex items-center gap-4 sm:w-full">
                                         <div class="h-12 w-12 rounded-lg bg-pink-100 flex items-center justify-center">
                                             <svg class="h-6 w-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>

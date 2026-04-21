@@ -76,6 +76,8 @@ class SiteSettings
             'service_dtf_size_price_options' => self::pricedLines(['A2', 'A3', 'A4', 'A5', 'A6']),
             'service_price_laser_engraving' => (string) (config('printbuka_services.services.laser-engraving.default_price', 0)),
             'pending_job_reminder_hours' => '24',
+            'support_ticket_unanswered_reminder_hours' => '24',
+            'support_ticket_unanswered_reminder_cooldown_hours' => '12',
         ];
 
         try {

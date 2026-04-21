@@ -69,9 +69,15 @@ class AdminOrderController extends Controller
     {
         /** @var User $user */
         $user = request()->user();
+        $loadedOrder = $order->load('product', 'invoice', 'briefReceiver', 'creatorAdmin', 'designer', 'productionOfficer', 'qcOfficer', 'dispatcher', 'verifier');
+        $currentPhase = collect(config('printbuka_admin.workflow_phases', []))
+            ->first(fn (array $phase): bool => (string) ($phase['status'] ?? '') === (string) $loadedOrder->status);
+        $currentPhasePermission = (string) ($currentPhase['permission'] ?? '');
+        $canApproveWorkflow = $user->canAdmin('*') || $user->canAdmin('workflow.approve');
+        $canRequestMoveForward = $canApproveWorkflow || ($currentPhasePermission !== '' && $user->canAdmin($currentPhasePermission));
 
         return view('admin.orders.show', [
-            'order' => $order->load('product', 'invoice', 'briefReceiver', 'creatorAdmin', 'designer', 'productionOfficer', 'qcOfficer', 'dispatcher', 'verifier'),
+            'order' => $loadedOrder,
             'staff' => User::query()
                 ->where('role', '!=', 'customer')
                 ->where('is_active', true)
@@ -92,6 +98,10 @@ class AdminOrderController extends Controller
             'canViewAmounts' => request()->user()->canAdmin('finance.view_amounts') || request()->user()->canAdmin('invoices.manage'),
             'statusOptions' => $this->statusOptionsForUser($user, $order),
             'visibleWorkflowPhases' => $this->visibleWorkflowPhasesForUser($user),
+            'nextWorkflowStatus' => $this->nextWorkflowStatus((string) $loadedOrder->status),
+            'canReceiveBrief' => $user->canAdmin('*') || $user->canAdmin('workflow.approve') || $user->canAdmin('orders.intake'),
+            'canApproveWorkflow' => $canApproveWorkflow,
+            'canRequestMoveForward' => $canRequestMoveForward,
         ]);
     }
 
@@ -131,9 +141,7 @@ class AdminOrderController extends Controller
             'delivery_method' => ['nullable', Rule::in(config('printbuka_admin.delivery_methods'))],
             'delivery_city' => ['nullable', 'required_if:delivery_preference,delivery', 'string', 'max:255'],
             'delivery_address' => ['nullable', 'required_if:delivery_preference,delivery', 'string', 'max:500'],
-            'artwork_notes' => ['nullable', 'string', 'max:2000'],
             'priority' => ['required', 'string', 'max:255'],
-            'assigned_designer_id' => ['nullable', 'exists:users,id'],
             'material_substrate' => ['nullable', 'string', 'max:255'],
             'finish_lamination' => ['nullable', 'string', 'max:255'],
             'amount_paid' => ['nullable', 'numeric', 'min:0'],
@@ -208,6 +216,7 @@ class AdminOrderController extends Controller
             'status' => 'Analyzing Job Brief',
             'brief_received_by_id' => Auth::id(),
             'brief_received_at' => now(),
+            'assigned_designer_id' => Order::autoAssignableDesignerId(),
             'estimated_delivery_at' => $orderFulfillmentService->estimateForNewOrder($isExpress, now(), $expressPaymentAnchor),
             'amount_paid' => $amountPaid,
             'pricing_breakdown' => [
@@ -242,17 +251,13 @@ class AdminOrderController extends Controller
     ): RedirectResponse
     {
         $original = $order->getOriginal();
+        $this->rejectImmutableFieldEdits($request);
+
         $validated = $request->validate([
-            'job_order_number' => ['nullable', 'string', 'max:255', Rule::unique('orders', 'job_order_number')->ignore($order->id)],
-            'channel' => ['nullable', 'string', Rule::in(config('printbuka_admin.job_channels'))],
             'job_type' => ['nullable', 'string', 'max:255'],
             'size_format' => ['nullable', 'string', 'max:255'],
             'priority' => ['nullable', 'string', 'max:255'],
             'status' => ['nullable', 'string', 'max:255'],
-            'artwork_notes' => ['nullable', 'string', 'max:2000'],
-            'brief_received_by_id' => ['nullable', 'exists:users,id'],
-            'brief_received_at' => ['nullable', 'date'],
-            'assigned_designer_id' => ['nullable', 'exists:users,id'],
             'design_started_at' => ['nullable', 'date'],
             'design_approved_by_client' => ['nullable', 'boolean'],
             'design_approved_at' => ['nullable', 'date'],
@@ -347,6 +352,192 @@ class AdminOrderController extends Controller
         return back()->with('status', 'Workflow update saved.');
     }
 
+    public function receiveBrief(Request $request, Order $order): RedirectResponse
+    {
+        $user = $request->user();
+
+        if (! ($user->canAdmin('orders.intake') || $user->canAdmin('*') || $user->canAdmin('workflow.approve'))) {
+            abort(403);
+        }
+
+        $updates = [
+            'brief_received_by_id' => $user->id,
+            'brief_received_at' => now(),
+        ];
+
+        if (! $order->assigned_designer_id) {
+            $updates['assigned_designer_id'] = Order::autoAssignableDesignerId();
+        }
+
+        $order->forceFill($updates)->save();
+
+        return back()->with('status', 'Job brief received successfully. Intake owner and timestamp were logged automatically.');
+    }
+
+    public function moveForward(
+        Request $request,
+        Order $order,
+        JobWorkflowNotificationService $jobWorkflowNotificationService
+    ): RedirectResponse {
+        $user = $request->user();
+        $nextStatus = $this->nextWorkflowStatus((string) $order->status);
+
+        if (! $nextStatus) {
+            return back()->with('warning', 'This job is already at the end of the configured workflow.');
+        }
+
+        if ($order->status === (string) (config('printbuka_admin.workflow_phases.0.status') ?? 'Analyzing Job Brief')) {
+            $this->ensurePhaseOnePaymentSettled($order);
+        }
+
+        $phase = collect(config('printbuka_admin.workflow_phases', []))
+            ->first(fn (array $item): bool => (string) ($item['status'] ?? '') === (string) $order->status);
+
+        $phasePermission = (string) ($phase['permission'] ?? '');
+
+        if (
+            ! ($user->canAdmin('*') || $user->canAdmin('workflow.approve'))
+            && ! ($phasePermission !== '' && $user->canAdmin($phasePermission))
+        ) {
+            abort(403);
+        }
+
+        $original = $order->getOriginal();
+
+        if ($user->canAdmin('*') || $user->canAdmin('workflow.approve')) {
+            $order->forceFill([
+                'status' => $nextStatus,
+                'phase_approval_status' => 'Approved',
+                'requested_next_status' => null,
+                'phase_approval_comment' => 'Approved by operations manager while moving job forward.',
+                'phase_approved_by_id' => $user->id,
+                'phase_approved_at' => now(),
+            ])->save();
+
+            $jobWorkflowNotificationService->handleOrderUpdated(
+                $order->fresh(['product', 'designer', 'creatorAdmin']),
+                $original
+            );
+
+            return back()->with('status', 'Job moved forward to '.$nextStatus.'.');
+        }
+
+        $order->forceFill([
+            'phase_approval_status' => 'Pending Operations Approval',
+            'requested_next_status' => $nextStatus,
+            'phase_approval_comment' => 'Move-forward request submitted by '.$user->displayName().'. Awaiting operations manager approval.',
+            'phase_approved_by_id' => null,
+            'phase_approved_at' => null,
+        ])->save();
+
+        return back()->with('status', 'Move-forward request submitted. Operations manager approval is required.');
+    }
+
+    public function approveForward(
+        Request $request,
+        Order $order,
+        JobWorkflowNotificationService $jobWorkflowNotificationService
+    ): RedirectResponse {
+        $user = $request->user();
+
+        if (! ($user->canAdmin('*') || $user->canAdmin('workflow.approve'))) {
+            abort(403);
+        }
+
+        $requestedStatus = (string) ($order->requested_next_status ?? '');
+
+        if ($requestedStatus === '') {
+            return back()->with('warning', 'There is no pending move-forward request to approve.');
+        }
+
+        if (! in_array($requestedStatus, (array) config('printbuka_admin.job_statuses', []), true)) {
+            return back()->with('warning', 'Pending status request is invalid. Please request a new move-forward step.');
+        }
+
+        if ($order->status === (string) (config('printbuka_admin.workflow_phases.0.status') ?? 'Analyzing Job Brief')) {
+            $this->ensurePhaseOnePaymentSettled($order);
+        }
+
+        $original = $order->getOriginal();
+
+        $order->forceFill([
+            'status' => $requestedStatus,
+            'phase_approval_status' => 'Approved',
+            'requested_next_status' => null,
+            'phase_approval_comment' => 'Approved by '.$user->displayName().'.',
+            'phase_approved_by_id' => $user->id,
+            'phase_approved_at' => now(),
+        ])->save();
+
+        $jobWorkflowNotificationService->handleOrderUpdated(
+            $order->fresh(['product', 'designer', 'creatorAdmin']),
+            $original
+        );
+
+        return back()->with('status', 'Move-forward request approved. Job status is now '.$requestedStatus.'.');
+    }
+
+    private function rejectImmutableFieldEdits(Request $request): void
+    {
+        $immutableFields = [
+            'job_order_number' => 'Job order number is locked and cannot be changed by staff/admin.',
+            'channel' => 'Channel is locked and cannot be changed by staff/admin.',
+            'brief_received_by_id' => 'Brief receiver is set automatically via the Receive Job Brief action.',
+            'brief_received_at' => 'Brief date is locked and can only be set automatically via the Receive Job Brief action.',
+            'assigned_designer_id' => 'Designer assignment is automatic and cannot be manually overridden.',
+            'artwork_notes' => 'Artwork notes are customer-managed and cannot be edited by staff/admin.',
+        ];
+
+        $errors = [];
+
+        foreach ($immutableFields as $field => $message) {
+            if ($request->has($field)) {
+                $errors[$field] = $message;
+            }
+        }
+
+        if ($errors !== []) {
+            throw ValidationException::withMessages($errors);
+        }
+    }
+
+    private function nextWorkflowStatus(string $currentStatus): ?string
+    {
+        $phaseStatuses = collect(config('printbuka_admin.workflow_phases', []))
+            ->pluck('status')
+            ->map(fn ($status): string => (string) $status)
+            ->values();
+
+        $phaseIndex = $phaseStatuses->search($currentStatus, true);
+
+        if ($phaseIndex !== false) {
+            return $phaseStatuses->get($phaseIndex + 1);
+        }
+
+        $allStatuses = collect(config('printbuka_admin.job_statuses', []))
+            ->map(fn ($status): string => (string) $status)
+            ->values();
+
+        $statusIndex = $allStatuses->search($currentStatus, true);
+
+        if ($statusIndex === false) {
+            return $allStatuses->first();
+        }
+
+        return $allStatuses->get($statusIndex + 1);
+    }
+
+    private function ensurePhaseOnePaymentSettled(Order $order): void
+    {
+        if (in_array((string) $order->payment_status, ['Invoice Settled (70%)', 'Invoice Settled (100%)'], true)) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'status' => 'A job cannot leave Phase 1 until payment is settled at 70% or 100%.',
+        ]);
+    }
+
     private function assertStatusTransitionAllowed(
         User $user,
         Order $order,
@@ -373,22 +564,15 @@ class AdminOrderController extends Controller
             }
         }
 
-        if ($user->canAdmin('*') || $user->canAdmin('workflow.approve')) {
-            return;
-        }
-
-        $targetPhase = collect(config('printbuka_admin.workflow_phases', []))
-            ->first(fn (array $phase): bool => (string) ($phase['status'] ?? '') === $requestedStatus);
-
-        if (! is_array($targetPhase)) {
-            return;
-        }
-
-        $permission = (string) ($targetPhase['permission'] ?? '');
-
-        if ($permission !== '' && ! $user->canAdmin($permission)) {
+        if (! ($user->canAdmin('*') || $user->canAdmin('workflow.approve'))) {
             throw ValidationException::withMessages([
-                'status' => 'You cannot move this job to that phase. It is not part of your role privileges.',
+                'status' => 'Status changes must be approved by an operations manager. Use "Move job forward" to request approval.',
+            ]);
+        }
+
+        if (! in_array($requestedStatus, (array) config('printbuka_admin.job_statuses', []), true)) {
+            throw ValidationException::withMessages([
+                'status' => 'Selected status is not part of the configured workflow.',
             ]);
         }
     }

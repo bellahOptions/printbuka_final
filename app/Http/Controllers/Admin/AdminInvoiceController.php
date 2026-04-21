@@ -193,6 +193,7 @@ class AdminInvoiceController extends Controller
                 'priority' => '🟡 Normal',
                 'brief_received_by_id' => $request->user()?->id,
                 'brief_received_at' => now(),
+                'assigned_designer_id' => Order::autoAssignableDesignerId(),
                 'payment_status' => 'Invoice Issued',
                 'internal_notes' => $validated['internal_notes'] ?? null,
                 'pricing_breakdown' => [
@@ -294,6 +295,10 @@ class AdminInvoiceController extends Controller
 
     private function serviceTypeForProduct(Product $product): string
     {
+        if (filled($product->service_type)) {
+            return (string) $product->service_type;
+        }
+
         $value = strtolower($product->name.' '.$product->short_description.' '.$product->description);
 
         if (
@@ -459,6 +464,7 @@ class AdminInvoiceController extends Controller
                 'priority' => '🟡 Normal',
                 'brief_received_by_id' => $request->user()?->id,
                 'brief_received_at' => now(),
+                'assigned_designer_id' => Order::autoAssignableDesignerId(),
                 'payment_status' => 'Awaiting Invoice',
                 'internal_notes' => $validated['internal_notes'] ?? null,
                 'pricing_breakdown' => [

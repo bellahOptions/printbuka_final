@@ -48,21 +48,21 @@
                 <div>
                     <h3 class="footer-title text-cyan-300 opacity-100 mb-4 text-xs font-black uppercase tracking-wide">Gifts & Services</h3>
                     <nav class="flex flex-col gap-3 text-sm text-slate-400">
-                        <a href="{{ route('categories.index') }}" class="hover:text-white transition">Branded Mugs</a>
-                        <a href="{{ route('categories.index') }}" class="hover:text-white transition">T-shirts & Hoodies</a>
-                        <a href="{{ route('categories.index') }}" class="hover:text-white transition">Tote Bags</a>
-                        <a href="{{ route('products.index') }}#uv-dtf-products" class="hover:text-white transition">UV-DTF Transfers</a>
-                        <a href="{{ route('products.index') }}#laser-engraving-products" class="hover:text-white transition">Laser Engraving</a>
+                        @forelse(($menuCategories ?? collect())->take(3) as $menuCategory)
+                            <a href="{{ route('products.category', $menuCategory) }}" class="hover:text-white transition">{{ $menuCategory->name }}</a>
+                        @empty
+                            <a href="{{ route('categories.index') }}" class="hover:text-white transition">Browse Categories</a>
+                        @endforelse
+                        <a href="{{ route('services.show', 'uv-dtf') }}" class="hover:text-white transition">UV-DTF Transfers</a>
+                        <a href="{{ route('services.show', 'laser-engraving') }}" class="hover:text-white transition">Laser Engraving</a>
                     </nav>
                 </div>
 
                 <div>
                     <h3 class="footer-title text-cyan-300 opacity-100 mb-4 text-xs font-black uppercase tracking-wide">Company</h3>
                     <nav class="flex flex-col gap-3 text-sm text-slate-400">
-                        <a href="#" class="hover:text-white transition">About Printbuka</a>
                         <a href="{{ route('partners.create') }}" class="hover:text-white transition">Become a Partner</a>
                         <a href="{{ route('blog') }}" class="hover:text-white transition">Blog</a>
-                        <a href="#" class="hover:text-white transition">Contact Us</a>
                     </nav>
                 </div>
 
@@ -72,7 +72,6 @@
                         <a href="{{ route('orders.track') }}" class="hover:text-white transition">Track Order</a>
                         <a href="{{ route('quotes.create') }}" class="hover:text-white transition">Get a Quote</a>
                         <a href="{{ route('services.index') }}" class="hover:text-white transition">Services</a>
-                        <a href="#" class="hover:text-white transition">Artwork Guide</a>
                         <a href="{{ route('policies.terms') }}" class="hover:text-white transition">Terms</a>
                         <a href="{{ route('policies.privacy') }}" class="hover:text-white transition">Privacy</a>
                         <a href="{{ route('policies.refund') }}" class="hover:text-white transition">Refunds</a>

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light" style="color-scheme: light;">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Invoice Design Previews</title>
         <style>
             :root {
-                color-scheme: light dark;
+                color-scheme: light;
             }
 
             * {

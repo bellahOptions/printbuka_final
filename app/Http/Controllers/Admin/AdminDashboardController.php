@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\FinanceEntry;
 use App\Models\Invoice;
 use App\Models\Order;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\View\View;
 
@@ -72,6 +73,13 @@ class AdminDashboardController extends Controller
                 ->with('product', 'invoice', 'creatorAdmin', 'briefReceiver')
                 ->latest()
                 ->limit(6)
+                ->get(),
+            'mostViewedProducts' => Product::query()
+                ->where('is_active', true)
+                ->with('category')
+                ->orderByDesc('view_count')
+                ->orderBy('name')
+                ->limit(10)
                 ->get(),
         ]);
     }

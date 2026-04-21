@@ -12,6 +12,7 @@ class Product extends Model
     protected $fillable = [
         'name',
         'product_category_id',
+        'service_type',
         'moq',
         'price',
         'short_description',
@@ -20,6 +21,7 @@ class Product extends Model
         'material_price_options',
         'paper_size',
         'is_featured',
+        'view_count',
         'size_price_options',
         'finishing',
         'finish_price_options',
@@ -43,6 +45,7 @@ class Product extends Model
             'additional_images' => 'array',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
+            'view_count' => 'integer',
         ];
     }
 

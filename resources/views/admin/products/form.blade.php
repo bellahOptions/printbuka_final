@@ -85,6 +85,26 @@
                             @error('product_category_id') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
                         </div>
 
+                        {{-- Service Type --}}
+                        <div class="form-control w-full">
+                            <label class="label">
+                                <span class="label-text font-semibold text-slate-700">Service Bucket *</span>
+                            </label>
+                            <select name="service_type"
+                                class="select select-bordered w-full focus:select-primary @error('service_type') select-error @enderror"
+                                required>
+                                @foreach ($serviceOptions as $serviceKey => $serviceLabel)
+                                    <option value="{{ $serviceKey }}" @selected(old('service_type', $product->service_type ?? 'print') === $serviceKey)>
+                                        {{ $serviceLabel }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <label class="label">
+                                <span class="label-text-alt text-slate-500">This links the product to a service flow (print, gift, DTF, UV DTF, engraving, etc.).</span>
+                            </label>
+                            @error('service_type') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                        </div>
+
                         {{-- MOQ --}}
                         <div class="form-control w-full">
                             <label class="label">

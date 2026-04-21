@@ -2,19 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Product;
+use Illuminate\View\View;
 
 class HomeController extends Controller
 {
-    public function index()
+    public function index(): View
     {
+        $featuredProducts = Product::query()
+            ->featured()
+            ->orderByDesc('view_count')
+            ->limit(8)
+            ->get();
 
-            $featuredProducts = Product::featured()
-    ->orderBy('price', 'asc')
-    ->limit(4)
-    ->get();
+        $popularGiftItems = Product::query()
+            ->where('is_active', true)
+            ->where(function ($query): void {
+                $query
+                    ->where('name', 'like', '%gift%')
+                    ->orWhere('name', 'like', '%mug%')
+                    ->orWhere('name', 'like', '%shirt%')
+                    ->orWhere('name', 'like', '%tote%')
+                    ->orWhere('description', 'like', '%gift%')
+                    ->orWhere('short_description', 'like', '%gift%');
+            })
+            ->orderByDesc('view_count')
+            ->limit(6)
+            ->get();
 
-    return view('welcome', compact('featuredProducts'));
+        return view('welcome', compact('featuredProducts', 'popularGiftItems'));
     }
 }

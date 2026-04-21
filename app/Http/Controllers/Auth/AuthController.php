@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\StaffSignupAlertMail;
 use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
@@ -163,6 +166,7 @@ class AuthController extends Controller
             'is_active' => false,
         ]);
         $staff->sendEmailVerificationNotification();
+        $this->notifySuperAdminsOfStaffSignup($staff);
 
         RateLimiter::clear($this->throttleKey($request, 'staff-register'));
 
@@ -206,5 +210,28 @@ class AuthController extends Controller
         return Auth::user()?->hasAdminAccess()
             ? route('admin.dashboard')
             : route('dashboard'); 
+    }
+
+    private function notifySuperAdminsOfStaffSignup(User $staff): void
+    {
+        $recipients = User::query()
+            ->where('role', 'super_admin')
+            ->where('is_active', true)
+            ->whereNotNull('email')
+            ->get();
+
+        foreach ($recipients as $recipient) {
+            try {
+                Mail::to((string) $recipient->email)->send(new StaffSignupAlertMail($recipient, $staff));
+            } catch (\Throwable $exception) {
+                Log::error('Staff signup alert email failed.', [
+                    'recipient_id' => $recipient->id,
+                    'recipient_email' => $recipient->email,
+                    'staff_id' => $staff->id,
+                    'staff_email' => $staff->email,
+                    'message' => $exception->getMessage(),
+                ]);
+            }
+        }
     }
 }

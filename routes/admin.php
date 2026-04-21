@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\AdminProductCategoryController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\AdminSiteSettingController;
 use App\Http\Controllers\Admin\AdminStaffController;
+use App\Http\Controllers\Admin\AdminSupportTicketController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route; 
 
@@ -87,6 +88,34 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::put('/orders/{order}', [AdminOrderController::class, 'update'])
             ->middleware('admin.permission:orders.view')
             ->name('orders.update');
+        Route::post('/orders/{order}/receive-brief', [AdminOrderController::class, 'receiveBrief'])
+            ->middleware('admin.permission:orders.view')
+            ->name('orders.receive-brief');
+        Route::post('/orders/{order}/move-forward', [AdminOrderController::class, 'moveForward'])
+            ->middleware('admin.permission:orders.view')
+            ->name('orders.move-forward');
+        Route::post('/orders/{order}/approve-forward', [AdminOrderController::class, 'approveForward'])
+            ->middleware('admin.permission:orders.view')
+            ->name('orders.approve-forward');
+
+        Route::get('/support', [AdminSupportTicketController::class, 'index'])
+            ->middleware('admin.permission:admin.view')
+            ->name('support.index');
+        Route::get('/support/create', [AdminSupportTicketController::class, 'create'])
+            ->middleware('admin.permission:admin.view')
+            ->name('support.create');
+        Route::post('/support', [AdminSupportTicketController::class, 'store'])
+            ->middleware('admin.permission:admin.view')
+            ->name('support.store');
+        Route::get('/support/{ticket}', [AdminSupportTicketController::class, 'show'])
+            ->middleware('admin.permission:admin.view')
+            ->name('support.show');
+        Route::post('/support/{ticket}/reply', [AdminSupportTicketController::class, 'reply'])
+            ->middleware('admin.permission:admin.view')
+            ->name('support.reply');
+        Route::put('/support/{ticket}/close', [AdminSupportTicketController::class, 'close'])
+            ->middleware('admin.permission:admin.view')
+            ->name('support.close');
 
         Route::get('/policies', [AdminPolicyController::class, 'edit'])
             ->middleware('super.admin')

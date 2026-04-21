@@ -2,6 +2,7 @@
 
 use App\Services\PendingJobReminderService;
 use App\Services\StaffActivitySummaryService;
+use App\Services\SupportTicketNotificationService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -20,7 +21,13 @@ Artisan::command('staff:send-daily-activity-summary', function () {
     $this->info('HR daily activity summaries sent: '.$sent);
 })->purpose('Send end-of-business-day staff activity summaries to HR');
 
+Artisan::command('support:send-unanswered-ticket-reminders', function () {
+    $sent = app(SupportTicketNotificationService::class)->sendUnansweredReminders();
+    $this->info('Unanswered support ticket reminders sent: '.$sent);
+})->purpose('Send reminder emails for unanswered support tickets');
+
 Schedule::command('jobs:send-pending-reminders')->everySixHours();
+Schedule::command('support:send-unanswered-ticket-reminders')->everySixHours();
 Schedule::command('staff:send-daily-activity-summary')
     ->weekdays()
     ->timezone(config('app.business_timezone', 'Africa/Lagos'))

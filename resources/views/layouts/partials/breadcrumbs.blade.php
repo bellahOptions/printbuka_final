@@ -71,7 +71,7 @@
 
 <div class="border-b border-slate-100 bg-slate-50/70">
     <div class="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
-        <div class="breadcrumbs text-xs sm:text-sm text-slate-500">
+        <div class="breadcrumbs flex text-xs sm:text-sm text-slate-500">
             <ul>
                 @foreach ($crumbs as $index => $crumb)
                     @if ($loop->last)

@@ -68,6 +68,8 @@ class AdminSiteSettingController extends Controller
             'service_dtf_size_price_options' => ['nullable', 'string', 'max:12000'],
             'service_price_laser_engraving' => ['nullable', 'numeric', 'min:0', 'max:100000000'],
             'pending_job_reminder_hours' => ['nullable', 'integer', 'min:1', 'max:240'],
+            'support_ticket_unanswered_reminder_hours' => ['nullable', 'integer', 'min:1', 'max:240'],
+            'support_ticket_unanswered_reminder_cooldown_hours' => ['nullable', 'integer', 'min:1', 'max:240'],
         ]);
 
         if ($request->user()?->role !== 'super_admin') {
@@ -79,6 +81,8 @@ class AdminSiteSettingController extends Controller
 
         $validated['maintenance_mode'] = $request->boolean('maintenance_mode') ? '1' : '0';
         $validated['pending_job_reminder_hours'] = (string) ($validated['pending_job_reminder_hours'] ?? 24);
+        $validated['support_ticket_unanswered_reminder_hours'] = (string) ($validated['support_ticket_unanswered_reminder_hours'] ?? 24);
+        $validated['support_ticket_unanswered_reminder_cooldown_hours'] = (string) ($validated['support_ticket_unanswered_reminder_cooldown_hours'] ?? 12);
         foreach ($servicePriceKeys as $key) {
             if (array_key_exists($key, $validated) && $validated[$key] !== null && $key !== 'service_dtf_size_price_options') {
                 $validated[$key] = (string) $validated[$key];

@@ -14,10 +14,16 @@ class JobWorkflowNotificationService
 {
     public function handleOrderCreated(Order $order): void
     {
-        $order->loadMissing('product', 'designer');
+        $order->loadMissing('product', 'designer', 'creatorAdmin');
 
         if ($order->assigned_designer_id) {
             $this->notifyDesignerAssignment($order, (int) $order->assigned_designer_id);
+        }
+
+        $currentStatus = (string) ($order->status ?? '');
+
+        if ($currentStatus !== '') {
+            $this->notifyResponsibleStaffForPhase($order, 'New job created', $currentStatus);
         }
     }
 

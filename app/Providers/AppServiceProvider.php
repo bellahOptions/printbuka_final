@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\ProductCategory;
 use App\Support\SiteSettings;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\ServiceProvider;
@@ -43,5 +44,11 @@ class AppServiceProvider extends ServiceProvider
         });
 
         View::share('siteSettings', SiteSettings::all());
+
+        View::composer(['layouts.guest.nav', 'layouts.guest.footer', 'welcome'], function ($view): void {
+            $publicCategories = ProductCategory::publicTreeQuery()->get();
+            $view->with('menuCategories', $publicCategories->take(6)->values());
+            $view->with('homeCategories', $publicCategories->take(5)->values());
+        });
     }
 }

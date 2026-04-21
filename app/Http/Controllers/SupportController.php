@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Ticket;
 use App\Models\TicketReply;
+use App\Services\SupportTicketNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -36,7 +37,7 @@ class SupportController extends Controller
         return view('support.create');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, SupportTicketNotificationService $supportTicketNotificationService): RedirectResponse
     {
         $validated = $request->validate([
             'subject' => 'required|string|max:255',
@@ -54,6 +55,7 @@ class SupportController extends Controller
             'message' => $validated['message'],
             'status' => 'open',
         ]);
+        $supportTicketNotificationService->notifyTicketRaised($ticket, Auth::id());
 
         return redirect()->route('support.show', $ticket)
             ->with('success', 'Ticket #' . $ticket->ticket_number . ' created successfully. Our team will respond shortly.');
@@ -61,7 +63,7 @@ class SupportController extends Controller
 
     public function show(Ticket $ticket): View|RedirectResponse
     {
-        if ($ticket->user_id !== Auth::id() && !Auth::user()->isAdmin()) {
+        if ($ticket->user_id !== Auth::id() && !Auth::user()?->hasAdminAccess()) {
             return redirect()->route('support.index')
                 ->with('error', 'You do not have permission to view this ticket.');
         }
@@ -73,7 +75,7 @@ class SupportController extends Controller
 
     public function reply(Request $request, Ticket $ticket): RedirectResponse
     {
-        if ($ticket->user_id !== Auth::id() && !Auth::user()->isAdmin()) {
+        if ($ticket->user_id !== Auth::id() && !Auth::user()?->hasAdminAccess()) {
             return redirect()->route('support.index')
                 ->with('error', 'You cannot reply to this ticket.');
         }
@@ -91,11 +93,11 @@ class SupportController extends Controller
             'ticket_id' => $ticket->id,
             'user_id' => Auth::id(),
             'message' => $validated['message'],
-            'is_staff_reply' => Auth::user()->isAdmin(),
+            'is_staff_reply' => Auth::user()?->hasAdminAccess() ?? false,
         ]);
         
         // Update ticket status to in_progress when customer replies
-        if (!Auth::user()->isAdmin() && $ticket->status === 'open') {
+        if (! (Auth::user()?->hasAdminAccess() ?? false) && $ticket->status === 'open') {
             $ticket->update(['status' => 'in_progress']);
         }
         
@@ -105,7 +107,7 @@ class SupportController extends Controller
 
     public function close(Ticket $ticket): RedirectResponse
     {
-        if ($ticket->user_id !== Auth::id() && !Auth::user()->isAdmin()) {
+        if ($ticket->user_id !== Auth::id() && !Auth::user()?->hasAdminAccess()) {
             return redirect()->route('support.index')
                 ->with('error', 'You cannot close this ticket.');
         }

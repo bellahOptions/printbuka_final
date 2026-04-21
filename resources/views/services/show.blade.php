@@ -15,8 +15,8 @@
         $pricingMode = (string) ($service['pricing_mode'] ?? 'fixed');
         $pricingFactors = (array) ($service['pricing_factors'] ?? []);
         $productSectionRedirect = match ($service['slug']) {
-            'uv-dtf' => route('products.index').'#uv-dtf-products',
-            'laser-engraving' => route('products.index').'#laser-engraving-products',
+            'uv-dtf' => route('products.index').'#catalog',
+            'laser-engraving' => route('products.index').'#catalog',
             default => null,
         };
         $usesLivewireForm = in_array($service['slug'], ['direct-image-printing', 'dtf'], true);

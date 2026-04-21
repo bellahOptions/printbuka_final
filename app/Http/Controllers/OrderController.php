@@ -222,6 +222,7 @@ class OrderController extends Controller
             'is_express' => $isExpress,
             'is_sample' => $isSample,
             'brief_received_at' => now(),
+            'assigned_designer_id' => Order::autoAssignableDesignerId(),
             'estimated_delivery_at' => $orderFulfillmentService->estimateForNewOrder($isExpress, now()),
             'unit_price' => $productionUnitPrice,
             'total_price' => $total,
@@ -276,6 +277,10 @@ class OrderController extends Controller
 
     private function serviceTypeFor(Product $product): string
     {
+        if (filled($product->service_type)) {
+            return (string) $product->service_type;
+        }
+
         $name = strtolower($product->name.' '.$product->short_description.' '.$product->description);
 
         return str_contains($name, 'gift') || str_contains($name, 'mug') || str_contains($name, 'shirt') || str_contains($name, 'tote')

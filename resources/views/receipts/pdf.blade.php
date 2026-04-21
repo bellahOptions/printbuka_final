@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light" style="color-scheme: light;">
     <head>
         <meta charset="utf-8">
         @php
@@ -426,15 +426,6 @@
                 text-align: center;
             }
 
-            @media (prefers-color-scheme: dark) {
-                .logo-light {
-                    display: none !important;
-                }
-
-                .logo-dark {
-                    display: inline-block !important;
-                }
-            }
         </style>
     </head>
     <body>

@@ -19,6 +19,7 @@ class Ticket extends Model
         'assigned_to',
         'resolved_at',
         'closed_at',
+        'last_unanswered_reminder_at',
     ];
 
     protected function casts(): array
@@ -26,6 +27,7 @@ class Ticket extends Model
         return [
             'resolved_at' => 'datetime',
             'closed_at' => 'datetime',
+            'last_unanswered_reminder_at' => 'datetime',
         ];
     }
 

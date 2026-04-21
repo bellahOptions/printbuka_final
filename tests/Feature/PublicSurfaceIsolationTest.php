@@ -33,7 +33,7 @@ class PublicSurfaceIsolationTest extends TestCase
 
         $this->actingAs($admin)
             ->get(route('profile.edit'))
-            ->assertRedirect(route('admin.profile.edit'));
+            ->assertRedirect(route('admin.dashboard'));
     }
 
     public function test_admin_user_cannot_update_profile_through_customer_profile_endpoint(): void
@@ -49,9 +49,8 @@ class PublicSurfaceIsolationTest extends TestCase
                 'first_name' => 'Updated',
                 'last_name' => 'Admin',
             ])
-            ->assertRedirect(route('admin.profile.edit'));
+            ->assertRedirect(route('admin.dashboard'));
 
         $this->assertNotEquals('Updated', $admin->fresh()->first_name);
     }
 }
-

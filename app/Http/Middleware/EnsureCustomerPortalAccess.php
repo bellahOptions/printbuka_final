@@ -26,10 +26,9 @@ class EnsureCustomerPortalAccess
         if ($user->hasAdminAccess()) {
             return redirect()
                 ->route('admin.dashboard')
-                ->with('warning', 'Staff accounts can only access the admin portal.');
+                ->with('warning', 'You are currently on work duty. Staff/Admin accounts are not allowed to browse the customer website.');
         }
 
         abort(403, 'Staff accounts cannot access customer pages.');
     }
 }
-

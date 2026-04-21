@@ -13,7 +13,7 @@
                     <div class="badge badge-outline badge-lg text-pink-700 border-pink-300 bg-white font-black mb-6">
                         🇳🇬 Nigeria's #1 Online Print Shop
                     </div>
-                    <h1 class="text-5xl lg:text-6xl font-black text-slate-950 leading-tight mb-6">
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-950 leading-tight mb-6">
                         Print. Brand.<br>
                         <span class="text-pink-600">Gift.</span>
                         Delivered.
@@ -59,15 +59,15 @@
                     </div>
 
                     {{-- Floating promo card --}}
-                    <div class="absolute -bottom-5 -left-4 bg-white rounded-2xl shadow-xl p-5 max-w-[220px] border border-slate-100">
+                    <div class="relative mt-4 md:absolute md:-bottom-5 md:-left-4 md:mt-0 bg-white rounded-2xl shadow-xl p-5 max-w-[220px] border border-slate-100">
                         <div class="badge badge-sm bg-pink-100 text-pink-700 border-0 font-black mb-2">🔥 Popular Now</div>
                         <p class="text-xl font-black text-slate-950 leading-snug">Flyers from<br><span class="text-pink-600">NGN 35,000</span></p>
                         <p class="text-xs text-slate-500 mt-1">per 500 copies</p>
-                        <a href="#" class="btn btn-sm btn-neutral w-full mt-3 font-black">Order Now</a>
+                        <a href="{{ route('products.index') }}" class="btn btn-sm btn-neutral w-full mt-3 font-black">Order Now</a>
                     </div>
 
                     {{-- Floating trust badge --}}
-                    <div class="absolute -top-4 -right-4 bg-white rounded-2xl shadow-lg p-4 border border-slate-100 text-center">
+                    <div class="relative mt-3 ml-auto md:absolute md:-top-4 md:-right-4 md:mt-0 md:ml-0 bg-white rounded-2xl shadow-lg p-4 border border-slate-100 text-center w-fit">
                         <p class="text-3xl font-black text-emerald-600">✓</p>
                         <p class="text-xs font-black text-slate-700 mt-1">Free File<br>Checks</p>
                     </div>
@@ -103,75 +103,51 @@
                 <a href="{{ route('categories.index') }}" class="btn btn-outline font-black border-slate-200 hover:border-pink-400 hover:text-pink-700 hover:bg-pink-50 shrink-0">All Categories</a>
             </div>
 
-            <div class="grid lg:grid-cols-3 gap-5">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                @php
+                    $categoryFallbackImages = [
+                        'https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=1200&q=80',
+                        'https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=900&q=80',
+                        'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=900&q=80',
+                        'https://images.unsplash.com/photo-1605902711622-cfb43c44367f?auto=format&fit=crop&w=900&q=80',
+                        'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=900&q=80',
+                    ];
+                @endphp
 
-                {{-- Big feature card --}}
-                <a href="#" class="group relative lg:row-span-2 rounded-2xl overflow-hidden bg-slate-950 min-h-[380px] flex flex-col justify-end">
-                    <img src="https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=1200&q=80"
-                         alt="Branded gifts" class="absolute inset-0 h-full w-full object-cover opacity-60 transition duration-500 group-hover:scale-105 group-hover:opacity-70" />
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent"></div>
-                    <div class="relative p-7 text-white">
-                        <div class="badge badge-sm bg-pink-600 border-0 text-white font-black mb-3">Core Service</div>
-                        <h3 class="text-3xl font-black mb-3">Branded Gifts</h3>
-                        <p class="text-sm text-white/80 leading-relaxed mb-4">Mugs, shirts, tote bags, notebooks, hampers and corporate gift sets. Perfect for events, client appreciation and team moments.</p>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="badge bg-white/15 border-0 text-white text-xs font-bold">Mugs</span>
-                            <span class="badge bg-white/15 border-0 text-white text-xs font-bold">T-shirts</span>
-                            <span class="badge bg-white/15 border-0 text-white text-xs font-bold">Gift Sets</span>
-                            <span class="badge bg-white/15 border-0 text-white text-xs font-bold">Tote Bags</span>
+                @forelse(($homeCategories ?? collect()) as $category)
+                    @php
+                        $fallbackImage = $categoryFallbackImages[$loop->index % count($categoryFallbackImages)];
+                        $categoryImage = filled($category->image)
+                            ? (\Illuminate\Support\Str::startsWith($category->image, ['http://', 'https://'])
+                                ? $category->image
+                                : asset('storage/' . ltrim($category->image, '/')))
+                            : $fallbackImage;
+                        $categorySummary = $category->description ?: 'Explore print and branded products in this category.';
+                    @endphp
+                    <a href="{{ route('products.category', $category) }}" class="group card bg-base-100 border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition overflow-hidden">
+                        <figure class="h-52 overflow-hidden">
+                            <img src="{{ $categoryImage }}" alt="{{ $category->name }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                        </figure>
+                        <div class="card-body p-5">
+                            <p class="text-xs font-black uppercase tracking-wide text-pink-600">{{ $category->tag ?: 'Category' }}</p>
+                            <h3 class="card-title text-base font-black text-slate-950">{{ $category->name }}</h3>
+                            <p class="text-sm text-slate-500 leading-relaxed">{{ \Illuminate\Support\Str::limit($categorySummary, 95) }}</p>
+
+                            @if($category->children->isNotEmpty())
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    @foreach($category->children->take(3) as $childCategory)
+                                        <span class="badge badge-sm bg-slate-100 border-0 text-slate-600 font-bold">{{ $childCategory->name }}</span>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
+                    </a>
+                @empty
+                    <div class="col-span-full rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
+                        <p class="text-lg font-black text-slate-900">No product categories are available right now.</p>
+                        <p class="text-sm mt-2 text-slate-500">Please check back shortly.</p>
                     </div>
-                </a>
-
-                {{-- Small cards grid --}}
-                <a href="#" class="group card bg-base-100 border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition overflow-hidden">
-                    <figure class="h-44 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=900&q=80"
-                             alt="Business stationery" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-                    </figure>
-                    <div class="card-body p-5">
-                        <p class="text-xs font-black uppercase tracking-wide text-pink-600">Print</p>
-                        <h3 class="card-title text-base font-black text-slate-950">Business Essentials</h3>
-                        <p class="text-sm text-slate-500 leading-relaxed">Cards, letterheads, envelopes, ID cards and office stationery.</p>
-                    </div>
-                </a>
-
-                <a href="#" class="group card bg-base-100 border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition overflow-hidden">
-                    <figure class="h-44 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=900&q=80"
-                             alt="Marketing flyers" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-                    </figure>
-                    <div class="card-body p-5">
-                        <p class="text-xs font-black uppercase tracking-wide text-cyan-600">Campaigns</p>
-                        <h3 class="card-title text-base font-black text-slate-950">Marketing Prints</h3>
-                        <p class="text-sm text-slate-500 leading-relaxed">Flyers, posters, brochures, postcards, catalogues and menus.</p>
-                    </div>
-                </a>
-
-                <a href="#" class="group card bg-base-100 border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition overflow-hidden">
-                    <figure class="h-44 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1605902711622-cfb43c44367f?auto=format&fit=crop&w=900&q=80"
-                             alt="Packaging" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-                    </figure>
-                    <div class="card-body p-5">
-                        <p class="text-xs font-black uppercase tracking-wide text-emerald-600">Packaging</p>
-                        <h3 class="card-title text-base font-black text-slate-950">Labels & Packaging</h3>
-                        <p class="text-sm text-slate-500 leading-relaxed">Stickers, labels, paper bags, courier bags and product sleeves.</p>
-                    </div>
-                </a>
-
-                <a href="#" class="group card bg-base-100 border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition overflow-hidden">
-                    <figure class="h-44 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=900&q=80"
-                             alt="Event materials" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-                    </figure>
-                    <div class="card-body p-5">
-                        <p class="text-xs font-black uppercase tracking-wide text-amber-600">Events</p>
-                        <h3 class="card-title text-base font-black text-slate-950">Event Materials</h3>
-                        <p class="text-sm text-slate-500 leading-relaxed">Banners, roll-ups, name tags, programmes and branded giveaways.</p>
-                    </div>
-                </a>
-
+                @endforelse
             </div>
         </div>
     </section>
@@ -209,7 +185,7 @@
                         <h3 class="font-black text-slate-950 text-lg">UV-DTF Transfer</h3>
                         <p class="text-sm text-slate-500 leading-relaxed mt-2">UV-cured transfers that stick to almost any surface — glass, metal, plastic, wood. Crystal-clear finish that lasts.</p>
                         <div class="card-actions mt-4">
-                            <a href="{{ route('products.index') }}#uv-dtf-products" class="btn btn-sm btn-outline font-black border-slate-200 hover:border-cyan-400 hover:text-cyan-700">Order Now</a>
+                            <a href="{{ route('services.show', 'uv-dtf') }}" class="btn btn-sm btn-outline font-black border-slate-200 hover:border-cyan-400 hover:text-cyan-700">Order Now</a>
                         </div>
                     </div>
                 </div>
@@ -235,7 +211,7 @@
                         <h3 class="font-black text-slate-950 text-lg">Laser Engraving</h3>
                         <p class="text-sm text-slate-500 leading-relaxed mt-2">Precision mini laser engraving on wood, acrylic, leather, keyrings and more. Perfect for personalised gifts and awards.</p>
                         <div class="card-actions mt-4">
-                            <a href="{{ route('products.index') }}#laser-engraving-products" class="btn btn-sm btn-outline font-black border-slate-200 hover:border-amber-400 hover:text-amber-700">Order Now</a>
+                            <a href="{{ route('services.show', 'laser-engraving') }}" class="btn btn-sm btn-outline font-black border-slate-200 hover:border-amber-400 hover:text-amber-700">Order Now</a>
                         </div>
                     </div>
                 </div>
@@ -244,14 +220,14 @@
         </div>
     </section>
 
-    {{-- ===== POPULAR PRODUCTS ===== --}}
+    {{-- ===== FEATURED PRODUCTS ===== --}}
     <section class="py-20">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
             <div>
-                <div class="badge badge-outline text-pink-700 border-pink-300 font-black mb-3">Popular Products</div>
-                <h2 class="text-4xl font-black text-slate-950">Start with the essentials.</h2>
+                <div class="badge badge-outline text-pink-700 border-pink-300 font-black mb-3">Featured Products</div>
+                <h2 class="text-4xl font-black text-slate-950">Handpicked picks for quick ordering.</h2>
             </div>
             <a href="{{ route('products.index') }}" class="btn btn-outline font-black border-slate-200 hover:border-pink-400 hover:text-pink-700 hover:bg-pink-50 shrink-0">See All Products</a>
         </div>
@@ -322,6 +298,50 @@
 
     </div>
 </section>
+
+    {{-- ===== POPULAR GIFT ITEMS ===== --}}
+    <section class="bg-base-200 py-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <div class="badge badge-outline border-amber-300 text-amber-700 font-black mb-3">Popular Gift Items</div>
+                    <h2 class="text-4xl font-black text-slate-950">Most viewed gift-ready products.</h2>
+                </div>
+                <a href="{{ route('products.index') }}" class="btn btn-outline font-black border-slate-200 hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50 shrink-0">
+                    Browse Gifts
+                </a>
+            </div>
+
+            @if($popularGiftItems->isNotEmpty())
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    @foreach($popularGiftItems as $product)
+                        <article class="card bg-white border border-slate-200 shadow-sm hover:-translate-y-1 hover:shadow-lg transition">
+                            <figure>
+                                <a href="{{ route('products.show', $product) }}">
+                                    <img src="{{ $product->featuredImageUrl() ?? 'https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=900&q=80' }}" alt="{{ $product->name }}" class="h-52 w-full object-cover" />
+                                </a>
+                            </figure>
+                            <div class="card-body p-5">
+                                <h3 class="card-title text-lg font-black text-slate-950">
+                                    <a href="{{ route('products.show', $product) }}" class="hover:text-pink-600">{{ $product->name }}</a>
+                                </h3>
+                                <p class="text-sm text-slate-500">{{ $product->short_description }}</p>
+                                <p class="mt-2 text-xs font-bold uppercase tracking-wide text-slate-400">{{ number_format((int) $product->view_count) }} views</p>
+                                <div class="card-actions mt-3 grid grid-cols-2 gap-2">
+                                    <a href="{{ route('products.show', $product) }}" class="btn btn-sm btn-outline font-black border-slate-200 hover:border-pink-400 hover:text-pink-700">View</a>
+                                    <a href="{{ route('orders.create', $product) }}" class="btn btn-sm btn-neutral font-black">Order</a>
+                                </div>
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            @else
+                <div class="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
+                    <p class="text-xl font-black text-slate-900">Gift items will appear here automatically once added.</p>
+                </div>
+            @endif
+        </div>
+    </section>
     {{-- ===== HOW IT WORKS ===== --}}
     <section class="bg-slate-950 py-20 text-white">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

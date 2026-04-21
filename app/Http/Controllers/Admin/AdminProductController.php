@@ -7,10 +7,12 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Support\LivewireSecureUploads;
 use App\Support\ProductOptionPricing;
+use App\Support\ServiceCatalog;
 use App\Support\SiteSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -26,8 +28,9 @@ class AdminProductController extends Controller
     public function create(): View
     {
         return view('admin.products.form', [
-            'product' => new Product(['is_active' => true, 'moq' => 1, 'price' => 0]),
+            'product' => new Product(['is_active' => true, 'moq' => 1, 'price' => 0, 'service_type' => 'print']),
             'categories' => ProductCategory::query()->with('parent')->orderBy('name')->get(),
+            'serviceOptions' => $this->serviceOptions(),
             'optionLines' => $this->optionLines(new Product),
             ...$this->paperAttributeOptions(),
         ]);
@@ -45,6 +48,7 @@ class AdminProductController extends Controller
         return view('admin.products.form', [
             'product' => $product,
             'categories' => ProductCategory::query()->with('parent')->orderBy('name')->get(),
+            'serviceOptions' => $this->serviceOptions(),
             'optionLines' => $this->optionLines($product),
             ...$this->paperAttributeOptions($product),
         ]);
@@ -69,6 +73,7 @@ class AdminProductController extends Controller
     {
         $validated = $request->validate([
             'product_category_id' => ['nullable', 'exists:product_categories,id'],
+            'service_type' => ['required', 'string', Rule::in(array_keys($this->serviceOptions()))],
             'name' => ['required', 'string', 'max:255'],
             'moq' => ['required', 'integer', 'min:1'],
             'price' => ['required', 'numeric', 'min:0'],
@@ -292,5 +297,22 @@ class AdminProductController extends Controller
         }
 
         return collect($options)->unique()->values()->all();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function serviceOptions(): array
+    {
+        $options = [
+            'print' => 'General Print',
+            'gift' => 'Gift Items',
+        ];
+
+        foreach (ServiceCatalog::all() as $slug => $service) {
+            $options[ServiceCatalog::serviceTypeForSlug((string) $slug)] = (string) ($service['name'] ?? str($slug)->replace('-', ' ')->title());
+        }
+
+        return $options;
     }
 }

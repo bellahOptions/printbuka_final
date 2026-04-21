@@ -147,6 +147,43 @@
             </div>
         </section>
 
+        <section class="fade-in-up section-delay-3 card-hover rounded-2xl border border-slate-200/60 bg-white p-4 sm:p-6 shadow-sm">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <p class="text-sm font-black uppercase tracking-wide text-slate-500">Product Analytics</p>
+                    <h2 class="mt-1 text-2xl font-black text-slate-950 sm:text-3xl">Most Viewed Products</h2>
+                </div>
+                <a href="{{ route('admin.products.index') }}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-black text-slate-800 transition hover:border-pink-300 hover:text-pink-700">
+                    Manage Products
+                </a>
+            </div>
+
+            <div class="mt-5 overflow-x-auto rounded-xl border border-slate-100">
+                <table class="w-full min-w-[540px] text-left text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-200 bg-slate-50">
+                            <th class="px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-500">Product</th>
+                            <th class="px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-500">Category</th>
+                            <th class="px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-500">Views</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse ($mostViewedProducts as $product)
+                            <tr>
+                                <td class="px-4 py-3 font-black text-slate-900">{{ $product->name }}</td>
+                                <td class="px-4 py-3 font-semibold text-slate-600">{{ $product->category?->name ?? 'Uncategorized' }}</td>
+                                <td class="px-4 py-3 font-black text-pink-700">{{ number_format((int) $product->view_count) }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="px-4 py-10 text-center font-semibold text-slate-500">No product views recorded yet.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
         <!-- Staff Activity Feed -->
         @if (auth()->user()->canAdmin('*') || auth()->user()->canAdmin('staff.view'))
             <div class="fade-in-up section-delay-3">

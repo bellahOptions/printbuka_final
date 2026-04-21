@@ -232,7 +232,7 @@ return [
             'status' => 'Analyzing Job Brief',
             'responsible' => 'Customer Service',
             'permission' => 'orders.intake',
-            'fields' => ['job_order_number', 'channel', 'job_type', 'size_format', 'priority', 'brief_received_by_id', 'brief_received_at', 'assigned_designer_id', 'artwork_notes', 'job_image_assets', 'internal_notes'],
+            'fields' => ['job_type', 'size_format', 'priority', 'job_image_assets', 'internal_notes'],
             'gates' => [
                 'Receive and acknowledge client enquiry within 2 hours.',
                 'Collect complete brief: type, size, quantity, deadline, reference files.',
