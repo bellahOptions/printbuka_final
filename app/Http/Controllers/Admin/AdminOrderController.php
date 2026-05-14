@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\InvoiceService;
 use App\Services\JobWorkflowNotificationService;
 use App\Services\OrderFulfillmentService;
+use App\Services\PendingJobReminderService;
 use App\Support\JobAssetUpload;
 use App\Support\LivewireSecureUploads;
 use App\Support\ReferenceCode;
@@ -24,9 +25,14 @@ use Illuminate\View\View;
 
 class AdminOrderController extends Controller
 {
-    public function index(): View
+    public function index(PendingJobReminderService $pendingJobReminderService): View
     {
-        return view('admin.orders.index');
+        $user = request()->user();
+
+        return view('admin.orders.index', [
+            'staffTodos' => $pendingJobReminderService->todosByStaff(),
+            'canSendTodoReminders' => $this->canSendTodoReminders($user),
+        ]);
     }
 
     public function create(OrderFulfillmentService $orderFulfillmentService): View
@@ -468,6 +474,15 @@ class AdminOrderController extends Controller
         return back()->with('status', 'Move-forward request approved. Job status is now '.$requestedStatus.'.');
     }
 
+    public function sendTodoReminders(Request $request, PendingJobReminderService $pendingJobReminderService): RedirectResponse
+    {
+        abort_unless($this->canSendTodoReminders($request->user()), 403);
+
+        $sent = $pendingJobReminderService->sendManualReminders();
+
+        return back()->with('status', "Todo reminder email(s) sent to {$sent} staff member(s).");
+    }
+
     private function rejectImmutableFieldEdits(Request $request): void
     {
         $immutableFields = [
@@ -490,6 +505,11 @@ class AdminOrderController extends Controller
         if ($errors !== []) {
             throw ValidationException::withMessages($errors);
         }
+    }
+
+    private function canSendTodoReminders(?User $user): bool
+    {
+        return in_array((string) ($user?->role ?? ''), ['super_admin', 'operations_manager'], true);
     }
 
     private function nextWorkflowStatus(string $currentStatus): ?string

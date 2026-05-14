@@ -7,8 +7,10 @@ use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\ImportantActionNotifier;
 use App\Services\InvoiceLifecycleService;
 use App\Services\InvoiceService;
+use App\Services\QuoteCsvImportService;
 use App\Support\ProductOptionPricing;
 use App\Support\ReferenceCode;
 use App\Support\ServiceCatalog;
@@ -26,12 +28,25 @@ class AdminInvoiceController extends Controller
      */
     private function allowedInvoiceStatuses(): array
     {
-        return ['unpaid', 'paid', 'disputed'];
+        return ['draft', 'unpaid', 'paid', 'disputed'];
     }
 
     public function index(): View
     {
         return view('admin.invoices.index');
+    }
+
+    public function importCsv(Request $request, QuoteCsvImportService $quoteCsvImportService): RedirectResponse
+    {
+        abort_unless(($request->user()?->role ?? null) === 'super_admin', 403);
+
+        $validated = $request->validate([
+            'csv_file' => ['required', 'file', 'mimes:csv,txt', 'max:20480'],
+        ]);
+
+        $stats = $quoteCsvImportService->import($validated['csv_file'], $request->user());
+
+        return back()->with('status', "CSV import complete: {$stats['customers']} customer(s), {$stats['jobs']} delivered job(s), and {$stats['invoices']} paid invoice/quote record(s) processed.");
     }
 
     public function create(): View
@@ -100,15 +115,19 @@ class AdminInvoiceController extends Controller
 
         $invoice = Invoice::query()->create($this->validated($request));
         $invoiceLifecycleService->handleStatusChange($invoice);
-        $sent = $invoiceService->sendInvoice($invoice->load('order.product'));
+        app(ImportantActionNotifier::class)->notify(
+            $invoice->documentTypeLabel().' created',
+            $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was created by '.$request->user()?->displayName().'.'
+        );
+        $sent = $this->sendIfRequested($request, $invoice, $invoiceService);
 
         return redirect()
             ->route('admin.invoices.index')
             ->with(
-                $sent ? 'status' : 'warning',
+                $sent || ! $request->boolean('send_email') ? 'status' : 'warning',
                 $sent
                     ? 'Invoice created and emailed with PDF attachment.'
-                    : 'Invoice created, but the email could not be sent. Check mail configuration.'
+                    : ($request->boolean('send_email') ? 'Invoice created, but the email could not be sent. Check mail configuration.' : 'Invoice draft created successfully.')
             );
     }
 
@@ -231,7 +250,7 @@ class AdminInvoiceController extends Controller
 
             $invoice = Invoice::query()->create([
                 'order_id' => $order->id,
-                'invoice_number' => ReferenceCode::invoiceNumber(),
+                'invoice_number' => ReferenceCode::invoiceNumber((string) $catalogItem['service_type']),
                 'subtotal' => $subtotal,
                 'tax_amount' => $validated['tax_amount'],
                 'discount_amount' => $validated['discount_amount'],
@@ -251,12 +270,19 @@ class AdminInvoiceController extends Controller
         $sent = false;
 
         if ($shouldSend) {
-            $sent = $invoiceService->sendInvoice($invoice->load('order.product'));
+            $sent = $this->sendIfRequested($request, $invoice, $invoiceService);
         }
 
-        $baseMessage = $invoiceStatus === 'paid'
+        app(ImportantActionNotifier::class)->notify(
+            $invoice->documentTypeLabel().' created',
+            $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was created by '.$request->user()?->displayName().'.'
+        );
+
+        $baseMessage = $invoiceStatus === 'draft'
+            ? 'Invoice draft saved. Send it when ready from the invoice list.'
+            : ($invoiceStatus === 'paid'
             ? 'Invoice created and marked as paid.'
-            : 'Invoice created successfully.';
+            : 'Invoice created successfully.');
         $sentMessage = $invoiceStatus === 'paid'
             ? 'Invoice created, marked as paid, and emailed successfully.'
             : 'Invoice created and emailed with PDF attachment.';
@@ -514,6 +540,26 @@ class AdminInvoiceController extends Controller
         return back()->with('status', $invoice->fresh('order')->documentTypeLabel().' marked as paid.');
     }
 
+    public function send(Invoice $invoice, InvoiceService $invoiceService): RedirectResponse
+    {
+        if ((string) $invoice->status === 'paid') {
+            return back()->with('warning', $invoice->documentTypeLabel().' is already paid.');
+        }
+
+        if ((string) $invoice->status === 'draft') {
+            $invoice->forceFill(['status' => 'unpaid'])->save();
+        }
+
+        $sent = $invoiceService->sendInvoice($invoice->fresh(['order.product']));
+
+        return back()->with(
+            $sent ? 'status' : 'warning',
+            $sent
+                ? $invoice->documentTypeLabel().' sent successfully.'
+                : $invoice->documentTypeLabel().' could not be sent. Check customer email and mail configuration.'
+        );
+    }
+
     public function storeQuotation(
         Request $request,
         InvoiceService $invoiceService,
@@ -634,7 +680,7 @@ class AdminInvoiceController extends Controller
 
             $invoice = Invoice::query()->create([
                 'order_id' => $order->id,
-                'invoice_number' => ReferenceCode::invoiceNumber(),
+                'invoice_number' => ReferenceCode::quotationNumber(),
                 'subtotal' => $subtotal,
                 'tax_amount' => $validated['tax_amount'],
                 'discount_amount' => $validated['discount_amount'],
@@ -654,12 +700,19 @@ class AdminInvoiceController extends Controller
         $sent = false;
 
         if ($shouldSend) {
-            $sent = $invoiceService->sendInvoice($invoice->load('order.product'));
+            $sent = $this->sendIfRequested($request, $invoice, $invoiceService);
         }
 
-        $baseMessage = $invoiceStatus === 'paid'
+        app(ImportantActionNotifier::class)->notify(
+            $invoice->documentTypeLabel().' created',
+            $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was created by '.$request->user()?->displayName().'.'
+        );
+
+        $baseMessage = $invoiceStatus === 'draft'
+            ? 'Quotation draft saved. Send it when ready from the invoice list.'
+            : ($invoiceStatus === 'paid'
             ? 'Quotation created and marked as paid.'
-            : 'Quotation created successfully.';
+            : 'Quotation created successfully.');
         $sentMessage = $invoiceStatus === 'paid'
             ? 'Quotation created, marked as paid, and emailed successfully.'
             : 'Quotation created and emailed successfully.';
@@ -779,5 +832,18 @@ class AdminInvoiceController extends Controller
         $validated['status'] = strtolower((string) $validated['status']);
 
         return $validated;
+    }
+
+    private function sendIfRequested(Request $request, Invoice $invoice, InvoiceService $invoiceService): bool
+    {
+        if (! $request->boolean('send_email')) {
+            return false;
+        }
+
+        if ((string) $invoice->status === 'draft') {
+            $invoice->forceFill(['status' => 'unpaid'])->save();
+        }
+
+        return $invoiceService->sendInvoice($invoice->load('order.product'));
     }
 }

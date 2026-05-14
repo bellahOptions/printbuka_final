@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\SiteSettings;
 use Illuminate\Database\Eloquent\Model;
 
 class SiteSetting extends Model
@@ -11,4 +12,15 @@ class SiteSetting extends Model
         'value',
         'group',
     ];
+
+    protected static function booted(): void
+    {
+        static::saved(function (): void {
+            SiteSettings::clearCache();
+        });
+
+        static::deleted(function (): void {
+            SiteSettings::clearCache();
+        });
+    }
 }

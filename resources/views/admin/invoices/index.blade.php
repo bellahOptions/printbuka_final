@@ -15,6 +15,10 @@
             </div>
         </div>
 
+        @if (request()->user()?->role === 'super_admin')
+            <livewire:admin.invoice-csv-import />
+        @endif
+
         <livewire:admin.invoices-table />
     </div>
 @endsection

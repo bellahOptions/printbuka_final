@@ -5,6 +5,9 @@
 @section('content')
     @php
         $quoteCategories = collect($categories ?? []);
+        $selectedQuoteProduct = $selectedProduct ?? null;
+        $selectedJobType = old('job_type', $selectedQuoteProduct?->name);
+        $jobTypeOptions = collect($jobTypes);
     @endphp
     <main class="min-h-screen bg-gradient-to-br from-slate-50 to-white py-12">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -76,6 +79,20 @@
                             </div>
                         @endif
 
+                        @if (session('status'))
+                            <div class="alert bg-cyan-50 border-cyan-200 text-cyan-900 shadow-sm mb-6">
+                                <span class="text-sm font-bold">{{ session('status') }}</span>
+                            </div>
+                        @endif
+
+                        @if ($selectedQuoteProduct)
+                            <div class="mb-6 rounded-xl border border-pink-100 bg-pink-50 p-4">
+                                <p class="text-xs font-black uppercase tracking-wide text-pink-700">Selected product</p>
+                                <p class="mt-1 text-lg font-black text-slate-950">{{ $selectedQuoteProduct->name }}</p>
+                                <p class="mt-1 text-sm font-semibold text-slate-600">MOQ {{ $selectedQuoteProduct->moq }}{{ $selectedQuoteProduct->paper_size ? ' · '.$selectedQuoteProduct->paper_size : '' }}{{ $selectedQuoteProduct->paper_density ? ' · '.$selectedQuoteProduct->paper_density : '' }}</p>
+                            </div>
+                        @endif
+
                         <form action="{{ route('quotes.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                             @csrf
 
@@ -88,7 +105,7 @@
                                     <select name="product_id" class="select select-bordered w-full focus:select-primary">
                                         <option value="">Custom job / Not listed</option>
                                         @foreach ($products as $product)
-                                            <option value="{{ $product->id }}" @selected((int) old('product_id') === $product->id)>{{ $product->name }}</option>
+                                            <option value="{{ $product->id }}" @selected((int) old('product_id', $selectedQuoteProduct?->id) === $product->id)>{{ $product->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -100,8 +117,11 @@
                                     <select name="job_type" class="select select-bordered w-full focus:select-primary @error('job_type') select-error @enderror" required>
                                         <option value="">Select job type</option>
                                         @foreach ($jobTypes as $jobType)
-                                            <option @selected(old('job_type') === $jobType)>{{ $jobType }}</option>
+                                            <option @selected($selectedJobType === $jobType)>{{ $jobType }}</option>
                                         @endforeach
+                                        @if ($selectedQuoteProduct && ! $jobTypeOptions->contains($selectedQuoteProduct->name))
+                                            <option value="{{ $selectedQuoteProduct->name }}" @selected($selectedJobType === $selectedQuoteProduct->name)>{{ $selectedQuoteProduct->name }}</option>
+                                        @endif
                                     </select>
                                     @error('job_type') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
                                 </div>
@@ -116,8 +136,11 @@
                                     <select name="size_format" class="select select-bordered w-full focus:select-primary">
                                         <option value="">Select size</option>
                                         @foreach ($sizes as $size)
-                                            <option @selected(old('size_format') === $size)>{{ $size }}</option>
+                                            <option @selected(old('size_format', $selectedQuoteProduct?->paper_size) === $size)>{{ $size }}</option>
                                         @endforeach
+                                        @if ($selectedQuoteProduct?->paper_size && ! collect($sizes)->contains($selectedQuoteProduct->paper_size))
+                                            <option value="{{ $selectedQuoteProduct->paper_size }}" selected>{{ $selectedQuoteProduct->paper_size }}</option>
+                                        @endif
                                     </select>
                                 </div>
 
@@ -125,7 +148,7 @@
                                     <label class="label">
                                         <span class="label-text font-semibold text-slate-700">Quantity *</span>
                                     </label>
-                                    <input type="number" min="1" name="quantity" value="{{ old('quantity', 1) }}" 
+                                    <input type="number" min="1" name="quantity" value="{{ old('quantity', $selectedQuoteProduct?->moq ?? 1) }}" 
                                         class="input input-bordered w-full focus:input-primary @error('quantity') input-error @enderror" required />
                                     @error('quantity') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
                                 </div>
@@ -158,8 +181,11 @@
                                     <select name="material_substrate" class="select select-bordered w-full focus:select-primary">
                                         <option value="">Select material</option>
                                         @foreach ($materials as $material)
-                                            <option @selected(old('material_substrate') === $material)>{{ $material }}</option>
+                                            <option @selected(old('material_substrate', $selectedQuoteProduct?->paper_type) === $material)>{{ $material }}</option>
                                         @endforeach
+                                        @if ($selectedQuoteProduct?->paper_type && ! collect($materials)->contains($selectedQuoteProduct->paper_type))
+                                            <option value="{{ $selectedQuoteProduct->paper_type }}" selected>{{ $selectedQuoteProduct->paper_type }}</option>
+                                        @endif
                                     </select>
                                 </div>
 
@@ -170,8 +196,11 @@
                                     <select name="finish_lamination" class="select select-bordered w-full focus:select-primary">
                                         <option value="">Select finish</option>
                                         @foreach ($finishes as $finish)
-                                            <option @selected(old('finish_lamination') === $finish)>{{ $finish }}</option>
+                                            <option @selected(old('finish_lamination', $selectedQuoteProduct?->finishing) === $finish)>{{ $finish }}</option>
                                         @endforeach
+                                        @if ($selectedQuoteProduct?->finishing && ! collect($finishes)->contains($selectedQuoteProduct->finishing))
+                                            <option value="{{ $selectedQuoteProduct->finishing }}" selected>{{ $selectedQuoteProduct->finishing }}</option>
+                                        @endif
                                     </select>
                                 </div>
                             </div>
@@ -219,7 +248,7 @@
                                 </label>
                                 <textarea name="artwork_notes" rows="5" 
                                     class="textarea textarea-bordered w-full focus:textarea-primary"
-                                    placeholder="Mention colours, deadline, file status, product references or finishing instructions.">{{ old('artwork_notes') }}</textarea>
+                                    placeholder="Mention colours, deadline, file status, product references or finishing instructions.">{{ old('artwork_notes', $selectedQuoteProduct ? 'Product: '.$selectedQuoteProduct->name : '') }}</textarea>
                             </div>
 
                             {{-- Image Uploads --}}

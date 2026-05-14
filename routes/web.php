@@ -21,6 +21,7 @@ use App\Http\Controllers\ServiceOrderController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\TrackOrderController;
 use App\Http\Controllers\UserInvoiceController;
+use App\Http\Controllers\TrainingController;
 use App\Models\BlogPost;
 use App\Models\Product;
 use App\Models\ProductCategory;
@@ -229,6 +230,8 @@ Route::middleware(['user.auth', 'customer.portal'])->prefix('support')->name('su
     Route::post('/{ticket}/reply', [SupportController::class, 'reply'])->name('reply');
     Route::put('/{ticket}/close', [SupportController::class, 'close'])->name('close');
 });
+
+Route::get('/pgtp', [TrainingController::class, 'index'])->name('training');
 
 if (app()->environment('local')) {
     Route::prefix('/local-previews/invoices')

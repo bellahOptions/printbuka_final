@@ -91,7 +91,13 @@
                         <td class="px-5 py-4 font-black">{{ $product->name }}</td>
                         <td class="px-5 py-4">{{ $product->category?->name ?? 'Unassigned' }}</td>
                         <td class="px-5 py-4">{{ $product->moq }}</td>
-                        <td class="px-5 py-4">NGN {{ number_format((float) $product->price, 2) }}</td>
+                        <td class="px-5 py-4">
+                            @if ($product->hasAvailablePrice())
+                                NGN {{ number_format((float) $product->price, 2) }}
+                            @else
+                                <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-black uppercase tracking-wide text-amber-700">Quote only</span>
+                            @endif
+                        </td>
                         <td class="px-5 py-4">{{ $product->is_active ? 'Active' : 'Hidden' }}</td>
                         <td class="px-5 py-4 text-right">
                             <a href="{{ route('admin.products.edit', $product) }}" class="font-black text-pink-700 hover:text-pink-800">Edit</a>

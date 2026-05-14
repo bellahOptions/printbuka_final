@@ -126,6 +126,13 @@
                             <label class="text-sm font-black text-slate-700">Announcement</label>
                             <textarea name="announcement" rows="4" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Detailed announcement content">{{ old('announcement', $settings['announcement'] ?? '') }}</textarea>
                         </div>
+                        @if (auth()->user()?->role === 'super_admin')
+                            <div class="space-y-1">
+                                <label class="text-sm font-black text-slate-700">Important Action Email Recipients</label>
+                                <textarea name="important_action_notification_emails" rows="3" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="owner@example.com, finance@example.com">{{ old('important_action_notification_emails', $settings['important_action_notification_emails'] ?? '') }}</textarea>
+                                <p class="text-xs font-bold text-slate-500">Comma, space, or line separated emails that receive important action alerts like invoice creation and staff access changes.</p>
+                            </div>
+                        @endif
                     </div>
                 </div>
 

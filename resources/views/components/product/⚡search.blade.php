@@ -75,11 +75,11 @@ new class extends Component
                         <p class="text-sm text-gray-600">{{ $product->short_description }}</p>
                         <div class="mt-2 flex flex-wrap gap-3 text-xs text-gray-500">
                             <span>MOQ: {{ $product->moq }}</span>
-                            <span>Price: NGN {{ number_format($product->price, 2) }}</span>
+                            <span>Price: {{ $product->hasAvailablePrice() ? 'NGN '.number_format($product->price, 2) : 'Request quote' }}</span>
                             <span>{{ $product->paper_size }}</span>
                             <span>{{ $product->paper_density }}</span>
                         </div>
-                        <a href="{{ route('orders.create', $product) }}" class="mt-3 inline-flex rounded-md bg-slate-950 px-4 py-2 text-xs font-black text-white transition hover:bg-pink-700">Start Order</a>
+                        <a href="{{ $product->hasAvailablePrice() ? route('orders.create', $product) : $product->quoteRequestUrl() }}" class="mt-3 inline-flex rounded-md bg-slate-950 px-4 py-2 text-xs font-black text-white transition hover:bg-pink-700">{{ $product->hasAvailablePrice() ? 'Start Order' : 'Request Quote' }}</a>
                     </article>
                 @empty
                     <p class="text-sm text-gray-600">No products found for "{{ $query }}".</p>

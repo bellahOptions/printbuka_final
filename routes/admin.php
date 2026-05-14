@@ -24,6 +24,9 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::get('/profile', [ProfileController::class, 'editAdmin'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'updateAdmin'])->name('profile.update');
 
+        Route::delete('/products/seeded-catalog', [AdminProductController::class, 'destroySeeded'])
+            ->middleware(['admin.permission:products.manage', 'super.admin'])
+            ->name('products.seeded.destroy');
         Route::resource('products', AdminProductController::class)
             ->except('show')
             ->middleware('admin.permission:products.manage');
@@ -33,12 +36,18 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::resource('blog', AdminBlogPostController::class)
             ->except('show')
             ->middleware('admin.permission:blog.manage');
+        Route::post('/invoices/import-csv', [AdminInvoiceController::class, 'importCsv'])
+            ->middleware(['admin.permission:invoices.manage', 'super.admin'])
+            ->name('invoices.import-csv');
         Route::resource('invoices', AdminInvoiceController::class)
             ->except('show')
             ->middleware('admin.permission:invoices.manage');
         Route::patch('/invoices/{invoice}/mark-paid', [AdminInvoiceController::class, 'markAsPaid'])
             ->middleware('admin.permission:invoices.manage')
             ->name('invoices.mark-paid');
+        Route::patch('/invoices/{invoice}/send', [AdminInvoiceController::class, 'send'])
+            ->middleware('admin.permission:invoices.manage')
+            ->name('invoices.send');
         Route::get('/invoices/quotations/create', [AdminInvoiceController::class, 'createQuotation'])
             ->middleware('admin.permission:invoices.manage')
             ->name('invoices.quotations.create');
@@ -75,6 +84,9 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::put('/staff/{user}', [AdminStaffController::class, 'update'])
             ->middleware('super.admin')
             ->name('staff.update');
+        Route::patch('/staff/{user}/employment-status', [AdminStaffController::class, 'updateEmploymentStatus'])
+            ->middleware('admin.permission:staff.view')
+            ->name('staff.employment-status');
         Route::get('/customers', [AdminCustomerController::class, 'index'])
             ->middleware('admin.permission:customers.manage')
             ->name('customers.index');
@@ -96,6 +108,9 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::get('/orders/create', [AdminOrderController::class, 'create'])
             ->middleware('admin.permission:orders.create')
             ->name('orders.create');
+        Route::post('/orders/todo-reminders/send', [AdminOrderController::class, 'sendTodoReminders'])
+            ->middleware('admin.permission:orders.view')
+            ->name('orders.todo-reminders.send');
         Route::post('/orders', [AdminOrderController::class, 'store'])
             ->middleware('admin.permission:orders.create')
             ->name('orders.store');

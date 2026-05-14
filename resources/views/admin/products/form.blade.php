@@ -130,6 +130,13 @@
                                     placeholder="0.00" required />
                             </div>
                             <span id="product-price-preview" class="mt-2 text-xs font-semibold text-slate-500">₦0.00</span>
+                            <label class="mt-3 flex cursor-pointer items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3">
+                                <input type="checkbox" name="price_unavailable" value="1" @checked(old('price_unavailable', $product->price_unavailable)) class="mt-0.5 h-5 w-5 rounded border-amber-300 text-pink-600 focus:ring-pink-500">
+                                <span>
+                                    <span class="block text-sm font-black text-amber-900">Price not available</span>
+                                    <span class="mt-0.5 block text-xs font-semibold text-amber-800">Customers will be sent to the quotation form instead of direct ordering.</span>
+                                </span>
+                            </label>
                             @error('price') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
                         </div>
 

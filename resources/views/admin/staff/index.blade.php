@@ -226,15 +226,17 @@
             </div>
 
             <div class="mt-6 overflow-x-auto rounded-xl border border-slate-100">
-                <table class="w-full min-w-[860px] text-left text-sm">
+                <table class="w-full min-w-[1180px] text-left text-sm">
                     <thead>
                         <tr class="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100/50">
                             <th class="px-5 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Staff</th>
                             <th class="px-5 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Role</th>
                             <th class="px-5 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Department</th>
                             <th class="px-5 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Status</th>
+                            <th class="px-5 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Employment</th>
                             <th class="px-5 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Approved</th>
                             <th class="px-5 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Profile Photo</th>
+                            <th class="px-5 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Access Action</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -262,6 +264,14 @@
                                         {{ $person->is_active ? 'Active' : 'Inactive' }}
                                     </span>
                                 </td>
+                                <td class="px-5 py-4">
+                                    <span class="status-badge {{ ($person->employment_status ?? 'active') === 'active' ? 'bg-emerald-50 text-emerald-700' : ((($person->employment_status ?? '') === 'terminated') ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700') }}">
+                                        {{ $person->employmentStatusLabel() }}
+                                    </span>
+                                    @if ($person->employment_status_changed_at)
+                                        <p class="mt-1 text-xs font-semibold text-slate-500">{{ $person->employment_status_changed_at->format('M j, Y') }}</p>
+                                    @endif
+                                </td>
                                 <td class="px-5 py-4 font-semibold text-slate-500">{{ $person->approved_at?->format('M j, Y') ?? 'Pending' }}</td>
                                 <td class="px-5 py-4">
                                     @if ($canAssignRoles)
@@ -287,10 +297,27 @@
                                         <span class="text-xs font-black uppercase tracking-wide text-slate-500">Super Admin Only</span>
                                     @endif
                                 </td>
+                                <td class="px-5 py-4">
+                                    @if ($canManageEmployment)
+                                        <form action="{{ route('admin.staff.employment-status', $person) }}" method="POST" class="space-y-2">
+                                            @csrf
+                                            @method('PATCH')
+                                            <select name="employment_status" class="h-10 w-full rounded-md border border-slate-200 px-3 text-xs font-bold">
+                                                <option value="active" @selected(($person->employment_status ?? 'active') === 'active')>Onboard / Active</option>
+                                                <option value="suspended" @selected(($person->employment_status ?? '') === 'suspended')>Suspend indefinitely</option>
+                                                <option value="terminated" @selected(($person->employment_status ?? '') === 'terminated')>Terminate contract</option>
+                                            </select>
+                                            <input name="employment_status_reason" value="{{ $person->employment_status_reason }}" class="h-10 w-full rounded-md border border-slate-200 px-3 text-xs font-semibold" placeholder="Optional reason">
+                                            <button class="rounded-md bg-slate-900 px-3 py-2 text-xs font-black uppercase tracking-wider text-white transition hover:bg-pink-700">Apply</button>
+                                        </form>
+                                    @else
+                                        <span class="text-xs font-black uppercase tracking-wide text-slate-500">HR / Super Admin</span>
+                                    @endif
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-5 py-16 text-center">
+                                <td colspan="8" class="px-5 py-16 text-center">
                                     <p class="text-sm font-semibold text-slate-500">No approved staff records yet.</p>
                                 </td>
                             </tr>

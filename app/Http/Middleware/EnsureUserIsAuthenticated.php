@@ -18,6 +18,16 @@ class EnsureUserIsAuthenticated
             return redirect()->guest(route('login'));
         }
 
+        if (! $request->user()?->is_active) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()
+                ->route('login')
+                ->withErrors(['email' => 'Your account access has been disabled. Contact Printbuka management.']);
+        }
+
         return $next($request);
     }
 }

@@ -71,22 +71,25 @@
     }
 @endphp
 
-<div class="border-b border-slate-100 bg-slate-50/70">
-    <div class="mx-auto max-w-7xl px-4 py-2 sm:px-6 lg:px-8">
-        <div class="breadcrumbs flex text-xs sm:text-sm text-slate-500">
-            <ul>
+<div class="border-y border-slate-200/70 bg-white/85 shadow-sm shadow-slate-200/40 backdrop-blur">
+    <div class="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
+        <nav aria-label="Breadcrumb" class="overflow-x-auto">
+            <ol class="flex min-w-0 items-center gap-2 whitespace-nowrap text-xs font-black uppercase tracking-wide text-slate-500 sm:text-sm">
                 @foreach ($crumbs as $index => $crumb)
-                    @if ($loop->last)
-                        <li class="font-semibold text-slate-700">{{ $crumb['label'] }}</li>
-                    @else
-                        <li>
-                            <a href="{{ $crumb['url'] }}" class="hover:text-pink-600 transition-colors">
+                    <li class="flex min-w-0 items-center gap-2">
+                        @if ($loop->last)
+                            <span class="inline-flex max-w-[14rem] items-center truncate rounded-full border border-pink-200 bg-pink-50 px-3 py-1.5 text-pink-700 sm:max-w-none">
+                                {{ $crumb['label'] }}
+                            </span>
+                        @else
+                            <a href="{{ $crumb['url'] }}" class="inline-flex max-w-[12rem] items-center truncate rounded-full px-2.5 py-1.5 text-slate-600 transition hover:bg-pink-50 hover:text-pink-700 sm:max-w-none">
                                 {{ $crumb['label'] }}
                             </a>
-                        </li>
-                    @endif
+                            <span aria-hidden="true" class="text-slate-300">/</span>
+                        @endif
+                    </li>
                 @endforeach
-            </ul>
-        </div>
+            </ol>
+        </nav>
     </div>
 </div>

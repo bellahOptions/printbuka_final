@@ -13,6 +13,10 @@ class InvoicesTable extends Component
 {
     use WithPagination;
 
+    protected $listeners = [
+        'invoices-imported' => 'refreshAfterImport',
+    ];
+
     public string $search = '';
 
     public string $sortField = 'created_at';
@@ -107,12 +111,13 @@ class InvoicesTable extends Component
         }
 
         $statusActions = [
+            'mark_draft' => 'draft',
             'mark_paid' => 'paid',
             'mark_unpaid' => 'unpaid',
             'mark_disputed' => 'disputed',
         ];
 
-        if (! in_array($this->batchAction, ['mark_paid', 'mark_unpaid', 'mark_disputed', 'delete'], true)) {
+        if (! in_array($this->batchAction, ['mark_draft', 'mark_paid', 'mark_unpaid', 'mark_disputed', 'delete'], true)) {
             $this->addError('batchAction', 'Choose a valid batch action.');
 
             return;
@@ -150,6 +155,13 @@ class InvoicesTable extends Component
         $this->batchAction = '';
 
         session()->flash('status', $affected.' '.str('invoice')->plural($affected).' updated.');
+        $this->resetPage();
+    }
+
+    public function refreshAfterImport(): void
+    {
+        $this->selected = [];
+        $this->batchAction = '';
         $this->resetPage();
     }
 

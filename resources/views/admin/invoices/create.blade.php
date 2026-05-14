@@ -278,7 +278,7 @@
                         <label class="flex items-center gap-2 text-sm font-black text-slate-700">Invoice Status</label>
                         <select name="invoice_status" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
                             @foreach ($invoiceStatuses as $value)
-                                <option value="{{ $value }}" @selected(old('invoice_status', 'unpaid') === $value)>{{ str($value)->replace('_', ' ')->title() }}</option>
+                                <option value="{{ $value }}" @selected(old('invoice_status', 'draft') === $value)>{{ str($value)->replace('_', ' ')->title() }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -307,10 +307,10 @@
 
             <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
                 <label class="flex cursor-pointer items-start gap-3">
-                    <input type="checkbox" name="send_email" value="1" @checked(old('send_email', true)) class="mt-0.5 h-5 w-5 rounded border-slate-300 text-pink-600 focus:ring-pink-500">
+                    <input type="checkbox" name="send_email" value="1" @checked(old('send_email', false)) class="mt-0.5 h-5 w-5 rounded border-slate-300 text-pink-600 focus:ring-pink-500">
                     <div>
                         <p class="text-sm font-black text-slate-900">Send invoice email immediately</p>
-                        <p class="mt-1 text-xs text-slate-500">The invoice PDF will be sent to the customer's email address.</p>
+                        <p class="mt-1 text-xs text-slate-500">Leave unchecked to save as a draft and send it later from the invoice list.</p>
                     </div>
                 </label>
 

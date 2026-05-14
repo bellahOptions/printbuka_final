@@ -81,14 +81,21 @@ class AuthController extends Controller
         }
 
         if (! Auth::user()->is_active) {
+            $inactiveUser = Auth::user();
+            $inactiveMessage = match ((string) ($inactiveUser->employment_status ?? '')) {
+                'suspended' => 'Your staff account has been suspended. Contact Printbuka HR or management.',
+                'terminated' => 'Your staff account has been terminated and access is disabled.',
+                default => $staffOnly
+                    ? 'Your staff account is pending approval by the Super Admin.'
+                    : 'This account is inactive. Contact Printbuka management.',
+            };
+
             Auth::logout();
             RateLimiter::hit($this->throttleKey($request, $action));
 
             return back()
                 ->withErrors([
-                    'email' => $staffOnly
-                        ? 'Your staff account is pending approval by the Super Admin.'
-                        : 'This account is inactive. Contact Printbuka management.',
+                    'email' => $inactiveMessage,
                 ])
                 ->onlyInput('email');
         }
@@ -163,6 +170,7 @@ class AuthController extends Controller
             'department' => null,
             'requested_role' => null,
             'other_role' => null,
+            'employment_status' => 'pending',
             'is_active' => false,
         ]);
         $staff->sendEmailVerificationNotification();

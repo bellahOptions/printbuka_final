@@ -63,6 +63,7 @@
                     <nav class="flex flex-col gap-3 text-sm text-slate-400">
                         <a href="{{ route('partners.create') }}" class="hover:text-white transition">Become a Partner</a>
                         <a href="{{ route('blog') }}" class="hover:text-white transition">Blog</a>
+                        <a href="{{ route('training') }}" class="hover:text-white transition">Training</a>
                     </nav>
                 </div>
 

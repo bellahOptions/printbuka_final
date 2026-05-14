@@ -463,7 +463,8 @@
                             Quotation Status
                         </label>
                         <select name="invoice_status" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
-                            <option value="unpaid" @selected(old('invoice_status', 'unpaid') === 'unpaid')>Unpaid</option>
+                            <option value="draft" @selected(old('invoice_status', 'draft') === 'draft')>Draft</option>
+                            <option value="unpaid" @selected(old('invoice_status') === 'unpaid')>Unpaid</option>
                             <option value="paid" @selected(old('invoice_status') === 'paid')>Paid</option>
                             <option value="disputed" @selected(old('invoice_status') === 'disputed')>Disputed</option>
                         </select>
@@ -525,7 +526,7 @@
             <!-- Email Option & Submit -->
             <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
                 <label class="flex items-start gap-3 cursor-pointer">
-                    <input type="checkbox" name="send_email" value="1" @checked(old('send_email', true)) class="mt-0.5 h-5 w-5 rounded border-slate-300 text-pink-600 focus:ring-pink-500">
+                    <input type="checkbox" name="send_email" value="1" @checked(old('send_email', false)) class="mt-0.5 h-5 w-5 rounded border-slate-300 text-pink-600 focus:ring-pink-500">
                     <div>
                         <p class="text-sm font-black text-slate-900">Send quotation email immediately</p>
                         <p class="text-xs text-slate-500 mt-1">The quotation will be sent to the customer's email address</p>

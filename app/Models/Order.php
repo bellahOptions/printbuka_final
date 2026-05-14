@@ -11,6 +11,7 @@ class Order extends Model
     protected $fillable = [
         'product_id',
         'user_id',
+        'imported_customer_id',
         'created_by_admin_id',
         'service_type',
         'channel',
@@ -100,6 +101,11 @@ class Order extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function importedCustomer(): BelongsTo
+    {
+        return $this->belongsTo(ImportedCustomer::class);
     }
 
     public function invoice(): HasOne

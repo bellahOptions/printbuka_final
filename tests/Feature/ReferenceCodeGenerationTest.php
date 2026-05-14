@@ -21,8 +21,17 @@ class ReferenceCodeGenerationTest extends TestCase
         $regenerated = $invoiceService->createForOrder($order->fresh());
 
         $this->assertSame($invoice->invoice_number, $regenerated->invoice_number);
-        $this->assertMatchesRegularExpression('/^INV-\d{8}(?:\d{6})?-[A-Z0-9]{6,8}$/', $invoice->invoice_number);
+        $this->assertMatchesRegularExpression('/^INV-\d{6}$/', $invoice->invoice_number);
         $this->assertDoesNotMatchRegularExpression('/^PB-INV-\d+$/', $invoice->invoice_number);
+    }
+
+    public function test_quotation_numbers_use_imported_quote_style(): void
+    {
+        $quoteOrder = $this->createOrder('quote', ReferenceCode::jobOrderNumber('quote'));
+
+        $invoice = app(InvoiceService::class)->createForOrder($quoteOrder);
+
+        $this->assertMatchesRegularExpression('/^QT-\d{6}$/', $invoice->invoice_number);
     }
 
     public function test_job_orders_receive_unique_reference_codes_by_service_type(): void
@@ -63,4 +72,3 @@ class ReferenceCodeGenerationTest extends TestCase
         ]);
     }
 }
-

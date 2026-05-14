@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\StaffEmploymentStatusMail;
 use App\Models\User;
+use App\Services\ImportantActionNotifier;
 use App\Support\LivewireSecureUploads;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -52,6 +56,7 @@ class AdminStaffController extends Controller
             'roles' => config('printbuka_admin.role_labels'),
             'departments' => config('printbuka_admin.departments'),
             'canAssignRoles' => request()->user()?->role === 'super_admin',
+            'canManageEmployment' => in_array(request()->user()?->role, ['super_admin', 'hr'], true),
         ]);
     }
 
@@ -83,6 +88,7 @@ class AdminStaffController extends Controller
             'role' => $validated['role'] ?? $user->role,
             'department' => $validated['department'] ?? $user->department,
             'is_active' => $request->boolean('is_active', $user->is_active),
+            'employment_status' => $request->boolean('is_active', $user->is_active) ? 'active' : ($user->employment_status ?? 'pending'),
             'approved_by_id' => $request->user()->id,
             'approved_at' => now(),
         ];
@@ -115,8 +121,72 @@ class AdminStaffController extends Controller
             $updates['photo'] = $livewirePhotoPath;
         }
 
+        $wasActive = (bool) $user->is_active;
+        $previousEmploymentStatus = (string) ($user->employment_status ?? 'pending');
+
         $user->update($updates);
 
+        if (! $wasActive || $previousEmploymentStatus !== 'active') {
+            $this->notifyStaffEmploymentStatus($user->fresh(), 'active', null);
+            app(ImportantActionNotifier::class)->notify(
+                'Staff onboarding',
+                $user->displayName().' was onboarded or updated by '.$request->user()->displayName().'.'
+            );
+        }
+
         return back()->with('status', 'Staff access updated.');
+    }
+
+    public function updateEmploymentStatus(Request $request, User $user): RedirectResponse
+    {
+        abort_unless(in_array($request->user()?->role, ['super_admin', 'hr'], true), 403);
+        abort_if($user->id === $request->user()?->id, 422, 'You cannot suspend or terminate your own account.');
+        abort_if($user->role === 'customer', 404);
+
+        $validated = $request->validate([
+            'employment_status' => ['required', 'string', Rule::in(['active', 'suspended', 'terminated'])],
+            'employment_status_reason' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $status = (string) $validated['employment_status'];
+        $reason = $validated['employment_status_reason'] ?? null;
+
+        $user->forceFill([
+            'employment_status' => $status,
+            'employment_status_reason' => $reason,
+            'employment_status_changed_at' => now(),
+            'employment_status_changed_by_id' => $request->user()->id,
+            'is_active' => $status === 'active',
+        ])->save();
+
+        if ($status !== 'active') {
+            DB::table('sessions')->where('user_id', $user->id)->delete();
+        }
+
+        $this->notifyStaffEmploymentStatus($user->fresh(), $status, $reason);
+        app(ImportantActionNotifier::class)->notify(
+            'Staff '.$user->employmentStatusLabel(),
+            $user->displayName().' was marked as '.$user->employmentStatusLabel().' by '.$request->user()->displayName().'.'
+        );
+
+        return back()->with('status', 'Staff employment status updated.');
+    }
+
+    private function notifyStaffEmploymentStatus(User $staff, string $status, ?string $reason): void
+    {
+        if (! filled($staff->email)) {
+            return;
+        }
+
+        try {
+            Mail::to((string) $staff->email)->send(new StaffEmploymentStatusMail($staff, $status, $reason));
+        } catch (\Throwable $exception) {
+            Log::error('Staff employment status email failed.', [
+                'staff_id' => $staff->id,
+                'staff_email' => $staff->email,
+                'status' => $status,
+                'message' => $exception->getMessage(),
+            ]);
+        }
     }
 }

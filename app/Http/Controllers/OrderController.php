@@ -20,8 +20,14 @@ use Illuminate\View\View;
 
 class OrderController extends Controller
 {
-    public function create(Product $product, OrderFulfillmentService $orderFulfillmentService): View
+    public function create(Product $product, OrderFulfillmentService $orderFulfillmentService): View|RedirectResponse
     {
+        if (! $product->hasAvailablePrice()) {
+            return redirect()
+                ->to($product->quoteRequestUrl())
+                ->with('status', 'Pricing for '.$product->name.' is handled by quotation. Please send us your brief.');
+        }
+
         $customer = Auth::user();
         $savedDeliveryAddresses = $customer?->deliveryAddresses()->get() ?? collect();
 
@@ -77,6 +83,12 @@ class OrderController extends Controller
         PaystackService $paystackService,
         OrderFulfillmentService $orderFulfillmentService
     ): RedirectResponse {
+        if (! $product->hasAvailablePrice()) {
+            return redirect()
+                ->to($product->quoteRequestUrl())
+                ->with('status', 'Pricing for '.$product->name.' is handled by quotation. Please send us your brief.');
+        }
+
         $customer = Auth::user();
         $isSampleRequested = $request->boolean('is_sample');
 

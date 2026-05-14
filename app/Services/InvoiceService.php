@@ -5,9 +5,10 @@ namespace App\Services;
 use App\Mail\InvoiceMail;
 use App\Models\Invoice;
 use App\Models\Order;
+use App\Services\ImportantActionNotifier;
 use App\Support\ReferenceCode;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class InvoiceService
 {
@@ -18,7 +19,7 @@ class InvoiceService
 
         $invoice = Invoice::query()->firstOrNew(['order_id' => $order->id]);
         $invoice->fill([
-            'invoice_number' => $invoice->invoice_number ?: $this->invoiceNumberFor(),
+            'invoice_number' => $invoice->invoice_number ?: $this->invoiceNumberFor($order),
             'subtotal' => $subtotal,
             'tax_amount' => 0,
             'discount_amount' => 0,
@@ -50,6 +51,10 @@ class InvoiceService
 
             Mail::to($recipient)->send(new InvoiceMail($invoice));
             $invoice->forceFill(['sent_at' => now()])->save();
+            app(ImportantActionNotifier::class)->notify(
+                $invoice->documentTypeLabel().' sent',
+                $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was sent to '.$recipient.'.'
+            );
 
             return true;
         } catch (\Throwable $exception) {
@@ -63,9 +68,9 @@ class InvoiceService
         }
     }
 
-    private function invoiceNumberFor(): string
+    private function invoiceNumberFor(Order $order): string
     {
-        return ReferenceCode::invoiceNumber();
+        return ReferenceCode::invoiceNumber((string) $order->service_type);
     }
 
     private function paymentStatusFor(Order $order): string

@@ -36,6 +36,7 @@ class AdminSiteSettingController extends Controller
             'company_account_number',
             'company_account_bank_name',
             'company_account_note',
+            'important_action_notification_emails',
         ];
 
         $validated = $request->validate([
@@ -71,6 +72,7 @@ class AdminSiteSettingController extends Controller
             'pending_job_reminder_hours' => ['nullable', 'integer', 'min:1', 'max:240'],
             'support_ticket_unanswered_reminder_hours' => ['nullable', 'integer', 'min:1', 'max:240'],
             'support_ticket_unanswered_reminder_cooldown_hours' => ['nullable', 'integer', 'min:1', 'max:240'],
+            'important_action_notification_emails' => ['nullable', 'string', 'max:2000'],
         ]);
 
         if ($request->user()?->role !== 'super_admin') {
@@ -110,6 +112,7 @@ class AdminSiteSettingController extends Controller
             str_starts_with($key, 'service_price_') => 'service_pricing',
             str_starts_with($key, 'company_account_') => 'finance',
             str_contains($key, 'paper_') || str_contains($key, 'finishings') => 'print_options',
+            str_contains($key, 'important_action') => 'notifications',
             str_contains($key, 'notification') || str_contains($key, 'announcement') => 'notifications',
             default => 'general',
         };

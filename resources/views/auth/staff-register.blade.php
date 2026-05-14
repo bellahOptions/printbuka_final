@@ -35,30 +35,46 @@
                 <form action="{{ route('staff.register.store') }}" method="POST" class="space-y-5">
                     @csrf
 
+                    @if ($errors->any())
+                        <div class="rounded-xl border border-pink-200 bg-pink-50 p-4 text-sm text-pink-800">
+                            <p class="font-black">Please fix the highlighted fields and submit again.</p>
+                            <ul class="mt-2 list-disc space-y-1 pl-5 font-semibold">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     {{-- Personal Information Grid --}}
                     <div class="grid gap-5 sm:grid-cols-2">
                         <div class="form-control">
                             <label class="label"><span class="label-text font-semibold">First Name *</span></label>
-                            <input type="text" name="first_name" value="{{ old('first_name') }}" class="input input-bordered w-full" required />
+                            <input type="text" name="first_name" value="{{ old('first_name') }}" class="input input-bordered w-full @error('first_name') input-error @enderror" required />
+                            @error('first_name') <span class="mt-1 text-xs text-pink-600">{{ $message }}</span> @enderror
                         </div>
                         <div class="form-control">
                             <label class="label"><span class="label-text font-semibold">Last Name *</span></label>
-                            <input type="text" name="last_name" value="{{ old('last_name') }}" class="input input-bordered w-full" required />
+                            <input type="text" name="last_name" value="{{ old('last_name') }}" class="input input-bordered w-full @error('last_name') input-error @enderror" required />
+                            @error('last_name') <span class="mt-1 text-xs text-pink-600">{{ $message }}</span> @enderror
                         </div>
                         <div class="form-control">
                             <label class="label"><span class="label-text font-semibold">Phone *</span></label>
-                            <input type="tel" name="phone" value="{{ old('phone') }}" class="input input-bordered w-full" required />
+                            <input type="tel" name="phone" value="{{ old('phone') }}" class="input input-bordered w-full @error('phone') input-error @enderror" required />
+                            @error('phone') <span class="mt-1 text-xs text-pink-600">{{ $message }}</span> @enderror
                         </div>
                         <div class="form-control">
                             <label class="label"><span class="label-text font-semibold">Date of Birth *</span></label>
-                            <input type="date" name="date_of_birth" value="{{ old('date_of_birth') }}" class="input input-bordered w-full" required />
+                            <input type="date" name="date_of_birth" value="{{ old('date_of_birth') }}" class="input input-bordered w-full @error('date_of_birth') input-error @enderror" required />
+                            @error('date_of_birth') <span class="mt-1 text-xs text-pink-600">{{ $message }}</span> @enderror
                         </div>
                     </div>
 
                     {{-- Address --}}
                     <div class="form-control">
                         <label class="label"><span class="label-text font-semibold">Residential Address *</span></label>
-                        <input type="text" name="address" value="{{ old('address') }}" class="input input-bordered w-full" required />
+                        <input type="text" name="address" value="{{ old('address') }}" class="input input-bordered w-full @error('address') input-error @enderror" required />
+                        @error('address') <span class="mt-1 text-xs text-pink-600">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-slate-700">
@@ -76,14 +92,15 @@
                         <div class="form-control">
                             <label class="label"><span class="label-text font-semibold">Password *</span></label>
                             <div class="relative">
-                                <input id="staff_password" type="password" name="password" class="input input-bordered w-full pr-24" required />
+                                <input id="staff_password" type="password" name="password" class="input input-bordered w-full pr-24 @error('password') input-error @enderror" required />
                                 <button type="button" data-password-toggle data-target="staff_password" class="btn btn-ghost btn-xs absolute right-2 top-1/2 -translate-y-1/2">Show</button>
                             </div>
+                            @error('password') <span class="mt-1 text-xs text-pink-600">{{ $message }}</span> @enderror
                         </div>
                         <div class="form-control">
                             <label class="label"><span class="label-text font-semibold">Confirm Password *</span></label>
                             <div class="relative">
-                                <input id="staff_password_confirmation" type="password" name="password_confirmation" class="input input-bordered w-full pr-24" required />
+                                <input id="staff_password_confirmation" type="password" name="password_confirmation" class="input input-bordered w-full pr-24 @error('password') input-error @enderror" required />
                                 <button type="button" data-password-toggle data-target="staff_password_confirmation" class="btn btn-ghost btn-xs absolute right-2 top-1/2 -translate-y-1/2">Show</button>
                             </div>
                         </div>

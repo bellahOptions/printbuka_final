@@ -9,7 +9,10 @@ class Invoice extends Model
 {
     protected $fillable = [
         'order_id',
+        'imported_customer_id',
         'invoice_number',
+        'external_document_id',
+        'external_customer_id',
         'payment_reference',
         'payment_gateway',
         'subtotal',
@@ -21,6 +24,7 @@ class Invoice extends Model
         'due_at',
         'sent_at',
         'paid_at',
+        'last_unpaid_reminder_sent_at',
     ];
 
     protected function casts(): array
@@ -34,12 +38,18 @@ class Invoice extends Model
             'due_at' => 'datetime',
             'sent_at' => 'datetime',
             'paid_at' => 'datetime',
+            'last_unpaid_reminder_sent_at' => 'datetime',
         ];
     }
 
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
+    }
+
+    public function importedCustomer(): BelongsTo
+    {
+        return $this->belongsTo(ImportedCustomer::class);
     }
 
     public function isQuotation(): bool

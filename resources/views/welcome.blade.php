@@ -269,10 +269,10 @@
                             @endif
 
                             <div class="mt-3">
-                                <p class="text-xs font-bold text-slate-400">starting at</p>
+                                <p class="text-xs font-bold text-slate-400">{{ $product->hasAvailablePrice() ? 'starting at' : 'pricing' }}</p>
                                 <p class="text-xl font-black text-pink-600">
-                                    NGN {{ number_format($product->price, 0) }}
-                                    @if($product->moq)
+                                    {{ $product->hasAvailablePrice() ? 'NGN '.number_format($product->price, 0) : 'Request quote' }}
+                                    @if($product->hasAvailablePrice() && $product->moq)
                                         <span class="text-sm font-bold text-slate-400">/ {{ $product->moq }}</span>
                                     @endif
                                 </p>
@@ -280,7 +280,7 @@
 
                             <div class="card-actions mt-4 grid grid-cols-2 gap-2">
                                 <a href="{{ route('products.show', $product) }}" class="btn btn-sm btn-outline font-black border-slate-200 hover:border-pink-400 hover:text-pink-700">View</a>
-                                <a href="{{ route('orders.create', $product) }}" class="btn btn-sm btn-neutral font-black">Order</a>
+                                <a href="{{ $product->hasAvailablePrice() ? route('orders.create', $product) : $product->quoteRequestUrl() }}" class="btn btn-sm btn-neutral font-black">{{ $product->hasAvailablePrice() ? 'Order' : 'Quote' }}</a>
                             </div>
                         </div>
                     </article>
@@ -326,7 +326,7 @@
                                 <p class="mt-2 text-xs font-bold uppercase tracking-wide text-slate-400">{{ number_format((int) $product->view_count) }} views</p>
                                 <div class="card-actions mt-3 grid grid-cols-2 gap-2">
                                     <a href="{{ route('products.show', $product) }}" class="btn btn-sm btn-outline font-black border-slate-200 hover:border-pink-400 hover:text-pink-700">View</a>
-                                    <a href="{{ route('orders.create', $product) }}" class="btn btn-sm btn-neutral font-black">Order</a>
+                                    <a href="{{ $product->hasAvailablePrice() ? route('orders.create', $product) : $product->quoteRequestUrl() }}" class="btn btn-sm btn-neutral font-black">{{ $product->hasAvailablePrice() ? 'Order' : 'Quote' }}</a>
                                 </div>
                             </div>
                         </article>

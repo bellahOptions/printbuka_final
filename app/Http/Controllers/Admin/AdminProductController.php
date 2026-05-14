@@ -20,13 +20,16 @@ class AdminProductController extends Controller
 {
     public function index(): View
     {
-        return view('admin.products.index');
+        return view('admin.products.index', [
+            'productCount' => Product::query()->count(),
+            'seededProductCount' => Product::query()->where('is_seeded', true)->count(),
+        ]);
     }
 
     public function create(): View
     {
         return view('admin.products.form', [
-            'product' => new Product(['is_active' => true, 'moq' => 1, 'price' => 0, 'service_type' => 'print']),
+            'product' => new Product(['is_active' => true, 'moq' => 1, 'price' => 0, 'price_unavailable' => false, 'service_type' => 'print']),
             'categories' => ProductCategory::query()->with('parent')->orderBy('name')->get(),
             'serviceOptions' => $this->serviceOptions(),
             'optionLines' => $this->optionLines(new Product),
@@ -67,6 +70,34 @@ class AdminProductController extends Controller
         return back()->with('status', 'Product deleted.');
     }
 
+    public function destroySeeded(Request $request): RedirectResponse
+    {
+        abort_unless(($request->user()?->role ?? null) === 'super_admin', 403);
+
+        $request->validate([
+            'confirmation' => ['required', 'string', 'in:DELETE SEEDED PRODUCTS'],
+            'include_legacy_catalog' => ['nullable', 'boolean'],
+        ]);
+
+        $includeLegacyCatalog = $request->boolean('include_legacy_catalog');
+        $query = Product::query()
+            ->when(! $includeLegacyCatalog, fn ($products) => $products->where('is_seeded', true));
+
+        $deleted = 0;
+
+        $query->orderBy('id')->chunkById(100, function ($products) use (&$deleted): void {
+            foreach ($products as $product) {
+                $this->deleteProductImages($product);
+                $product->delete();
+                $deleted++;
+            }
+        });
+
+        $label = $includeLegacyCatalog ? 'catalog' : 'seeded';
+
+        return back()->with('status', "{$deleted} {$label} product(s) removed.");
+    }
+
     private function validated(Request $request, ?Product $product = null): array
     {
         $validated = $request->validate([
@@ -75,6 +106,7 @@ class AdminProductController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'moq' => ['required', 'integer', 'min:1'],
             'price' => ['required', 'numeric', 'min:0'],
+            'price_unavailable' => ['nullable', 'boolean'],
             'short_description' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
             'paper_type' => ['required', 'string', 'max:255'],
@@ -108,6 +140,7 @@ class AdminProductController extends Controller
             'is_active' => ['nullable', 'boolean'],
         ]);
         $validated['is_active'] = $request->boolean('is_active');
+        $validated['price_unavailable'] = $request->boolean('price_unavailable');
         $validated['size_price_options'] = ProductOptionPricing::parseLines($request->input('size_price_options'));
         $validated['material_price_options'] = ProductOptionPricing::parseLines($request->input('material_price_options'));
         $validated['finish_price_options'] = ProductOptionPricing::parseLines($request->input('finish_price_options'));

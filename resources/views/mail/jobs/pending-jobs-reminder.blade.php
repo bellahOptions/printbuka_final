@@ -6,7 +6,7 @@
 </head>
 <body style="font-family:Arial,sans-serif;color:#0f172a;line-height:1.6;">
     <p>Hello {{ $recipient->displayName() }},</p>
-    <p>You have pending jobs that need attention:</p>
+    <p>You have paid pending jobs/tasks that need attention:</p>
     <ul>
         @foreach ($items as $item)
             <li>
@@ -14,7 +14,12 @@
                 - {{ $item['order']->customer_name }}
                 - {{ $item['phase'] }}
                 - {{ $item['status'] }}
+                - {{ $item['payment_status'] }}
                 - stuck for about {{ $item['stuck_hours'] }} hour(s)
+                <br>
+                Task: {{ $item['task'] }}
+                <br>
+                <a href="{{ route('admin.orders.show', $item['order']) }}">Open job</a>
             </li>
         @endforeach
     </ul>

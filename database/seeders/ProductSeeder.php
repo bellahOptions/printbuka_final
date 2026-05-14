@@ -25,6 +25,7 @@ class ProductSeeder extends Seeder
                 ['name' => $product['name']],
                 [
                     ...$product,
+                    'is_seeded' => true,
                     'product_category_id' => $categorySlug ? $categoryIds->get($categorySlug) : null,
                 ]
             );

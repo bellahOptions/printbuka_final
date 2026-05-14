@@ -15,6 +15,8 @@ class Product extends Model
         'service_type',
         'moq',
         'price',
+        'price_unavailable',
+        'is_seeded',
         'short_description',
         'description',
         'paper_type',
@@ -37,6 +39,8 @@ class Product extends Model
     {
         return [
             'price' => 'decimal:2',
+            'price_unavailable' => 'boolean',
+            'is_seeded' => 'boolean',
             'material_price_options' => 'array',
             'size_price_options' => 'array',
             'finish_price_options' => 'array',
@@ -79,5 +83,15 @@ class Product extends Model
             ->filter(fn ($path): bool => filled($path))
             ->values()
             ->all();
+    }
+
+    public function hasAvailablePrice(): bool
+    {
+        return ! (bool) $this->price_unavailable;
+    }
+
+    public function quoteRequestUrl(): string
+    {
+        return route('quotes.create', ['product_id' => $this->id]);
     }
 }

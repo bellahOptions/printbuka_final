@@ -23,6 +23,7 @@
                     <span class="text-xs font-black uppercase tracking-wide text-slate-500">Batch action</span>
                     <select wire:model.live="batchAction" class="mt-2 h-11 rounded-md border border-slate-200 px-3 text-sm font-semibold">
                         <option value="">Select action</option>
+                        <option value="mark_draft">Mark as Draft</option>
                         <option value="mark_paid">Mark as Paid</option>
                         <option value="mark_unpaid">Mark as Unpaid</option>
                         <option value="mark_disputed">Mark as Disputed</option>
@@ -97,6 +98,14 @@
                         <td class="px-5 py-4">
                             <div class="flex flex-wrap items-center justify-end gap-3">
                                 <a href="{{ route('admin.invoices.edit', $invoice) }}" class="font-black text-pink-700">Edit</a>
+
+                                @if ($invoice->status !== 'paid')
+                                    <form action="{{ route('admin.invoices.send', $invoice) }}" method="POST" class="inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button class="font-black text-cyan-700 transition hover:text-cyan-900">{{ $invoice->sent_at ? 'Resend' : 'Send' }}</button>
+                                    </form>
+                                @endif
 
                                 @if ($invoice->status !== 'paid')
                                     <form action="{{ route('admin.invoices.mark-paid', $invoice) }}" method="POST" class="inline">

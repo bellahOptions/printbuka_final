@@ -11,19 +11,37 @@ use Illuminate\Support\Facades\Mail;
 
 class PendingJobReminderService
 {
+    private const PAID_PAYMENT_STATUSES = ['Invoice Settled (70%)', 'Invoice Settled (100%)'];
+    private const CLOSED_JOB_STATUSES = ['Delivered', 'Cancelled'];
+
     /**
      * @return int Number of emails sent
      */
     public function sendReminders(): int
     {
         $thresholdHours = max(1, (int) SiteSettings::get('pending_job_reminder_hours', 24));
-        $cutoff = now()->subHours($thresholdHours);
-        $emailsSent = 0;
+        $itemsByRecipient = $this->todosByStaff(onlyStale: true, thresholdHours: $thresholdHours);
+
+        return $this->sendTodoEmails($itemsByRecipient);
+    }
+
+    /**
+     * @return int Number of emails sent
+     */
+    public function sendManualReminders(): int
+    {
+        return $this->sendTodoEmails($this->todosByStaff());
+    }
+
+    /**
+     * @return array<int, array{recipient:User,items:array<int, array{order:Order,phase:string,status:string,stuck_hours:int,payment_status:string,task:string}>}>
+     */
+    public function todosByStaff(bool $onlyStale = false, ?int $thresholdHours = null): array
+    {
+        $cutoff = now()->subHours(max(1, $thresholdHours ?? (int) SiteSettings::get('pending_job_reminder_hours', 24)));
         $itemsByRecipient = [];
 
-        $phases = collect(config('printbuka_admin.workflow_phases', []));
-
-        foreach ($phases as $phase) {
+        foreach (collect(config('printbuka_admin.workflow_phases', [])) as $phase) {
             $status = (string) ($phase['status'] ?? '');
             $permission = (string) ($phase['permission'] ?? '');
 
@@ -34,7 +52,11 @@ class PendingJobReminderService
             $orders = Order::query()
                 ->with('product')
                 ->where('status', $status)
-                ->where('updated_at', '<=', $cutoff)
+                ->whereIn('payment_status', self::PAID_PAYMENT_STATUSES)
+                ->whereNotIn('status', self::CLOSED_JOB_STATUSES)
+                ->when($onlyStale, fn ($query) => $query->where('updated_at', '<=', $cutoff))
+                ->orderByDesc('is_express')
+                ->oldest('updated_at')
                 ->get();
 
             foreach ($orders as $order) {
@@ -47,10 +69,22 @@ class PendingJobReminderService
                         'phase' => (string) ($phase['phase'] ?? $status),
                         'status' => $status,
                         'stuck_hours' => (int) max(1, now()->diffInHours($order->updated_at)),
+                        'payment_status' => (string) $order->payment_status,
+                        'task' => (string) ($phase['gates'][0] ?? 'Review and update this job.'),
                     ];
                 }
             }
         }
+
+        return $itemsByRecipient;
+    }
+
+    /**
+     * @param  array<int, array{recipient:User,items:array<int, array{order:Order,phase:string,status:string,stuck_hours:int,payment_status:string,task:string}>}>  $itemsByRecipient
+     */
+    private function sendTodoEmails(array $itemsByRecipient): int
+    {
+        $emailsSent = 0;
 
         foreach ($itemsByRecipient as $payload) {
             /** @var User $recipient */

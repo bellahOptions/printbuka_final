@@ -47,10 +47,17 @@
                         </div>
                     @endif
                     <div class="mt-5 rounded-md border border-slate-200 bg-white p-6 shadow-lg">
-                        <p class="text-sm font-bold text-slate-500">starting at</p>
-                        <p class="mt-1 text-4xl font-black text-pink-700">NGN {{ number_format($product->price, 2) }}</p>
-                        <p class="mt-2 text-sm text-slate-600">per MOQ of {{ $product->moq }}</p>
-                        <a href="{{ route('orders.create', $product) }}" class="mt-6 inline-flex w-full justify-center rounded-md bg-pink-600 px-5 py-4 text-sm font-black text-white transition hover:bg-pink-700">Start Order</a>
+                        @if ($product->hasAvailablePrice())
+                            <p class="text-sm font-bold text-slate-500">starting at</p>
+                            <p class="mt-1 text-4xl font-black text-pink-700">NGN {{ number_format($product->price, 2) }}</p>
+                            <p class="mt-2 text-sm text-slate-600">per MOQ of {{ $product->moq }}</p>
+                            <a href="{{ route('orders.create', $product) }}" class="mt-6 inline-flex w-full justify-center rounded-md bg-pink-600 px-5 py-4 text-sm font-black text-white transition hover:bg-pink-700">Start Order</a>
+                        @else
+                            <p class="text-sm font-bold text-slate-500">pricing</p>
+                            <p class="mt-1 text-3xl font-black text-pink-700">Request quotation</p>
+                            <p class="mt-2 text-sm text-slate-600">Our team will price this product after reviewing your quantity, material, and artwork details.</p>
+                            <a href="{{ $product->quoteRequestUrl() }}" class="mt-6 inline-flex w-full justify-center rounded-md bg-pink-600 px-5 py-4 text-sm font-black text-white transition hover:bg-pink-700">Request Quote</a>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -86,7 +93,7 @@
                             <a href="{{ route('products.show', $relatedProduct) }}" class="rounded-md border border-slate-200 bg-white p-5 transition hover:-translate-y-1 hover:shadow-lg">
                                 <h3 class="font-black text-slate-950">{{ $relatedProduct->name }}</h3>
                                 <p class="mt-2 min-h-12 text-sm leading-6 text-slate-600">{{ $relatedProduct->short_description }}</p>
-                                <p class="mt-4 text-lg font-black text-pink-700">NGN {{ number_format($relatedProduct->price, 2) }}</p>
+                                <p class="mt-4 text-lg font-black text-pink-700">{{ $relatedProduct->hasAvailablePrice() ? 'NGN '.number_format($relatedProduct->price, 2) : 'Request quote' }}</p>
                             </a>
                         @endforeach
                     </div>

@@ -13,7 +13,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
-#[Fillable(['first_name', 'last_name', 'phone', 'companyName', 'email', 'password', 'google_id', 'avatar', 'email_verified_at', 'role', 'department', 'requested_role', 'other_role', 'address', 'date_of_birth', 'photo', 'approved_by_id', 'approved_at', 'is_active'])]
+#[Fillable(['first_name', 'last_name', 'phone', 'companyName', 'email', 'password', 'google_id', 'avatar', 'email_verified_at', 'role', 'department', 'requested_role', 'other_role', 'address', 'date_of_birth', 'photo', 'approved_by_id', 'approved_at', 'is_active', 'employment_status', 'employment_status_reason', 'employment_status_changed_at', 'employment_status_changed_by_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmailContract
 {
@@ -33,6 +33,7 @@ class User extends Authenticatable implements MustVerifyEmailContract
             'is_active' => 'boolean',
             'date_of_birth' => 'date',
             'approved_at' => 'datetime',
+            'employment_status_changed_at' => 'datetime',
         ];
     }
 
@@ -61,6 +62,16 @@ class User extends Authenticatable implements MustVerifyEmailContract
     public function isPendingStaff(): bool
     {
         return $this->role === 'staff_pending' || (! $this->is_active && $this->requested_role !== null);
+    }
+
+    public function employmentStatusLabel(): string
+    {
+        return match ((string) ($this->employment_status ?? 'active')) {
+            'suspended' => 'Suspended',
+            'terminated' => 'Terminated',
+            'pending' => 'Pending Onboarding',
+            default => 'Active',
+        };
     }
 
     public function deliveryAddresses(): HasMany

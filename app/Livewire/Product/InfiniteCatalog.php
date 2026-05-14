@@ -96,17 +96,19 @@ class InfiniteCatalog extends Component
         }
 
         if ($this->filters['min_price'] !== null) {
-            $catalogQuery->where('price', '>=', $this->filters['min_price']);
+            $catalogQuery->where('price_unavailable', false)
+                ->where('price', '>=', $this->filters['min_price']);
         }
 
         if ($this->filters['max_price'] !== null) {
-            $catalogQuery->where('price', '<=', $this->filters['max_price']);
+            $catalogQuery->where('price_unavailable', false)
+                ->where('price', '<=', $this->filters['max_price']);
         }
 
         match ($this->filters['sort']) {
             'name_desc' => $catalogQuery->orderByDesc('name'),
-            'price_low_high' => $catalogQuery->orderBy('price'),
-            'price_high_low' => $catalogQuery->orderByDesc('price'),
+            'price_low_high' => $catalogQuery->orderBy('price_unavailable')->orderBy('price'),
+            'price_high_low' => $catalogQuery->orderBy('price_unavailable')->orderByDesc('price'),
             'latest' => $catalogQuery->latest(),
             'most_viewed' => $catalogQuery->orderByDesc('view_count')->orderBy('name'),
             default => $catalogQuery->orderBy('name'),

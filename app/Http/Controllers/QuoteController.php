@@ -16,10 +16,19 @@ use Illuminate\View\View;
 
 class QuoteController extends Controller
 {
-    public function create(): View
+    public function create(Request $request): View
     {
+        $selectedProduct = null;
+
+        if ($request->filled('product_id')) {
+            $selectedProduct = Product::query()
+                ->where('is_active', true)
+                ->find($request->integer('product_id'));
+        }
+
         return view('quotes.create', [
             'products' => Product::query()->where('is_active', true)->orderBy('name')->get(),
+            'selectedProduct' => $selectedProduct,
             'categories' => ProductCategory::publicTreeQuery()
                 ->limit(6)
                 ->get(),

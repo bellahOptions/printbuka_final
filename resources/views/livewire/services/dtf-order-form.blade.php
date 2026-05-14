@@ -115,7 +115,7 @@
                 </label>
             </div>
 
-            <button type="submit" class="hidden md:inline-flex min-h-12 items-center justify-center rounded-md bg-pink-600 px-6 text-sm font-black text-white transition hover:bg-pink-700">Proceed to Paystack</button>
+            <button type="submit" wire:loading.attr="disabled" wire:target="submit" class="hidden md:inline-flex min-h-12 items-center justify-center rounded-md bg-pink-600 px-6 text-sm font-black text-white transition hover:bg-pink-700 disabled:cursor-not-allowed disabled:opacity-70">Proceed to Paystack</button>
         </div>
 
         <aside class="hidden rounded-md border border-slate-200 bg-white p-5 shadow-sm lg:block lg:sticky lg:top-24 lg:self-start">
@@ -137,7 +137,7 @@
                     <p class="text-[10px] font-black uppercase tracking-wide text-slate-500">Estimated Total</p>
                     <p class="text-xl font-black text-pink-700">NGN {{ number_format((float) $this->estimatedTotal, 2) }}</p>
                 </div>
-                <button type="submit" class="inline-flex min-h-11 items-center justify-center rounded-md bg-pink-600 px-5 text-sm font-black text-white transition hover:bg-pink-700">Pay on Paystack</button>
+                <button type="submit" wire:loading.attr="disabled" wire:target="submit" class="inline-flex min-h-11 items-center justify-center rounded-md bg-pink-600 px-5 text-sm font-black text-white transition hover:bg-pink-700 disabled:cursor-not-allowed disabled:opacity-70">Pay on Paystack</button>
             </div>
         </div>
     </form>
