@@ -267,6 +267,15 @@
                                 Staff
                             </a>
                         @endif
+                        @if (auth()->user()?->canAdmin('training.manage'))
+                            <a href="{{ route('admin.training.index') }}" class="{{ $sidebarLinkClass('admin.training.*') }}">
+                                <svg class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-pink-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422A12.083 12.083 0 0119 15.5c0 1.41-.241 2.764-.684 4.023C16.561 20.44 14.414 21 12 21s-4.561-.56-6.316-1.477A12.02 12.02 0 015 15.5c0-1.711.356-3.34.999-4.817L12 14z"/>
+                                </svg>
+                                Training
+                            </a>
+                        @endif
                         @if (auth()->user()?->canAdmin('customers.manage'))
                             <a href="{{ route('admin.customers.index') }}" class="{{ $sidebarLinkClass('admin.customers.*') }}">
                                 <svg class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-pink-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">

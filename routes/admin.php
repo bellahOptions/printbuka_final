@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\AdminSiteSettingController;
 use App\Http\Controllers\Admin\AdminStaffController;
 use App\Http\Controllers\Admin\AdminSupportTicketController;
+use App\Http\Controllers\Admin\AdminTrainingApplicationController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -81,6 +82,15 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::get('/staff', [AdminStaffController::class, 'index'])
             ->middleware('admin.permission:staff.view')
             ->name('staff.index');
+        Route::get('/training-applications', [AdminTrainingApplicationController::class, 'index'])
+            ->middleware('admin.permission:training.manage')
+            ->name('training.index');
+        Route::get('/training-applications/{training}', [AdminTrainingApplicationController::class, 'show'])
+            ->middleware('admin.permission:training.manage')
+            ->name('training.show');
+        Route::patch('/training-applications/{training}/decision', [AdminTrainingApplicationController::class, 'decide'])
+            ->middleware('admin.permission:training.manage')
+            ->name('training.decide');
         Route::put('/staff/{user}', [AdminStaffController::class, 'update'])
             ->middleware('super.admin')
             ->name('staff.update');

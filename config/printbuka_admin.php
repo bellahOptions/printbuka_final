@@ -7,7 +7,7 @@ return [
         'it' => ['*'],
         'management' => ['*'],
         'managing_director' => ['*'],
-        'hr' => ['admin.view', 'orders.view', 'staff.view', 'announcements.view', 'blog.view', 'evaluations.view', 'customers.manage'],
+        'hr' => ['admin.view', 'orders.view', 'staff.view', 'training.manage', 'announcements.view', 'blog.view', 'evaluations.view', 'customers.manage'],
         'operations' => ['admin.view', 'orders.view', 'orders.verify', 'orders.phase_comment', 'workflow.approve', 'sop.verify', 'invoices.manage'],
         'operations_manager' => ['admin.view', 'orders.view', 'orders.verify', 'orders.phase_comment', 'workflow.approve', 'sop.verify', 'invoices.manage'],
         'supervisor' => ['admin.view', 'orders.view', 'orders.verify', 'orders.phase_comment', 'workflow.approve', 'staff.view', 'sop.verify'],
@@ -121,6 +121,7 @@ return [
         'finance.view' => 'Finance',
         'site_settings.manage' => 'Site Settings',
         'customers.manage' => 'Customer Management',
+        'training.manage' => 'Training Applications',
     ],
 
     'job_statuses' => [
