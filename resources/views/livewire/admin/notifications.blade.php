@@ -13,35 +13,20 @@
     </div>
 
     <div class="mt-5 space-y-3">
-        @if (filled($settings['notification_message'] ?? null))
-            <article class="rounded-md border border-pink-200 bg-pink-50 p-4">
-                <p class="text-sm font-black text-pink-800">Notice</p>
-                <p class="mt-1 text-sm font-semibold text-slate-800">{{ $settings['notification_message'] }}</p>
-            </article>
-        @endif
-
-        @if (filled($settings['announcement'] ?? null))
-            <article class="rounded-md border border-cyan-200 bg-cyan-50 p-4">
-                <p class="text-sm font-black text-cyan-800">Announcement</p>
-                <p class="mt-1 text-sm font-semibold text-slate-800">{{ $settings['announcement'] }}</p>
-            </article>
-        @endif
-
         @forelse ($notifications as $notification)
+            @php($data = $notification->data)
             <article class="rounded-md border border-slate-200 p-4">
                 <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                    <p class="font-black text-slate-950">{{ $notification->title }}</p>
+                    <p class="font-black text-slate-950">{{ $data['title'] ?? 'Notification' }}</p>
                     <div class="flex items-center gap-3">
-                        <p class="text-xs font-black uppercase tracking-wide text-slate-500">{{ $notification->display_format ?? 'alert' }} · {{ $notification->created_at->diffForHumans() }}</p>
-                        <button type="button" wire:click="markAsRead({{ $notification->id }})" class="text-xs font-black text-pink-700 transition hover:text-pink-800">Mark read</button>
+                        <p class="text-xs font-black uppercase tracking-wide text-slate-500">{{ $data['type'] ?? 'info' }} · {{ $notification->created_at->diffForHumans() }}</p>
+                        <button type="button" wire:click="markAsRead('{{ $notification->id }}')" class="text-xs font-black text-pink-700 transition hover:text-pink-800">Mark read</button>
                     </div>
                 </div>
-                <p class="mt-2 text-sm font-semibold text-slate-700">{{ $notification->message }}</p>
+                <p class="mt-2 text-sm font-semibold text-slate-700">{{ $data['message'] ?? '' }}</p>
             </article>
         @empty
-            @unless (filled($settings['notification_message'] ?? null) || filled($settings['announcement'] ?? null))
-                <p class="rounded-md border border-dashed border-slate-300 p-5 text-sm text-slate-600">No live alerts right now.</p>
-            @endunless
+            <p class="rounded-md border border-dashed border-slate-300 p-5 text-sm text-slate-600">No live alerts right now.</p>
         @endforelse
     </div>
 </section>

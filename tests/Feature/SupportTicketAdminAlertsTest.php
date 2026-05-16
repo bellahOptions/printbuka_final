@@ -4,12 +4,13 @@ namespace Tests\Feature;
 
 use App\Mail\SupportTicketRaisedAlertMail;
 use App\Mail\SupportTicketUnansweredReminderMail;
-use App\Models\AppNotification;
 use App\Models\Ticket;
 use App\Models\TicketReply;
 use App\Models\User;
+use App\Notifications\AdminBroadcastNotification;
 use App\Services\SupportTicketNotificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
@@ -42,11 +43,10 @@ class SupportTicketAdminAlertsTest extends TestCase
 
         $ticket = Ticket::query()->latest('id')->firstOrFail();
 
-        $this->assertDatabaseHas('app_notifications', [
-            'audience' => 'admins',
-            'title' => 'New support ticket: '.$ticket->ticket_number,
-            'type' => 'warning',
-        ]);
+        $this->assertTrue(DatabaseNotification::query()
+            ->where('type', AdminBroadcastNotification::class)
+            ->where('data->title', 'New support ticket: '.$ticket->ticket_number)
+            ->exists());
 
         Mail::assertSent(SupportTicketRaisedAlertMail::class, 3);
         Mail::assertSent(SupportTicketRaisedAlertMail::class, fn (SupportTicketRaisedAlertMail $mail): bool => $mail->hasTo($customerCare->email));
@@ -118,7 +118,10 @@ class SupportTicketAdminAlertsTest extends TestCase
         $this->assertNotNull($unansweredTicket->fresh()->last_unanswered_reminder_at);
         $this->assertNull($answeredTicket->fresh()->last_unanswered_reminder_at);
 
-        $this->assertTrue(AppNotification::query()->where('title', 'Unanswered support ticket reminder')->exists());
+        $this->assertTrue(DatabaseNotification::query()
+            ->where('type', AdminBroadcastNotification::class)
+            ->where('data->title', 'Unanswered support ticket reminder')
+            ->exists());
 
         $this->assertSame(0, app(SupportTicketNotificationService::class)->sendUnansweredReminders());
     }

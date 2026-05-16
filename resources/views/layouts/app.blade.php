@@ -15,6 +15,8 @@
     <body class="bg-slate-50 text-slate-950 antialiased">
         {{ $slot }}
 
+        <x-turnstile-auto />
+        <x-form-icons />
         @livewireScripts
     </body>
 </html>

@@ -56,7 +56,7 @@
 
                     {{-- Testimonial Preview --}}
                     <div class="mt-6 rounded-xl bg-white/10 p-4">
-                        <div class="flex items-center gap-2 text-cyan-300 text-sm">★★★★★</div>
+                        <div class="flex items-center gap-2 text-cyan-300 text-sm">Rated 4.9/5 by customers</div>
                         <p class="mt-2 text-sm italic text-white/80">"Best print quality in Lagos. Their DTF transfers are unmatched!"</p>
                         <p class="mt-2 text-xs text-white/60">— Adeola O., Creative Director</p>
                     </div>

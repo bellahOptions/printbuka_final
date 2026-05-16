@@ -99,7 +99,7 @@
                             </div>
                             <div>
                                 <p class="text-xs font-semibold">Join 10,000+ happy customers</p>
-                                <div class="flex items-center gap-1 text-xs text-cyan-300">★★★★★ (4.9/5)</div>
+                                <div class="flex items-center gap-1 text-xs text-cyan-300">Rated 4.9/5 by customers</div>
                             </div>
                         </div>
                     </div>

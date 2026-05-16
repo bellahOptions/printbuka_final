@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Mail\TrainingApplicationConfirmationMail;
+use App\Mail\TrainingApplicationDecisionMail;
 use App\Mail\TrainingApplicationSubmittedMail;
 use App\Models\Training;
+use App\Support\Turnstile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -31,6 +32,12 @@ class TrainingController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        if ($request->filled('email')) {
+            $request->merge([
+                'email' => str((string) $request->input('email'))->lower()->trim()->toString(),
+            ]);
+        }
+
         if ($this->registrationIsClosed()) {
             return redirect()
                 ->route('training.apply')
@@ -45,7 +52,7 @@ class TrainingController extends Controller
             'date_of_birth' => ['required', 'date', 'before:-14 years'],
             'gender' => ['nullable', 'string', Rule::in(['Female', 'Male', 'Prefer not to say'])],
             'phone_whatsapp' => ['required', 'string', 'max:50'],
-            'email' => ['required', 'email', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('trainings', 'email')],
             'contact_address' => ['required', 'string', 'max:1000'],
             'city_state' => ['required', 'string', 'max:255'],
             'educational_qualification' => ['required', 'string', 'max:255'],
@@ -54,22 +61,39 @@ class TrainingController extends Controller
             'experience_level' => ['nullable', 'string', 'max:255'],
             'has_laptop' => ['required', 'boolean'],
             'availability' => ['required', 'string', 'max:255'],
-            'portfolio_url' => ['nullable', 'url', 'max:500'],
+            'portfolio_url' => ['required', 'url', 'max:500'],
             'motivation' => ['required', 'string', 'max:2000'],
             'referral_source' => ['nullable', 'string', 'max:255'],
         ];
 
-        if (app()->environment('public')) {
+        if (Turnstile::enabled()) {
             $rules['cf-turnstile-response'] = ['required', 'string'];
         }
 
         $validated = $request->validate($rules);
 
-        if (app()->environment('public')) {
-            $this->validateTurnstile($request);
+        unset($validated['cf-turnstile-response']);
+        $validated['email'] = str($validated['email'])->lower()->trim()->toString();
+
+        if (Training::query()->whereRaw('LOWER(email) = ?', [$validated['email']])->exists()) {
+            throw ValidationException::withMessages([
+                'email' => 'This email has already submitted a PGTP application.',
+            ]);
         }
 
-        unset($validated['cf-turnstile-response']);
+        if ($this->isEmployedApplicant($validated['employment_status'] ?? null)) {
+            $message = $this->employedApplicantRejectionMessage();
+            $application = Training::create([
+                ...$validated,
+                'status' => Training::STATUS_REJECTED,
+                'decision_note' => $message,
+                'decided_at' => now(),
+            ]);
+
+            Mail::to($application->email)->send(new TrainingApplicationDecisionMail($application));
+
+            return back()->with('status', $message);
+        }
 
         $application = Training::create($validated);
 
@@ -92,37 +116,22 @@ class TrainingController extends Controller
         ];
     }
 
-    private function validateTurnstile(Request $request): void
-    {
-        $secret = config('services.turnstile.secret_key');
-
-        if (! $secret) {
-            throw ValidationException::withMessages([
-                'cf-turnstile-response' => 'Captcha verification is not configured.',
-            ]);
-        }
-
-        $response = Http::asForm()
-            ->timeout(10)
-            ->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
-                'secret' => $secret,
-                'response' => $request->input('cf-turnstile-response'),
-                'remoteip' => $request->ip(),
-            ]);
-
-        if (! $response->ok() || ! $response->json('success')) {
-            throw ValidationException::withMessages([
-                'cf-turnstile-response' => 'Captcha verification failed. Please try again.',
-            ]);
-        }
-    }
-
     private function applicationNotificationRecipients(): array
     {
         return [
             'ahmed@printbuka.com.ng',
             'tundealeiloart@gmail.com',
         ];
+    }
+
+    private function isEmployedApplicant(?string $employmentStatus): bool
+    {
+        return strcasecmp(trim((string) $employmentStatus), 'Employed') === 0;
+    }
+
+    private function employedApplicantRejectionMessage(): string
+    {
+        return 'Thank you for your interest in PGTP. This offer is only open to unemployed persons, so your application cannot proceed for this cohort.';
     }
 
     private function registrationDeadline(): Carbon

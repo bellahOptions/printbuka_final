@@ -2,29 +2,24 @@
 
 namespace App\Livewire;
 
-use App\Support\NotificationAudience;
-use Illuminate\Support\Facades\Schema;
+use App\Notifications\AdminBroadcastNotification;
 use Livewire\Component;
 
 class NotificationBell extends Component
 {
-    public function markAsRead(int $notificationId): void
+    public function markAsRead(string $notificationId): void
     {
         if (! auth()->check()) {
             return;
         }
 
-        if (! Schema::hasTable('app_notifications')) {
-            return;
-        }
-
-        $notification = NotificationAudience::visibleQuery(auth()->user())
+        $notification = auth()->user()
+            ->unreadNotifications()
+            ->where('type', AdminBroadcastNotification::class)
             ->whereKey($notificationId)
             ->first();
 
-        if ($notification) {
-            NotificationAudience::markAsRead($notification, auth()->user(), request());
-        }
+        $notification?->markAsRead();
     }
 
     public function markAllAsRead(): void
@@ -33,15 +28,10 @@ class NotificationBell extends Component
             return;
         }
 
-        if (! Schema::hasTable('app_notifications')) {
-            return;
-        }
-
-        NotificationAudience::markAllAsRead(
-            NotificationAudience::unreadQuery(auth()->user(), request()),
-            auth()->user(),
-            request()
-        );
+        auth()->user()
+            ->unreadNotifications()
+            ->where('type', AdminBroadcastNotification::class)
+            ->update(['read_at' => now()]);
     }
 
     public function render()
@@ -54,21 +44,14 @@ class NotificationBell extends Component
             ]);
         }
 
-        if (! Schema::hasTable('app_notifications')) {
-            return view('livewire.notification-bell', [
-                'notifications' => collect(),
-                'surfaceNotifications' => collect(),
-                'count' => 0,
-            ]);
-        }
-
-        $query = NotificationAudience::unreadQuery(auth()->user(), request());
+        $query = auth()->user()
+            ->unreadNotifications()
+            ->where('type', AdminBroadcastNotification::class);
         $notifications = (clone $query)->latest()->limit(8)->get();
-        $surfaceNotifications = (clone $query)->latest()->limit(8)->get();
 
         return view('livewire.notification-bell', [
             'notifications' => $notifications,
-            'surfaceNotifications' => $surfaceNotifications,
+            'surfaceNotifications' => $notifications,
             'count' => (clone $query)->count(),
         ]);
     }

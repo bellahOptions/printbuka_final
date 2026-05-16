@@ -67,10 +67,14 @@
         @stack('head')
     </head>
     <body class="bg-slate-50 text-slate-950 antialiased">
+        <x-public-advertisements :placements="['top_banner', 'floating_card']" />
         @include('layouts.guest.nav')
         @include('layouts.partials.breadcrumbs', ['rootLabel' => 'Home', 'rootRoute' => 'home'])
         @yield('content')
+        <x-public-advertisements :placements="['inline_banner', 'footer_banner']" />
         @include('layouts.guest.footer')
+        <x-turnstile-auto />
+        <x-form-icons />
         @livewireScripts
     </body>
 </html>

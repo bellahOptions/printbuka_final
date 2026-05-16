@@ -4,13 +4,15 @@ namespace App\Services;
 
 use App\Mail\SupportTicketRaisedAlertMail;
 use App\Mail\SupportTicketUnansweredReminderMail;
-use App\Models\AppNotification;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Notifications\AdminBroadcastNotification;
 use App\Support\SiteSettings;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 
 class SupportTicketNotificationService
 {
@@ -24,21 +26,19 @@ class SupportTicketNotificationService
             return 0;
         }
 
-        AppNotification::query()->create([
-            'audience' => 'admins',
-            'title' => 'New support ticket: '.$ticket->ticket_number,
-            'message' => sprintf(
+        Notification::send($recipients, new AdminBroadcastNotification(
+            (string) Str::uuid(),
+            'New support ticket: '.$ticket->ticket_number,
+            sprintf(
                 'A %s-priority ticket (%s) was raised by %s. Subject: %s.',
                 strtoupper((string) $ticket->priority),
                 $ticket->ticket_number,
                 $ticket->user?->displayName() ?? 'Unknown user',
                 $ticket->subject
             ),
-            'type' => $ticket->priority === 'urgent' ? 'urgent' : 'warning',
-            'display_format' => 'alert',
-            'starts_at' => now(),
-            'user_id' => $raisedByUserId,
-        ]);
+            $ticket->priority === 'urgent' ? 'warning' : 'warning',
+            route('admin.support.show', $ticket),
+        ));
 
         $sent = 0;
 
@@ -92,14 +92,13 @@ class SupportTicketNotificationService
             return 0;
         }
 
-        AppNotification::query()->create([
-            'audience' => 'admins',
-            'title' => 'Unanswered support ticket reminder',
-            'message' => $tickets->count().' support ticket(s) have no staff response beyond '.$thresholdHours.' hour(s).',
-            'type' => 'warning',
-            'display_format' => 'alert',
-            'starts_at' => now(),
-        ]);
+        Notification::send($recipients, new AdminBroadcastNotification(
+            (string) Str::uuid(),
+            'Unanswered support ticket reminder',
+            $tickets->count().' support ticket(s) have no staff response beyond '.$thresholdHours.' hour(s).',
+            'warning',
+            route('admin.support.index'),
+        ));
 
         $sent = 0;
 

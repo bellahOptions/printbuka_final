@@ -3,29 +3,28 @@
 namespace App\Livewire\Dashboard;
 
 use App\Models\SiteSetting;
-use App\Support\NotificationAudience;
+use App\Notifications\AdminBroadcastNotification;
 use Livewire\Component;
 
 class UserNotifications extends Component
 {
-    public function markAsRead(int $notificationId): void
+    public function markAsRead(string $notificationId): void
     {
-        $notification = NotificationAudience::visibleQuery(auth()->user())
+        $notification = auth()->user()
+            ->unreadNotifications()
+            ->where('type', AdminBroadcastNotification::class)
             ->whereKey($notificationId)
             ->first();
 
-        if ($notification) {
-            NotificationAudience::markAsRead($notification, auth()->user(), request());
-        }
+        $notification?->markAsRead();
     }
 
     public function markAllAsRead(): void
     {
-        NotificationAudience::markAllAsRead(
-            NotificationAudience::unreadQuery(auth()->user(), request()),
-            auth()->user(),
-            request()
-        );
+        auth()->user()
+            ->unreadNotifications()
+            ->where('type', AdminBroadcastNotification::class)
+            ->update(['read_at' => now()]);
     }
 
     public function render()
@@ -34,7 +33,9 @@ class UserNotifications extends Component
             ->whereIn('key', ['notification_message', 'announcement'])
             ->pluck('value', 'key');
 
-        $notifications = NotificationAudience::unreadQuery(auth()->user(), request())
+        $notifications = auth()->user()
+            ->unreadNotifications()
+            ->where('type', AdminBroadcastNotification::class)
             ->latest()
             ->limit(5)
             ->get();
@@ -42,7 +43,7 @@ class UserNotifications extends Component
         return view('livewire.dashboard.user-notifications', [
             'settings' => $settings,
             'notifications' => $notifications,
-            'unreadCount' => NotificationAudience::unreadQuery(auth()->user(), request())->count(),
+            'unreadCount' => auth()->user()->unreadNotifications()->where('type', AdminBroadcastNotification::class)->count(),
             'lastUpdated' => now()->format('H:i:s'),
         ]);
     }

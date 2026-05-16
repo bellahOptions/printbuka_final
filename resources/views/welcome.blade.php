@@ -461,10 +461,8 @@
 
                 <div class="card bg-base-100 border border-slate-200 shadow-sm">
                     <div class="card-body p-6">
-                        <div class="flex gap-1 mb-3">
-                            @for($i = 0; $i < 5; $i++)
-                                <span class="text-amber-400">★</span>
-                            @endfor
+                        <div class="mb-3">
+                            <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-700">5/5 rating</span>
                         </div>
                         <p class="text-sm text-slate-600 leading-relaxed italic">"This print shop exhibits professionalism in all senses. They are reliable and they deliver promptly. They pay close attention to details when it comes to printing."</p>
                         <div class="flex items-center gap-3 mt-4">
@@ -483,10 +481,8 @@
 
                 <div class="card bg-base-100 border border-slate-200 shadow-sm">
                     <div class="card-body p-6">
-                        <div class="flex gap-1 mb-3">
-                            @for($i = 0; $i < 5; $i++)
-                                <span class="text-amber-400">★</span>
-                            @endfor
+                        <div class="mb-3">
+                            <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-700">5/5 rating</span>
                         </div>
                         <p class="text-sm text-slate-600 leading-relaxed italic">"Quality work, fast turnaround, and the team actually managed my design too. Printbuka is my go-to print shop for everything business-related."</p>
                         <div class="flex items-center gap-3 mt-4">
@@ -505,10 +501,8 @@
 
                 <div class="card bg-base-100 border border-slate-200 shadow-sm">
                     <div class="card-body p-6">
-                        <div class="flex gap-1 mb-3">
-                            @for($i = 0; $i < 5; $i++)
-                                <span class="text-amber-400">★</span>
-                            @endfor
+                        <div class="mb-3">
+                            <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-700">5/5 rating</span>
                         </div>
                         <p class="text-sm text-slate-600 leading-relaxed italic">"Ordered branded mugs for a corporate event and they came out perfect. Delivery was on time. Highly recommend Printbuka for any gifting or print need."</p>
                         <div class="flex items-center gap-3 mt-4">

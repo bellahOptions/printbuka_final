@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminActivityLogController;
+use App\Http\Controllers\Admin\AdminAdvertisementController;
 use App\Http\Controllers\Admin\AdminBlogPostController;
 use App\Http\Controllers\Admin\AdminCustomerController;
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -64,6 +65,15 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::delete('/notifications/{notification}', [AdminNotificationController::class, 'destroy'])
             ->middleware('admin.permission:*')
             ->name('notifications.destroy');
+        Route::get('/advertisements', [AdminAdvertisementController::class, 'index'])
+            ->middleware('super.admin')
+            ->name('advertisements.index');
+        Route::post('/advertisements', [AdminAdvertisementController::class, 'store'])
+            ->middleware('super.admin')
+            ->name('advertisements.store');
+        Route::delete('/advertisements/{advertisement}', [AdminAdvertisementController::class, 'destroy'])
+            ->middleware('super.admin')
+            ->name('advertisements.destroy');
         Route::get('/newsletters', [AdminNewsletterController::class, 'index'])
             ->middleware('admin.permission:newsletters.manage')
             ->name('newsletters.index');

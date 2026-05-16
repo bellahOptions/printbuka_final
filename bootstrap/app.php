@@ -8,6 +8,7 @@ use App\Http\Middleware\EnsureUserEmailIsVerified;
 use App\Http\Middleware\EnsureUserIsAuthenticated;
 use App\Http\Middleware\LogStaffActivity;
 use App\Http\Middleware\RedirectIfUserAuthenticated;
+use App\Http\Middleware\VerifyTurnstile;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -26,6 +27,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             EnforceSiteMaintenance::class,
+            VerifyTurnstile::class,
             LogStaffActivity::class,
         ]);
 
