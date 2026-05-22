@@ -33,10 +33,13 @@ class AdminFinanceController extends Controller
     {
         FinanceEntry::query()->create([
             ...$this->validatedManualExpense($request),
-            'type' => 'expense',
+            //'type' => 'expense',
             'user_id' => $request->user()->id,
         ]);
-
+            if ($request->input('type') === 'income') {
+                return redirect()->route('admin.finance.index')
+                    ->with('status', 'Income entry created. Note: Income entries are typically generated automatically from paid invoices, check notes for details of the generated entry.');
+            }
         return redirect()->route('admin.finance.index')->with('status', 'Expense entry created.');
     }
 
@@ -80,6 +83,7 @@ class AdminFinanceController extends Controller
         return $request->validate([
             'order_id' => ['nullable', 'exists:orders,id'],
             'entry_date' => ['required', 'date'],
+            'type' => ['required', 'in:expense,income'],
             'category' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string', 'max:255'],
             'payee' => ['nullable', 'string', 'max:255'],

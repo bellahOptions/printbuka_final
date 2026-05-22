@@ -235,6 +235,11 @@ Route::get('/pgtp', [TrainingController::class, 'index'])->name('training');
 Route::get('/pgtp/apply', [TrainingController::class, 'register'])->name('training.apply');
 Route::post('/pgtp/apply', [TrainingController::class, 'store'])->name('training.store');
 
+//Careers
+Route::get('/careers', function () {
+    return view('careers');
+})->name('careers');
+
 if (app()->environment('local')) {
     Route::prefix('/local-previews/invoices')
         ->name('local-previews.invoices.')

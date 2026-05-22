@@ -38,7 +38,10 @@
 
                 <label class="text-sm font-black">
                     Type
-                    <input value="{{ ucfirst($entry->type ?: 'expense') }}" readonly class="mt-2 min-h-12 w-full rounded-md border border-slate-200 bg-slate-50 px-4 font-semibold text-slate-600">
+                    <select name="type" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold" @disabled($isAutoIncome)>
+                        <option value="expense" @selected(old('type', $entry->type) === 'expense')>Expense</option>
+                        <option value="income" @selected(old('type', $entry->type) === 'income')>Income</option>
+                    </select>
                 </label>
 
                 <label class="text-sm font-black">
