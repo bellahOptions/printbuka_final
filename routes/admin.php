@@ -44,18 +44,23 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
             ->name('invoices.import-csv');
         Route::get('/invoices/{invoice}', [AdminInvoiceController::class, 'show'])
             ->middleware('admin.permission:invoices.manage')
+            ->whereNumber('invoice')
             ->name('invoices.show');
         Route::get('/invoices/{invoice}/download', [AdminInvoiceController::class, 'download'])
             ->middleware('admin.permission:invoices.manage')
+            ->whereNumber('invoice')
             ->name('invoices.download');
         Route::resource('invoices', AdminInvoiceController::class)
             ->except('show')
+            ->whereNumber('invoice')
             ->middleware('admin.permission:invoices.manage');
         Route::patch('/invoices/{invoice}/mark-paid', [AdminInvoiceController::class, 'markAsPaid'])
             ->middleware('admin.permission:invoices.manage')
+            ->whereNumber('invoice')
             ->name('invoices.mark-paid');
         Route::patch('/invoices/{invoice}/send', [AdminInvoiceController::class, 'send'])
             ->middleware('admin.permission:invoices.manage')
+            ->whereNumber('invoice')
             ->name('invoices.send');
         Route::get('/invoices/quotations/create', [AdminInvoiceController::class, 'createQuotation'])
             ->middleware('admin.permission:invoices.manage')
@@ -89,12 +94,15 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
             ->name('newsletters.store');
         Route::get('/finance/{finance}', [AdminFinanceController::class, 'show'])
             ->middleware('admin.permission:finance.view')
+            ->whereNumber('finance')
             ->name('finance.show');
         Route::get('/finance/{finance}/download', [AdminFinanceController::class, 'download'])
             ->middleware('admin.permission:finance.view')
+            ->whereNumber('finance')
             ->name('finance.download');
         Route::resource('finance', AdminFinanceController::class)
             ->except('show')
+            ->whereNumber('finance')
             ->middleware('admin.permission:finance.view');
         Route::get('/settings', [AdminSiteSettingController::class, 'edit'])
             ->middleware('admin.permission:site_settings.manage')
@@ -182,6 +190,9 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::post('/orders/{order}/approve-forward', [AdminOrderController::class, 'approveForward'])
             ->middleware('admin.permission:orders.view')
             ->name('orders.approve-forward');
+        Route::patch('/orders/{order}/conclude', [AdminOrderController::class, 'conclude'])
+            ->middleware('admin.permission:orders.view')
+            ->name('orders.conclude');
 
         Route::get('/support', [AdminSupportTicketController::class, 'index'])
             ->middleware('admin.permission:admin.view')

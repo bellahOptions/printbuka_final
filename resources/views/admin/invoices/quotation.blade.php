@@ -17,7 +17,7 @@
             <div class="flex items-start gap-4">
                 <div class="flex-1">
                     <h1 class="text-4xl font-black tracking-tight lg:text-5xl">Create quotation</h1>
-                    <p class="mt-3 max-w-3xl text-base leading-relaxed text-slate-300">Generate a professional quote for new or existing customers. Send it directly via email or save as draft.</p>
+                    <p class="mt-3 max-w-3xl text-base leading-relaxed text-slate-300">Generate a professional quote for new or existing customers. Choose to save, download, or send after save.</p>
                 </div>
                 <div class="hidden sm:block">
                     <div class="rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 p-3 border border-cyan-500/20">
@@ -178,11 +178,12 @@
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                             </svg>
-                            Customer Email *
+                            Customer Email
                         </label>
-                        <input id="quotation-customer-email" type="email" name="customer_email" value="{{ old('customer_email') }}" required 
+                        <input id="quotation-customer-email" type="email" name="customer_email" value="{{ old('customer_email') }}"
                                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
                                placeholder="email@example.com">
+                        <p class="text-xs font-semibold text-slate-500">Optional. Required only when using "Save & Send".</p>
                         @error('customer_email')<p class="mt-1.5 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
                     </div>
 
@@ -523,25 +524,20 @@
                 </div>
             </div>
 
-            <!-- Email Option & Submit -->
+            <!-- Save Options -->
             <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
-                <label class="flex items-start gap-3 cursor-pointer">
-                    <input type="checkbox" name="send_email" value="1" @checked(old('send_email', false)) class="mt-0.5 h-5 w-5 rounded border-slate-300 text-pink-600 focus:ring-pink-500">
-                    <div>
-                        <p class="text-sm font-black text-slate-900">Send quotation email immediately</p>
-                        <p class="text-xs text-slate-500 mt-1">The quotation will be sent to the customer's email address</p>
-                    </div>
-                </label>
+                <p class="text-sm font-black text-slate-900">Save Options</p>
+                <p class="mt-1 text-xs text-slate-500">Quotations without an email can only be saved or downloaded.</p>
 
-                <div class="mt-6 flex items-center gap-4">
-                    <button type="submit" class="btn-primary group relative overflow-hidden rounded-xl bg-gradient-to-r from-pink-600 to-pink-700 px-8 py-4 text-sm font-black text-white shadow-lg shadow-pink-600/20 transition-all duration-300 hover:shadow-xl hover:shadow-pink-600/30 hover:scale-[1.02]">
-                        <span class="relative z-10 flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                            Create Quotation
-                        </span>
-                        <div class="absolute inset-0 -translate-x-full group-hover:translate-x-0 transition-transform duration-500 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+                <div class="mt-6 flex flex-wrap items-center gap-3">
+                    <button type="submit" name="action" value="save" class="rounded-xl bg-slate-900 px-6 py-3 text-sm font-black text-white transition hover:bg-slate-800">
+                        Save Quotation
+                    </button>
+                    <button type="submit" name="action" value="save_download" class="rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-black text-slate-900 transition hover:bg-slate-50">
+                        Save & Download
+                    </button>
+                    <button type="submit" name="action" value="save_send" id="quotation-save-send-button" class="rounded-xl bg-pink-600 px-6 py-3 text-sm font-black text-white transition hover:bg-pink-700">
+                        Save & Send
                     </button>
                     <a href="{{ route('admin.invoices.index') }}" class="text-sm font-semibold text-slate-500 hover:text-slate-700 transition-colors">Cancel</a>
                 </div>
@@ -761,6 +757,7 @@
             const addLineItemButton = document.getElementById('add-quotation-line-item');
             const taxInput = document.querySelector('input[name="tax_amount"]');
             const discountInput = document.querySelector('input[name="discount_amount"]');
+            const saveAndSendButton = document.getElementById('quotation-save-send-button');
             const subtotalDisplay = document.getElementById('quotation-subtotal-display');
             const taxDisplay = document.getElementById('quotation-tax-display');
             const discountDisplay = document.getElementById('quotation-discount-display');
@@ -789,6 +786,18 @@
                 nameInput.value = option.getAttribute('data-customer-name') ?? nameInput.value;
                 emailInput.value = option.getAttribute('data-customer-email') ?? emailInput.value;
                 phoneInput.value = option.getAttribute('data-customer-phone') ?? phoneInput.value;
+                syncSendActionAvailability();
+            };
+
+            const syncSendActionAvailability = () => {
+                if (!saveAndSendButton) {
+                    return;
+                }
+
+                const hasEmail = (emailInput?.value ?? '').trim() !== '';
+                saveAndSendButton.hidden = !hasEmail;
+                saveAndSendButton.disabled = !hasEmail;
+                saveAndSendButton.title = hasEmail ? '' : 'Customer email is required to send quotation';
             };
 
             const setNewCustomerFormVisible = (visible) => {
@@ -1033,6 +1042,7 @@
             toggleNewCustomerButton?.addEventListener('click', () => {
                 setNewCustomerFormVisible(newCustomerForm?.classList.contains('hidden'));
             });
+            emailInput?.addEventListener('input', syncSendActionAvailability);
 
             window.addEventListener('admin-customer-created', (event) => {
                 const rawDetail = event.detail ?? {};
@@ -1170,6 +1180,7 @@
             }
 
             setNewCustomerFormVisible(false);
+            syncSendActionAvailability();
         })();
     </script>
 @endsection

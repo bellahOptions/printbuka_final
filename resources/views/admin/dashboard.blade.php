@@ -80,7 +80,17 @@
                     @foreach ($todayTasks->take(3) as $todo)
                         <article class="rounded-3xl border border-slate-200 bg-slate-50 p-4">
                             <div class="flex items-center justify-between gap-3">
-                                <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">{{ $todo->status === 'pending' ? 'Open' : ($todo->status === 'review_requested' ? 'In review' : ucfirst($todo->status)) }}</p>
+                                <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
+                                    {{
+                                        match ($todo->status) {
+                                            'pending' => 'Open',
+                                            'working_on_it' => 'Working',
+                                            'completed', 'review_requested' => 'Completed',
+                                            'reviewed', 'approved', 'rejected' => 'Reviewed',
+                                            default => ucfirst(str_replace('_', ' ', (string) $todo->status)),
+                                        }
+                                    }}
+                                </p>
                                 <span class="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-700 ring-1 ring-slate-200">Due {{ $todo->due_date->format('M j') }}</span>
                             </div>
                             <h3 class="mt-4 text-lg font-black text-slate-950">{{ $todo->task }}</h3>

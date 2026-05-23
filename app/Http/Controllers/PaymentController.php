@@ -12,6 +12,38 @@ use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
+    public function process(Request $request, Invoice $invoice, PaystackService $paystackService): RedirectResponse
+    {
+        $invoice->loadMissing('order');
+        $order = $invoice->order;
+        $user = $request->user();
+
+        if (! $order || ! $user || (int) $order->user_id !== (int) $user->id) {
+            return redirect()
+                ->route('user.invoices.index')
+                ->with('error', 'You do not have permission to pay this invoice.');
+        }
+
+        if (in_array((string) $invoice->status, ['paid', 'cancelled'], true)) {
+            return redirect()
+                ->route('user.invoices.show', $invoice)
+                ->with('status', 'This invoice is not available for payment.');
+        }
+
+        $paymentInit = $paystackService->initializeForInvoice($invoice, [
+            'payment_context' => 'invoice_retry',
+            'initiated_from' => 'invoice_portal',
+        ]);
+
+        if (($paymentInit['ok'] ?? false) && filled($paymentInit['authorization_url'] ?? null)) {
+            return redirect()->away((string) $paymentInit['authorization_url']);
+        }
+
+        return redirect()
+            ->route('user.invoices.show', $invoice)
+            ->with('warning', $paymentInit['message'] ?? 'Unable to initialize payment right now. Please try again.');
+    }
+
     public function paystackCallback(Request $request, PaystackService $paystackService, InvoiceLifecycleService $invoiceLifecycleService): RedirectResponse
     {
         $reference = (string) $request->query('reference', '');

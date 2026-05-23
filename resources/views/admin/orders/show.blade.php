@@ -21,6 +21,13 @@
             <div class="mt-4 flex flex-wrap gap-3">
                 <a href="{{ route('admin.orders.job-log', $order) }}" class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-black text-slate-900 hover:bg-slate-50">View Job Log</a>
                 <a href="{{ route('admin.orders.job-log.download', $order) }}" class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-black text-slate-900 hover:bg-slate-50">Download Job Log</a>
+                @if (! $order->is_concluded && $canConcludeJob)
+                    <form action="{{ route('admin.orders.conclude', $order) }}" method="POST" onsubmit="return confirm('Conclude this job? This will lock all edits permanently.');">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-black text-white transition hover:bg-emerald-700">Conclude Job</button>
+                    </form>
+                @endif
             </div>
         </div>
 
@@ -41,6 +48,12 @@
 
         @if (session('warning'))
             <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-800">{{ session('warning') }}</div>
+        @endif
+
+        @if ($order->is_concluded)
+            <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-800">
+                This job was concluded on {{ $order->concluded_at?->format('M j, Y h:i A') ?? 'N/A' }} by {{ $order->concludedBy?->displayName() ?? 'N/A' }} and is now locked from edits.
+            </div>
         @endif
 
         <section class="grid gap-6 lg:grid-cols-2">
@@ -75,7 +88,7 @@
                     </div>
                 </div>
 
-                @if ($canReceiveBrief)
+                @if ($canReceiveBrief && ! $order->is_concluded)
                     <form action="{{ route('admin.orders.receive-brief', $order) }}" method="POST" class="mt-4">
                         @csrf
                         <button type="submit" class="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-black text-white transition hover:bg-slate-700">
@@ -108,7 +121,7 @@
                     @endforeach
                 </div>
 
-                @if ($nextWorkflowStatus && $canRequestMoveForward)
+                @if ($nextWorkflowStatus && $canRequestMoveForward && ! $order->is_concluded)
                     <form action="{{ route('admin.orders.move-forward', $order) }}" method="POST" class="mt-5">
                         @csrf
                         <button type="submit" class="w-full rounded-xl bg-pink-600 px-4 py-3 text-sm font-black text-white transition hover:bg-pink-700">
@@ -117,7 +130,7 @@
                     </form>
                 @endif
 
-                @if ($order->requested_next_status)
+                @if ($order->requested_next_status && ! $order->is_concluded)
                     <div class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4">
                         <p class="text-xs font-black uppercase tracking-wide text-amber-700">Pending Operations Approval</p>
                         <p class="mt-1 text-sm font-semibold text-amber-800">Requested next status: {{ $order->requested_next_status }}</p>
@@ -137,6 +150,12 @@
         <form action="{{ route('admin.orders.update', $order) }}" method="POST" enctype="multipart/form-data" class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             @csrf
             @method('PUT')
+
+            @if ($order->is_concluded)
+                <div class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-800">
+                    This job is concluded. Workflow edits are disabled.
+                </div>
+            @endif
 
             <div class="grid gap-5 sm:grid-cols-2">
                 <label class="text-sm font-black">
@@ -338,7 +357,7 @@
                 </label>
             </div>
 
-            <button type="submit" class="mt-6 w-full rounded-xl bg-slate-900 px-6 py-3 text-sm font-black text-white transition hover:bg-slate-700">
+            <button type="submit" @disabled($order->is_concluded) class="mt-6 w-full rounded-xl bg-slate-900 px-6 py-3 text-sm font-black text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-400">
                 Save Workflow Update
             </button>
         </form>

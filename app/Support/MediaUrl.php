@@ -33,7 +33,7 @@ class MediaUrl
         $normalizedStoragePath = self::normalizeStoragePath($candidate);
 
         if (Storage::disk($disk)->exists($normalizedStoragePath)) {
-            return Storage::disk($disk)->url($normalizedStoragePath);
+            return self::storageUrl($disk, $normalizedStoragePath);
         }
 
         if (file_exists(public_path($candidate))) {
@@ -61,14 +61,10 @@ class MediaUrl
 
     private static function normalizeRootPath(string $path, string $disk): ?string
     {
-        if (str_starts_with($path, '/storage/')) {
-            $normalizedStoragePath = self::normalizeStoragePath($path);
+        $normalizedStoragePath = self::normalizeStoragePath($path);
 
-            if (Storage::disk($disk)->exists($normalizedStoragePath)) {
-                return Storage::disk($disk)->url($normalizedStoragePath);
-            }
-
-            return null;
+        if ($normalizedStoragePath !== '' && Storage::disk($disk)->exists($normalizedStoragePath)) {
+            return self::storageUrl($disk, $normalizedStoragePath);
         }
 
         return file_exists(public_path($path)) ? asset(ltrim($path, '/')) : null;
@@ -76,7 +72,23 @@ class MediaUrl
 
     private static function normalizeStoragePath(string $value): string
     {
-        $path = ltrim(str_replace('\\', '/', trim($value)), '/');
+        $path = rawurldecode(ltrim(str_replace('\\', '/', trim($value)), '/'));
+
+        if ($path === '') {
+            return '';
+        }
+
+        if (preg_match('#(?:^|/)storage/app/public/(.+)$#', $path, $matches) === 1) {
+            return ltrim((string) ($matches[1] ?? ''), '/');
+        }
+
+        if (preg_match('#(?:^|/)public/storage/(.+)$#', $path, $matches) === 1) {
+            return ltrim((string) ($matches[1] ?? ''), '/');
+        }
+
+        if (str_starts_with($path, 'app/public/')) {
+            $path = substr($path, strlen('app/public/'));
+        }
 
         if (str_starts_with($path, 'storage/')) {
             $path = substr($path, strlen('storage/'));
@@ -87,5 +99,10 @@ class MediaUrl
         }
 
         return ltrim($path, '/');
+    }
+
+    private static function storageUrl(string $disk, string $path): string
+    {
+        return self::normalizeUrlHostDependency(Storage::disk($disk)->url($path));
     }
 }

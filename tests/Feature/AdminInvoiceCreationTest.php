@@ -201,6 +201,96 @@ class AdminInvoiceCreationTest extends TestCase
         });
     }
 
+    public function test_admin_can_save_manual_invoice_without_customer_email(): void
+    {
+        $admin = $this->adminUser('operations');
+
+        $this->actingAs($admin)
+            ->post(route('admin.invoices.store'), [
+                'customer_name' => 'Walk-in Client',
+                'customer_phone' => '08088889999',
+                'catalog_item_key' => 'service:dtf',
+                'quantity' => 2,
+                'tax_amount' => 0,
+                'discount_amount' => 0,
+                'action' => 'save',
+            ])
+            ->assertRedirect(route('admin.invoices.index'))
+            ->assertSessionHas('status');
+
+        $order = Order::query()->latest('id')->firstOrFail();
+        $invoice = Invoice::query()->where('order_id', $order->id)->firstOrFail();
+
+        $this->assertSame('', (string) $order->customer_email);
+        $this->assertSame('unpaid', $invoice->status);
+    }
+
+    public function test_admin_cannot_save_and_send_invoice_without_customer_email(): void
+    {
+        $admin = $this->adminUser('operations');
+
+        $this->actingAs($admin)
+            ->from(route('admin.invoices.create'))
+            ->post(route('admin.invoices.store'), [
+                'customer_name' => 'Walk-in Client',
+                'customer_phone' => '08088889999',
+                'catalog_item_key' => 'service:dtf',
+                'quantity' => 2,
+                'action' => 'save_send',
+            ])
+            ->assertRedirect(route('admin.invoices.create'))
+            ->assertSessionHasErrors('customer_email');
+    }
+
+    public function test_paid_invoice_cannot_be_edited_again(): void
+    {
+        $admin = $this->adminUser('super_admin');
+
+        $order = Order::query()->create([
+            'service_type' => 'print',
+            'quantity' => 10,
+            'unit_price' => 1000,
+            'total_price' => 10000,
+            'customer_name' => 'Paid Client',
+            'customer_email' => 'paid.client@example.com',
+            'customer_phone' => '08012345678',
+            'status' => 'Analyzing Job Brief',
+            'job_order_number' => 'JOB-PAID-0001',
+            'payment_status' => 'Invoice Settled (100%)',
+        ]);
+
+        $invoice = Invoice::query()->create([
+            'order_id' => $order->id,
+            'invoice_number' => 'INV-PAID-0001',
+            'subtotal' => 10000,
+            'tax_amount' => 0,
+            'discount_amount' => 0,
+            'total_amount' => 10000,
+            'status' => 'paid',
+            'issued_at' => now(),
+            'due_at' => now()->addDays(7),
+            'paid_at' => now(),
+        ]);
+
+        $this->actingAs($admin)
+            ->put(route('admin.invoices.update', $invoice), [
+                'order_id' => $order->id,
+                'invoice_number' => 'INV-PAID-UPDATED',
+                'subtotal' => 20000,
+                'tax_amount' => 0,
+                'discount_amount' => 0,
+                'total_amount' => 20000,
+                'status' => 'paid',
+            ])
+            ->assertRedirect(route('admin.invoices.show', $invoice))
+            ->assertSessionHas('warning');
+
+        $invoice->refresh();
+
+        $this->assertSame('INV-PAID-0001', $invoice->invoice_number);
+        $this->assertSame('10000.00', (string) $invoice->total_amount);
+    }
+
     private function adminUser(string $role): User
     {
         return User::factory()->create([

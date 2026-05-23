@@ -174,9 +174,13 @@ Route::middleware('customer.portal')->group(function (): void {
 
 Route::middleware('user.guest')->group(function (): void {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->name('login.store');
+    Route::post('/login', [AuthController::class, 'login'])
+        ->middleware('throttle:8,1')
+        ->name('login.store');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register'])->name('register.store');
+    Route::post('/register', [AuthController::class, 'register'])
+        ->middleware('throttle:5,1')
+        ->name('register.store');
     Route::get('/email/verify', [EmailVerificationController::class, 'notice'])->name('verification.notice');
     Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
         ->middleware(['signed:relative', 'throttle:6,1'])
@@ -211,6 +215,7 @@ Route::middleware('user.auth')->group(function (): void {
 
         Route::get('/manage-invoices/{invoice}', [UserInvoiceController::class, 'show'])->name('user.invoices.show')->whereNumber('invoice');
         Route::get('/manage-invoices/{invoice}/download', [UserInvoiceController::class, 'download'])->name('user.invoices.download')->whereNumber('invoice');
+        Route::get('/manage-invoices/{invoice}/pay', [PaymentController::class, 'process'])->name('payment.process')->whereNumber('invoice');
 
         Route::get('/support-tickets', [SupportController::class, 'index'])->name('support.tickets.index');
         Route::get('/support-tickets/create', [SupportController::class, 'create'])->name('support.tickets.create');

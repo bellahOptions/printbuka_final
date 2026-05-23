@@ -32,6 +32,9 @@ class Order extends Model
         'job_image_assets',
         'pricing_breakdown',
         'status',
+        'is_concluded',
+        'concluded_by_id',
+        'concluded_at',
         'job_order_number',
         'priority',
         'is_express',
@@ -80,6 +83,7 @@ class Order extends Model
             'job_image_assets' => 'array',
             'pricing_breakdown' => 'array',
             'design_approved_by_client' => 'boolean',
+            'is_concluded' => 'boolean',
             'is_express' => 'boolean',
             'is_sample' => 'boolean',
             'brief_received_at' => 'datetime',
@@ -92,6 +96,7 @@ class Order extends Model
             'after_sales_resolved_at' => 'datetime',
             'verified_at' => 'datetime',
             'phase_approved_at' => 'datetime',
+            'concluded_at' => 'datetime',
         ];
     }
 
@@ -158,6 +163,11 @@ class Order extends Model
     public function phaseApprover(): BelongsTo
     {
         return $this->belongsTo(User::class, 'phase_approved_by_id');
+    }
+
+    public function concludedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'concluded_by_id');
     }
 
     public function displayNumber(): string

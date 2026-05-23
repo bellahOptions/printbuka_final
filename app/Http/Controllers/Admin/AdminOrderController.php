@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\JobCompletedAppreciationMail;
+use App\Mail\JobConclusionSummaryMail;
 use App\Models\FinanceEntry;
 use App\Models\Order;
 use App\Models\Product;
@@ -18,6 +20,7 @@ use App\Support\ReferenceCode;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -70,7 +73,7 @@ class AdminOrderController extends Controller
     {
         /** @var User $user */
         $user = request()->user();
-        $loadedOrder = $order->load('product', 'invoice', 'briefReceiver', 'creatorAdmin', 'designer', 'productionOfficer', 'qcOfficer', 'dispatcher', 'verifier');
+        $loadedOrder = $order->load('product', 'invoice', 'briefReceiver', 'creatorAdmin', 'designer', 'productionOfficer', 'qcOfficer', 'dispatcher', 'verifier', 'concludedBy');
         $currentPhase = collect(config('printbuka_admin.workflow_phases', []))
             ->first(fn (array $phase): bool => (string) ($phase['status'] ?? '') === (string) $loadedOrder->status);
         $currentPhasePermission = (string) ($currentPhase['permission'] ?? '');
@@ -103,6 +106,7 @@ class AdminOrderController extends Controller
             'canReceiveBrief' => $user->canAdmin('*') || $user->canAdmin('workflow.approve') || $user->canAdmin('orders.intake'),
             'canApproveWorkflow' => $canApproveWorkflow,
             'canRequestMoveForward' => $canRequestMoveForward,
+            'canConcludeJob' => $this->canConcludeJob($user),
         ]);
     }
 
@@ -280,6 +284,10 @@ class AdminOrderController extends Controller
         Order $order,
         JobWorkflowNotificationService $jobWorkflowNotificationService
     ): RedirectResponse {
+        if ($order->is_concluded) {
+            return $this->concludedOrderResponse();
+        }
+
         $original = $order->getOriginal();
         $this->rejectImmutableFieldEdits($request);
 
@@ -384,6 +392,10 @@ class AdminOrderController extends Controller
 
     public function receiveBrief(Request $request, Order $order): RedirectResponse
     {
+        if ($order->is_concluded) {
+            return $this->concludedOrderResponse();
+        }
+
         $user = $request->user();
 
         if (! ($user->canAdmin('orders.intake') || $user->canAdmin('*') || $user->canAdmin('workflow.approve'))) {
@@ -409,6 +421,10 @@ class AdminOrderController extends Controller
         Order $order,
         JobWorkflowNotificationService $jobWorkflowNotificationService
     ): RedirectResponse {
+        if ($order->is_concluded) {
+            return $this->concludedOrderResponse();
+        }
+
         $user = $request->user();
         $nextStatus = $this->nextWorkflowStatus((string) $order->status);
 
@@ -468,6 +484,10 @@ class AdminOrderController extends Controller
         Order $order,
         JobWorkflowNotificationService $jobWorkflowNotificationService
     ): RedirectResponse {
+        if ($order->is_concluded) {
+            return $this->concludedOrderResponse();
+        }
+
         $user = $request->user();
 
         if (! ($user->canAdmin('*') || $user->canAdmin('workflow.approve'))) {
@@ -507,6 +527,41 @@ class AdminOrderController extends Controller
         return back()->with('status', 'Move-forward request approved. Job status is now '.$requestedStatus.'.');
     }
 
+    public function conclude(
+        Request $request,
+        Order $order,
+        JobWorkflowNotificationService $jobWorkflowNotificationService
+    ): RedirectResponse {
+        $user = $request->user();
+        abort_unless($this->canConcludeJob($user), 403);
+
+        if ($order->is_concluded) {
+            return back()->with('warning', 'This job has already been concluded.');
+        }
+
+        $original = $order->getOriginal();
+        $now = Carbon::now();
+
+        $order->forceFill([
+            'status' => 'Delivered',
+            'actual_delivery_at' => $order->actual_delivery_at ?? $now,
+            'is_concluded' => true,
+            'concluded_by_id' => $user->id,
+            'concluded_at' => $now,
+            'phase_approval_status' => 'Approved',
+            'requested_next_status' => null,
+            'phase_approval_comment' => 'Job concluded by '.$user->displayName().'.',
+            'phase_approved_by_id' => $user->id,
+            'phase_approved_at' => $now,
+        ])->save();
+
+        $freshOrder = $order->fresh(['product', 'designer', 'creatorAdmin', 'concludedBy']);
+        $jobWorkflowNotificationService->handleOrderUpdated($freshOrder, $original);
+        $this->sendConclusionEmails($freshOrder);
+
+        return back()->with('status', 'Job concluded successfully. This job is now locked from further edits.');
+    }
+
     public function sendTodoReminders(Request $request, PendingJobReminderService $pendingJobReminderService): RedirectResponse
     {
         abort_unless($this->canSendTodoReminders($request->user()), 403);
@@ -543,6 +598,16 @@ class AdminOrderController extends Controller
     private function canSendTodoReminders(?User $user): bool
     {
         return in_array((string) ($user?->role ?? ''), ['super_admin', 'operations_manager'], true);
+    }
+
+    private function canConcludeJob(?User $user): bool
+    {
+        return in_array((string) ($user?->role ?? ''), ['super_admin', 'operations_manager'], true);
+    }
+
+    private function concludedOrderResponse(): RedirectResponse
+    {
+        return back()->with('warning', 'This job has been concluded and is locked from further edits.');
     }
 
     private function nextWorkflowStatus(string $currentStatus): ?string
@@ -710,5 +775,50 @@ class AdminOrderController extends Controller
             ['Invoice Settled (70%)', 'Invoice Settled (100%)'],
             true
         );
+    }
+
+    private function sendConclusionEmails(Order $order): void
+    {
+        $order->loadMissing([
+            'product',
+            'invoice',
+            'briefReceiver',
+            'creatorAdmin',
+            'designer',
+            'productionOfficer',
+            'qcOfficer',
+            'dispatcher',
+            'verifier',
+            'concludedBy',
+        ]);
+
+        if (filled($order->customer_email)) {
+            try {
+                Mail::to((string) $order->customer_email)->send(new JobCompletedAppreciationMail($order));
+            } catch (\Throwable $exception) {
+                Log::error('Client appreciation email failed after job conclusion.', [
+                    'order_id' => $order->id,
+                    'message' => $exception->getMessage(),
+                ]);
+            }
+        }
+
+        $mdRecipients = User::query()
+            ->where('role', 'managing_director')
+            ->where('is_active', true)
+            ->get()
+            ->filter(fn (User $recipient): bool => filled($recipient->email));
+
+        foreach ($mdRecipients as $recipient) {
+            try {
+                Mail::to((string) $recipient->email)->send(new JobConclusionSummaryMail($recipient, $order));
+            } catch (\Throwable $exception) {
+                Log::error('Managing director conclusion summary email failed.', [
+                    'order_id' => $order->id,
+                    'recipient_id' => $recipient->id,
+                    'message' => $exception->getMessage(),
+                ]);
+            }
+        }
     }
 }

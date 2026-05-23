@@ -17,7 +17,7 @@
                 <div class="flex-1">
                     <h1 class="text-4xl font-black tracking-tight lg:text-5xl">Create invoice</h1>
                     <p class="mt-3 max-w-3xl text-base leading-relaxed text-slate-300">
-                        Create invoices using only Printbuka catalog products/services and send them directly to customers.
+                        Create invoices using only Printbuka catalog products/services. Choose whether to save, download, or send after save.
                     </p>
                 </div>
                 <div class="hidden sm:block">
@@ -53,6 +53,24 @@
 
         <form action="{{ route('admin.invoices.store') }}" method="POST" class="fade-in-up section-delay-1 space-y-6">
             @csrf
+            @php
+                $lineItems = collect(old('line_items', []))
+                    ->filter(fn ($item) => is_array($item))
+                    ->map(fn (array $item): array => [
+                        'description' => (string) ($item['description'] ?? ''),
+                        'quantity' => max(1, (int) ($item['quantity'] ?? 1)),
+                        'rate' => max(0, (float) ($item['rate'] ?? 0)),
+                    ])
+                    ->values();
+
+                if ($lineItems->isEmpty()) {
+                    $lineItems = collect([[
+                        'description' => '',
+                        'quantity' => 1,
+                        'rate' => 0,
+                    ]]);
+                }
+            @endphp
 
             <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
                 <div class="mb-6 flex items-center gap-3">
@@ -119,8 +137,9 @@
                     </div>
 
                     <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Customer Email *</label>
-                        <input id="invoice-customer-email" type="email" name="customer_email" value="{{ old('customer_email') }}" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="email@example.com">
+                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Customer Email</label>
+                        <input id="invoice-customer-email" type="email" name="customer_email" value="{{ old('customer_email') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="email@example.com">
+                        <p class="text-xs font-semibold text-slate-500">Optional. Required only when using "Save & Send".</p>
                         @error('customer_email')<p class="mt-1.5 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
                     </div>
 
@@ -264,6 +283,53 @@
                         <p id="catalog-total" class="mt-2 text-lg font-black text-pink-700">₦0.00</p>
                     </div>
                 </div>
+
+                <div class="mt-6 rounded-xl border border-slate-200">
+                    <div class="border-b border-slate-200 bg-slate-50 px-4 py-3">
+                        <p class="text-sm font-black text-slate-900">Editable Invoice Items (Optional)</p>
+                        <p class="text-xs text-slate-500">Add item rows to override catalog-generated invoice items.</p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[640px] text-left text-sm">
+                            <thead class="bg-white text-xs font-black uppercase tracking-wide text-slate-500">
+                                <tr>
+                                    <th class="px-4 py-3">Description</th>
+                                    <th class="px-4 py-3">Qty</th>
+                                    <th class="px-4 py-3">Rate</th>
+                                    <th class="px-4 py-3">Amount</th>
+                                    <th class="px-4 py-3 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="invoice-line-items" class="divide-y divide-slate-100">
+                                @foreach ($lineItems as $index => $item)
+                                    <tr data-line-item-row>
+                                        <td class="px-4 py-3">
+                                            <input name="line_items[{{ $index }}][description]" value="{{ $item['description'] }}" data-line-item-description class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800" placeholder="Item description">
+                                            <input type="hidden" name="line_items[{{ $index }}][source_type]" value="custom" data-line-item-source>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <input type="number" min="1" step="1" name="line_items[{{ $index }}][quantity]" value="{{ $item['quantity'] }}" data-line-item-quantity class="w-24 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800">
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <input type="number" min="0" step="0.01" name="line_items[{{ $index }}][rate]" value="{{ $item['rate'] }}" data-line-item-rate class="w-32 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800">
+                                        </td>
+                                        <td class="px-4 py-3 font-black text-slate-900" data-line-item-amount>₦0.00</td>
+                                        <td class="px-4 py-3 text-right">
+                                            <button type="button" data-remove-line-item class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-black uppercase tracking-wide text-slate-500 hover:border-red-200 hover:text-red-600">Remove</button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="border-t border-slate-200 px-4 py-3">
+                        <button type="button" id="add-invoice-line-item" class="rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-black uppercase tracking-wide text-emerald-700 hover:bg-emerald-100">Add Item Row</button>
+                    </div>
+                </div>
+                @error('line_items')<p class="mt-2 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                @error('line_items.*.description')<p class="mt-2 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                @error('line_items.*.quantity')<p class="mt-2 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                @error('line_items.*.rate')<p class="mt-2 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
             </div>
 
             <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
@@ -306,23 +372,18 @@
             </div>
 
             <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
-                <label class="flex cursor-pointer items-start gap-3">
-                    <input type="checkbox" name="send_email" value="1" @checked(old('send_email', false)) class="mt-0.5 h-5 w-5 rounded border-slate-300 text-pink-600 focus:ring-pink-500">
-                    <div>
-                        <p class="text-sm font-black text-slate-900">Send invoice email immediately</p>
-                        <p class="mt-1 text-xs text-slate-500">Leave unchecked to save as a draft and send it later from the invoice list.</p>
-                    </div>
-                </label>
+                <p class="text-sm font-black text-slate-900">Save Options</p>
+                <p class="mt-1 text-xs text-slate-500">Invoices without an email can only be saved or downloaded.</p>
 
-                <div class="mt-6 flex items-center gap-4">
-                    <button type="submit" class="btn-primary group relative overflow-hidden rounded-xl bg-gradient-to-r from-pink-600 to-pink-700 px-8 py-4 text-sm font-black text-white shadow-lg shadow-pink-600/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-pink-600/30">
-                        <span class="relative z-10 flex items-center gap-2">
-                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                            </svg>
-                            Create Invoice
-                        </span>
-                        <div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-0"></div>
+                <div class="mt-6 flex flex-wrap items-center gap-3">
+                    <button type="submit" name="action" value="save" class="rounded-xl bg-slate-900 px-6 py-3 text-sm font-black text-white transition hover:bg-slate-800">
+                        Save Invoice
+                    </button>
+                    <button type="submit" name="action" value="save_download" class="rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-black text-slate-900 transition hover:bg-slate-50">
+                        Save & Download
+                    </button>
+                    <button type="submit" name="action" value="save_send" id="invoice-save-send-button" class="rounded-xl bg-pink-600 px-6 py-3 text-sm font-black text-white transition hover:bg-pink-700">
+                        Save & Send
                     </button>
                     <a href="{{ route('admin.invoices.index') }}" class="text-sm font-semibold text-slate-500 transition-colors hover:text-slate-700">Cancel</a>
                 </div>
@@ -380,6 +441,9 @@
             const densitySelect = document.getElementById('catalog-paper-density');
             const finishSelect = document.getElementById('catalog-finish-lamination');
             const deliverySelect = document.getElementById('catalog-delivery-method');
+            const saveAndSendButton = document.getElementById('invoice-save-send-button');
+            const lineItemsBody = document.getElementById('invoice-line-items');
+            const addLineItemButton = document.getElementById('add-invoice-line-item');
             const productOptionCatalog = @json($productOptionCatalog);
             const previousOptionSelections = {
                 size_format: @json(old('size_format')),
@@ -397,6 +461,62 @@
             const parseAmount = (value) => {
                 const parsed = Number.parseFloat(value ?? '');
                 return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
+            };
+
+            const lineItemRows = () => Array.from(lineItemsBody?.querySelectorAll('[data-line-item-row]') ?? []);
+
+            const renumberLineItems = () => {
+                lineItemRows().forEach((row, index) => {
+                    const descriptionInput = row.querySelector('[data-line-item-description]');
+                    const sourceInput = row.querySelector('[data-line-item-source]');
+                    const quantityInput = row.querySelector('[data-line-item-quantity]');
+                    const rateInput = row.querySelector('[data-line-item-rate]');
+
+                    if (descriptionInput) {
+                        descriptionInput.name = `line_items[${index}][description]`;
+                    }
+
+                    if (sourceInput) {
+                        sourceInput.name = `line_items[${index}][source_type]`;
+                    }
+
+                    if (quantityInput) {
+                        quantityInput.name = `line_items[${index}][quantity]`;
+                    }
+
+                    if (rateInput) {
+                        rateInput.name = `line_items[${index}][rate]`;
+                    }
+                });
+            };
+
+            const lineItemsState = () => {
+                const items = lineItemRows().map((row) => {
+                    const description = String(row.querySelector('[data-line-item-description]')?.value ?? '').trim();
+                    const quantity = Math.max(1, parseInt(row.querySelector('[data-line-item-quantity]')?.value ?? '1', 10) || 1);
+                    const rate = parseAmount(row.querySelector('[data-line-item-rate]')?.value);
+                    const amount = quantity * rate;
+                    const amountCell = row.querySelector('[data-line-item-amount]');
+
+                    if (amountCell) {
+                        amountCell.textContent = `₦${formatter.format(amount)}`;
+                    }
+
+                    return {
+                        hasValue: description !== '',
+                        quantity,
+                        rate,
+                        amount,
+                    };
+                });
+
+                const explicitItems = items.filter((item) => item.hasValue);
+
+                return {
+                    hasExplicitItems: explicitItems.length > 0,
+                    quantity: explicitItems.reduce((sum, item) => sum + item.quantity, 0),
+                    subtotal: explicitItems.reduce((sum, item) => sum + item.amount, 0),
+                };
             };
 
             const setNewCustomerFormVisible = (visible) => {
@@ -522,7 +642,9 @@
                 const deliveryPrice = optionPriceFor(payload?.options?.delivery_method, deliverySelect?.value || payload?.defaults?.delivery_method);
                 const effectiveUnitPrice = baseUnitPrice + sizePrice + materialPrice + densityPrice + finishPrice;
                 const subtotal = (quantity * effectiveUnitPrice) + deliveryPrice;
-                const total = Math.max(0, subtotal + tax - discount);
+                const lineItems = lineItemsState();
+                const activeSubtotal = lineItems.hasExplicitItems ? lineItems.subtotal : subtotal;
+                const total = Math.max(0, activeSubtotal + tax - discount);
                 const adjustments = tax - discount;
 
                 if (unitPriceInput) {
@@ -540,11 +662,11 @@
                 }
 
                 if (subtotalDisplay) {
-                    subtotalDisplay.textContent = `₦${formatter.format(subtotal)}`;
+                    subtotalDisplay.textContent = `₦${formatter.format(activeSubtotal)}`;
                 }
 
                 if (mobileAmountDisplay) {
-                    mobileAmountDisplay.textContent = `₦${formatter.format(subtotal)}`;
+                    mobileAmountDisplay.textContent = `₦${formatter.format(activeSubtotal)}`;
                 }
 
                 if (adjustmentsDisplay) {
@@ -564,6 +686,18 @@
                 nameInput.value = option.getAttribute('data-customer-name') ?? nameInput.value;
                 emailInput.value = option.getAttribute('data-customer-email') ?? emailInput.value;
                 phoneInput.value = option.getAttribute('data-customer-phone') ?? phoneInput.value;
+                syncSendActionAvailability();
+            };
+
+            const syncSendActionAvailability = () => {
+                if (!saveAndSendButton) {
+                    return;
+                }
+
+                const hasEmail = (emailInput?.value ?? '').trim() !== '';
+                saveAndSendButton.hidden = !hasEmail;
+                saveAndSendButton.disabled = !hasEmail;
+                saveAndSendButton.title = hasEmail ? '' : 'Customer email is required to send invoice';
             };
 
             customerSelect?.addEventListener('change', (event) => {
@@ -573,6 +707,8 @@
             toggleNewCustomerButton?.addEventListener('click', () => {
                 setNewCustomerFormVisible(newCustomerForm?.classList.contains('hidden'));
             });
+
+            emailInput?.addEventListener('input', syncSendActionAvailability);
 
             window.addEventListener('admin-customer-created', (event) => {
                 const rawDetail = event.detail ?? {};
@@ -614,9 +750,77 @@
 
             catalogSelect?.addEventListener('change', populateProductOptionSelectors);
 
+            addLineItemButton?.addEventListener('click', () => {
+                if (!lineItemsBody) {
+                    return;
+                }
+
+                const row = document.createElement('tr');
+                row.setAttribute('data-line-item-row', '');
+                row.innerHTML = `
+                    <td class="px-4 py-3">
+                        <input data-line-item-description class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800" placeholder="Item description">
+                        <input type="hidden" value="custom" data-line-item-source>
+                    </td>
+                    <td class="px-4 py-3">
+                        <input type="number" min="1" step="1" value="1" data-line-item-quantity class="w-24 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800">
+                    </td>
+                    <td class="px-4 py-3">
+                        <input type="number" min="0" step="0.01" value="0" data-line-item-rate class="w-32 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800">
+                    </td>
+                    <td class="px-4 py-3 font-black text-slate-900" data-line-item-amount>₦0.00</td>
+                    <td class="px-4 py-3 text-right">
+                        <button type="button" data-remove-line-item class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-black uppercase tracking-wide text-slate-500 hover:border-red-200 hover:text-red-600">Remove</button>
+                    </td>
+                `;
+                lineItemsBody.appendChild(row);
+                renumberLineItems();
+                updateCatalogPrice();
+            });
+
+            lineItemsBody?.addEventListener('click', (event) => {
+                const button = event.target.closest('[data-remove-line-item]');
+                if (!button) {
+                    return;
+                }
+
+                const row = button.closest('[data-line-item-row]');
+                if (!row) {
+                    return;
+                }
+
+                const rows = lineItemRows();
+                if (rows.length === 1) {
+                    const descriptionInput = row.querySelector('[data-line-item-description]');
+                    const quantityInput = row.querySelector('[data-line-item-quantity]');
+                    const rateInput = row.querySelector('[data-line-item-rate]');
+
+                    if (descriptionInput) {
+                        descriptionInput.value = '';
+                    }
+                    if (quantityInput) {
+                        quantityInput.value = '1';
+                    }
+                    if (rateInput) {
+                        rateInput.value = '0';
+                    }
+                } else {
+                    row.remove();
+                }
+
+                renumberLineItems();
+                updateCatalogPrice();
+            });
+
+            lineItemsBody?.addEventListener('input', () => {
+                updateCatalogPrice();
+            });
+
             setNewCustomerFormVisible(false);
             populateProductOptionSelectors();
+            renumberLineItems();
             updateCatalogPrice();
+            syncSendActionAvailability();
         })();
     </script>
 @endsection

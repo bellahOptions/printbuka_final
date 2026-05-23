@@ -4,6 +4,13 @@
 
 @section('content')
     <div class="mx-auto max-w-6xl space-y-6">
+        @if (session('status'))
+            <p class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">{{ session('status') }}</p>
+        @endif
+        @if (session('warning'))
+            <p class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">{{ session('warning') }}</p>
+        @endif
+
         <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
                 <p class="text-sm font-black uppercase tracking-wide text-pink-700">{{ $invoice->documentTypeLabel() }}</p>
@@ -11,7 +18,11 @@
                 <p class="mt-2 text-sm text-slate-500">Order {{ $invoice->order?->job_order_number ?? 'N/A' }} · {{ $invoice->order?->customer_name ?? 'Unknown customer' }}</p>
             </div>
             <div class="flex flex-wrap gap-3">
-                <a href="{{ route('admin.invoices.edit', $invoice) }}" class="rounded-xl bg-cyan-900 px-5 py-3 text-sm font-black text-white hover:bg-cyan-800">Edit</a>
+                @if ($invoice->status !== 'paid')
+                    <a href="{{ route('admin.invoices.edit', $invoice) }}" class="rounded-xl bg-cyan-900 px-5 py-3 text-sm font-black text-white hover:bg-cyan-800">Edit</a>
+                @else
+                    <span class="rounded-xl border border-slate-200 bg-slate-100 px-5 py-3 text-sm font-black text-slate-500">Paid invoices are locked</span>
+                @endif
                 <a href="{{ route('admin.invoices.download', $invoice) }}" class="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-900 hover:bg-slate-50">Download PDF</a>
                 <a href="{{ route('admin.invoices.index') }}" class="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-900 hover:bg-slate-50">Back to list</a>
             </div>

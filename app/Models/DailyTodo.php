@@ -19,6 +19,7 @@ class DailyTodo extends Model
         'reviewed_by_id',
         'reviewed_at',
         'review_comments',
+        'review_rating',
     ];
 
     protected function casts(): array
@@ -27,6 +28,7 @@ class DailyTodo extends Model
             'due_date' => 'date',
             'completed_at' => 'datetime',
             'reviewed_at' => 'datetime',
+            'review_rating' => 'integer',
         ];
     }
 

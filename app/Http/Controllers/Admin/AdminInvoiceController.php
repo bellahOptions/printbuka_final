@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response;
 
 class AdminInvoiceController extends Controller
 {
@@ -127,41 +128,62 @@ class AdminInvoiceController extends Controller
         Request $request,
         InvoiceService $invoiceService,
         InvoiceLifecycleService $invoiceLifecycleService
-    ): RedirectResponse {
+    ): Response|RedirectResponse {
         if (! $request->filled('order_id')) {
             return $this->storeCatalogInvoice($request, $invoiceService, $invoiceLifecycleService);
         }
 
+        $submissionAction = $this->resolveSubmissionAction($request);
         $invoice = Invoice::query()->create($this->validated($request));
         $invoiceLifecycleService->handleStatusChange($invoice);
         app(ImportantActionNotifier::class)->notify(
             $invoice->documentTypeLabel().' created',
             $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was created by '.$request->user()?->displayName().'.'
         );
-        $sent = $this->sendIfRequested($request, $invoice, $invoiceService);
+
+        if ($submissionAction === 'save_download') {
+            return $this->download($invoice->fresh(['order.product']));
+        }
+
+        if ($submissionAction === 'save_send') {
+            $sent = $this->sendInvoiceFromAction($invoice, $invoiceService);
+
+            return redirect()
+                ->route('admin.invoices.index')
+                ->with(
+                    $sent ? 'status' : 'warning',
+                    $sent
+                        ? 'Invoice created and emailed with PDF attachment.'
+                        : 'Invoice created, but the email could not be sent. Check customer email and mail configuration.'
+                );
+        }
 
         return redirect()
             ->route('admin.invoices.index')
-            ->with(
-                $sent || ! $request->boolean('send_email') ? 'status' : 'warning',
-                $sent
-                    ? 'Invoice created and emailed with PDF attachment.'
-                    : ($request->boolean('send_email') ? 'Invoice created, but the email could not be sent. Check mail configuration.' : 'Invoice draft created successfully.')
-            );
+            ->with('status', 'Invoice saved successfully.');
     }
 
     private function storeCatalogInvoice(
         Request $request,
         InvoiceService $invoiceService,
         InvoiceLifecycleService $invoiceLifecycleService
-    ): RedirectResponse {
+    ): Response|RedirectResponse {
         $validated = $request->validate([
             'customer_id' => ['nullable', 'integer', Rule::exists('users', 'id')->where(fn ($query) => $query->where('role', 'customer'))],
             'customer_name' => ['required', 'string', 'max:255'],
-            'customer_email' => ['required', 'email', 'max:255'],
+            'customer_email' => ['nullable', 'email', 'max:255'],
             'customer_phone' => ['required', 'string', 'max:50'],
             'catalog_item_key' => ['required', 'string', 'max:255'],
-            'quantity' => ['required', 'integer', 'min:1'],
+            'quantity' => ['nullable', 'integer', 'min:1', 'required_without:line_items'],
+            'line_items' => ['nullable', 'array', 'min:1', 'required_without:quantity'],
+            'line_items.*.source_type' => ['nullable', 'string', Rule::in(['custom', 'product', 'service'])],
+            'line_items.*.catalog_item_key' => ['nullable', 'string', 'max:255'],
+            'line_items.*.description' => ['nullable', 'string', 'max:500'],
+            'line_items.*.size' => ['nullable', 'string', 'max:255'],
+            'line_items.*.color' => ['nullable', 'string', 'max:255'],
+            'line_items.*.finishing' => ['nullable', 'string', 'max:255'],
+            'line_items.*.quantity' => ['required_with:line_items', 'integer', 'min:1'],
+            'line_items.*.rate' => ['required_with:line_items', 'numeric', 'min:0'],
             'size_format' => ['nullable', 'string', 'max:255'],
             'material_substrate' => ['nullable', 'string', 'max:255'],
             'paper_density' => ['nullable', 'string', 'max:255'],
@@ -175,7 +197,7 @@ class AdminInvoiceController extends Controller
             'delivery_address' => ['nullable', 'string', 'max:500'],
             'artwork_notes' => ['nullable', 'string', 'max:2000'],
             'internal_notes' => ['nullable', 'string', 'max:3000'],
-            'send_email' => ['nullable', 'boolean'],
+            'action' => ['nullable', 'string', Rule::in(['save', 'save_download', 'save_send'])],
         ]);
 
         $catalogItem = $this->resolveCatalogItem((string) $validated['catalog_item_key']);
@@ -192,31 +214,93 @@ class AdminInvoiceController extends Controller
             $customer = User::query()->where('role', 'customer')->find($validated['customer_id']);
         }
 
-        $validated['tax_amount'] = (float) ($validated['tax_amount'] ?? 0);
-        $validated['discount_amount'] = (float) ($validated['discount_amount'] ?? 0);
+        $lineItemCatalogErrors = [];
 
-        $quantity = (int) $validated['quantity'];
-        $unitPrice = (float) $catalogItem['unit_price'];
-        $productPricing = null;
+        foreach ((array) ($validated['line_items'] ?? []) as $index => $item) {
+            if (! is_array($item)) {
+                continue;
+            }
 
-        if (($catalogItem['source_type'] ?? null) === 'product' && filled($catalogItem['product_id'])) {
-            $product = Product::query()->find((int) $catalogItem['product_id']);
-            if ($product) {
-                $productPricing = $this->productPricingForInvoice($product, $validated, $quantity);
-                $unitPrice = (float) ($productPricing['effective_unit_price'] ?? $unitPrice);
+            $sourceType = strtolower((string) ($item['source_type'] ?? 'custom'));
+
+            if (! in_array($sourceType, ['product', 'service'], true)) {
+                continue;
+            }
+
+            $catalogItemKey = trim((string) ($item['catalog_item_key'] ?? ''));
+
+            if (
+                $catalogItemKey === ''
+                || ! str_starts_with($catalogItemKey, $sourceType.':')
+                || ! $this->resolveCatalogItem($catalogItemKey)
+            ) {
+                $lineItemCatalogErrors['line_items.'.$index.'.catalog_item_key'] = 'Select a valid '.$sourceType.' from Printbuka catalog.';
             }
         }
 
-        $subtotal = (float) ($productPricing['subtotal'] ?? ($quantity * $unitPrice));
+        if ($lineItemCatalogErrors !== []) {
+            throw ValidationException::withMessages($lineItemCatalogErrors);
+        }
+
+        $validated['tax_amount'] = (float) ($validated['tax_amount'] ?? 0);
+        $validated['discount_amount'] = (float) ($validated['discount_amount'] ?? 0);
+
+        $submissionAction = $this->resolveSubmissionAction($request);
+        $recipientEmail = (string) ($customer?->email ?? ($validated['customer_email'] ?? ''));
+
+        if ($submissionAction === 'save_send' && $recipientEmail === '') {
+            throw ValidationException::withMessages([
+                'customer_email' => 'Customer email is required to send invoice.',
+            ]);
+        }
+
+        $hasExplicitLineItems = collect((array) ($validated['line_items'] ?? []))
+            ->contains(function ($item): bool {
+                if (! is_array($item)) {
+                    return false;
+                }
+
+                $description = trim((string) ($item['description'] ?? ''));
+                $catalogItemKey = trim((string) ($item['catalog_item_key'] ?? ''));
+
+                return $description !== '' || $catalogItemKey !== '';
+            });
+
+        $productPricing = null;
+        $lineItems = $hasExplicitLineItems
+            ? $this->normalizedLineItems([
+                ...$validated,
+                'job_type' => (string) $catalogItem['name'],
+            ])
+            : [];
+
+        if (! $hasExplicitLineItems) {
+            $quantity = (int) $validated['quantity'];
+            $unitPrice = (float) $catalogItem['unit_price'];
+
+            if (($catalogItem['source_type'] ?? null) === 'product' && filled($catalogItem['product_id'])) {
+                $product = Product::query()->find((int) $catalogItem['product_id']);
+                if ($product) {
+                    $productPricing = $this->productPricingForInvoice($product, $validated, $quantity);
+                    $lineItems = (array) ($productPricing['line_items'] ?? $lineItems);
+                }
+            }
+
+            if ($lineItems === []) {
+                $lineItems = [[
+                    'description' => (string) $catalogItem['name'],
+                    'quantity' => $quantity,
+                    'rate' => $unitPrice,
+                    'amount' => $quantity * $unitPrice,
+                ]];
+            }
+        }
+
+        $subtotal = collect($lineItems)->sum(fn (array $item): float => (float) ($item['amount'] ?? 0));
+        $quantity = max(1, (int) collect($lineItems)->sum(fn (array $item): int => (int) ($item['quantity'] ?? 0)));
+        $unitPrice = $quantity > 0 ? $subtotal / $quantity : 0;
         $total = max(0, $subtotal + $validated['tax_amount'] - $validated['discount_amount']);
         $invoiceStatus = strtolower((string) ($validated['invoice_status'] ?? 'unpaid'));
-
-        $lineItems = (array) ($productPricing['line_items'] ?? [[
-            'description' => (string) $catalogItem['name'],
-            'quantity' => $quantity,
-            'rate' => $unitPrice,
-            'amount' => $subtotal,
-        ]]);
 
         $order = null;
         $invoice = null;
@@ -234,7 +318,7 @@ class AdminInvoiceController extends Controller
                 'unit_price' => $unitPrice,
                 'total_price' => $subtotal,
                 'customer_name' => $customer?->displayName() ?? $validated['customer_name'],
-                'customer_email' => $customer?->email ?? $validated['customer_email'],
+                'customer_email' => $customer?->email ?? (string) ($validated['customer_email'] ?? ''),
                 'customer_phone' => $customer?->phone ?? $validated['customer_phone'],
                 'delivery_city' => $validated['delivery_city'] ?? null,
                 'delivery_address' => $validated['delivery_address'] ?? null,
@@ -285,11 +369,8 @@ class AdminInvoiceController extends Controller
             $invoiceLifecycleService->handleStatusChange($invoice->fresh(['order.product']), 'unpaid');
         }
 
-        $shouldSend = $request->boolean('send_email');
-        $sent = false;
-
-        if ($shouldSend) {
-            $sent = $this->sendIfRequested($request, $invoice, $invoiceService);
+        if ($submissionAction === 'save_download') {
+            return $this->download($invoice->fresh(['order.product']));
         }
 
         app(ImportantActionNotifier::class)->notify(
@@ -297,26 +378,30 @@ class AdminInvoiceController extends Controller
             $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was created by '.$request->user()?->displayName().'.'
         );
 
-        $baseMessage = $invoiceStatus === 'draft'
-            ? 'Invoice draft saved. Send it when ready from the invoice list.'
-            : ($invoiceStatus === 'paid'
-            ? 'Invoice created and marked as paid.'
-            : 'Invoice created successfully.');
-        $sentMessage = $invoiceStatus === 'paid'
-            ? 'Invoice created, marked as paid, and emailed successfully.'
-            : 'Invoice created and emailed with PDF attachment.';
-        $failedMessage = $invoiceStatus === 'paid'
-            ? 'Invoice created and marked as paid, but email could not be sent.'
-            : 'Invoice created, but the email could not be sent. Check mail configuration.';
+        if ($submissionAction === 'save_send') {
+            $sent = $this->sendInvoiceFromAction($invoice, $invoiceService);
+
+            return redirect()
+                ->route('admin.invoices.index')
+                ->with(
+                    $sent ? 'status' : 'warning',
+                    $sent
+                        ? ($invoiceStatus === 'paid'
+                            ? 'Invoice created, marked as paid, and emailed successfully.'
+                            : 'Invoice created and emailed with PDF attachment.')
+                        : ($invoiceStatus === 'paid'
+                            ? 'Invoice created and marked as paid, but email could not be sent.'
+                            : 'Invoice created, but the email could not be sent. Check customer email and mail configuration.')
+                );
+        }
 
         return redirect()
             ->route('admin.invoices.index')
-            ->with(
-                $sent || ! $shouldSend ? 'status' : 'warning',
-                $sent
-                    ? $sentMessage
-                    : ($shouldSend ? $failedMessage : $baseMessage)
-            );
+            ->with('status', $invoiceStatus === 'draft'
+                ? 'Invoice draft saved.'
+                : ($invoiceStatus === 'paid'
+                    ? 'Invoice created and marked as paid.'
+                    : 'Invoice saved successfully.'));
     }
 
     /**
@@ -514,8 +599,14 @@ class AdminInvoiceController extends Controller
         return 'print';
     }
 
-    public function edit(Invoice $invoice): View
+    public function edit(Invoice $invoice): View|RedirectResponse
     {
+        if ((string) $invoice->status === 'paid') {
+            return redirect()
+                ->route('admin.invoices.show', $invoice)
+                ->with('warning', 'Paid invoices cannot be edited.');
+        }
+
         return view('admin.invoices.form', [
             'invoice' => $invoice,
             'orders' => Order::query()->latest()->get(),
@@ -528,6 +619,12 @@ class AdminInvoiceController extends Controller
         Invoice $invoice,
         InvoiceLifecycleService $invoiceLifecycleService
     ): RedirectResponse {
+        if ((string) $invoice->status === 'paid') {
+            return redirect()
+                ->route('admin.invoices.show', $invoice)
+                ->with('warning', 'Paid invoices cannot be edited.');
+        }
+
         $previousStatus = (string) $invoice->status;
         $invoice->update($this->validated($request, $invoice));
         $invoiceLifecycleService->handleStatusChange($invoice->fresh(['order.product']), $previousStatus);
@@ -565,6 +662,10 @@ class AdminInvoiceController extends Controller
             return back()->with('warning', $invoice->documentTypeLabel().' is already paid.');
         }
 
+        if (! filled($invoice->order?->customer_email)) {
+            return back()->with('warning', $invoice->documentTypeLabel().' has no customer email, so it cannot be sent.');
+        }
+
         if ((string) $invoice->status === 'draft') {
             $invoice->forceFill(['status' => 'unpaid'])->save();
         }
@@ -583,11 +684,11 @@ class AdminInvoiceController extends Controller
         Request $request,
         InvoiceService $invoiceService,
         InvoiceLifecycleService $invoiceLifecycleService
-    ): RedirectResponse {
+    ): Response|RedirectResponse {
         $validated = $request->validate([
             'customer_id' => ['nullable', 'integer', Rule::exists('users', 'id')->where(fn ($query) => $query->where('role', 'customer'))],
             'customer_name' => ['required', 'string', 'max:255'],
-            'customer_email' => ['required', 'email', 'max:255'],
+            'customer_email' => ['nullable', 'email', 'max:255'],
             'customer_phone' => ['required', 'string', 'max:50'],
             'product_id' => ['nullable', 'exists:products,id'],
             'job_type' => ['required', 'string', 'max:255'],
@@ -611,7 +712,7 @@ class AdminInvoiceController extends Controller
             'delivery_address' => ['nullable', 'string', 'max:500'],
             'artwork_notes' => ['nullable', 'string', 'max:2000'],
             'internal_notes' => ['nullable', 'string', 'max:3000'],
-            'send_email' => ['nullable', 'boolean'],
+            'action' => ['nullable', 'string', Rule::in(['save', 'save_download', 'save_send'])],
         ]);
 
         $lineItemCatalogErrors = [];
@@ -650,6 +751,15 @@ class AdminInvoiceController extends Controller
 
         $validated['tax_amount'] = (float) ($validated['tax_amount'] ?? 0);
         $validated['discount_amount'] = (float) ($validated['discount_amount'] ?? 0);
+        $submissionAction = $this->resolveSubmissionAction($request);
+        $recipientEmail = (string) ($customer?->email ?? ($validated['customer_email'] ?? ''));
+
+        if ($submissionAction === 'save_send' && $recipientEmail === '') {
+            throw ValidationException::withMessages([
+                'customer_email' => 'Customer email is required to send quotation.',
+            ]);
+        }
+
         $lineItems = $this->normalizedLineItems($validated);
         $subtotal = collect($lineItems)->sum(fn (array $item): float => (float) ($item['amount'] ?? 0));
         $quantity = max(1, (int) collect($lineItems)->sum(fn (array $item): int => (int) ($item['quantity'] ?? 0)));
@@ -673,7 +783,7 @@ class AdminInvoiceController extends Controller
                 'unit_price' => $unitPrice,
                 'total_price' => $subtotal,
                 'customer_name' => $customer?->displayName() ?? $validated['customer_name'],
-                'customer_email' => $customer?->email ?? $validated['customer_email'],
+                'customer_email' => $customer?->email ?? (string) ($validated['customer_email'] ?? ''),
                 'customer_phone' => $customer?->phone ?? $validated['customer_phone'],
                 'delivery_city' => $validated['delivery_city'] ?? null,
                 'delivery_address' => $validated['delivery_address'] ?? null,
@@ -715,11 +825,8 @@ class AdminInvoiceController extends Controller
             $invoiceLifecycleService->handleStatusChange($invoice->fresh(['order.product']), 'unpaid');
         }
 
-        $shouldSend = $request->boolean('send_email');
-        $sent = false;
-
-        if ($shouldSend) {
-            $sent = $this->sendIfRequested($request, $invoice, $invoiceService);
+        if ($submissionAction === 'save_download') {
+            return $this->download($invoice->fresh(['order.product']));
         }
 
         app(ImportantActionNotifier::class)->notify(
@@ -727,26 +834,30 @@ class AdminInvoiceController extends Controller
             $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was created by '.$request->user()?->displayName().'.'
         );
 
-        $baseMessage = $invoiceStatus === 'draft'
-            ? 'Quotation draft saved. Send it when ready from the invoice list.'
-            : ($invoiceStatus === 'paid'
-            ? 'Quotation created and marked as paid.'
-            : 'Quotation created successfully.');
-        $sentMessage = $invoiceStatus === 'paid'
-            ? 'Quotation created, marked as paid, and emailed successfully.'
-            : 'Quotation created and emailed successfully.';
-        $failedMessage = $invoiceStatus === 'paid'
-            ? 'Quotation created and marked as paid, but email could not be sent.'
-            : 'Quotation created, but email could not be sent.';
+        if ($submissionAction === 'save_send') {
+            $sent = $this->sendInvoiceFromAction($invoice, $invoiceService);
+
+            return redirect()
+                ->route('admin.invoices.index')
+                ->with(
+                    $sent ? 'status' : 'warning',
+                    $sent
+                        ? ($invoiceStatus === 'paid'
+                            ? 'Quotation created, marked as paid, and emailed successfully.'
+                            : 'Quotation created and emailed successfully.')
+                        : ($invoiceStatus === 'paid'
+                            ? 'Quotation created and marked as paid, but email could not be sent.'
+                            : 'Quotation created, but email could not be sent. Check customer email and mail configuration.')
+                );
+        }
 
         return redirect()
             ->route('admin.invoices.index')
-            ->with(
-                $sent || ! $shouldSend ? 'status' : 'warning',
-                $sent
-                    ? $sentMessage
-                    : ($shouldSend ? $failedMessage : $baseMessage)
-            );
+            ->with('status', $invoiceStatus === 'draft'
+                ? 'Quotation draft saved.'
+                : ($invoiceStatus === 'paid'
+                    ? 'Quotation created and marked as paid.'
+                    : 'Quotation saved successfully.'));
     }
 
     /**
@@ -786,8 +897,8 @@ class AdminInvoiceController extends Controller
                     $rate = max(0, (float) ($catalogItem['unit_price'] ?? 0));
                 }
 
-                if ($description === '') {
-                    $description = (string) ($catalogItem['name'] ?? 'Custom item');
+                if ($description === '' && $catalogItem) {
+                    $description = (string) ($catalogItem['name'] ?? '');
                 }
 
                 $specParts = collect([
@@ -853,9 +964,18 @@ class AdminInvoiceController extends Controller
         return $validated;
     }
 
-    private function sendIfRequested(Request $request, Invoice $invoice, InvoiceService $invoiceService): bool
+    private function resolveSubmissionAction(Request $request): string
     {
-        if (! $request->boolean('send_email')) {
+        $action = (string) $request->input('action', 'save');
+
+        return in_array($action, ['save', 'save_download', 'save_send'], true)
+            ? $action
+            : 'save';
+    }
+
+    private function sendInvoiceFromAction(Invoice $invoice, InvoiceService $invoiceService): bool
+    {
+        if (! filled($invoice->order?->customer_email)) {
             return false;
         }
 

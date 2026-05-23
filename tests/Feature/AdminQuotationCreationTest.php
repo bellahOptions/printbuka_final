@@ -289,6 +289,55 @@ class AdminQuotationCreationTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_save_quotation_without_customer_email(): void
+    {
+        $admin = $this->adminUser('operations');
+
+        $this->actingAs($admin)
+            ->post(route('admin.invoices.quotations.store'), [
+                'customer_name' => 'Walk-in Quote',
+                'customer_phone' => '08022223333',
+                'job_type' => 'Custom Campaign',
+                'line_items' => [
+                    [
+                        'description' => 'Design and production',
+                        'quantity' => 1,
+                        'rate' => 15000,
+                    ],
+                ],
+                'action' => 'save',
+            ])
+            ->assertRedirect(route('admin.invoices.index'))
+            ->assertSessionHas('status');
+
+        $order = Order::query()->latest('id')->firstOrFail();
+
+        $this->assertSame('', (string) $order->customer_email);
+    }
+
+    public function test_admin_cannot_save_and_send_quotation_without_customer_email(): void
+    {
+        $admin = $this->adminUser('operations');
+
+        $this->actingAs($admin)
+            ->from(route('admin.invoices.quotations.create'))
+            ->post(route('admin.invoices.quotations.store'), [
+                'customer_name' => 'Walk-in Quote',
+                'customer_phone' => '08022223333',
+                'job_type' => 'Custom Campaign',
+                'line_items' => [
+                    [
+                        'description' => 'Design and production',
+                        'quantity' => 1,
+                        'rate' => 15000,
+                    ],
+                ],
+                'action' => 'save_send',
+            ])
+            ->assertRedirect(route('admin.invoices.quotations.create'))
+            ->assertSessionHasErrors('customer_email');
+    }
+
     private function adminUser(string $role): User
     {
         return User::factory()->create([

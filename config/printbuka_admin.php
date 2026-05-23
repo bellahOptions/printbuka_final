@@ -116,9 +116,11 @@ return [
     'todo_statuses' => [
         'pending' => 'Pending',
         'working_on_it' => 'Working on it',
-        'review_requested' => 'Awaiting Review',
-        'approved' => 'Approved',
-        'rejected' => 'Rejected',
+        'completed' => 'Completed',
+        'reviewed' => 'Reviewed',
+        'review_requested' => 'Completed (Legacy)',
+        'approved' => 'Reviewed (Legacy)',
+        'rejected' => 'Reviewed (Legacy)',
     ],
 
     'todo_review_roles' => [

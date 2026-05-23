@@ -73,10 +73,10 @@ class AdminDashboardController extends Controller
             'todayTasks' => DailyTodo::query()
                 ->where('user_id', $user->id)
                 ->whereDate('due_date', today())
-                ->orderByRaw("FIELD(status, 'pending', 'working_on_it', 'review_requested', 'approved', 'rejected')")
+                ->orderByRaw("FIELD(status, 'pending', 'working_on_it', 'completed', 'reviewed', 'review_requested', 'approved', 'rejected')")
                 ->get(),
             'reviewQueueCount' => in_array($user->role, config('printbuka_admin.todo_review_roles', []), true)
-                ? DailyTodo::query()->where('status', 'review_requested')->count()
+                ? DailyTodo::query()->whereIn('status', ['completed', 'review_requested'])->whereNull('reviewed_at')->count()
                 : 0,
             'workingOnStaffCount' => in_array($user->role, config('printbuka_admin.todo_review_roles', []), true)
                 ? DailyTodo::query()->where('status', 'working_on_it')->whereDate('due_date', today())->distinct('user_id')->count('user_id')
