@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\FinanceEntry;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\InvoiceService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Services\JobWorkflowNotificationService;
 use App\Services\OrderFulfillmentService;
 use App\Services\PendingJobReminderService;
@@ -102,6 +104,37 @@ class AdminOrderController extends Controller
             'canApproveWorkflow' => $canApproveWorkflow,
             'canRequestMoveForward' => $canRequestMoveForward,
         ]);
+    }
+
+    public function jobLog(Order $order): View
+    {
+        $expenseEntries = FinanceEntry::query()
+            ->where('order_id', $order->id)
+            ->where('type', 'expense')
+            ->orderByDesc('entry_date')
+            ->get();
+
+        return view('admin.orders.job-log', [
+            'order' => $order->load('product', 'invoice', 'briefReceiver', 'creatorAdmin', 'designer', 'productionOfficer', 'qcOfficer', 'dispatcher', 'verifier'),
+            'expenseEntries' => $expenseEntries,
+        ]);
+    }
+
+    public function jobLogDownload(Order $order)
+    {
+        $expenseEntries = FinanceEntry::query()
+            ->where('order_id', $order->id)
+            ->where('type', 'expense')
+            ->orderByDesc('entry_date')
+            ->get();
+
+        $pdf = Pdf::loadView('admin.orders.job-log-pdf', [
+            'order' => $order->load('product', 'invoice'),
+            'expenseEntries' => $expenseEntries,
+            'asPdf' => true,
+        ]);
+
+        return $pdf->download('job-log-'.$order->job_order_number.'.pdf');
     }
 
     public function store(

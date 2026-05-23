@@ -176,14 +176,11 @@
                                 @endforeach
                             </select>
                         </label>
-                        <label class="text-sm font-black text-slate-800">
-                            Department
-                            <select name="department" @disabled(! $canAssignRoles) class="mt-2 min-h-12 w-full rounded-xl border border-slate-200 bg-white px-4 font-semibold text-slate-950 outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 disabled:bg-slate-100 disabled:text-slate-500">
-                                @foreach ($departments as $value => $label)
-                                    <option value="{{ $label }}" @selected(old('department', $person->department) === $label)>{{ $label }}</option>
-                                @endforeach
-                            </select>
-                        </label>
+                        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                            <p class="font-black text-slate-800">Department assignment</p>
+                            <p class="mt-2">This staff member's department is auto-derived from the selected role.</p>
+                            <p class="mt-2 text-sm font-semibold text-slate-700">Current department: {{ $person->department ?? 'Unassigned' }}</p>
+                        </div>
                         <div class="flex flex-wrap gap-3">
                             @if ($canAssignRoles)
                                 <label class="flex min-h-12 items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-800">

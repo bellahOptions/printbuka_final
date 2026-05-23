@@ -253,6 +253,12 @@
                             </svg>
                             Jobs
                         </a>
+                        <a href="{{ route('admin.tasks.index') }}" class="{{ $sidebarLinkClass('admin.tasks.*') }}">
+                            <svg class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-pink-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                            </svg>
+                            Today's Tasks
+                        </a>
                         <a href="{{ route('admin.support.index') }}" class="{{ $sidebarLinkClass('admin.support.*') }}">
                             <svg class="w-5 h-5 shrink-0 text-slate-400 group-hover:text-pink-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4-.806L3 20l1.2-3.6A7.42 7.42 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>

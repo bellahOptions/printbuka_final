@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\AdminSiteSettingController;
 use App\Http\Controllers\Admin\AdminStaffController;
 use App\Http\Controllers\Admin\AdminSupportTicketController;
 use App\Http\Controllers\Admin\AdminTrainingApplicationController;
+use App\Http\Controllers\Admin\DailyTodoController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -41,6 +42,12 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::post('/invoices/import-csv', [AdminInvoiceController::class, 'importCsv'])
             ->middleware(['admin.permission:invoices.manage', 'super.admin'])
             ->name('invoices.import-csv');
+        Route::get('/invoices/{invoice}', [AdminInvoiceController::class, 'show'])
+            ->middleware('admin.permission:invoices.manage')
+            ->name('invoices.show');
+        Route::get('/invoices/{invoice}/download', [AdminInvoiceController::class, 'download'])
+            ->middleware('admin.permission:invoices.manage')
+            ->name('invoices.download');
         Route::resource('invoices', AdminInvoiceController::class)
             ->except('show')
             ->middleware('admin.permission:invoices.manage');
@@ -80,6 +87,12 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::post('/newsletters', [AdminNewsletterController::class, 'store'])
             ->middleware('admin.permission:newsletters.manage')
             ->name('newsletters.store');
+        Route::get('/finance/{finance}', [AdminFinanceController::class, 'show'])
+            ->middleware('admin.permission:finance.view')
+            ->name('finance.show');
+        Route::get('/finance/{finance}/download', [AdminFinanceController::class, 'download'])
+            ->middleware('admin.permission:finance.view')
+            ->name('finance.download');
         Route::resource('finance', AdminFinanceController::class)
             ->except('show')
             ->middleware('admin.permission:finance.view');
@@ -137,6 +150,26 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])
             ->middleware('admin.permission:orders.view')
             ->name('orders.show');
+        Route::get('/orders/{order}/job-log', [AdminOrderController::class, 'jobLog'])
+            ->middleware('admin.permission:orders.view')
+            ->name('orders.job-log');
+
+        Route::get('/tasks', [DailyTodoController::class, 'index'])
+            ->name('tasks.index');
+        Route::post('/tasks', [DailyTodoController::class, 'store'])
+            ->middleware('admin.permission:orders.view')
+            ->name('tasks.store');
+        Route::patch('/tasks/{todo}/mark-working', [DailyTodoController::class, 'markWorking'])
+            ->name('tasks.mark-working');
+        Route::patch('/tasks/{todo}/mark-done', [DailyTodoController::class, 'markDone'])
+            ->name('tasks.mark-done');
+        Route::patch('/tasks/{todo}/approve', [DailyTodoController::class, 'approve'])
+            ->name('tasks.approve');
+        Route::patch('/tasks/{todo}/reject', [DailyTodoController::class, 'reject'])
+            ->name('tasks.reject');
+        Route::get('/orders/{order}/job-log/download', [AdminOrderController::class, 'jobLogDownload'])
+            ->middleware('admin.permission:orders.view')
+            ->name('orders.job-log.download');
         Route::put('/orders/{order}', [AdminOrderController::class, 'update'])
             ->middleware('admin.permission:orders.view')
             ->name('orders.update');

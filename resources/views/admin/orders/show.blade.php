@@ -18,6 +18,10 @@
             <p class="mt-2 text-sm text-slate-300">
                 {{ $order->customer_name }} · {{ $order->invoice?->invoice_number ?? 'Invoice pending' }} · {{ $order->status }}
             </p>
+            <div class="mt-4 flex flex-wrap gap-3">
+                <a href="{{ route('admin.orders.job-log', $order) }}" class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-black text-slate-900 hover:bg-slate-50">View Job Log</a>
+                <a href="{{ route('admin.orders.job-log.download', $order) }}" class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-black text-slate-900 hover:bg-slate-50">Download Job Log</a>
+            </div>
         </div>
 
         @if ($errors->any())

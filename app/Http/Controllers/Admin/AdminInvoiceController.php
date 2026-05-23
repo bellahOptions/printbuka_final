@@ -14,6 +14,7 @@ use App\Services\QuoteCsvImportService;
 use App\Support\ProductOptionPricing;
 use App\Support\ReferenceCode;
 use App\Support\ServiceCatalog;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -34,6 +35,24 @@ class AdminInvoiceController extends Controller
     public function index(): View
     {
         return view('admin.invoices.index');
+    }
+
+    public function show(Invoice $invoice): View
+    {
+        return view('admin.invoices.show', [
+            'invoice' => $invoice->load('order.product'),
+        ]);
+    }
+
+    public function download(Invoice $invoice)
+    {
+        $invoice->load('order.product');
+
+        $pdf = Pdf::loadView('admin.invoices.pdf', [
+            'invoice' => $invoice,
+        ]);
+
+        return $pdf->download($invoice->documentTypeLabel().'-'.$invoice->invoice_number.'.pdf');
     }
 
     public function importCsv(Request $request, QuoteCsvImportService $quoteCsvImportService): RedirectResponse

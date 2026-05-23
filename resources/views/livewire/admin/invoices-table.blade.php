@@ -97,6 +97,8 @@
                         <td class="px-5 py-4">{{ str($invoice->status)->replace('_', ' ')->title() }}</td>
                         <td class="px-5 py-4">
                             <div class="flex flex-wrap items-center justify-end gap-3">
+                                <a href="{{ route('admin.invoices.show', $invoice) }}" class="font-black text-pink-700">View</a>
+                                <a href="{{ route('admin.invoices.download', $invoice) }}" class="font-black text-slate-700">Download</a>
                                 <a href="{{ route('admin.invoices.edit', $invoice) }}" class="font-black text-pink-700">Edit</a>
 
                                 @if ($invoice->status !== 'paid')

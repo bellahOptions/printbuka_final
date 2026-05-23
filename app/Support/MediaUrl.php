@@ -33,11 +33,11 @@ class MediaUrl
         $normalizedStoragePath = self::normalizeStoragePath($candidate);
 
         if (Storage::disk($disk)->exists($normalizedStoragePath)) {
-            return '/storage/'.ltrim($normalizedStoragePath, '/');
+            return Storage::disk($disk)->url($normalizedStoragePath);
         }
 
         if (file_exists(public_path($candidate))) {
-            return '/'.ltrim($candidate, '/');
+            return asset(ltrim($candidate, '/'));
         }
 
         return null;
@@ -65,13 +65,13 @@ class MediaUrl
             $normalizedStoragePath = self::normalizeStoragePath($path);
 
             if (Storage::disk($disk)->exists($normalizedStoragePath)) {
-                return '/storage/'.ltrim($normalizedStoragePath, '/');
+                return Storage::disk($disk)->url($normalizedStoragePath);
             }
 
             return null;
         }
 
-        return file_exists(public_path($path)) ? $path : null;
+        return file_exists(public_path($path)) ? asset(ltrim($path, '/')) : null;
     }
 
     private static function normalizeStoragePath(string $value): string

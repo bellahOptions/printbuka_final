@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\DailyTodo;
 use App\Models\FinanceEntry;
 use App\Models\Invoice;
 use App\Models\Order;
@@ -69,6 +70,17 @@ class AdminDashboardController extends Controller
             'jobStatusCounts' => $jobStatusCounts,
             'weeklyProfitSnapshot' => $weeklyProfitSnapshot,
             'workflowPhases' => config('printbuka_admin.workflow_phases'),
+            'todayTasks' => DailyTodo::query()
+                ->where('user_id', $user->id)
+                ->whereDate('due_date', today())
+                ->orderByRaw("FIELD(status, 'pending', 'working_on_it', 'review_requested', 'approved', 'rejected')")
+                ->get(),
+            'reviewQueueCount' => in_array($user->role, config('printbuka_admin.todo_review_roles', []), true)
+                ? DailyTodo::query()->where('status', 'review_requested')->count()
+                : 0,
+            'workingOnStaffCount' => in_array($user->role, config('printbuka_admin.todo_review_roles', []), true)
+                ? DailyTodo::query()->where('status', 'working_on_it')->whereDate('due_date', today())->distinct('user_id')->count('user_id')
+                : 0,
             'recentOrders' => Order::query()
                 ->with('product', 'invoice', 'creatorAdmin', 'briefReceiver')
                 ->latest()

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\FinanceEntry;
 use App\Models\Order;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -14,10 +15,32 @@ class AdminFinanceController extends Controller
     public function index(): View
     {
         return view('admin.finance.index', [
-            'entries' => FinanceEntry::query()->with('order', 'recorder')->latest('entry_date')->paginate(20),
+            'entries' => FinanceEntry::query()
+                ->with('order', 'recorder')
+                ->orderByDesc('updated_at')
+                ->orderByDesc('created_at')
+                ->paginate(20),
             'income' => FinanceEntry::query()->where('type', 'income')->sum('amount'),
             'expenses' => FinanceEntry::query()->where('type', 'expense')->sum('amount'),
         ]);
+    }
+
+    public function show(FinanceEntry $finance): View
+    {
+        return view('admin.finance.show', [
+            'entry' => $finance->load('order', 'recorder'),
+        ]);
+    }
+
+    public function download(FinanceEntry $finance)
+    {
+        $entry = $finance->load('order', 'recorder');
+
+        $pdf = Pdf::loadView('admin.finance.pdf', [
+            'entry' => $entry,
+        ]);
+
+        return $pdf->download('finance-entry-'.$entry->id.'.pdf');
     }
 
     public function create(): View

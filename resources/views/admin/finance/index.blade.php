@@ -242,6 +242,16 @@
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex items-center justify-end gap-2">
+                                            <a href="{{ route('admin.finance.show', $entry) }}" class="rounded-lg p-2 text-slate-700 transition-all duration-200 hover:bg-slate-50">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                            </a>
+                                            <a href="{{ route('admin.finance.download', $entry) }}" class="rounded-lg p-2 text-slate-700 transition-all duration-200 hover:bg-slate-50">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                                </svg>
+                                            </a>
                                         @if($entry->type === 'income')
                                             <span class="rounded-lg bg-emerald-50 px-3 py-2 text-xs font-black uppercase tracking-wider text-emerald-700">Auto</span>
                                         @else

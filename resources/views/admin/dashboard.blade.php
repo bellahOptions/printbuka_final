@@ -49,8 +49,60 @@
             </div>
         </section>
 
+        <!-- Today's Tasks -->
+        <section class="fade-in-up section-delay-1 rounded-2xl border border-slate-200/60 bg-white p-5 sm:p-6 shadow-sm">
+            <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                    <p class="text-sm font-black uppercase tracking-wide text-cyan-700">Today's Task</p>
+                    <h2 class="mt-2 text-2xl font-black text-slate-950">Tasks due for you today</h2>
+                    <p class="mt-2 text-sm leading-6 text-slate-600">Review your assigned tasks and move them to review once complete.</p>
+                </div>
+                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:grid-cols-[minmax(120px,160px)_minmax(120px,180px)_minmax(120px,180px)]">
+                    <div class="rounded-3xl bg-slate-50 p-4 text-center">
+                        <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Due today</p>
+                        <p class="mt-3 text-3xl font-black text-pink-700">{{ number_format($todayTasks->count()) }}</p>
+                    </div>
+                    <div class="rounded-3xl bg-slate-50 p-4 text-center">
+                        <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Review queue</p>
+                        <p class="mt-3 text-3xl font-black text-cyan-700">{{ number_format($reviewQueueCount) }}</p>
+                    </div>
+                    @if ($workingOnStaffCount > 0)
+                        <div class="rounded-3xl bg-slate-50 p-4 text-center">
+                            <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Working now</p>
+                            <p class="mt-3 text-3xl font-black text-emerald-700">{{ number_format($workingOnStaffCount) }}</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            @if ($todayTasks->isNotEmpty())
+                <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    @foreach ($todayTasks->take(3) as $todo)
+                        <article class="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                            <div class="flex items-center justify-between gap-3">
+                                <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">{{ $todo->status === 'pending' ? 'Open' : ($todo->status === 'review_requested' ? 'In review' : ucfirst($todo->status)) }}</p>
+                                <span class="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-700 ring-1 ring-slate-200">Due {{ $todo->due_date->format('M j') }}</span>
+                            </div>
+                            <h3 class="mt-4 text-lg font-black text-slate-950">{{ $todo->task }}</h3>
+                            <p class="mt-2 text-sm leading-6 text-slate-600">Assigned by {{ $todo->assigner?->displayName() ?? 'System' }}</p>
+                            @if ($todo->order)
+                                <p class="mt-3 text-sm font-semibold text-pink-700">Order: {{ $todo->order->job_order_number ?? $todo->order->displayNumber() }}</p>
+                            @endif
+                        </article>
+                    @endforeach
+                </div>
+                <div class="mt-6 text-right">
+                    <a href="{{ route('admin.tasks.index') }}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 transition hover:border-pink-300 hover:text-pink-700">View all tasks</a>
+                </div>
+            @else
+                <div class="mt-6 rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm font-semibold text-slate-600">
+                    No tasks are scheduled for today. Your task list will appear here once assignments are made.
+                </div>
+            @endif
+        </section>
+
         <!-- Real-time Stats -->
-        <div class="fade-in-up section-delay-1">
+        <div class="fade-in-up section-delay-2">
             <livewire:admin.realtime-stats />
         </div>
 

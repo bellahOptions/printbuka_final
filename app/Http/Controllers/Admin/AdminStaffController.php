@@ -66,12 +66,10 @@ class AdminStaffController extends Controller
 
         $request->merge([
             'role' => $request->input('role') ?: null,
-            'department' => $request->input('department') ?: null,
         ]);
 
         $validated = $request->validate([
             'role' => ['nullable', 'string', Rule::in(array_keys(config('printbuka_admin.roles', [])))],
-            'department' => ['nullable', 'string', Rule::in(array_values(config('printbuka_admin.departments', [])))],
             'is_active' => ['nullable', 'boolean'],
             'photo_upload_path' => ['nullable', 'string', 'max:255'],
             'photo' => [
@@ -84,9 +82,12 @@ class AdminStaffController extends Controller
             ],
         ]);
 
+        $role = $validated['role'] ?? $user->role;
+        $department = $this->departmentForRole($role) ?? $user->department;
+
         $updates = [
-            'role' => $validated['role'] ?? $user->role,
-            'department' => $validated['department'] ?? $user->department,
+            'role' => $role,
+            'department' => $department,
             'is_active' => $request->boolean('is_active', $user->is_active),
             'employment_status' => $request->boolean('is_active', $user->is_active) ? 'active' : ($user->employment_status ?? 'pending'),
             'approved_by_id' => $request->user()->id,
@@ -170,6 +171,13 @@ class AdminStaffController extends Controller
         );
 
         return back()->with('status', 'Staff employment status updated.');
+    }
+
+    private function departmentForRole(?string $role): ?string
+    {
+        return is_string($role)
+            ? config('printbuka_admin.role_department_map.'.$role)
+            : null;
     }
 
     private function notifyStaffEmploymentStatus(User $staff, string $status, ?string $reason): void
