@@ -19,8 +19,7 @@
         <div class="mt-6 rounded-md border border-slate-200 bg-white p-5 shadow-sm">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                    <p class="text-sm font-black uppercase tracking-wide text-cyan-700">Automatic Staff Todo</p>
-                    <h2 class="mt-1 text-2xl font-black text-slate-950">Paid pending jobs by staff</h2>
+                    <h2 class="mt-1 text-2xl font-black text-slate-950">Jobs that require your attention right now</h2>
                 </div>
                 @if ($canSendTodoReminders)
                     <form method="POST" action="{{ route('admin.orders.todo-reminders.send') }}">

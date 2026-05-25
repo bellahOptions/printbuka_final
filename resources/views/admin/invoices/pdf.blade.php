@@ -1,107 +1,586 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>{{ $invoice->documentTypeLabel() }} {{ $invoice->invoice_number }}</title>
-        <style>
-            body { margin: 0; padding: 28px; font-family: Arial, sans-serif; color: #111827; }
-            .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
-            .title { font-size: 28px; font-weight: 800; margin: 0; }
-            .subtitle { font-size: 12px; color: #475569; margin: 4px 0 0; }
-            .section { border: 1px solid #e2e8f0; border-radius: 16px; padding: 18px; margin-bottom: 20px; }
-            .section h2 { font-size: 13px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: .08em; color: #475569; }
-            .row { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
-            .detail { width: calc(50% - 10px); min-width: 190px; }
-            .label { display: block; margin-bottom: 4px; font-size: 11px; font-weight: 700; color: #64748b; }
-            .value { font-size: 14px; color: #111827; }
-            table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-            th, td { padding: 12px 10px; border: 1px solid #e2e8f0; text-align: left; }
-            th { background: #f8fafc; text-transform: uppercase; letter-spacing: .05em; font-size: 11px; color: #475569; }
-            .total-row td { font-weight: 800; }
-            .amount { text-align: right; }
-        </style>
-    </head>
-    <body>
-        <div class="header">
-            <div>
-                <p class="title">{{ $invoice->documentTypeLabel() }}</p>
-                <p class="subtitle">{{ $invoice->invoice_number }}</p>
-            </div>
-            <div class="detail">
-                <span class="label">Date</span>
-                <div class="value">{{ $invoice->issued_at?->format('F j, Y') ?? now()->format('F j, Y') }}</div>
-            </div>
-        </div>
+<html lang="en" data-theme="light" style="color-scheme: light;">
+<head>
+    <meta charset="utf-8">
+    @php
+        $order = $invoice->order;
+        $settings = \App\Support\SiteSettings::all();
 
-        <div class="section">
-            <h2>Customer</h2>
-            <div class="row">
-                <div class="detail">
-                    <span class="label">Name</span>
-                    <div class="value">{{ $invoice->order?->customer_name ?? 'N/A' }}</div>
-                </div>
-                <div class="detail">
-                    <span class="label">Email</span>
-                    <div class="value">{{ $invoice->order?->customer_email ?? 'N/A' }}</div>
-                </div>
-                <div class="detail">
-                    <span class="label">Phone</span>
-                    <div class="value">{{ $invoice->order?->customer_phone ?? 'N/A' }}</div>
-                </div>
-            </div>
-        </div>
+        $documentType = strtoupper($invoice->documentTypeLabel());
+        $documentId = '#'.($invoice->id ?? preg_replace('/\D+/', '', (string) $invoice->invoice_number));
 
-        <div class="section">
-            <h2>Job details</h2>
-            <div class="row">
-                <div class="detail">
-                    <span class="label">Job number</span>
-                    <div class="value">{{ $invoice->order?->job_order_number ?? 'N/A' }}</div>
-                </div>
-                <div class="detail">
-                    <span class="label">Order status</span>
-                    <div class="value">{{ $invoice->order?->status ?? 'N/A' }}</div>
-                </div>
-                <div class="detail">
-                    <span class="label">Payment status</span>
-                    <div class="value">{{ $invoice->order?->payment_status ?? 'N/A' }}</div>
-                </div>
-            </div>
-        </div>
+        $companyName = (string) ($settings['site_name'] ?? config('app.name', 'Printbuka'));
+        $companyAddressLine1 = (string) ($settings['company_address_line_1'] ?? '63, Akeju Street, off Shipeolu St, Somolu, Lagos');
+        $companyAddressLine2 = (string) ($settings['company_address_line_2'] ?? '100001, Lagos');
+        $companyEmail = (string) ($settings['contact_email'] ?? 'sales@printbuka.com.ng');
+        $companyPhone = (string) ($settings['contact_phone'] ?? '08035245784, 09054784526');
+        $companyAccountName = trim((string) ($settings['company_account_name'] ?? '')) ?: 'Alet Inspirationz';
+        $companyAccountNumber = trim((string) ($settings['company_account_number'] ?? '')) ?: '0062999338';
+        $companyAccountBankName = trim((string) ($settings['company_account_bank_name'] ?? '')) ?: 'Access bank';
+        $companyAccountNote = trim((string) ($settings['company_account_note'] ?? ''));
+        $hasCompanyAccountDetails = $companyAccountName !== '' || $companyAccountNumber !== '' || $companyAccountBankName !== '' || $companyAccountNote !== '';
 
-        <div class="section">
-            <h2>Amounts</h2>
-            <table>
+        // Embedded fonts (fall back to system fonts if files are missing)
+        $embedFont = static function (array $paths): ?string {
+            foreach ($paths as $path) {
+                if (file_exists($path)) {
+                    return 'data:font/ttf;base64,'.base64_encode(file_get_contents($path));
+                }
+            }
+            return null;
+        };
+
+        $openSansRegular = $embedFont([
+            public_path('fonts/OpenSans-Regular.ttf'),
+            public_path('fonts/open-sans/OpenSans-Regular.ttf'),
+            public_path('fonts/open-sans/static/OpenSans-Regular.ttf'),
+        ]);
+        $openSansSemiBold = $embedFont([
+            public_path('fonts/OpenSans-SemiBold.ttf'),
+            public_path('fonts/open-sans/OpenSans-SemiBold.ttf'),
+            public_path('fonts/open-sans/static/OpenSans-SemiBold.ttf'),
+        ]);
+        $openSansBold = $embedFont([
+            public_path('fonts/OpenSans-Bold.ttf'),
+            public_path('fonts/open-sans/OpenSans-Bold.ttf'),
+            public_path('fonts/open-sans/static/OpenSans-Bold.ttf'),
+        ]);
+
+        $issuedAt = $invoice->issued_at ?? now();
+        $dueAt = $invoice->due_at ?? now();
+        $paidAt = $invoice->paid_at;
+
+        $amountPaid = (float) ($order?->amount_paid ?? 0);
+        $balanceDue = max(0, (float) $invoice->total_amount - $amountPaid);
+        $statusLabel = str((string) ($invoice->status ?? 'pending'))->replace('_', ' ')->title()->value();
+        $isPaid = $paidAt !== null || in_array(strtolower((string) $invoice->status), ['paid', 'settled', 'completed'], true) || $balanceDue <= 0.01;
+        $effectivePaidAt = $paidAt ?? now();
+
+        $paymentMethod = (string) ($invoice->payment_gateway ?? 'paystack');
+        $paymentLabel = str($paymentMethod)->replace('_', ' ')->upper()->value();
+        $paymentReference = (string) ($invoice->payment_reference ?: 'Pending');
+
+        $billToName = (string) ($order?->customer_name ?: 'Client');
+        $billToEmail = (string) ($order?->customer_email ?: 'N/A');
+        $billToPhone = (string) ($order?->customer_phone ?: 'N/A');
+        $billToAddress = trim(collect([
+            $order?->delivery_address,
+            $order?->delivery_city,
+        ])->filter(fn ($value): bool => filled($value))->implode(', '));
+
+        $breakdown = is_array($order?->pricing_breakdown) ? $order->pricing_breakdown : [];
+        $lineItems = collect($breakdown['line_items'] ?? [])
+            ->filter(fn ($item): bool => is_array($item))
+            ->map(function (array $item): array {
+                $description = trim((string) ($item['description'] ?? ''));
+                $quantity = max(1, (int) ($item['quantity'] ?? 0));
+                $rate = max(0, (float) ($item['rate'] ?? 0));
+                $amount = isset($item['amount']) ? (float) $item['amount'] : ($quantity * $rate);
+                return compact('description', 'quantity', 'rate', 'amount');
+            })
+            ->filter(fn (array $item): bool => $item['description'] !== '')
+            ->values();
+
+        if ($lineItems->isEmpty()) {
+            $lineItems = collect([[
+                'description' => $order?->product?->name ?? ($order?->job_type ?? 'Custom order'),
+                'quantity' => max(1, (int) ($order?->quantity ?? 1)),
+                'rate' => max(0, (float) ($order?->unit_price ?? 0)),
+                'amount' => max(0, (float) $invoice->subtotal),
+            ]]);
+        }
+
+        $lightLogoPath = public_path('logo.png');
+        $lightLogo = file_exists($lightLogoPath) ? 'data:image/png;base64,'.base64_encode(file_get_contents($lightLogoPath)) : null;
+    @endphp
+    <title>{{ $documentType }} {{ $invoice->invoice_number }}</title>
+    <style>
+        @page { margin: 12mm 15mm; }
+        @if ($openSansRegular !== null)
+            @font-face {
+                font-family: 'Open Sans';
+                font-style: normal;
+                font-weight: 400;
+                src: url('{{ $openSansRegular }}') format('truetype');
+            }
+        @endif
+        @if ($openSansSemiBold !== null)
+            @font-face {
+                font-family: 'Open Sans';
+                font-style: normal;
+                font-weight: 600;
+                src: url('{{ $openSansSemiBold }}') format('truetype');
+            }
+        @endif
+        @if ($openSansBold !== null)
+            @font-face {
+                font-family: 'Open Sans';
+                font-style: normal;
+                font-weight: 700;
+                src: url('{{ $openSansBold }}') format('truetype');
+            }
+        @endif
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Open Sans', 'DejaVu Sans', Arial, sans-serif;
+            background: #ffffff;
+            color: #13203a;
+            font-size: 10px;
+            line-height: 1.35;
+        }
+
+        .invoice-receipt-card {
+            width: 100%;
+            background: #ffffff;
+            border-radius: 0;
+            border: none;
+            padding: 0;
+        }
+
+        .header-table,
+        .info-grid-table,
+        .receipt-footer-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .header-table td,
+        .info-grid-table td,
+        .receipt-footer-table td {
+            vertical-align: top;
+            border: 0;
+            padding: 0;
+        }
+
+        .brand-cell { width: 52%; }
+        .badge-cell { width: 48%; text-align: right; }
+
+        .brand-logo {
+            display: inline-block;
+            height: 34px;
+            width: auto;
+            margin-bottom: 2px;
+        }
+
+        .brand-fallback {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #13203a;
+        }
+
+        .brand-tagline {
+            color: #54657e;
+            font-size: 9px;
+            margin-top: 2px;
+        }
+
+        .invoice-title {
+            font-size: 26px;
+            line-height: 1;
+            font-weight: 800;
+            color: #1e2b5e;
+            margin: 0;
+        }
+
+        .receipt-badge {
+            margin-top: 4px;
+            display: inline-block;
+            font-weight: 700;
+            font-size: 9px;
+            padding: 3px 10px;
+            border-radius: 999px;
+            border: 1px solid #b6dec2;
+            background: #e7f3e9;
+            color: #0e6b2b;
+        }
+
+        .paid-stamp {
+            margin-top: 3px;
+            display: inline-block;
+            font-size: 9px;
+            color: #3c6e4a;
+            background: #f4fbf6;
+            padding: 3px 8px;
+            border-radius: 999px;
+        }
+
+        .info-grid-table { margin-top: 12px; }
+        .info-grid-table td { width: 50%; padding-right: 12px; }
+        .info-grid-table td:last-child { padding-right: 0; padding-left: 10px; }
+
+        .section-title {
+            margin: 0 0 6px;
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: #5b6f8c;
+            border-bottom: 1px dashed #d0ddeb;
+            padding-bottom: 4px;
+        }
+
+        .company-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #13203a;
+        }
+
+        .address,
+        .contact {
+            margin-top: 2px;
+            color: #3e5068;
+            font-size: 9px;
+            line-height: 1.35;
+        }
+
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 6px;
+        }
+        .details-table td {
+            border: 0;
+            padding: 1px 0;
+            vertical-align: top;
+        }
+        .details-label {
+            width: 80px;
+            color: #4f658d;
+            font-size: 8px;
+        }
+        .details-value {
+            color: #13203a;
+            font-weight: 700;
+            font-size: 9px;
+            word-break: break-word;
+        }
+
+        .status-paid-highlight {
+            color: #0e6b2b;
+            background: #e4f3e8;
+            border-radius: 999px;
+            padding: 1px 6px;
+            display: inline-block;
+        }
+
+        .items-table-wrapper {
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #e6ecf5;
+            background: #fbfdff;
+            overflow: hidden;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .items-table th {
+            text-align: left;
+            padding: 6px 8px;
+            font-weight: 700;
+            color: #3b4e6b;
+            border-bottom: 2px solid #dae2ed;
+            font-size: 8px;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+
+        .items-table td {
+            padding: 5px 8px;
+            border-bottom: 1px solid #e9eef4;
+            color: #1f2e48;
+            font-size: 9px;
+            vertical-align: top;
+        }
+        .items-table tbody tr:last-child td { border-bottom: 0; }
+
+        .col-description { font-weight: 700; color: #0f1a2e; width: 55%; word-break: break-word; }
+        .col-qty, .col-price, .col-total { text-align: right; white-space: nowrap; }
+        .col-total { font-weight: 700; color: #13203a; }
+
+        .totals-row { margin-top: 8px; text-align: right; page-break-inside: avoid; }
+        .totals-box {
+            display: inline-block;
+            width: 240px;
+            max-width: 100%;
+            text-align: left;
+            background: #f4f8fe;
+            border: 1px solid #dee9f2;
+            border-radius: 10px;
+            padding: 8px 10px;
+        }
+
+        .total-line { width: 100%; border-collapse: collapse; }
+        .total-line td { border: 0; padding: 2px 0; font-size: 9px; }
+        .total-line td:first-child { color: #3e5775; }
+        .total-line td:last-child { text-align: right; color: #13203a; font-weight: 700; }
+        .total-line.grand td {
+            border-top: 1px dashed #b7c8dd;
+            padding-top: 5px;
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f1f3a;
+        }
+
+        .paid-pill {
+            margin-top: 6px;
+            display: inline-block;
+            background: #eaf1dd;
+            color: #1e5620;
+            border-radius: 999px;
+            padding: 3px 8px;
+            font-size: 8px;
+            font-weight: 700;
+        }
+
+        .receipt-footer-table { margin-top: 12px; border-top: 1px solid #eef3fa; padding-top: 8px; page-break-inside: avoid; }
+
+        .payment-block {
+            background: #fafcff;
+            border: 1px solid #e3eaf3;
+            border-radius: 8px;
+            padding: 6px 8px;
+            color: #13294b;
+            font-size: 8px;
+            line-height: 1.35;
+        }
+        .payment-label {
+            color: #687e9e;
+            font-size: 7px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+        .payment-value { font-size: 10px; font-weight: 700; color: #13294b; }
+
+        .account-block {
+            margin-top: 6px;
+            background: #f4f8fe;
+            border: 1px solid #dee9f2;
+            border-radius: 8px;
+            padding: 5px 8px;
+            color: #13294b;
+            font-size: 8px;
+            line-height: 1.35;
+        }
+        .account-title {
+            font-size: 7px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            color: #687e9e;
+            margin-bottom: 2px;
+        }
+        .account-table { width: 100%; border-collapse: collapse; }
+        .account-table td { border: 0; padding: 1px 0; vertical-align: top; word-break: break-word; }
+        .account-label { width: 70px; color: #5a7394; font-weight: 700; }
+        .account-value { color: #102544; font-weight: 600; }
+
+        .thankyou-message { text-align: right; }
+        .thankyou-message p { margin: 0 0 2px; color: #1d3857; font-size: 10px; font-weight: 600; }
+        .receipt-id {
+            display: inline-block;
+            font-size: 8px;
+            color: #52688a;
+            background: #eef3fc;
+            border-radius: 999px;
+            padding: 2px 8px;
+            font-weight: 600;
+        }
+
+        .fine-print {
+            margin-top: 8px;
+            font-size: 7px;
+            color: #7a8aa3;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-receipt-card">
+        <table class="header-table">
+            <tr>
+                <td class="brand-cell">
+                    @if ($lightLogo)
+                        <img src="{{ $lightLogo }}" alt="Printbuka logo" class="brand-logo">
+                    @else
+                        <div class="brand-fallback">{{ $companyName }}</div>
+                    @endif
+                    <div class="brand-tagline">creative print studio</div>
+                </td>
+                <td class="badge-cell">
+                    <p class="invoice-title">{{ $documentType }}</p>
+                    <span class="receipt-badge">{{ $isPaid ? 'RECEIPT · PAID' : $documentType.' · OPEN' }}</span>
+                    <div class="paid-stamp">
+                        {{ $isPaid ? 'Settled on '.$effectivePaidAt->format('M d, Y') : 'Due on '.$dueAt->format('M d, Y') }}
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <table class="info-grid-table">
+            <tr>
+                <td>
+                    <h3 class="section-title">Bill From</h3>
+                    <div class="company-name">{{ $companyName }}</div>
+                    <div class="address">
+                        {{ $companyAddressLine1 }}<br>
+                        {{ $companyAddressLine2 }}
+                    </div>
+                    <div class="contact">
+                        {{ $companyEmail }}<br>
+                        {{ $companyPhone }}
+                    </div>
+                </td>
+                <td>
+                    <h3 class="section-title">Bill To & Details</h3>
+                    <div class="company-name">{{ $billToName }}</div>
+                    <div class="address">
+                        {{ $billToEmail }}<br>
+                        {{ $billToPhone }}
+                        @if ($billToAddress !== '')
+                            <br>{{ $billToAddress }}
+                        @endif
+                    </div>
+                    <table class="details-table">
+                        <tr>
+                            <td class="details-label">Invoice No.</td>
+                            <td class="details-value">{{ $invoice->invoice_number }}</td>
+                        </tr>
+                        <tr>
+                            <td class="details-label">Date issued</td>
+                            <td class="details-value">{{ $issuedAt->format('M d, Y') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="details-label">Due date</td>
+                            <td class="details-value">{{ $dueAt->format('M d, Y') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="details-label">Status</td>
+                            <td class="details-value">
+                                @if ($isPaid)
+                                    <span class="status-paid-highlight">PAID · RECEIPT</span>
+                                @else
+                                    <span>{{ strtoupper($statusLabel) }}</span>
+                                @endif
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <div class="items-table-wrapper">
+            <table class="items-table">
                 <thead>
                     <tr>
                         <th>Description</th>
-                        <th class="amount">Amount</th>
+                        <th class="col-qty">Qty</th>
+                        <th class="col-price">Unit price</th>
+                        <th class="col-total">Total</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Subtotal</td>
-                        <td class="amount">₦{{ number_format($invoice->subtotal, 2) }}</td>
-                    </tr>
-                    <tr>
-                        <td>Tax</td>
-                        <td class="amount">₦{{ number_format($invoice->tax_amount, 2) }}</td>
-                    </tr>
-                    <tr>
-                        <td>Discount</td>
-                        <td class="amount">₦{{ number_format($invoice->discount_amount, 2) }}</td>
-                    </tr>
-                    <tr class="total-row">
-                        <td>Total</td>
-                        <td class="amount">₦{{ number_format($invoice->total_amount, 2) }}</td>
-                    </tr>
+                    @foreach ($lineItems as $lineItem)
+                        <tr>
+                            <td class="col-description">{{ $lineItem['description'] }}</td>
+                            <td class="col-qty">{{ number_format((float) $lineItem['quantity'], 0) }}</td>
+                            <td class="col-price">NGN {{ number_format((float) $lineItem['rate'], 2) }}</td>
+                            <td class="col-total">NGN {{ number_format((float) $lineItem['amount'], 2) }}</td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
 
-        <div class="section">
-            <h2>Notes</h2>
-            <div class="value">{{ $invoice->order?->internal_notes ?: 'No additional notes.' }}</div>
+        <div class="totals-row">
+            <div class="totals-box">
+                <table class="total-line">
+                    <tr>
+                        <td>Subtotal</td>
+                        <td>NGN {{ number_format((float) $invoice->subtotal, 2) }}</td>
+                    </tr>
+                </table>
+                <table class="total-line">
+                    <tr>
+                        <td>Tax</td>
+                        <td>NGN {{ number_format((float) $invoice->tax_amount, 2) }}</td>
+                    </tr>
+                </table>
+                @if ((float) $invoice->discount_amount > 0)
+                    <table class="total-line">
+                        <tr>
+                            <td>Discount</td>
+                            <td>- NGN {{ number_format((float) $invoice->discount_amount, 2) }}</td>
+                        </tr>
+                    </table>
+                @endif
+                <table class="total-line grand">
+                    <tr>
+                        <td>Total (NGN)</td>
+                        <td>NGN {{ number_format((float) $invoice->total_amount, 2) }}</td>
+                    </tr>
+                </table>
+                <span class="paid-pill">{{ $isPaid ? 'Paid in full · Receipt issued' : 'Balance due · Payment pending' }}</span>
+            </div>
         </div>
-    </body>
+
+        <table class="receipt-footer-table">
+            <tr>
+                <td style="width:58%;">
+                    <div class="payment-block">
+                        <div class="payment-label">Payment method</div>
+                        <div class="payment-value">{{ $isPaid ? $paymentLabel : 'Awaiting payment' }}</div>
+                        <div>{{ $isPaid ? 'Transaction ID: '.$paymentReference : 'Reference will appear after payment confirmation.' }}</div>
+                    </div>
+                    @if ($hasCompanyAccountDetails)
+                        <div class="account-block">
+                            <div class="account-title">Company account details</div>
+                            <table class="account-table">
+                                @if ($companyAccountBankName !== '')
+                                    <tr>
+                                        <td class="account-label">Bank</td>
+                                        <td class="account-value">{{ $companyAccountBankName }}</td>
+                                    </tr>
+                                @endif
+                                @if ($companyAccountName !== '')
+                                    <tr>
+                                        <td class="account-label">Account name</td>
+                                        <td class="account-value">{{ $companyAccountName }}</td>
+                                    </tr>
+                                @endif
+                                @if ($companyAccountNumber !== '')
+                                    <tr>
+                                        <td class="account-label">Account number</td>
+                                        <td class="account-value">{{ $companyAccountNumber }}</td>
+                                    </tr>
+                                @endif
+                                @if ($companyAccountNote !== '')
+                                    <tr>
+                                        <td class="account-label">Note</td>
+                                        <td class="account-value">{{ $companyAccountNote }}</td>
+                                    </tr>
+                                @endif
+                            </table>
+                        </div>
+                    @endif
+                </td>
+                <td style="width:42%;" class="thankyou-message">
+                    <p>{{ $isPaid ? 'Thank you for your business!' : 'Thanks for choosing '.$companyName }}</p>
+                    <div class="receipt-id">{{ $documentType }} {{ $documentId }}</div>
+                </td>
+            </tr>
+        </table>
+
+        <div class="fine-print">
+            This document is generated by {{ $companyName }} and is valid without a signature.
+        </div>
+    </div>
+</body>
 </html>

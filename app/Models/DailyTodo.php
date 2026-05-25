@@ -12,6 +12,7 @@ class DailyTodo extends Model
         'order_id',
         'assigned_by_id',
         'task',
+        'priority',
         'notes',
         'due_date',
         'status',

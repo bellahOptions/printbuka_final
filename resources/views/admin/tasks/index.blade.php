@@ -7,11 +7,11 @@
         <section class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                    <p class="text-sm font-black uppercase tracking-wide text-cyan-700">Today's Task</p>
+                    <p class="text-sm font-black uppercase tracking-wide text-gray-700">Today's Task</p>
                     <h1 class="mt-2 text-3xl font-black text-slate-950">Your tasks for today</h1>
                     <p class="mt-2 text-sm leading-6 text-slate-600">Review the tasks assigned to you and mark them as done when ready. Once a task is marked done, it is locked and can only receive a one-time manager review.</p>
                 </div>
-                <div class="space-y-2 text-right">
+                <div class="space-y-2 text-right bg-pink-50 px-4 py-3 rounded-xl justify-self-start">
                     <p class="text-sm font-black text-slate-500">Due today</p>
                     <p class="text-4xl font-black text-pink-700">{{ number_format($todayTasks->count()) }}</p>
                 </div>
@@ -31,7 +31,7 @@
 
                     @if ($todayTasks->isEmpty())
                         <div class="mt-6 rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm font-semibold text-slate-600">
-                            No tasks scheduled for today yet. Check back once your manager assigns work or use the task panel to request an assignment.
+                            No tasks scheduled for today yet. Check back once your HOD assigns work to you.
                         </div>
                     @else
                         <div class="mt-6 space-y-4">
@@ -49,7 +49,7 @@
                                                         default => ucfirst(str_replace('_', ' ', (string) $todo->status)),
                                                     };
                                                 @endphp
-                                                <span class="font-black uppercase tracking-[0.2em] text-cyan-700">{{ $statusLabel }}</span>
+                                                <span class="font-black uppercase tracking-[0.2em] text-gray-700">{{ $statusLabel }}</span>
                                                 <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">Due {{ $todo->due_date->format('M j, Y') }}</span>
                                             </div>
                                             <h3 class="text-xl font-black text-slate-950">{{ $todo->task }}</h3>
@@ -70,7 +70,7 @@
                                                     <form method="POST" action="{{ route('admin.tasks.mark-working', $todo) }}">
                                                         @csrf
                                                         @method('PATCH')
-                                                        <button type="submit" class="inline-flex items-center justify-center rounded-full bg-cyan-600 px-5 py-3 text-sm font-black text-white transition hover:bg-cyan-700">Working on it</button>
+                                                        <button type="submit" class="inline-flex items-center justify-center rounded-full bg-gray-600 px-5 py-3 text-sm font-black text-white transition hover:bg-gray-700">Working on it</button>
                                                     </form>
                                                     <form method="POST" action="{{ route('admin.tasks.mark-done', $todo) }}">
                                                         @csrf
@@ -80,7 +80,7 @@
                                                 </div>
                                             @elseif ($todo->status === 'working_on_it')
                                                 <div class="flex flex-wrap items-center gap-3">
-                                                    <span class="rounded-full bg-cyan-100 px-4 py-2 text-sm font-black text-cyan-800">Working on it</span>
+                                                    <span class="rounded-full bg-gray-100 px-4 py-2 text-sm font-black text-gray-800">Working on it</span>
                                                     <form method="POST" action="{{ route('admin.tasks.mark-done', $todo) }}">
                                                         @csrf
                                                         @method('PATCH')
@@ -104,16 +104,16 @@
                     <section class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
                         <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                             <div>
-                                <p class="text-sm font-black uppercase tracking-wide text-cyan-700">Review queue</p>
+                                <p class="text-sm font-black uppercase tracking-wide text-gray-700">Review queue</p>
                                 <h2 class="mt-2 text-2xl font-black text-slate-950">Tasks awaiting approval</h2>
                             </div>
                         <div class="flex flex-wrap items-center gap-3">
                             <span class="rounded-full bg-pink-50 px-4 py-2 text-sm font-black text-pink-700">{{ number_format($reviewTasks->count()) }} pending</span>
                             @if ($workingOnCount > 0)
-                                <span class="rounded-full bg-cyan-50 px-4 py-2 text-sm font-black text-cyan-700">{{ number_format($workingOnCount) }} working</span>
+                                <span class="rounded-full bg-gray-50 px-4 py-2 text-sm font-black text-gray-700">{{ number_format($workingOnCount) }} working</span>
                             @endif
                         </div>
-
+                    </div>
                         @if ($reviewTasks->isEmpty())
                             <div class="mt-6 rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm font-semibold text-slate-600">
                                 No tasks are waiting for review right now.
@@ -125,7 +125,7 @@
                                         <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                             <div class="space-y-3">
                                                 <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
-                                                    <span class="font-black uppercase tracking-[0.2em] text-cyan-700">Completed</span>
+                                                    <span class="font-black uppercase tracking-[0.2em] text-gray-700">Completed</span>
                                                     <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">Assigned to {{ $todo->assignee?->displayName() ?? 'Staff' }}</span>
                                                 </div>
                                                 <h3 class="text-xl font-black text-slate-950">{{ $todo->task }}</h3>
@@ -163,20 +163,9 @@
                 @endif
             </div>
 
-            <aside class="space-y-6">
-                <section class="rounded-2xl border border-slate-200/60 bg-slate-50 p-6 shadow-sm">
-                    <p class="text-sm font-black uppercase tracking-wide text-slate-500">How it works</p>
-                    <div class="mt-4 space-y-4 text-sm leading-6 text-slate-600">
-                        <p><strong class="text-slate-900">1.</strong> Staff members receive daily tasks and complete them in the dashboard.</p>
-                        <p><strong class="text-slate-900">2.</strong> Once a staff member marks a task done, the task becomes locked.</p>
-                        <p><strong class="text-slate-900">3.</strong> Operations Managers and Super Admin submit a one-time review rating.</p>
-                        <p><strong class="text-slate-900">4.</strong> Ratings of 4-5 send appraisal emails; rating 1 sends a warning email.</p>
-                    </div>
-                </section>
-
                 @if ($canAssign)
                     <section class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
-                        <p class="text-sm font-black uppercase tracking-wide text-cyan-700">Assign new task</p>
+                        <p class="text-sm font-black uppercase tracking-wide text-gray-700">Assign new task</p>
                         <form method="POST" action="{{ route('admin.tasks.store') }}" class="mt-5 space-y-4">
                             @csrf
                             <div>

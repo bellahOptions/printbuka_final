@@ -1,7 +1,6 @@
 <section class="rounded-md border border-slate-200 bg-white p-6" wire:poll.10s>
     <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-            <p class="text-sm font-black uppercase tracking-wide text-pink-700">Statistics</p>
             <h2 class="mt-2 text-3xl leading-tight text-slate-950">Live finance and job statistics</h2>
         </div>
         <p class="text-xs font-black uppercase tracking-wide text-slate-500">Updated {{ $lastUpdated }}</p>
@@ -24,9 +23,9 @@
                     <article class="rounded-md border border-slate-200 p-4">
                         <p class="text-xs font-black uppercase tracking-wide text-slate-500">{{ $card['label'] }}</p>
                         @if (($card['suffix'] ?? null) === '%')
-                            <p class="mt-2 text-2xl font-black text-slate-950">{{ number_format($card['value'], 1) }}%</p>
+                            <p class="mt-2 text-2xl font-black text-slate-950">₦{{ number_format($card['value'], 1) }}%</p>
                         @else
-                            <p class="mt-2 text-2xl font-black text-slate-950">NGN {{ number_format($card['value'], 2) }}</p>
+                            <p class="mt-2 text-2xl font-black text-slate-950">₦{{ number_format($card['value'], 2) }}</p>
                         @endif
                     </article>
                 @endforeach

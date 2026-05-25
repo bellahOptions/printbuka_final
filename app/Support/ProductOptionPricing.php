@@ -34,6 +34,7 @@ class ProductOptionPricing
     public static function normalize(?array $options): array
     {
         return collect($options ?? [])
+            ->filter(fn ($option) => is_array($option))
             ->map(function (array $option): array {
                 return [
                     'label' => trim((string) ($option['label'] ?? '')),

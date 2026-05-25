@@ -72,6 +72,7 @@ class AdminDashboardController extends Controller
             'workflowPhases' => config('printbuka_admin.workflow_phases'),
             'todayTasks' => DailyTodo::query()
                 ->where('user_id', $user->id)
+                ->where('status', '!=', 'reviewed')
                 ->whereDate('due_date', today())
                 ->orderByRaw("FIELD(status, 'pending', 'working_on_it', 'completed', 'reviewed', 'review_requested', 'approved', 'rejected')")
                 ->get(),

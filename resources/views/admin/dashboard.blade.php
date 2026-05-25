@@ -53,26 +53,10 @@
         <section class="fade-in-up section-delay-1 rounded-2xl border border-slate-200/60 bg-white p-5 sm:p-6 shadow-sm">
             <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                    <p class="text-sm font-black uppercase tracking-wide text-cyan-700">Today's Task</p>
                     <h2 class="mt-2 text-2xl font-black text-slate-950">Tasks due for you today</h2>
                     <p class="mt-2 text-sm leading-6 text-slate-600">Review your assigned tasks and move them to review once complete.</p>
                 </div>
-                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:grid-cols-[minmax(120px,160px)_minmax(120px,180px)_minmax(120px,180px)]">
-                    <div class="rounded-3xl bg-slate-50 p-4 text-center">
-                        <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Due today</p>
-                        <p class="mt-3 text-3xl font-black text-pink-700">{{ number_format($todayTasks->count()) }}</p>
-                    </div>
-                    <div class="rounded-3xl bg-slate-50 p-4 text-center">
-                        <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Review queue</p>
-                        <p class="mt-3 text-3xl font-black text-cyan-700">{{ number_format($reviewQueueCount) }}</p>
-                    </div>
-                    @if ($workingOnStaffCount > 0)
-                        <div class="rounded-3xl bg-slate-50 p-4 text-center">
-                            <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Working now</p>
-                            <p class="mt-3 text-3xl font-black text-emerald-700">{{ number_format($workingOnStaffCount) }}</p>
-                        </div>
-                    @endif
-                </div>
+                
             </div>
 
             @if ($todayTasks->isNotEmpty())
@@ -91,7 +75,13 @@
                                         }
                                     }}
                                 </p>
-                                <span class="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-700 ring-1 ring-slate-200">Due {{ $todo->due_date->format('M j') }}</span>
+                                <div class="flex items-center gap-2">
+        <span class="rounded-full px-2 py-0.5 text-[0.65rem] font-black uppercase tracking-wider
+            {{ $todo->priority === 'high' ? 'bg-red-100 text-red-800' : ($todo->priority === 'medium' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800') }}">
+            {{ ucfirst($todo->priority) }}
+        </span>
+        <span class="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-700 ring-1 ring-slate-200">Due {{ $todo->due_date->format('M j') }}</span>
+    </div>
                             </div>
                             <h3 class="mt-4 text-lg font-black text-slate-950">{{ $todo->task }}</h3>
                             <p class="mt-2 text-sm leading-6 text-slate-600">Assigned by {{ $todo->assigner?->displayName() ?? 'System' }}</p>

@@ -607,30 +607,191 @@ class AdminInvoiceController extends Controller
                 ->with('warning', 'Paid invoices cannot be edited.');
         }
 
+        $services = collect(ServiceCatalog::all())
+            ->map(function (array $service, string $slug): array {
+                return [
+                    'key' => 'service:'.$slug,
+                    'slug' => $slug,
+                    'name' => (string) ($service['name'] ?? str($slug)->replace('-', ' ')->title()),
+                    'price' => ServiceCatalog::priceForSlug($slug),
+                ];
+            })
+            ->values();
+
         return view('admin.invoices.form', [
             'invoice' => $invoice,
             'orders' => Order::query()->latest()->get(),
+            'services' => $services,
+            'customers' => User::query()->where('role', 'customer')->orderBy('first_name')->orderBy('last_name')->get(),
+            'products' => Product::query()->where('is_active', true)->orderBy('name')->get(),
+            'productOptionCatalog' => $this->productOptionCatalog(Product::query()->where('is_active', true)->orderBy('name')->get()),
+
             'invoiceStatuses' => $this->allowedInvoiceStatuses(),
         ]);
     }
 
-    public function update(
-        Request $request,
-        Invoice $invoice,
-        InvoiceLifecycleService $invoiceLifecycleService
-    ): RedirectResponse {
-        if ((string) $invoice->status === 'paid') {
-            return redirect()
-                ->route('admin.invoices.show', $invoice)
-                ->with('warning', 'Paid invoices cannot be edited.');
+   public function update(
+    Request $request,
+    Invoice $invoice,
+    InvoiceLifecycleService $invoiceLifecycleService
+): RedirectResponse {
+    if ((string) $invoice->status === 'paid') {
+        return redirect()
+            ->route('admin.invoices.show', $invoice)
+            ->with('warning', 'Paid invoices cannot be edited.');
+    }
+
+    // Validate the incoming fields – matching the new edit form
+    $validated = $request->validate([
+        'order_id' => ['required', 'exists:orders,id'],  // hidden field
+        'customer_id' => ['nullable', 'integer', Rule::exists('users', 'id')->where(fn ($q) => $q->where('role', 'customer'))],
+        'customer_name' => ['required', 'string', 'max:255'],
+        'customer_email' => ['nullable', 'email', 'max:255'],
+        'customer_phone' => ['required', 'string', 'max:50'],
+        'catalog_item_key' => ['required', 'string', 'max:255'],
+        'quantity' => ['nullable', 'integer', 'min:1', 'required_without:line_items'],
+        'line_items' => ['nullable', 'array', 'min:1', 'required_without:quantity'],
+        'line_items.*.source_type' => ['nullable', 'string', Rule::in(['custom', 'product', 'service'])],
+        'line_items.*.catalog_item_key' => ['nullable', 'string', 'max:255'],
+        'line_items.*.description' => ['nullable', 'string', 'max:500'],
+        'line_items.*.quantity' => ['required_with:line_items', 'integer', 'min:1'],
+        'line_items.*.rate' => ['required_with:line_items', 'numeric', 'min:0'],
+        'size_format' => ['nullable', 'string', 'max:255'],
+        'material_substrate' => ['nullable', 'string', 'max:255'],
+        'paper_density' => ['nullable', 'string', 'max:255'],
+        'finish_lamination' => ['nullable', 'string', 'max:255'],
+        'delivery_method' => ['nullable', 'string', 'max:255'],
+        'tax_amount' => ['nullable', 'numeric', 'min:0'],
+        'discount_amount' => ['nullable', 'numeric', 'min:0'],
+        'invoice_status' => ['required', 'string', Rule::in($this->allowedInvoiceStatuses())],
+        'due_at' => ['nullable', 'date'],
+        'delivery_city' => ['nullable', 'string', 'max:255'],
+        'delivery_address' => ['nullable', 'string', 'max:500'],
+        'artwork_notes' => ['nullable', 'string', 'max:2000'],
+        'internal_notes' => ['nullable', 'string', 'max:3000'],
+    ]);
+
+    // Resolve catalog item
+    $catalogItem = $this->resolveCatalogItem((string) $validated['catalog_item_key']);
+    if (! $catalogItem) {
+        throw ValidationException::withMessages([
+            'catalog_item_key' => 'Select a valid Printbuka product or service.',
+        ]);
+    }
+
+    // Resolve customer
+    $customer = null;
+    if (filled($validated['customer_id'] ?? null)) {
+        $customer = User::query()->where('role', 'customer')->find($validated['customer_id']);
+    }
+
+    // Convert amounts
+    $validated['tax_amount'] = (float) ($validated['tax_amount'] ?? 0);
+    $validated['discount_amount'] = (float) ($validated['discount_amount'] ?? 0);
+    $invoiceStatus = strtolower((string) $validated['invoice_status']);
+
+    // Determine line items
+    $hasExplicitLineItems = collect((array) ($validated['line_items'] ?? []))
+        ->contains(fn ($item) => is_array($item) && (trim((string)($item['description'] ?? '')) !== '' || trim((string)($item['catalog_item_key'] ?? '')) !== ''));
+
+    $productPricing = null;
+    $lineItems = [];
+
+    if (! $hasExplicitLineItems) {
+        $quantity = (int) $validated['quantity'];
+        $unitPrice = (float) $catalogItem['unit_price'];
+
+        if (($catalogItem['source_type'] ?? null) === 'product' && filled($catalogItem['product_id'])) {
+            $product = Product::query()->find((int) $catalogItem['product_id']);
+            if ($product) {
+                $productPricing = $this->productPricingForInvoice($product, $validated, $quantity);
+                $lineItems = (array) ($productPricing['line_items'] ?? []);
+            }
         }
 
-        $previousStatus = (string) $invoice->status;
-        $invoice->update($this->validated($request, $invoice));
-        $invoiceLifecycleService->handleStatusChange($invoice->fresh(['order.product']), $previousStatus);
-
-        return redirect()->route('admin.invoices.index')->with('status', 'Invoice updated.');
+        if (empty($lineItems)) {
+            $lineItems = [[
+                'description' => (string) $catalogItem['name'],
+                'quantity' => $quantity,
+                'rate' => $unitPrice,
+                'amount' => $quantity * $unitPrice,
+            ]];
+        }
+    } else {
+        // Explicit line items from the form
+        $lineItems = $this->normalizedLineItems($validated);
     }
+
+    // Calculate totals
+    $subtotal = collect($lineItems)->sum(fn ($item) => (float) ($item['amount'] ?? 0));
+    $quantity = max(1, (int) collect($lineItems)->sum(fn ($item) => (int) ($item['quantity'] ?? 0)));
+    $unitPrice = $quantity > 0 ? $subtotal / $quantity : 0;
+    $total = max(0, $subtotal + $validated['tax_amount'] - $validated['discount_amount']);
+
+    // Update associated order
+    $order = $invoice->order;
+    $order->update([
+        'user_id' => $customer?->id,
+        'customer_name' => $customer?->displayName() ?? $validated['customer_name'],
+        'customer_email' => $customer?->email ?? (string) ($validated['customer_email'] ?? ''),
+        'customer_phone' => $customer?->phone ?? $validated['customer_phone'],
+        'service_type' => (string) $catalogItem['service_type'],
+        'job_type' => (string) $catalogItem['name'],
+        'product_id' => $catalogItem['product_id'],
+        'size_format' => $productPricing['selected_options']['size_format'] ?? $validated['size_format'],
+        'material_substrate' => $productPricing['selected_options']['material_substrate'] ?? $validated['material_substrate'],
+        'paper_density' => $productPricing['selected_options']['paper_density'] ?? $validated['paper_density'],
+        'finish_lamination' => $productPricing['selected_options']['finish_lamination'] ?? $validated['finish_lamination'],
+        'delivery_method' => $productPricing['selected_options']['delivery_method'] ?? $validated['delivery_method'],
+        'quantity' => $quantity,
+        'unit_price' => $unitPrice,
+        'total_price' => $subtotal,
+        'delivery_city' => $validated['delivery_city'],
+        'delivery_address' => $validated['delivery_address'],
+        'artwork_notes' => $validated['artwork_notes'],
+        'internal_notes' => $validated['internal_notes'],
+        'pricing_breakdown' => [
+            'catalog_item_key' => (string) $validated['catalog_item_key'],
+            'line_items' => $lineItems,
+            'quantity' => $quantity,
+            'unit_price' => $unitPrice,
+            'selected_options' => $productPricing['selected_options'] ?? [],
+            'option_prices' => $productPricing['option_prices'] ?? [],
+            'delivery_option_price' => (float) ($productPricing['delivery_option_price'] ?? 0),
+            'effective_unit_price' => (float) ($productPricing['effective_unit_price'] ?? $unitPrice),
+            'subtotal' => $subtotal,
+            'tax_amount' => $validated['tax_amount'],
+            'discount_amount' => $validated['discount_amount'],
+            'total' => $total,
+        ],
+    ]);
+
+    // Update invoice record
+    $previousStatus = (string) $invoice->status;
+    $invoice->update([
+        'subtotal' => $subtotal,
+        'tax_amount' => $validated['tax_amount'],
+        'discount_amount' => $validated['discount_amount'],
+        'total_amount' => $total,
+        'status' => $invoiceStatus,
+        'due_at' => $validated['due_at'] ?? $invoice->due_at,
+        'issued_at' => $invoice->issued_at, // keep original
+        'sent_at' => $invoice->sent_at,
+    ]);
+
+    // Handle status change (e.g., if marked as paid)
+    $invoiceLifecycleService->handleStatusChange($invoice->fresh(['order.product']), $previousStatus);
+
+    // Notify
+    app(ImportantActionNotifier::class)->notify(
+        $invoice->documentTypeLabel() . ' updated',
+        $invoice->documentTypeLabel() . ' ' . $invoice->invoice_number . ' was updated by ' . $request->user()?->displayName() . '.'
+    );
+
+    return redirect()
+        ->route('admin.invoices.index')
+        ->with('status', 'Invoice updated successfully.');
+}
 
     public function destroy(Invoice $invoice): RedirectResponse
     {

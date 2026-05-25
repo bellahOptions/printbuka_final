@@ -19,12 +19,13 @@ class DailyTodoController extends Controller
         $user = request()->user();
 
         $todayTasks = DailyTodo::query()
-            ->where('user_id', $user->id)
-            ->whereDate('due_date', today())
-            ->with(['order', 'assigner', 'reviewer'])
-            ->orderByRaw("FIELD(status, 'pending', 'working_on_it', 'completed', 'reviewed', 'review_requested', 'approved', 'rejected')")
-            ->orderBy('due_date')
-            ->get();
+    ->where('user_id', $user->id)
+    ->whereDate('due_date', today())
+    ->with(['order', 'assigner', 'reviewer'])
+    ->orderByRaw("FIELD(priority, 'high', 'medium', 'low')")
+    ->orderByRaw("FIELD(status, 'pending', 'working_on_it', 'completed', 'review_requested', 'reviewed', 'approved', 'rejected')")
+    ->orderBy('due_date')
+    ->get();
 
         $reviewTasks = collect();
 
@@ -61,15 +62,15 @@ class DailyTodoController extends Controller
     {
         $user = $request->user();
         abort_unless($this->canAssign($user), 403);
-
-        $validated = $request->validate([
-            'user_ids' => ['required', 'array', 'min:1'],
-            'user_ids.*' => ['required', 'integer', 'exists:users,id', 'distinct'],
-            'task' => ['required', 'string', 'max:500'],
-            'notes' => ['nullable', 'string', 'max:3000'],
-            'due_date' => ['required', 'date'],
-            'order_id' => ['nullable', 'integer', 'exists:orders,id'],
-        ]);
+$validated = $request->validate([
+    'user_ids' => ['required', 'array', 'min:1'],
+    'user_ids.*' => ['required', 'integer', 'exists:users,id', 'distinct'],
+    'task' => ['required', 'string', 'max:500'],
+    'priority' => ['required', 'string', Rule::in(['high', 'medium', 'low'])],
+    'notes' => ['nullable', 'string', 'max:3000'],
+    'due_date' => ['required', 'date'],
+    'order_id' => ['nullable', 'integer', 'exists:orders,id'],
+]);
 
         $assignees = User::query()
             ->whereIn('id', $validated['user_ids'])
@@ -87,15 +88,15 @@ class DailyTodoController extends Controller
             }
 
             $todo = DailyTodo::create([
-                'user_id' => $assignee->id,
-                'assigned_by_id' => $user->id,
-                'order_id' => $validated['order_id'] ?? null,
-                'task' => $validated['task'],
-                'notes' => $validated['notes'] ?? null,
-                'due_date' => $validated['due_date'],
-                'status' => 'pending',
-            ]);
-
+    'user_id' => $assignee->id,
+    'assigned_by_id' => $user->id,
+    'order_id' => $validated['order_id'] ?? null,
+    'task' => $validated['task'],
+    'priority' => $validated['priority'],
+    'notes' => $validated['notes'] ?? null,
+    'due_date' => $validated['due_date'],
+    'status' => 'pending',
+]);
             $created++;
 
             $this->sendAssignmentEmail($assignee, $todo, $user);
