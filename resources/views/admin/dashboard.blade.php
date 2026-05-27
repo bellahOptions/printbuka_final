@@ -210,6 +210,57 @@
                 </a>
             </div>
 
+            <div class="mt-5 grid gap-6 lg:grid-cols-2">
+                {{-- Product Views Bar Chart --}}
+                <div class="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
+                    <p class="text-xs font-black uppercase tracking-wide text-slate-500 mb-4">Product Views (Top 10)</p>
+                    <div class="space-y-2">
+                        @forelse ($productChartData as $item)
+                            @php
+                                $maxViews = $productChartData->max('views') ?: 1;
+                                $barWidth = min(100, max(2, ($item['views'] / $maxViews) * 100));
+                            @endphp
+                            <div>
+                                <div class="flex items-center justify-between text-xs mb-1">
+                                    <span class="font-bold text-slate-700 truncate max-w-[180px]">{{ $item['name'] }}</span>
+                                    <span class="font-black text-pink-700">{{ number_format($item['views']) }}</span>
+                                </div>
+                                <div class="h-2 w-full rounded-full bg-slate-200 overflow-hidden">
+                                    <div class="h-full rounded-full bg-gradient-to-r from-pink-500 to-rose-600 transition-all duration-700" style="width: {{ $barWidth }}%"></div>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-sm font-semibold text-slate-500 text-center py-6">No product views recorded yet.</p>
+                        @endforelse
+                    </div>
+                </div>
+
+                {{-- Category Breakdown --}}
+                <div class="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
+                    <p class="text-xs font-black uppercase tracking-wide text-slate-500 mb-4">Products by Category</p>
+                    <div class="space-y-2">
+                        @forelse ($productCategoryBreakdown as $cat)
+                            @php
+                                $maxCat = $productCategoryBreakdown->max('count') ?: 1;
+                                $catBarWidth = min(100, max(2, ($cat['count'] / $maxCat) * 100));
+                            @endphp
+                            <div>
+                                <div class="flex items-center justify-between text-xs mb-1">
+                                    <span class="font-bold text-slate-700">{{ $cat['name'] }}</span>
+                                    <span class="font-black text-cyan-700">{{ $cat['count'] }}</span>
+                                </div>
+                                <div class="h-2 w-full rounded-full bg-slate-200 overflow-hidden">
+                                    <div class="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-700" style="width: {{ $catBarWidth }}%"></div>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-sm font-semibold text-slate-500 text-center py-6">No categories available.</p>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
+            {{-- Product Views Table --}}
             <div class="mt-5 overflow-x-auto rounded-xl border border-slate-100">
                 <table class="w-full min-w-[540px] text-left text-sm">
                     <thead>
@@ -236,11 +287,101 @@
             </div>
         </section>
 
-        <!-- Staff Activity Feed -->
+        <!-- Staff Top Performers & Activity -->
         @if (auth()->user()->canAdmin('*') || auth()->user()->canAdmin('staff.view'))
-            <div class="fade-in-up section-delay-3">
-                <livewire:admin.staff-activity-feed />
+        <section class="fade-in-up section-delay-3 card-hover rounded-2xl border border-slate-200/60 bg-white p-4 sm:p-6 shadow-sm">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <p class="text-sm font-black uppercase tracking-wide text-slate-500">Staff Performance</p>
+                    <h2 class="mt-1 text-2xl font-black text-slate-950 sm:text-3xl">Top Performers & Activity</h2>
+                </div>
+                <a href="{{ route('admin.staff.index') }}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-black text-slate-800 transition hover:border-pink-300 hover:text-pink-700">
+                    Manage Staff
+                </a>
             </div>
+
+            <div class="mt-5 grid gap-6 lg:grid-cols-2">
+                {{-- Staff Activity Bar Chart --}}
+                <div class="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
+                    <p class="text-xs font-black uppercase tracking-wide text-slate-500 mb-4">Staff Activity (Last 7 Days)</p>
+                    <div class="space-y-2">
+                        @forelse ($staffChartData as $staff)
+                            @php
+                                $maxActivity = $staffChartData->max('activities') ?: 1;
+                                $staffBarWidth = min(100, max(2, ($staff['activities'] / $maxActivity) * 100));
+                            @endphp
+                            <div>
+                                <div class="flex items-center justify-between text-xs mb-1">
+                                    <span class="font-bold text-slate-700 truncate max-w-[180px]">{{ $staff['name'] }}</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[10px] font-semibold text-slate-400">{{ $staff['role'] }}</span>
+                                        <span class="font-black text-violet-700">{{ $staff['activities'] }}</span>
+                                    </div>
+                                </div>
+                                <div class="h-2 w-full rounded-full bg-slate-200 overflow-hidden">
+                                    <div class="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-600 transition-all duration-700" style="width: {{ $staffBarWidth }}%"></div>
+                                </div>
+                            </div>
+                        @empty
+                            <p class="text-sm font-semibold text-slate-500 text-center py-6">No staff activity recorded yet.</p>
+                        @endforelse
+                    </div>
+                </div>
+
+                {{-- Weekly Activity Trend --}}
+                <div class="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
+                    <p class="text-xs font-black uppercase tracking-wide text-slate-500 mb-4">Daily Activity Trend (7 Days)</p>
+                    @php
+                        $maxDaily = $weeklyStaffActivity->max('total') ?: 1;
+                        $dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                    @endphp
+                    <div class="flex items-end justify-between gap-2" style="min-height: 120px;">
+                        @forelse ($weeklyStaffActivity as $day)
+                            @php
+                                $dayBarHeight = max(4, ($day['total'] / max($maxDaily, 1)) * 100);
+                                $dayOfWeek = \Carbon\Carbon::parse($day['date'])->dayOfWeekIso;
+                                $dayLabel = $dayLabels[$dayOfWeek - 1] ?? $day['date'];
+                            @endphp
+                            <div class="flex flex-col items-center gap-1 flex-1">
+                                <span class="text-[10px] font-black text-violet-700">{{ $day['total'] }}</span>
+                                <div class="w-full rounded-full bg-violet-100 overflow-hidden" style="height: {{ $dayBarHeight }}px; max-height: 100px;">
+                                    <div class="h-full w-full rounded-full bg-gradient-to-t from-violet-500 to-purple-500" style="height: {{ $dayBarHeight }}%"></div>
+                                </div>
+                                <span class="text-[9px] font-semibold text-slate-500">{{ $dayLabel }}</span>
+                            </div>
+                        @empty
+                            <p class="text-sm font-semibold text-slate-500 text-center py-6 w-full">No activity data for this week.</p>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
+            {{-- Top Staff Table --}}
+            <div class="mt-5 overflow-x-auto rounded-xl border border-slate-100">
+                <table class="w-full min-w-[540px] text-left text-sm">
+                    <thead>
+                        <tr class="border-b border-slate-200 bg-slate-50">
+                            <th class="px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-500">Staff</th>
+                            <th class="px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-500">Role</th>
+                            <th class="px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-500">Activities (7 days)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse ($topStaff as $staffMember)
+                            <tr>
+                                <td class="px-4 py-3 font-black text-slate-900">{{ $staffMember->displayName() }}</td>
+                                <td class="px-4 py-3 font-semibold text-slate-600">{{ config('printbuka_admin.role_labels.'.$staffMember->role, $staffMember->role) }}</td>
+                                <td class="px-4 py-3 font-black text-violet-700">{{ number_format((int) $staffMember->staff_activities_count) }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="px-4 py-10 text-center font-semibold text-slate-500">No staff data available.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </section>
         @endif
 
         <!-- Bottom Grid Sections — single column on mobile, two columns on xl -->

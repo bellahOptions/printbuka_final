@@ -49,7 +49,7 @@
             $issuedAt = $invoice->issued_at ?? now();
             $paidAt = $invoice->paid_at ?? now();
 
-            $paymentMethod = (string) ($invoice->payment_gateway ?? 'paystack');
+            $paymentMethod = (string) ($invoice->payment_gateway ?? 'bank_transfer');
             $paymentLabel = str($paymentMethod)->replace('_', ' ')->upper()->value();
             $paymentReference = (string) ($invoice->payment_reference ?: 'N/A');
 

@@ -79,6 +79,21 @@ class User extends Authenticatable implements MustVerifyEmailContract
         return $this->hasMany(DeliveryAddress::class)->orderByDesc('is_default')->latest();
     }
 
+    public function staffActivities(): HasMany
+    {
+        return $this->hasMany(StaffActivity::class);
+    }
+
+    public function assignedTodos(): HasMany
+    {
+        return $this->hasMany(DailyTodo::class, 'user_id');
+    }
+
+    public function assignedByTodos(): HasMany
+    {
+        return $this->hasMany(DailyTodo::class, 'assigned_by_id');
+    }
+
     public function profilePhotoUrl(): ?string
     {
         $photoUrl = $this->resolvedPhotoUrl($this->photo);

@@ -8,7 +8,9 @@ use App\Models\FinanceEntry;
 use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\StaffActivity;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class AdminDashboardController extends Controller
@@ -53,6 +55,61 @@ class AdminDashboardController extends Controller
             ];
         });
 
+        // ---- Product Analytics (Chart Data) ----
+        $productAnalytics = Product::query()
+            ->where('is_active', true)
+            ->with('category')
+            ->select('id', 'name', 'category_id', 'view_count', 'created_at')
+            ->orderByDesc('view_count')
+            ->limit(10)
+            ->get();
+
+        $productChartData = $productAnalytics->map(fn (Product $p) => [
+            'name' => $p->name,
+            'views' => (int) $p->view_count,
+            'category' => $p->category?->name ?? 'Uncategorized',
+        ]);
+
+        $productCategoryBreakdown = Product::query()
+            ->where('is_active', true)
+            ->whereHas('category')
+            ->select('category_id', DB::raw('COUNT(*) as total'))
+            ->groupBy('category_id')
+            ->with('category:id,name')
+            ->get()
+            ->map(fn ($row) => [
+                'name' => $row->category?->name ?? 'Uncategorized',
+                'count' => (int) $row->total,
+            ]);
+
+        // ---- Staff Top Performers & Activity ----
+        $topStaff = User::query()
+            ->where('role', '!=', 'customer')
+            ->where('is_active', true)
+            ->withCount([
+                'staffActivities' => fn ($q) => $q->whereDate('created_at', '>=', now()->subDays(7)),
+            ])
+            ->orderByDesc('staff_activities_count')
+            ->limit(5)
+            ->get(['id', 'first_name', 'last_name', 'role', 'email']);
+
+        $staffChartData = $topStaff->map(fn (User $s) => [
+            'name' => $s->displayName(),
+            'activities' => (int) $s->staff_activities_count,
+            'role' => config('printbuka_admin.role_labels.'.$s->role, $s->role),
+        ]);
+
+        $weeklyStaffActivity = StaffActivity::query()
+            ->whereDate('created_at', '>=', now()->subDays(7))
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('COUNT(*) as total'))
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get()
+            ->map(fn ($row) => [
+                'date' => $row->date,
+                'total' => (int) $row->total,
+            ]);
+
         return view('admin.dashboard', [
             'orderCount' => Order::count(),
             'activeJobs' => Order::query()->whereNotIn('status', ['Delivered', 'Cancelled'])->count(),
@@ -84,16 +141,16 @@ class AdminDashboardController extends Controller
                 : 0,
             'recentOrders' => Order::query()
                 ->with('product', 'invoice', 'creatorAdmin', 'briefReceiver')
+                ->where('is_concluded', false)
                 ->latest()
                 ->limit(6)
                 ->get(),
-            'mostViewedProducts' => Product::query()
-                ->where('is_active', true)
-                ->with('category')
-                ->orderByDesc('view_count')
-                ->orderBy('name')
-                ->limit(10)
-                ->get(),
+            'mostViewedProducts' => $productAnalytics,
+            'productChartData' => $productChartData,
+            'productCategoryBreakdown' => $productCategoryBreakdown,
+            'topStaff' => $topStaff,
+            'staffChartData' => $staffChartData,
+            'weeklyStaffActivity' => $weeklyStaffActivity,
         ]);
     }
 }

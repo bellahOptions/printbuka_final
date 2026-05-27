@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Services\CloudinaryUploadService;
+use App\Support\CloudinaryUrl;
 use App\Support\LivewireSecureUploads;
 use App\Support\ProductOptionPricing;
 use App\Support\ServiceCatalog;
@@ -168,19 +170,25 @@ class AdminProductController extends Controller
     private function syncProductImages(Request $request, ?Product $product = null): array
     {
         $updates = [];
+        $cloudinaryService = app(CloudinaryUploadService::class);
 
         $removeFeaturedImage = $request->boolean('remove_featured_image');
         if ($product && $removeFeaturedImage && filled($product->featured_image)) {
-            Storage::disk('public')->delete($product->featured_image);
+            $this->deleteStoredImage($product->featured_image);
             $updates['featured_image'] = null;
         }
 
         if ($request->hasFile('featured_image')) {
             if ($product && filled($product->featured_image)) {
-                Storage::disk('public')->delete($product->featured_image);
+                $this->deleteStoredImage($product->featured_image);
             }
 
-            $updates['featured_image'] = $request->file('featured_image')->store('product-images/featured', 'public');
+            $result = $cloudinaryService->storeToBoth(
+                $request->file('featured_image'),
+                'product-images/featured',
+                'product-images/featured'
+            );
+            $updates['featured_image'] = $result['cloudinary_public_id'] ?? $result['path'];
         } elseif (filled($request->input('featured_image_path'))) {
             $livewireFeaturedPath = LivewireSecureUploads::consumePath(
                 $request,
@@ -195,16 +203,23 @@ class AdminProductController extends Controller
             }
 
             if ($product && filled($product->featured_image)) {
-                Storage::disk('public')->delete($product->featured_image);
+                $this->deleteStoredImage($product->featured_image);
             }
 
-            $updates['featured_image'] = $livewireFeaturedPath;
+            // For Livewire uploaded images (already stored locally), also push to Cloudinary if configured
+            if (CloudinaryUrl::isConfigured()) {
+                $fullPath = Storage::disk('public')->path($livewireFeaturedPath);
+                $result = $cloudinaryService->upload($fullPath, ['folder' => 'product-images/featured']);
+                $updates['featured_image'] = $result['public_id'] ?? $livewireFeaturedPath;
+            } else {
+                $updates['featured_image'] = $livewireFeaturedPath;
+            }
         }
 
         $removeAdditionalImages = $request->boolean('remove_additional_images');
         if ($product && $removeAdditionalImages) {
             foreach ((array) $product->additional_images as $imagePath) {
-                Storage::disk('public')->delete((string) $imagePath);
+                $this->deleteStoredImage((string) $imagePath);
             }
             $updates['additional_images'] = [];
         }
@@ -216,7 +231,8 @@ class AdminProductController extends Controller
 
             $newImages = collect((array) $request->file('additional_images'))
                 ->filter()
-                ->map(fn ($file): string => $file->store('product-images/gallery', 'public'));
+                ->map(fn ($file): string => $cloudinaryService->storeToBoth($file, 'product-images/gallery', 'product-images/gallery'))
+                ->map(fn (array $result): string => $result['cloudinary_public_id'] ?? $result['path']);
 
             $updates['additional_images'] = $existingImages
                 ->merge($newImages)
@@ -245,8 +261,19 @@ class AdminProductController extends Controller
 
             $baseImages = collect($updates['additional_images'] ?? (($product && ! $removeAdditionalImages) ? (array) $product->additional_images : []));
 
+            // Also upload Livewire paths to Cloudinary
+            $cloudinaryPaths = collect($livewireAdditionalPaths)
+                ->map(function (string $path) use ($cloudinaryService): string {
+                    if (CloudinaryUrl::isConfigured()) {
+                        $fullPath = Storage::disk('public')->path($path);
+                        $result = $cloudinaryService->upload($fullPath, ['folder' => 'product-images/gallery']);
+                        return $result['public_id'] ?? $path;
+                    }
+                    return $path;
+                });
+
             $updates['additional_images'] = $baseImages
-                ->merge($livewireAdditionalPaths)
+                ->merge($cloudinaryPaths)
                 ->filter(fn ($path): bool => filled($path))
                 ->values()
                 ->all();
@@ -255,14 +282,31 @@ class AdminProductController extends Controller
         return $updates;
     }
 
+    /**
+     * Delete an image from both Cloudinary and local disk.
+     */
+    private function deleteStoredImage(string $path): void
+    {
+        // Try deleting from Cloudinary if it looks like a Cloudinary resource
+        if (CloudinaryUrl::isCloudinaryResource($path)) {
+            try {
+                app(CloudinaryUploadService::class)->delete($path);
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        Storage::disk('public')->delete($path);
+    }
+
     private function deleteProductImages(Product $product): void
     {
         if (filled($product->featured_image)) {
-            Storage::disk('public')->delete($product->featured_image);
+            $this->deleteStoredImage($product->featured_image);
         }
 
         foreach ((array) $product->additional_images as $imagePath) {
-            Storage::disk('public')->delete((string) $imagePath);
+            $this->deleteStoredImage((string) $imagePath);
         }
     }
 

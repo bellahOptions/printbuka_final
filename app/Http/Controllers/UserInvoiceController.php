@@ -62,9 +62,27 @@ class UserInvoiceController extends Controller
         }
 
         $invoice->load('order.product');
+        $settings = \App\Support\SiteSettings::all();
+
+        $companyName = (string) ($settings['site_name'] ?? config('app.name', 'Printbuka'));
+        $companyEmail = (string) ($settings['contact_email'] ?? 'sales@printbuka.com.ng');
+        $companyPhone = (string) ($settings['contact_phone'] ?? '08035245784, 09054784526');
+        $companyAccountName = trim((string) ($settings['company_account_name'] ?? '')) ?: 'Alet Inspirationz';
+        $companyAccountNumber = trim((string) ($settings['company_account_number'] ?? '')) ?: '0062999338';
+        $companyAccountBankName = trim((string) ($settings['company_account_bank_name'] ?? '')) ?: 'Access bank';
+        $companyAccountNote = trim((string) ($settings['company_account_note'] ?? ''));
+        $hasCompanyAccountDetails = $companyAccountName !== '' || $companyAccountNumber !== '' || $companyAccountBankName !== '' || $companyAccountNote !== '';
 
         return view('user-invoice.show', [
             'invoice' => $invoice,
+            'companyName' => $companyName,
+            'companyEmail' => $companyEmail,
+            'companyPhone' => $companyPhone,
+            'companyAccountName' => $companyAccountName,
+            'companyAccountNumber' => $companyAccountNumber,
+            'companyAccountBankName' => $companyAccountBankName,
+            'companyAccountNote' => $companyAccountNote,
+            'hasCompanyAccountDetails' => $hasCompanyAccountDetails,
         ]);
     }
 

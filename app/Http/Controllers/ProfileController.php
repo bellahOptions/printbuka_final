@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\CloudinaryUploadService;
+use App\Support\CloudinaryUrl;
 use App\Support\LivewireSecureUploads;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -106,17 +108,23 @@ class ProfileController extends Controller
 
         if ($request->boolean('remove_photo')) {
             if (filled($user->photo)) {
-                Storage::disk('public')->delete($user->photo);
+                $this->deleteStoredPhoto($user->photo);
             }
 
             $updates['photo'] = null;
         }
 
         if ($request->hasFile('photo')) {
-            $newPhotoPath = $request->file('photo')->store($photoFolder, 'public');
+            $cloudinaryService = app(CloudinaryUploadService::class);
+            $result = $cloudinaryService->storeToBoth(
+                $request->file('photo'),
+                $photoFolder,
+                $photoFolder
+            );
+            $newPhotoPath = $result['cloudinary_public_id'] ?? $result['path'];
 
             if (filled($user->photo)) {
-                Storage::disk('public')->delete($user->photo);
+                $this->deleteStoredPhoto($user->photo);
             }
 
             $updates['photo'] = $newPhotoPath;
@@ -134,10 +142,17 @@ class ProfileController extends Controller
             }
 
             if (filled($user->photo)) {
-                Storage::disk('public')->delete($user->photo);
+                $this->deleteStoredPhoto($user->photo);
             }
 
-            $updates['photo'] = $livewirePhotoPath;
+            // Also upload Livewire path to Cloudinary if configured
+            if (CloudinaryUrl::isConfigured()) {
+                $fullPath = Storage::disk('public')->path($livewirePhotoPath);
+                $uploadResult = app(CloudinaryUploadService::class)->upload($fullPath, ['folder' => $photoFolder]);
+                $updates['photo'] = $uploadResult['public_id'] ?? $livewirePhotoPath;
+            } else {
+                $updates['photo'] = $livewirePhotoPath;
+            }
         }
 
         if (filled($validated['password'] ?? null)) {
@@ -145,5 +160,25 @@ class ProfileController extends Controller
         }
 
         $user->fill($updates)->save();
+    }
+
+    /**
+     * Delete a photo from Cloudinary and local disk.
+     */
+    private function deleteStoredPhoto(?string $path): void
+    {
+        if (! filled($path)) {
+            return;
+        }
+
+        if (CloudinaryUrl::isCloudinaryResource($path)) {
+            try {
+                app(CloudinaryUploadService::class)->delete($path);
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        Storage::disk('public')->delete($path);
     }
 }

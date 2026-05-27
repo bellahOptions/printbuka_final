@@ -9,6 +9,7 @@ use App\Models\FinanceEntry;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\InvoiceLifecycleService;
 use App\Services\InvoiceService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Services\JobWorkflowNotificationService;
@@ -23,7 +24,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Mail; 
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -118,9 +120,17 @@ class AdminOrderController extends Controller
             ->orderByDesc('entry_date')
             ->get();
 
+        $staffActivities = \App\Models\StaffActivity::query()
+            ->where('subject_type', 'order')
+            ->where('subject_id', $order->id)
+            ->with('user')
+            ->orderByDesc('created_at')
+            ->get();
+
         return view('admin.orders.job-log', [
             'order' => $order->load('product', 'invoice', 'briefReceiver', 'creatorAdmin', 'designer', 'productionOfficer', 'qcOfficer', 'dispatcher', 'verifier'),
             'expenseEntries' => $expenseEntries,
+            'staffActivities' => $staffActivities,
         ]);
     }
 
@@ -132,152 +142,191 @@ class AdminOrderController extends Controller
             ->orderByDesc('entry_date')
             ->get();
 
+        $staffActivities = \App\Models\StaffActivity::query()
+            ->where('subject_type', 'order')
+            ->where('subject_id', $order->id)
+            ->with('user')
+            ->orderByDesc('created_at')
+            ->get();
+
         $pdf = Pdf::loadView('admin.orders.job-log-pdf', [
             'order' => $order->load('product', 'invoice'),
             'expenseEntries' => $expenseEntries,
+            'staffActivities' => $staffActivities,
             'asPdf' => true,
         ]);
 
         return $pdf->download('job-log-'.$order->job_order_number.'.pdf');
     }
 
-    public function store(
-        Request $request,
-        InvoiceService $invoiceService,
-        JobWorkflowNotificationService $jobWorkflowNotificationService,
-        OrderFulfillmentService $orderFulfillmentService
-    ): RedirectResponse {
-        $isSampleRequested = $request->boolean('is_sample');
+   public function store(
+    Request $request,
+    InvoiceService $invoiceService,
+    JobWorkflowNotificationService $jobWorkflowNotificationService,
+    OrderFulfillmentService $orderFulfillmentService
+): RedirectResponse {
+    $isSampleRequested = $request->boolean('is_sample');
 
-        $validated = $request->validate([
-            'product_id' => ['nullable', 'exists:products,id'],
-            'customer_id' => [
-                'nullable',
-                Rule::exists('users', 'id')->where(
-                    fn ($query) => $query->where('role', 'customer')->where('is_active', true)
-                ),
-            ],
-            'channel' => ['required', 'string', Rule::in(config('printbuka_admin.job_channels'))],
-            'job_type' => ['required', 'string', 'max:255'],
-            'size_format' => ['nullable', 'string', 'max:255'],
-            'quantity' => [
-                'required',
-                'integer',
-                'min:1',
-                Rule::when($isSampleRequested, ['max:2']),
-            ],
-            'unit_price' => ['required', 'numeric', 'min:0'],
-            'is_express' => ['nullable', 'boolean'],
-            'is_sample' => ['nullable', 'boolean'],
-            'customer_name' => ['required', 'string', 'max:255'],
-            'customer_email' => ['required', 'email', 'max:255'],
-            'customer_phone' => ['required', 'string', 'max:50'],
-            'delivery_preference' => ['required', Rule::in(['pickup', 'delivery'])],
-            'delivery_method' => ['nullable', Rule::in(config('printbuka_admin.delivery_methods'))],
-            'delivery_city' => ['nullable', 'required_if:delivery_preference,delivery', 'string', 'max:255'],
-            'delivery_address' => ['nullable', 'required_if:delivery_preference,delivery', 'string', 'max:500'],
-            'priority' => ['required', 'string', 'max:255'],
-            'material_substrate' => ['nullable', 'string', 'max:255'],
-            'finish_lamination' => ['nullable', 'string', 'max:255'],
-            'amount_paid' => ['nullable', 'numeric', 'min:0'],
-            'payment_status' => ['required', 'string', 'max:255'],
-            'internal_notes' => ['nullable', 'string', 'max:3000'],
-            'job_asset_files' => ['nullable', 'array'],
-            'job_asset_files.*' => ['file', 'mimes:pdf,svg,zip', 'max:20480'],
-            'job_asset_image_paths' => ['nullable', 'array'],
-            'job_asset_image_paths.*' => ['string', 'max:255'],
-        ]);
-        unset($validated['job_asset_files'], $validated['job_asset_image_paths']);
+    $validated = $request->validate([
+        'product_id' => ['nullable', 'exists:products,id'],
+        'customer_id' => [
+            'nullable',
+            Rule::exists('users', 'id')->where(
+                fn ($query) => $query->where('role', 'customer')->where('is_active', true)
+            ),
+        ],
+        'channel' => ['required', 'string', Rule::in(config('printbuka_admin.job_channels'))],
+        'job_type' => ['required', 'string', 'max:255'],
+        'is_express' => ['nullable', 'boolean'],
+        'is_sample' => ['nullable', 'boolean'],
+        'customer_name' => ['required', 'string', 'max:255'],
+        'customer_email' => ['required', 'email', 'max:255'],
+        'customer_phone' => ['required', 'string', 'max:50'],
+        'priority' => ['required', 'string', 'max:255'],
+        'internal_notes' => ['nullable', 'string', 'max:3000'],
+        'order_items' => ['nullable', 'array'],
+        'order_items.*.description' => ['nullable', 'string', 'max:500'],
+        'order_items.*.unit_price' => ['nullable', 'numeric', 'min:0'],
+        'order_items.*.quantity' => ['nullable', 'integer', 'min:1'],
+        'order_items.*.size_format' => ['nullable', 'string', 'max:255'],
+        'order_items.*.material_substrate' => ['nullable', 'string', 'max:255'],
+        'order_items.*.finish_lamination' => ['nullable', 'string', 'max:255'],
+        'order_items.*.artwork_notes' => ['nullable', 'string', 'max:2000'],
+        'order_items.*.image' => ['nullable', 'file', 'image', 'max:5120'],
+        'job_asset_files' => ['nullable', 'array'],
+        'job_asset_files.*' => ['file', 'mimes:pdf,svg,zip', 'max:20480'],
+        'job_asset_image_paths' => ['nullable', 'array'],
+        'job_asset_image_paths.*' => ['string', 'max:255'],
+    ]);
+    unset($validated['job_asset_files'], $validated['job_asset_image_paths']);
 
-        $isSample = (bool) ($validated['is_sample'] ?? false);
-        $isExpress = $isSample || (bool) ($validated['is_express'] ?? false);
-        unset($validated['is_express'], $validated['is_sample']);
+    // Determine express / sample flags
+    $isSample = (bool) ($validated['is_sample'] ?? false);
+    $isExpress = $isSample || (bool) ($validated['is_express'] ?? false);
+    unset($validated['is_express'], $validated['is_sample']);
 
-        $selectedCustomer = null;
+    // Determine if invoice should be generated (hidden checkbox or default true)
+    $generateInvoice = $request->boolean('generate_invoice', true);
 
-        if (filled($validated['customer_id'] ?? null)) {
-            $selectedCustomer = User::query()
-                ->whereKey($validated['customer_id'])
-                ->where('role', 'customer')
-                ->where('is_active', true)
-                ->first();
-        }
+    // Resolve customer
+    $selectedCustomer = null;
+    if (filled($validated['customer_id'] ?? null)) {
+        $selectedCustomer = User::query()
+            ->whereKey($validated['customer_id'])
+            ->where('role', 'customer')
+            ->where('is_active', true)
+            ->first();
+    }
+    if (! $selectedCustomer && filled($validated['customer_email'] ?? null)) {
+        $selectedCustomer = User::query()
+            ->where('role', 'customer')
+            ->where('is_active', true)
+            ->where('email', $validated['customer_email'])
+            ->first();
+    }
+    if ($selectedCustomer) {
+        $validated['customer_name'] = $selectedCustomer->displayName();
+        $validated['customer_email'] = $selectedCustomer->email;
+        $validated['customer_phone'] = $selectedCustomer->phone ?: $validated['customer_phone'];
+    }
+    unset($validated['customer_id']);
 
-        if (! $selectedCustomer && filled($validated['customer_email'] ?? null)) {
-            $selectedCustomer = User::query()
-                ->where('role', 'customer')
-                ->where('is_active', true)
-                ->where('email', $validated['customer_email'])
-                ->first();
-        }
-
-        if ($selectedCustomer) {
-            $validated['customer_name'] = $selectedCustomer->displayName();
-            $validated['customer_email'] = $selectedCustomer->email;
-            $validated['customer_phone'] = $selectedCustomer->phone ?: $validated['customer_phone'];
-        }
-
-        $deliveryPreference = $validated['delivery_preference'] ?? 'delivery';
-        unset($validated['delivery_preference'], $validated['customer_id']);
-
-        if ($deliveryPreference === 'pickup') {
-            $validated['delivery_method'] = 'Client Pickup';
-            $validated['delivery_city'] = null;
-            $validated['delivery_address'] = null;
-        } else {
-            $validated['delivery_method'] = $validated['delivery_method'] ?: 'Dispatch Rider';
-        }
-
-        $quantity = (int) $validated['quantity'];
-        $unitPrice = (float) $validated['unit_price'];
-        $amountPaid = (float) ($validated['amount_paid'] ?? 0);
-        $baseTotal = $quantity * $unitPrice;
-        $pricingAdjustments = $orderFulfillmentService->pricingAdjustments($isExpress, $isSample);
-        $total = $baseTotal + $pricingAdjustments['total_adjustment'];
-        $expressPaymentAnchor = $isExpress && $this->hasExpressPaymentAnchor($validated, $amountPaid)
-            ? now()
-            : null;
-
-        $order = Order::query()->create([
-            ...$validated,
-            'user_id' => $selectedCustomer?->id,
-            'created_by_admin_id' => Auth::id(),
-            'service_type' => 'print',
-            'job_order_number' => ReferenceCode::jobOrderNumber('print'),
-            'priority' => $isExpress ? '🔴 Urgent' : ($validated['priority'] ?? '🟡 Normal'),
-            'is_express' => $isExpress,
-            'is_sample' => $isSample,
-            'total_price' => $total,
-            'status' => 'Analyzing Job Brief',
-            'brief_received_by_id' => Auth::id(),
-            'brief_received_at' => now(),
-            'assigned_designer_id' => Order::autoAssignableDesignerId(),
-            'estimated_delivery_at' => $orderFulfillmentService->estimateForNewOrder($isExpress, now(), $expressPaymentAnchor),
-            'amount_paid' => $amountPaid,
-            'pricing_breakdown' => [
-                'unit_price' => $unitPrice,
+    // Process line items (images stored)
+    $lineItemFiles = $request->file('order_items', []);
+    $lineItems = collect($request->input('order_items', []))
+        ->filter(fn ($item): bool => filled(trim((string) ($item['description'] ?? ''))))
+        ->map(function ($item, $index) use ($lineItemFiles): array {
+            $quantity = max(1, (int) ($item['quantity'] ?? 1));
+            $unitPrice = max(0, (float) ($item['unit_price'] ?? 0));
+            $line = [
+                'description' => trim((string) ($item['description'] ?? '')),
                 'quantity' => $quantity,
-                'base_total' => $baseTotal,
-                'express_fee' => $pricingAdjustments['express_fee'],
-                'sample_fee' => $pricingAdjustments['sample_fee'],
-                'total' => $total,
-            ],
-            'job_image_assets' => JobAssetUpload::fromRequest($request),
-        ]);
+                'unit_price' => $unitPrice,
+                'rate' => $unitPrice,
+                'amount' => $unitPrice * $quantity,
+                'size_format' => trim((string) ($item['size_format'] ?? '')),
+                'material_substrate' => trim((string) ($item['material_substrate'] ?? '')),
+                'finish_lamination' => trim((string) ($item['finish_lamination'] ?? '')),
+                'artwork_notes' => trim((string) ($item['artwork_notes'] ?? '')),
+            ];
+            if (isset($lineItemFiles[$index]['image']) && $lineItemFiles[$index]['image']->isValid()) {
+                $cloudinaryService = app(\App\Services\CloudinaryUploadService::class);
+                $result = $cloudinaryService->storeToBoth(
+                    $lineItemFiles[$index]['image'],
+                    'job-assets/images',
+                    'job-assets/images'
+                );
+                $line['image_path'] = $result['cloudinary_public_id'] ?? $result['path'];
+            }
+            return $line;
+        })
+        ->values();
 
+    $totalQuantity = (int) $lineItems->sum('quantity');
+    $subtotal = (float) $lineItems->sum('amount');
+    $pricingAdjustments = $orderFulfillmentService->pricingAdjustments($isExpress, $isSample);
+    $total = $subtotal + $pricingAdjustments['total_adjustment'];
+
+    // Payment status logic – never null
+    if ($generateInvoice) {
+        $paymentStatus = 'Invoice Issued';
+        $isManualOrder = false;
+    } else {
+        $paymentStatus = 'Awaiting Invoice';
+        $isManualOrder = true;
+    }
+
+    $order = Order::query()->create([
+        ...$validated,
+        'user_id' => $selectedCustomer?->id,
+        'created_by_admin_id' => Auth::id(),
+        'service_type' => 'print',
+        'job_order_number' => ReferenceCode::jobOrderNumber('print'),
+        'priority' => $isExpress ? '🔴 Urgent' : ($validated['priority'] ?? '🟡 Normal'),
+        'is_express' => $isExpress,
+        'is_sample' => $isSample,
+        'is_manual_order' => $isManualOrder,
+        'quantity' => $totalQuantity,
+        'unit_price' => null,
+        'total_price' => $total,
+        'status' => 'Analyzing Job Brief',
+        'brief_received_by_id' => Auth::id(),
+        'brief_received_at' => now(),
+        'assigned_designer_id' => Order::autoAssignableDesignerId(),
+        'estimated_delivery_at' => null,
+        'amount_paid' => 0,
+        'payment_status' => $paymentStatus,
+        'pricing_breakdown' => [
+            'line_items' => $lineItems->all(),
+            'quantity' => $totalQuantity,
+            'unit_price' => $totalQuantity > 0 ? ($subtotal / $totalQuantity) : 0,
+            'subtotal' => $subtotal,
+            'total' => $total,
+            'express_fee' => $pricingAdjustments['express_fee'],
+            'sample_fee' => $pricingAdjustments['sample_fee'],
+        ],
+        'job_image_assets' => JobAssetUpload::fromRequest($request),
+    ]);
+
+    $sent = false;
+    if ($generateInvoice) {
         $invoice = $invoiceService->createForOrder($order);
         $sent = $invoiceService->sendInvoice($invoice);
-        $jobWorkflowNotificationService->handleOrderCreated($order->fresh(['product', 'designer', 'creatorAdmin']));
-
-        return redirect()
-            ->route('admin.orders.show', $order)
-            ->with(
-                $sent ? 'status' : 'warning',
-                $sent
-                    ? 'Job created. Invoice generated and emailed to the client.'
-                    : 'Job created and invoice generated, but the invoice email could not be sent.'
-            );
     }
+
+    $jobWorkflowNotificationService->handleOrderCreated($order->fresh(['product', 'designer', 'creatorAdmin']));
+
+    return redirect()
+        ->route('admin.orders.show', $order)
+        ->with(
+            'status',
+            $generateInvoice
+                ? ($sent
+                    ? 'Job created and invoice emailed.'
+                    : 'Job created, invoice generated but email failed.')
+                : 'Job created without invoice.'
+        );
+}
 
     public function update(
         Request $request,
@@ -352,7 +401,13 @@ class AdminOrderController extends Controller
         }
 
         if ($request->hasFile('design_file') && $request->user()->canAdmin('design.upload')) {
-            $validated['final_design_path'] = $request->file('design_file')->store('designs', 'public');
+            $cloudinaryService = app(\App\Services\CloudinaryUploadService::class);
+            $result = $cloudinaryService->storeToBoth(
+                $request->file('design_file'),
+                'designs',
+                'designs'
+            );
+            $validated['final_design_path'] = $result['cloudinary_public_id'] ?? $result['path'];
         } elseif ($designImagePath !== null && $request->user()->canAdmin('design.upload')) {
             $validated['final_design_path'] = $designImagePath;
         }
@@ -530,7 +585,8 @@ class AdminOrderController extends Controller
     public function conclude(
         Request $request,
         Order $order,
-        JobWorkflowNotificationService $jobWorkflowNotificationService
+        JobWorkflowNotificationService $jobWorkflowNotificationService,
+        InvoiceLifecycleService $invoiceLifecycleService
     ): RedirectResponse {
         $user = $request->user();
         abort_unless($this->canConcludeJob($user), 403);
@@ -555,11 +611,22 @@ class AdminOrderController extends Controller
             'phase_approved_at' => $now,
         ])->save();
 
+        // Auto-settle the invoice when job is concluded
+        $order->load('invoice');
+        if ($order->invoice && (string) $order->invoice->status !== 'paid') {
+            $previousStatus = (string) $order->invoice->status;
+            $order->invoice->forceFill([
+                'status' => 'paid',
+                'paid_at' => $now,
+            ])->save();
+            $invoiceLifecycleService->handleStatusChange($order->invoice->fresh(['order.product']), $previousStatus);
+        }
+
         $freshOrder = $order->fresh(['product', 'designer', 'creatorAdmin', 'concludedBy']);
         $jobWorkflowNotificationService->handleOrderUpdated($freshOrder, $original);
         $this->sendConclusionEmails($freshOrder);
 
-        return back()->with('status', 'Job concluded successfully. This job is now locked from further edits.');
+        return back()->with('status', 'Job concluded successfully. Invoice auto-settled and job locked from further edits.');
     }
 
     public function sendTodoReminders(Request $request, PendingJobReminderService $pendingJobReminderService): RedirectResponse
@@ -579,7 +646,6 @@ class AdminOrderController extends Controller
             'brief_received_by_id' => 'Brief receiver is set automatically via the Receive Job Brief action.',
             'brief_received_at' => 'Brief date is locked and can only be set automatically via the Receive Job Brief action.',
             'assigned_designer_id' => 'Designer assignment is automatic and cannot be manually overridden.',
-            'artwork_notes' => 'Artwork notes are customer-managed and cannot be edited by staff/admin.',
         ];
 
         $errors = [];
@@ -638,6 +704,10 @@ class AdminOrderController extends Controller
 
     private function ensurePhaseOnePaymentSettled(Order $order): void
     {
+        if ($order->is_manual_order) {
+            return;
+        }
+
         if (in_array((string) $order->payment_status, ['Invoice Settled (70%)', 'Invoice Settled (100%)'], true)) {
             return;
         }
@@ -666,7 +736,7 @@ class AdminOrderController extends Controller
                 $effectivePaymentStatus = $incomingPaymentStatus;
             }
 
-            if (! in_array($effectivePaymentStatus, ['Invoice Settled (70%)', 'Invoice Settled (100%)'], true)) {
+            if (! $order->is_manual_order && ! in_array($effectivePaymentStatus, ['Invoice Settled (70%)', 'Invoice Settled (100%)'], true)) {
                 throw ValidationException::withMessages([
                     'status' => 'A job cannot leave Phase 1 until payment is settled at 70% or 100%.',
                 ]);

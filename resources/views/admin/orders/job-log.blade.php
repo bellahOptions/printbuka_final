@@ -37,6 +37,42 @@
         </div>
 
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 class="text-lg font-black text-slate-950">Staff Activity Log</h2>
+            <p class="mt-1 text-xs font-semibold text-slate-500">Actions performed by staff during the work process of this job.</p>
+            @if($staffActivities->isEmpty())
+                <p class="mt-4 text-sm text-slate-500">No staff activities have been logged for this job yet.</p>
+            @else
+                <div class="mt-4 overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-200 bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
+                                <th class="px-4 py-3">Staff</th>
+                                <th class="px-4 py-3">Role / Department</th>
+                                <th class="px-4 py-3">Action</th>
+                                <th class="px-4 py-3">Date &amp; Time</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @foreach($staffActivities as $activity)
+                                <tr class="hover:bg-slate-50">
+                                    <td class="px-4 py-3 font-semibold text-slate-900">{{ $activity->user?->displayName() ?? 'Unknown' }}</td>
+                                    <td class="px-4 py-3 text-slate-600">
+                                        {{ $activity->role ?: ($activity->user?->role_label ?? '—') }}
+                                        @if($activity->department)
+                                            <span class="text-xs text-slate-400">· {{ $activity->department }}</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-slate-700">{{ $activity->action }}</td>
+                                    <td class="px-4 py-3 text-slate-500">{{ $activity->created_at->format('M j, Y h:i A') }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 class="text-lg font-black text-slate-950">Job Comments</h2>
             <div class="mt-4 space-y-4">
                 <div>

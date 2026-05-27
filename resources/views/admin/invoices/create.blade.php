@@ -125,6 +125,15 @@
                     <div id="invoice-new-customer-form" class="hidden rounded-xl border border-cyan-100 bg-cyan-50/30 p-4">
                         <livewire:admin.customer-quick-create />
                     </div>
+
+                    <div class="flex items-center justify-between rounded-xl border border-slate-200 bg-amber-50/70 px-4 py-3">
+                        <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Need to create an order first?</p>
+                        <div class="flex gap-2">
+                            <a href="{{ route('admin.orders.create') }}" class="rounded-lg border border-amber-200 bg-white px-3 py-2 text-xs font-black uppercase tracking-wide text-amber-700 transition-colors hover:bg-amber-50">
+                                Create Order
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
 

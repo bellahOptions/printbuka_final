@@ -10,19 +10,28 @@
     @php($canEditQc = $admin->canAdmin('qc.update') || $admin->canAdmin('*'))
     @php($canEditDelivery = $admin->canAdmin('delivery.update') || $admin->canAdmin('*'))
     @php($canEditClientReview = $admin->canAdmin('client_review.update') || $admin->canAdmin('*'))
+    @php($invoicePaid = $order->invoice && (string) $order->invoice->status === 'paid')
 
     <div class="mx-auto max-w-7xl space-y-6">
         <div class="rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-8 text-white shadow-xl">
-            <a href="{{ route('admin.orders.index') }}" class="text-sm font-black text-cyan-300">Back to Job Tracker</a>
-            <h1 class="mt-3 text-4xl font-black lg:text-5xl">{{ $order->job_order_number ?? $order->displayNumber() }}</h1>
+            <a href="{{ route('admin.orders.index') }}" class="text-sm font-black text-cyan-300 transition hover:text-cyan-200">← Back to Job Tracker</a>
+            <div class="mt-3 flex flex-wrap items-center gap-3">
+                <h1 class="text-4xl font-black lg:text-5xl">{{ $order->job_order_number ?? $order->displayNumber() }}</h1>
+                @if ($order->is_concluded)
+                    <span class="inline-flex items-center rounded-full bg-emerald-600 px-3 py-1 text-xs font-black uppercase tracking-wide text-white">Concluded</span>
+                @endif
+            </div>
             <p class="mt-2 text-sm text-slate-300">
-                {{ $order->customer_name }} · {{ $order->invoice?->invoice_number ?? 'Invoice pending' }} · {{ $order->status }}
+                {{ $order->customer_name }}
+                · {{ $order->invoice?->invoice_number ?? 'Invoice pending' }}
+                · {{ $order->status }}
+                · <span class="{{ $invoicePaid ? 'text-emerald-400' : 'text-amber-400' }}">{{ $order->payment_status }}</span>
             </p>
             <div class="mt-4 flex flex-wrap gap-3">
                 <a href="{{ route('admin.orders.job-log', $order) }}" class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-black text-slate-900 hover:bg-slate-50">View Job Log</a>
                 <a href="{{ route('admin.orders.job-log.download', $order) }}" class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-black text-slate-900 hover:bg-slate-50">Download Job Log</a>
                 @if (! $order->is_concluded && $canConcludeJob)
-                    <form action="{{ route('admin.orders.conclude', $order) }}" method="POST" onsubmit="return confirm('Conclude this job? This will lock all edits permanently.');">
+                    <form action="{{ route('admin.orders.conclude', $order) }}" method="POST" onsubmit="return confirm('Conclude this job? This will lock all edits and auto-settle the invoice permanently.');">
                         @csrf
                         @method('PATCH')
                         <button type="submit" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-black text-white transition hover:bg-emerald-700">Conclude Job</button>
@@ -52,14 +61,18 @@
 
         @if ($order->is_concluded)
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-800">
-                This job was concluded on {{ $order->concluded_at?->format('M j, Y h:i A') ?? 'N/A' }} by {{ $order->concludedBy?->displayName() ?? 'N/A' }} and is now locked from edits.
+                ✅ This job was concluded on {{ $order->concluded_at?->format('M j, Y h:i A') ?? 'N/A' }} by {{ $order->concludedBy?->displayName() ?? 'N/A' }}.
+                @if ($order->invoice)
+                    Invoice <strong>{{ $order->invoice->invoice_number }}</strong> was auto-settled.
+                @endif
+                All edits are permanently locked.
             </div>
         @endif
 
         <section class="grid gap-6 lg:grid-cols-2">
             <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h2 class="text-lg font-black text-slate-950">Locked Intake Fields</h2>
-                <p class="mt-1 text-xs font-semibold text-slate-500">These fields are muted and cannot be edited by staff/admin.</p>
+                <h2 class="text-lg font-black text-slate-950">Job Information</h2>
+                <p class="mt-1 text-xs font-semibold text-slate-500">Key details about this job order.</p>
 
                 <div class="mt-4 grid gap-4 sm:grid-cols-2">
                     <div>
@@ -79,11 +92,11 @@
                         <p class="mt-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 font-semibold text-slate-800">{{ $order->brief_received_at?->format('M j, Y h:i A') ?? 'Pending' }}</p>
                     </div>
                     <div class="sm:col-span-2">
-                        <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Assigned Designer (Automatic)</p>
+                        <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Assigned Designer</p>
                         <p class="mt-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 font-semibold text-slate-800">{{ $order->designer?->displayName() ?? 'Awaiting automatic assignment' }}</p>
                     </div>
                     <div class="sm:col-span-2">
-                        <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Artwork Notes (Customer-managed)</p>
+                        <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Artwork Notes</p>
                         <p class="mt-1 min-h-20 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700">{{ $order->artwork_notes ?: 'No artwork notes provided by customer yet.' }}</p>
                     </div>
                 </div>
@@ -147,13 +160,41 @@
             </div>
         </section>
 
+        <!-- Order Items -->
+        @php($lineItems = $order->pricing_breakdown['line_items'] ?? [])
+        @if (!empty($lineItems))
+            <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h2 class="text-lg font-black text-slate-950">Order Items</h2>
+                <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    @foreach ($lineItems as $item)
+                        <article class="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2">
+                            @if (! empty($item['image_path']))
+                                <a href="{{ \App\Support\MediaUrl::resolve($item['image_path']) }}" target="_blank" rel="noopener noreferrer">
+                                    <img src="{{ \App\Support\MediaUrl::resolve($item['image_path']) }}" alt="{{ $item['description'] ?? 'Item image' }}" class="w-full h-36 object-cover rounded-md">
+                                </a>
+                            @endif
+                            <p class="font-black text-slate-900">{{ $item['description'] ?? '—' }}</p>
+                            <p class="text-sm text-slate-600">Qty: {{ $item['quantity'] ?? 1 }}</p>
+                            @if (! empty($item['size_format']))<p class="text-xs text-slate-500">Size: {{ $item['size_format'] }}</p>@endif
+                            @if (! empty($item['material_substrate']))<p class="text-xs text-slate-500">Material: {{ $item['material_substrate'] }}</p>@endif
+                            @if (! empty($item['finish_lamination']))<p class="text-xs text-slate-500">Finish: {{ $item['finish_lamination'] }}</p>@endif
+                            @if (! empty($item['artwork_notes']))<p class="text-xs text-slate-500">Notes: {{ $item['artwork_notes'] }}</p>@endif
+                            @if (! empty($item['amount']))
+                                <p class="text-sm font-black text-slate-900">₦{{ number_format((float) $item['amount'], 2) }}</p>
+                            @endif
+                        </article>
+                    @endforeach
+                </div>
+            </section>
+        @endif
+
         <form action="{{ route('admin.orders.update', $order) }}" method="POST" enctype="multipart/form-data" class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             @csrf
             @method('PUT')
 
             @if ($order->is_concluded)
                 <div class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-800">
-                    This job is concluded. Workflow edits are disabled.
+                    ⚠️ This job is concluded. Workflow edits are disabled.
                 </div>
             @endif
 

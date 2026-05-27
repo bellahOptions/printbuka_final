@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Services\CloudinaryUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -18,6 +19,8 @@ class JobAssetUpload
         $uploader = $request->user();
         $isAdminUploader = $uploader !== null && $uploader->role !== 'customer' && $uploader->canAdmin('admin.view');
 
+        $cloudinaryService = app(CloudinaryUploadService::class);
+
         if ($request->hasFile($input)) {
             foreach ((array) $request->file($input) as $file) {
                 if (! $file || ! $file->isValid()) {
@@ -32,13 +35,10 @@ class JobAssetUpload
                     ]);
                 }
 
-                $assets[] = [
-                    'path' => $file->store('job-assets', 'public'),
-                    'name' => $file->getClientOriginalName(),
-                    'mime' => $file->getClientMimeType(),
-                    'size' => $file->getSize(),
-                    'uploaded_at' => now()->toISOString(),
-                ];
+                // Upload to both Cloudinary and local
+                $result = $cloudinaryService->storeToBoth($file, 'job-assets', 'job-assets');
+
+                $assets[] = $result;
             }
         }
 
@@ -65,12 +65,23 @@ class JobAssetUpload
                 continue;
             }
 
+            // For Livewire uploaded images (already stored locally), also push to Cloudinary
+            $cloudinaryResult = null;
+            if (CloudinaryUrl::isConfigured()) {
+                $fullPath = Storage::disk('public')->path($path);
+                $uploadResult = $cloudinaryService->upload($fullPath, ['folder' => 'job-assets/images']);
+                if ($uploadResult['ok']) {
+                    $cloudinaryResult = $uploadResult['public_id'];
+                }
+            }
+
             $assets[] = [
-                'path' => $path,
+                'path' => $cloudinaryResult ?? $path,
                 'name' => basename($path),
                 'mime' => Storage::disk('public')->mimeType($path) ?: 'image/jpeg',
                 'size' => Storage::disk('public')->size($path) ?: 0,
                 'uploaded_at' => now()->toISOString(),
+                'cloudinary_public_id' => $cloudinaryResult,
             ];
         }
 

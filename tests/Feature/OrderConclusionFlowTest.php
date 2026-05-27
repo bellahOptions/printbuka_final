@@ -28,7 +28,7 @@ class OrderConclusionFlowTest extends TestCase
         $this->actingAs($operationsManager)
             ->patch(route('admin.orders.conclude', $order))
             ->assertRedirect()
-            ->assertSessionHas('status', 'Job concluded successfully. This job is now locked from further edits.');
+            ->assertSessionHas('status', 'Job concluded successfully. Invoice auto-settled and job locked from further edits.');
 
         $order->refresh();
         $this->assertTrue((bool) $order->is_concluded);

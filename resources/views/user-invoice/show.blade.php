@@ -15,9 +15,8 @@
     $companyAccountBankName = trim((string) ($settings['company_account_bank_name'] ?? ''));
     $companyAccountNote = trim((string) ($settings['company_account_note'] ?? ''));
     $hasCompanyAccountDetails = $companyAccountName !== '' || $companyAccountNumber !== '' || $companyAccountBankName !== '' || $companyAccountNote !== '';
-    $paymentLink = \Illuminate\Support\Facades\Route::has('payment.process')
-        ? route('payment.process', $invoice)
-        : null;
+    $paymentLink = null;
+    // Bank transfer instructions shown directly instead of Paystack redirect
 @endphp
 <main class="invoice-page min-h-screen bg-gradient-to-br from-slate-50 to-white py-12">
     <section class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
@@ -195,26 +194,38 @@
                 </div>
                 @elseif($invoice->status === 'pending')
                 <div class="mt-6 p-4 rounded-xl bg-amber-50 border border-amber-100">
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <div class="flex items-center gap-3">
-                            <svg class="h-5 w-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <div>
-                                <p class="text-sm font-semibold text-amber-800">Awaiting Payment</p>
-                                @if($invoice->due_at)
-                                    <p class="text-xs text-amber-700">Due by {{ $invoice->due_at->format('F d, Y') }}</p>
-                                @endif
-                            </div>
+                    <div class="flex items-start gap-3">
+                        <svg class="h-5 w-5 text-amber-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <div>
+                            <p class="text-sm font-semibold text-amber-800">Awaiting Payment</p>
+                            @if($invoice->due_at)
+                                <p class="text-xs text-amber-700">Due by {{ $invoice->due_at->format('F d, Y') }}</p>
+                            @endif
+                            @if($hasCompanyAccountDetails)
+                                <div class="mt-3 rounded-lg border border-amber-200 bg-amber-50/80 p-3">
+                                    <p class="text-xs font-bold text-amber-900 uppercase tracking-wide">Bank Transfer Details</p>
+                                    <div class="mt-2 space-y-1 text-sm text-amber-900">
+                                        @if($companyAccountBankName !== '')
+                                            <p><span class="font-semibold">Bank:</span> {{ $companyAccountBankName }}</p>
+                                        @endif
+                                        @if($companyAccountName !== '')
+                                            <p><span class="font-semibold">Account Name:</span> {{ $companyAccountName }}</p>
+                                        @endif
+                                        @if($companyAccountNumber !== '')
+                                            <p><span class="font-semibold">Account Number:</span> <span class="text-base font-black tracking-wider">{{ $companyAccountNumber }}</span></p>
+                                        @endif
+                                    </div>
+                                    @if($companyAccountNote !== '')
+                                        <p class="mt-2 text-xs text-amber-800">{{ $companyAccountNote }}</p>
+                                    @endif
+                                </div>
+                                <p class="mt-2 text-xs text-amber-700">After making payment, please send your payment receipt to {{ $companyEmail }} or call {{ $companyPhone }} for confirmation.</p>
+                            @else
+                                <p class="mt-2 text-xs text-amber-600">Please contact {{ $companyName }} for payment instructions.</p>
+                            @endif
                         </div>
-                        @if($paymentLink)
-                            <a href="{{ $paymentLink }}" class="btn btn-sm bg-pink-600 hover:bg-pink-700 text-white border-0">
-                                Proceed to Payment
-                                <svg class="h-4 w-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                                </svg>
-                            </a>
-                        @endif
                     </div>
                 </div>
                 @endif

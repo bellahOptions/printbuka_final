@@ -329,7 +329,7 @@ class AdminInvoiceController extends Controller
                 'delivery_method' => $productPricing['selected_options']['delivery_method'] ?? ($validated['delivery_method'] ?? null),
                 'status' => 'Analyzing Job Brief',
                 'job_order_number' => ReferenceCode::jobOrderNumber((string) $catalogItem['service_type']),
-                'priority' => '🟡 Normal',
+                'priority' => 'ðŸŸ¡ Normal',
                 'brief_received_by_id' => $request->user()?->id,
                 'brief_received_at' => now(),
                 'assigned_designer_id' => Order::autoAssignableDesignerId(),
@@ -641,9 +641,8 @@ class AdminInvoiceController extends Controller
             ->with('warning', 'Paid invoices cannot be edited.');
     }
 
-    // Validate the incoming fields – matching the new edit form
     $validated = $request->validate([
-        'order_id' => ['required', 'exists:orders,id'],  // hidden field
+        'order_id' => ['required', 'exists:orders,id'],
         'customer_id' => ['nullable', 'integer', Rule::exists('users', 'id')->where(fn ($q) => $q->where('role', 'customer'))],
         'customer_name' => ['required', 'string', 'max:255'],
         'customer_email' => ['nullable', 'email', 'max:255'],
@@ -718,7 +717,6 @@ class AdminInvoiceController extends Controller
             ]];
         }
     } else {
-        // Explicit line items from the form
         $lineItems = $this->normalizedLineItems($validated);
     }
 
@@ -738,18 +736,19 @@ class AdminInvoiceController extends Controller
         'service_type' => (string) $catalogItem['service_type'],
         'job_type' => (string) $catalogItem['name'],
         'product_id' => $catalogItem['product_id'],
-        'size_format' => $productPricing['selected_options']['size_format'] ?? $validated['size_format'],
-        'material_substrate' => $productPricing['selected_options']['material_substrate'] ?? $validated['material_substrate'],
-        'paper_density' => $productPricing['selected_options']['paper_density'] ?? $validated['paper_density'],
-        'finish_lamination' => $productPricing['selected_options']['finish_lamination'] ?? $validated['finish_lamination'],
-        'delivery_method' => $productPricing['selected_options']['delivery_method'] ?? $validated['delivery_method'],
+        // *** FIX: add ?? null for all potentially missing keys ***
+        'size_format' => $productPricing['selected_options']['size_format'] ?? ($validated['size_format'] ?? null),
+        'material_substrate' => $productPricing['selected_options']['material_substrate'] ?? ($validated['material_substrate'] ?? null),
+        'paper_density' => $productPricing['selected_options']['paper_density'] ?? ($validated['paper_density'] ?? null),
+        'finish_lamination' => $productPricing['selected_options']['finish_lamination'] ?? ($validated['finish_lamination'] ?? null),
+        'delivery_method' => $productPricing['selected_options']['delivery_method'] ?? ($validated['delivery_method'] ?? null),
         'quantity' => $quantity,
         'unit_price' => $unitPrice,
         'total_price' => $subtotal,
-        'delivery_city' => $validated['delivery_city'],
-        'delivery_address' => $validated['delivery_address'],
-        'artwork_notes' => $validated['artwork_notes'],
-        'internal_notes' => $validated['internal_notes'],
+        'delivery_city' => $validated['delivery_city'] ?? null,
+        'delivery_address' => $validated['delivery_address'] ?? null,
+        'artwork_notes' => $validated['artwork_notes'] ?? null,
+        'internal_notes' => $validated['internal_notes'] ?? null,
         'pricing_breakdown' => [
             'catalog_item_key' => (string) $validated['catalog_item_key'],
             'line_items' => $lineItems,
@@ -775,14 +774,12 @@ class AdminInvoiceController extends Controller
         'total_amount' => $total,
         'status' => $invoiceStatus,
         'due_at' => $validated['due_at'] ?? $invoice->due_at,
-        'issued_at' => $invoice->issued_at, // keep original
+        'issued_at' => $invoice->issued_at,
         'sent_at' => $invoice->sent_at,
     ]);
 
-    // Handle status change (e.g., if marked as paid)
     $invoiceLifecycleService->handleStatusChange($invoice->fresh(['order.product']), $previousStatus);
 
-    // Notify
     app(ImportantActionNotifier::class)->notify(
         $invoice->documentTypeLabel() . ' updated',
         $invoice->documentTypeLabel() . ' ' . $invoice->invoice_number . ' was updated by ' . $request->user()?->displayName() . '.'
@@ -795,9 +792,15 @@ class AdminInvoiceController extends Controller
 
     public function destroy(Invoice $invoice): RedirectResponse
     {
+        $order = $invoice->order;
+
         $invoice->delete();
 
-        return back()->with('status', 'Invoice deleted.');
+        if ($order) {
+            $order->delete();
+        }
+
+        return back()->with('status', 'Invoice and associated order deleted.');
     }
 
     public function markAsPaid(Invoice $invoice, InvoiceLifecycleService $invoiceLifecycleService): RedirectResponse
@@ -951,7 +954,7 @@ class AdminInvoiceController extends Controller
                 'artwork_notes' => $validated['artwork_notes'] ?? null,
                 'status' => 'Quote Requested',
                 'job_order_number' => ReferenceCode::jobOrderNumber('quote'),
-                'priority' => '🟡 Normal',
+                'priority' => 'ðŸŸ¡ Normal',
                 'brief_received_by_id' => $request->user()?->id,
                 'brief_received_at' => now(),
                 'assigned_designer_id' => Order::autoAssignableDesignerId(),

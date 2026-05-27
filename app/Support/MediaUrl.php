@@ -18,26 +18,60 @@ class MediaUrl
             return null;
         }
 
+        // 1. Data URIs – pass through
         if (str_starts_with($candidate, 'data:')) {
             return $candidate;
         }
 
+        // 2. If Cloudinary is configured, try to resolve as Cloudinary resource first
+        if (CloudinaryUrl::isCloudinaryResource($candidate)) {
+            $cloudUrl = CloudinaryUrl::resolve($candidate);
+            if ($cloudUrl !== null) {
+                return $cloudUrl;
+            }
+        }
+
+        // 3. Already a full URL (non-storage, non-cloudinary)
         if (filter_var($candidate, FILTER_VALIDATE_URL)) {
+            // If it's a Cloudinary URL, pass through
+            if (str_contains($candidate, 'cloudinary.com')) {
+                return $candidate;
+            }
             return self::normalizeUrlHostDependency($candidate);
         }
 
+        // 4. Check if it looks like a Cloudinary public_id (even if not detected above)
+        //    e.g., "printbuka/job-assets/image.jpg" – only if Cloudinary is configured
+        if (CloudinaryUrl::isConfigured() && preg_match('#^[a-zA-Z0-9_\-/]+\.[a-zA-Z0-9]{2,4}$#', $candidate)) {
+            $cloudUrl = CloudinaryUrl::resolve($candidate);
+            if ($cloudUrl !== null) {
+                return $cloudUrl;
+            }
+        }
+
+        // 5. Local absolute path
         if (str_starts_with($candidate, '/')) {
             return self::normalizeRootPath($candidate, $disk);
         }
 
+        // 6. Relative storage path – check disk
         $normalizedStoragePath = self::normalizeStoragePath($candidate);
 
-        if (Storage::disk($disk)->exists($normalizedStoragePath)) {
+        if ($normalizedStoragePath !== '' && Storage::disk($disk)->exists($normalizedStoragePath)) {
             return self::storageUrl($disk, $normalizedStoragePath);
         }
 
+        // 7. Public path
         if (file_exists(public_path($candidate))) {
             return asset(ltrim($candidate, '/'));
+        }
+
+        // 8. Last resort – try Cloudinary (if configured)
+        if (CloudinaryUrl::isConfigured()) {
+            $cloudUrl = CloudinaryUrl::resolve($candidate);
+            if ($cloudUrl !== null) {
+                return $cloudUrl;
+            }
         }
 
         return null;
@@ -45,6 +79,11 @@ class MediaUrl
 
     private static function normalizeUrlHostDependency(string $candidate): string
     {
+        // If it's already a Cloudinary URL, don't strip
+        if (str_contains($candidate, 'cloudinary.com')) {
+            return $candidate;
+        }
+
         $path = parse_url($candidate, PHP_URL_PATH);
         $query = parse_url($candidate, PHP_URL_QUERY);
 

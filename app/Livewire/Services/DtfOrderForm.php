@@ -254,13 +254,9 @@ class DtfOrderForm extends Component
 
         $assets = [];
         if ($this->design_file) {
-            $assets[] = [
-                'path' => $this->design_file->store('job-assets', 'public'),
-                'name' => $this->design_file->getClientOriginalName(),
-                'mime' => $this->design_file->getClientMimeType(),
-                'size' => $this->design_file->getSize(),
-                'uploaded_at' => now()->toISOString(),
-            ];
+            $asset = app(\App\Services\CloudinaryUploadService::class)
+                ->storeToBoth($this->design_file, 'job-assets', 'job-assets');
+            $assets[] = $asset;
         }
 
         $artworkNotes = $validated['has_design'] === 'no'
@@ -310,23 +306,10 @@ class DtfOrderForm extends Component
 
         session()->put('tracked_orders.'.$order->id, true);
 
-        $paymentInit = $paystackService->initializeForInvoice($invoice, [
-            'payment_context' => 'service_order',
-            'service_slug' => 'dtf',
-            'order_form' => 'dtf_livewire',
-        ]);
-
-        if (($paymentInit['ok'] ?? false) && filled($paymentInit['authorization_url'] ?? null)) {
-            return redirect()->away((string) $paymentInit['authorization_url']);
-        }
-
         return redirect()->route('services.orders.success', [
             'service' => 'dtf',
             'order' => $order,
-        ])->with(
-            'warning',
-            $paymentInit['message'] ?? 'Order submitted, but Paystack redirect is unavailable right now.'
-        );
+        ])->with('status', 'Order submitted successfully! Please check your email for invoice and bank transfer details.');
     }
 
     public function render()

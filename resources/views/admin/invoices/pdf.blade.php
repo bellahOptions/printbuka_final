@@ -56,7 +56,7 @@
         $isPaid = $paidAt !== null || in_array(strtolower((string) $invoice->status), ['paid', 'settled', 'completed'], true) || $balanceDue <= 0.01;
         $effectivePaidAt = $paidAt ?? now();
 
-        $paymentMethod = (string) ($invoice->payment_gateway ?? 'paystack');
+        $paymentMethod = (string) ($invoice->payment_gateway ?? 'bank_transfer');
         $paymentLabel = str($paymentMethod)->replace('_', ' ')->upper()->value();
         $paymentReference = (string) ($invoice->payment_reference ?: 'Pending');
 

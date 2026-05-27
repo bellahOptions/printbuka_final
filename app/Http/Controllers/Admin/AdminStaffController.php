@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\StaffEmploymentStatusMail;
 use App\Models\User;
+use App\Services\CloudinaryUploadService;
+use App\Support\CloudinaryUrl;
 use App\Services\ImportantActionNotifier;
 use App\Support\LivewireSecureUploads;
 use Illuminate\Http\RedirectResponse;
@@ -95,10 +97,16 @@ class AdminStaffController extends Controller
         ];
 
         if ($request->hasFile('photo')) {
-            $newPhotoPath = $request->file('photo')->store('staff-photos', 'public');
+            $cloudinaryService = app(CloudinaryUploadService::class);
+            $result = $cloudinaryService->storeToBoth(
+                $request->file('photo'),
+                'staff-photos',
+                'staff-photos'
+            );
+            $newPhotoPath = $result['cloudinary_public_id'] ?? $result['path'];
 
-            if (filled($user->photo) && Str::startsWith($user->photo, 'staff-photos/')) {
-                Storage::disk('public')->delete($user->photo);
+            if (filled($user->photo)) {
+                $this->deleteStoredPhoto($user->photo);
             }
 
             $updates['photo'] = $newPhotoPath;
@@ -115,11 +123,18 @@ class AdminStaffController extends Controller
                 ]);
             }
 
-            if (filled($user->photo) && Str::startsWith($user->photo, 'staff-photos/')) {
-                Storage::disk('public')->delete($user->photo);
+            if (filled($user->photo)) {
+                $this->deleteStoredPhoto($user->photo);
             }
 
-            $updates['photo'] = $livewirePhotoPath;
+            // Also upload Livewire path to Cloudinary if configured
+            if (CloudinaryUrl::isConfigured()) {
+                $fullPath = Storage::disk('public')->path($livewirePhotoPath);
+                $uploadResult = app(CloudinaryUploadService::class)->upload($fullPath, ['folder' => 'staff-photos']);
+                $updates['photo'] = $uploadResult['public_id'] ?? $livewirePhotoPath;
+            } else {
+                $updates['photo'] = $livewirePhotoPath;
+            }
         }
 
         $wasActive = (bool) $user->is_active;
@@ -196,5 +211,25 @@ class AdminStaffController extends Controller
                 'message' => $exception->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Delete a photo from Cloudinary and local disk.
+     */
+    private function deleteStoredPhoto(?string $path): void
+    {
+        if (! filled($path)) {
+            return;
+        }
+
+        if (CloudinaryUrl::isCloudinaryResource($path)) {
+            try {
+                app(CloudinaryUploadService::class)->delete($path);
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        Storage::disk('public')->delete($path);
     }
 }

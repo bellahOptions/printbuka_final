@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
+use App\Services\CloudinaryUploadService;
+use App\Support\CloudinaryUrl;
 use App\Support\MediaUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -96,6 +98,7 @@ class AdminBlogPostController extends Controller
     {
         $baseSlug = Str::slug((string) ($validated['slug'] ?: $validated['title']));
         $content = $this->sanitizeHtml((string) $validated['content']);
+        $cloudinaryService = app(CloudinaryUploadService::class);
 
         $payload = [
             'title' => (string) $validated['title'],
@@ -118,7 +121,12 @@ class AdminBlogPostController extends Controller
 
         if ($request->hasFile('featured_image_file')) {
             $this->deleteStoredImagePath($existingFeaturedImage !== '' ? $existingFeaturedImage : null);
-            $featuredImage = $request->file('featured_image_file')->store('blog/featured', 'public');
+            $result = $cloudinaryService->storeToBoth(
+                $request->file('featured_image_file'),
+                'blog/featured',
+                'blog/featured'
+            );
+            $featuredImage = $result['cloudinary_public_id'] ?? $result['path'];
         } elseif ($request->filled('featured_image')) {
             $this->deleteStoredImagePath($existingFeaturedImage !== '' ? $existingFeaturedImage : null);
             $featuredImage = trim((string) $validated['featured_image']);
@@ -154,7 +162,12 @@ class AdminBlogPostController extends Controller
                     continue;
                 }
 
-                $path = $file->store('blog/additional', 'public');
+                $result = $cloudinaryService->storeToBoth(
+                    $file,
+                    'blog/additional',
+                    'blog/additional'
+                );
+                $path = $result['cloudinary_public_id'] ?? $result['path'];
                 $additionalImages->push($path);
                 $newlyUploaded->push($path);
             }
@@ -208,6 +221,15 @@ class AdminBlogPostController extends Controller
     {
         if (! filled($path) || filter_var($path, FILTER_VALIDATE_URL)) {
             return;
+        }
+
+        // Try deleting from Cloudinary if it looks like a Cloudinary resource
+        if (CloudinaryUrl::isCloudinaryResource($path)) {
+            try {
+                app(CloudinaryUploadService::class)->delete($path);
+            } catch (\Throwable $e) {
+                report($e);
+            }
         }
 
         Storage::disk('public')->delete($path);

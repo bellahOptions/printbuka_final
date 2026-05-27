@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Uploads;
 
+use App\Services\CloudinaryUploadService;
+use App\Support\CloudinaryUrl;
 use App\Support\LivewireSecureUploads;
 use App\Support\MediaUrl;
 use Illuminate\Support\Facades\Storage;
@@ -42,6 +44,11 @@ class SecureImageUpload extends Component
 
     public ?string $accept = null;
 
+    /**
+     * Whether the stored path is a Cloudinary public_id.
+     */
+    public bool $isCloudinary = false;
+
     public function mount(
         string $inputName = 'image_upload_path',
         bool $multiple = false,
@@ -62,6 +69,7 @@ class SecureImageUpload extends Component
         $this->minWidth = $minWidth;
         $this->minHeight = $minHeight;
         $this->accept = $accept;
+        $this->isCloudinary = CloudinaryUrl::isConfigured();
 
         if ($this->multiple) {
             $this->storedPaths = collect($initialPaths)
@@ -99,9 +107,17 @@ class SecureImageUpload extends Component
             $this->deleteStoredPath((string) $this->storedPath);
         }
 
-        $path = $this->upload->store($this->directory, 'public');
-        $this->storedPath = $path;
-        LivewireSecureUploads::register(request(), $path);
+        if ($this->isCloudinary) {
+            // Upload directly to Cloudinary
+            $cloudinaryService = app(CloudinaryUploadService::class);
+            $result = $cloudinaryService->storeToBoth($this->upload, $this->directory, $this->directory);
+            $this->storedPath = $result['cloudinary_public_id'] ?? $result['path'];
+        } else {
+            $path = $this->upload->store($this->directory, 'public');
+            $this->storedPath = $path;
+        }
+
+        LivewireSecureUploads::register(request(), (string) $this->storedPath);
 
         $this->upload = null;
     }
@@ -119,6 +135,8 @@ class SecureImageUpload extends Component
             'uploads.*' => $this->fileRules(),
         ]);
 
+        $cloudinaryService = app(CloudinaryUploadService::class);
+
         foreach ($this->uploads as $upload) {
             if (! $upload) {
                 continue;
@@ -129,9 +147,15 @@ class SecureImageUpload extends Component
                 break;
             }
 
-            $path = $upload->store($this->directory, 'public');
-            $this->storedPaths[] = $path;
-            LivewireSecureUploads::register(request(), $path);
+            if ($this->isCloudinary) {
+                $result = $cloudinaryService->storeToBoth($upload, $this->directory, $this->directory);
+                $this->storedPaths[] = $result['cloudinary_public_id'] ?? $result['path'];
+            } else {
+                $path = $upload->store($this->directory, 'public');
+                $this->storedPaths[] = $path;
+            }
+
+            LivewireSecureUploads::register(request(), (string) $this->storedPath);
         }
 
         $this->storedPaths = collect($this->storedPaths)
@@ -178,6 +202,16 @@ class SecureImageUpload extends Component
 
     private function deleteStoredPath(string $path): void
     {
+        // If it's a Cloudinary public_id, delete from Cloudinary
+        if ($this->isCloudinary && CloudinaryUrl::isCloudinaryResource($path)) {
+            try {
+                $cloudinaryService = app(CloudinaryUploadService::class);
+                $cloudinaryService->delete($path);
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
         Storage::disk('public')->delete($path);
         LivewireSecureUploads::forget(request(), $path);
     }

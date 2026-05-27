@@ -17,7 +17,7 @@
             <div class="flex items-start gap-4">
                 <div class="flex-1">
                     <h1 class="text-4xl font-black tracking-tight lg:text-5xl">Create a new job</h1>
-                    <p class="mt-3 max-w-3xl text-base leading-relaxed text-slate-300">Log the client brief, create the job order, and send the invoice in one streamlined step.</p>
+                    <p class="mt-3 max-w-3xl text-base leading-relaxed text-slate-300">Log client brief, add order items, optionally create an invoice now.</p>
                 </div>
                 <div class="hidden sm:block">
                     <div class="rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 p-3 border border-cyan-500/20">
@@ -30,6 +30,12 @@
         </div>
 
         <!-- Error Summary -->
+        @php
+            $orderItems = old('order_items', [
+                ['description' => '', 'quantity' => 1, 'unit_price' => 0, 'size_format' => '', 'material_substrate' => '', 'finish_lamination' => '', 'artwork_notes' => ''],
+            ]);
+        @endphp
+
         @if ($errors->any())
             <div class="fade-in-up rounded-xl border border-red-200 bg-red-50 p-4">
                 <div class="flex items-start gap-3">
@@ -51,30 +57,54 @@
             </div>
         @endif
 
-        <form action="{{ route('admin.orders.store') }}" method="POST" enctype="multipart/form-data" class="fade-in-up section-delay-1 grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
+        <form action="{{ route('admin.orders.store') }}" method="POST" enctype="multipart/form-data" class="fade-in-up section-delay-1 space-y-6">
             @csrf
 
-            <!-- Main Form Section -->
-            <section class="space-y-6">
-                <!-- Client Section -->
-                <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="p-2 rounded-xl bg-gradient-to-br from-pink-100 to-pink-50 border border-pink-200">
-                            <svg class="w-5 h-5 text-pink-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-black text-slate-950">Client Information</h2>
-                            <p class="text-sm text-slate-500">Select existing or create new customer</p>
-                        </div>
-                    </div>
+            <!-- Hidden auto‑filled fields -->
+            <input type="hidden" name="channel" value="Manual">
+            <input type="hidden" name="job_type" value="Custom Order">
 
-                    <div class="space-y-5">
-                        <div>
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">
-                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+            <!-- Invoice Checkbox (first, controls rest of form) -->
+            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="p-2 rounded-xl bg-gradient-to-br from-amber-100 to-amber-50 border border-amber-200">
+                        <svg class="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-lg font-black text-slate-950">Invoice & Pricing</h2>
+                </div>
+                <label class="flex items-start gap-3 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700">
+                    <input type="hidden" name="generate_invoice" value="0">
+                    <input type="checkbox" name="generate_invoice" value="1" id="generate-invoice-checkbox"
+                           class="mt-1 h-4 w-4 rounded border-slate-300 text-pink-600 focus:ring-pink-500"
+                           @checked(old('generate_invoice', true))>
+                    <span>
+                        <strong>Create invoice along with order</strong>
+                        <span class="block mt-1 text-xs font-bold text-slate-500">If checked, an invoice will be generated based on the order items. Unit prices can be added later from the invoice.</span>
+                    </span>
+                </label>
+            </div>
+
+            <!-- Client Section -->
+            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2 rounded-xl bg-gradient-to-br from-pink-100 to-pink-50 border border-pink-200">
+                        <svg class="w-5 h-5 text-pink-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-black text-slate-950">Client Information</h2>
+                        <p class="text-sm text-slate-500">Select existing or create new customer</p>
+                    </div>
+                </div>
+
+                <div class="space-y-5">
+                    <div>
+                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                             </svg>
                             Existing Customer
                         </label>
@@ -113,297 +143,209 @@
 
                     <div class="grid gap-5 sm:grid-cols-2 mt-4">
                         <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">
-                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                </svg>
-                                Client Name *
-                            </label>
+                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Client Name *</label>
                             <input id="job-customer-name" name="customer_name" value="{{ old('customer_name') }}" required 
-                                   class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                                   class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
                                    placeholder="Full name">
                         </div>
                         <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">
-                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                </svg>
-                                Client Email *
-                            </label>
+                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Client Email *</label>
                             <input id="job-customer-email" type="email" name="customer_email" value="{{ old('customer_email') }}" required 
-                                   class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                                   class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
                                    placeholder="email@example.com">
                         </div>
                         <div class="space-y-1 sm:col-span-2">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">
-                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                                </svg>
-                                Client Phone *
-                            </label>
+                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Client Phone *</label>
                             <input id="job-customer-phone" name="customer_phone" value="{{ old('customer_phone') }}" required 
-                                   class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                                   class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
                                    placeholder="+234 XXX XXX XXXX">
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Job Brief Section -->
-                <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="p-2 rounded-xl bg-gradient-to-br from-cyan-100 to-cyan-50 border border-cyan-200">
-                            <svg class="w-5 h-5 text-cyan-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-black text-slate-950">Job Brief</h2>
-                            <p class="text-sm text-slate-500">Define job specifications and requirements</p>
-                        </div>
-                    </div>
-
-                    <div class="grid gap-5 sm:grid-cols-2">
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Channel *</label>
-                            <select name="channel" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
-                                @foreach ($channels as $channel)<option @selected(old('channel', 'Manual') === $channel)>{{ $channel }}</option>@endforeach
-                            </select>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Product</label>
-                            <select name="product_id" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
-                                <option value="">— Custom job —</option>
-                                @foreach ($products as $product)<option value="{{ $product->id }}" @selected((int) old('product_id') === $product->id)>{{ $product->name }}</option>@endforeach
-                            </select>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Job Type *</label>
-                            <select name="job_type" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
-                                <option value="">— Select job type —</option>
-                                @foreach ($jobTypes as $jobType)<option @selected(old('job_type') === $jobType)>{{ $jobType }}</option>@endforeach
-                            </select>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Size / Format</label>
-                            <select name="size_format" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
-                                <option value="">— Select size —</option>
-                                @foreach ($sizes as $size)<option @selected(old('size_format') === $size)>{{ $size }}</option>@endforeach
-                            </select>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Priority *</label>
-                            <select name="priority" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
-                                @foreach ($priorities as $priority)<option @selected(old('priority', '🟡 Normal') === $priority)>{{ $priority }}</option>@endforeach
-                            </select>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Assigned Designer</label>
-                            <p class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-slate-600">Automatically assigned by workload balancing after job creation.</p>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Brief Date</label>
-                            <p class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-slate-600">Automatically set to job creation date/time.</p>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Material / Substrate</label>
-                            <select name="material_substrate" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
-                                <option value="">— Select material —</option>
-                                @foreach ($materials as $material)<option @selected(old('material_substrate') === $material)>{{ $material }}</option>@endforeach
-                            </select>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Finish / Lamination</label>
-                            <select name="finish_lamination" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
-                                <option value="">— Select finish —</option>
-                                @foreach ($finishes as $finish)<option @selected(old('finish_lamination') === $finish)>{{ $finish }}</option>@endforeach
-                            </select>
-                        </div>
-                        <div class="space-y-1 sm:col-span-2">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Artwork Notes</label>
-                            <p class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-slate-600">This field is customer-managed and is locked for staff/admin editing.</p>
-                        </div>
-                        <div class="space-y-1 sm:col-span-2">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Job Image Assets</label>
-                            <livewire:uploads.secure-image-upload
-                                input-name="job_asset_image_paths"
-                                :multiple="true"
-                                directory="job-assets/images"
-                                :max-size-kb="5120"
-                                :max-files="20"
-                                :initial-paths="old('job_asset_image_paths', [])"
-                            />
-                            <p class="mt-2 text-xs text-slate-500">Upload image assets securely via Livewire (JPG, PNG, WEBP up to 5MB each).</p>
-                            @error('job_asset_image_paths')
-                                <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
-                            @enderror
-                            @error('job_asset_image_paths.*')
-                                <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        <div class="space-y-1 sm:col-span-2">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Artwork Documents (PDF, SVG, ZIP)</label>
-                            <input type="file" name="job_asset_files[]" multiple accept=".pdf,.svg,.zip" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
-                            <p class="mt-2 text-xs text-slate-500">Use this field for non-image artwork assets (PDF, SVG, ZIP up to 20MB each).</p>
-                            @error('job_asset_files.*')
-                                <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Delivery Section -->
-                <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="p-2 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 border border-emerald-200">
-                            <svg class="w-5 h-5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-black text-slate-950">Delivery Preference</h2>
-                            <p class="text-sm text-slate-500">Choose how the client will receive the job</p>
-                        </div>
-                    </div>
-
-                    <div class="grid gap-3 sm:grid-cols-2 mb-4">
-                        <label class="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-slate-200 px-5 py-4 text-sm font-black transition-all duration-300 hover:border-pink-200 hover:bg-pink-50/30">
-                            <input id="delivery-preference-pickup" type="radio" name="delivery_preference" value="pickup" @checked(old('delivery_preference') === 'pickup') class="h-5 w-5 border-slate-300 text-pink-600 focus:ring-pink-500">
-                            <div>
-                                <p class="font-black text-slate-900">Client Pickup</p>
-                                <p class="text-xs text-slate-500 mt-0.5">Client will collect from office</p>
-                            </div>
-                        </label>
-                        <label class="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-slate-200 px-5 py-4 text-sm font-black transition-all duration-300 hover:border-pink-200 hover:bg-pink-50/30">
-                            <input id="delivery-preference-delivery" type="radio" name="delivery_preference" value="delivery" @checked(old('delivery_preference', 'delivery') === 'delivery') class="h-5 w-5 border-slate-300 text-pink-600 focus:ring-pink-500">
-                            <div>
-                                <p class="font-black text-slate-900">Delivery</p>
-                                <p class="text-xs text-slate-500 mt-0.5">Deliver to client address</p>
-                            </div>
-                        </label>
-                    </div>
-
-                    <div id="delivery-fields" class="grid gap-5 sm:grid-cols-2">
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Delivery Method</label>
-                            <select id="delivery-method" name="delivery_method" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
-                                <option value="">— Select delivery method —</option>
-                                @foreach ($deliveryMethods as $method)@continue($method === 'Client Pickup')<option value="{{ $method }}" @selected(old('delivery_method') === $method)>{{ $method }}</option>@endforeach
-                            </select>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Delivery City</label>
-                            <input id="delivery-city" name="delivery_city" value="{{ old('delivery_city') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="e.g., Lagos">
-                        </div>
-                        <div class="space-y-1 sm:col-span-2">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Delivery Address</label>
-                            <input id="delivery-address" name="delivery_address" value="{{ old('delivery_address') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="Full delivery address">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Invoice Section -->
-                <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="p-2 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 border border-emerald-200">
-                            <svg class="w-5 h-5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-black text-slate-950">Invoice Details</h2>
-                            <p class="text-sm text-slate-500">Set pricing and payment information</p>
-                        </div>
-                    </div>
-
-                    <div class="grid gap-5 sm:grid-cols-2">
-                        <div class="space-y-2 sm:col-span-2">
-                            <p class="text-sm font-black text-slate-700">Fulfilment Speed</p>
-                            <label class="flex items-start gap-3 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700">
-                                <input id="order-is-express" type="checkbox" name="is_express" value="1" @checked(old('is_express')) class="mt-1 h-4 w-4 rounded border-slate-300 text-pink-600 focus:ring-pink-500">
-                                <span>
-                                    Express order (+₦{{ number_format((float) ($expressSurcharge ?? 0), 2) }})
-                                    <span class="mt-1 block text-xs font-bold text-slate-500">Estimated delivery is 48 hours from confirmed payment.</span>
-                                </span>
-                            </label>
-                            <label class="flex items-start gap-3 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700">
-                                <input id="order-is-sample" type="checkbox" name="is_sample" value="1" @checked(old('is_sample')) class="mt-1 h-4 w-4 rounded border-slate-300 text-pink-600 focus:ring-pink-500">
-                                <span>
-                                    Sample order (+₦{{ number_format((float) ($sampleSurcharge ?? 5000), 2) }})
-                                    <span class="mt-1 block text-xs font-bold text-slate-500">Sample orders are auto-express and limited to 2 units.</span>
-                                </span>
-                            </label>
-                            @error('is_express')<p class="text-sm font-semibold text-pink-700">{{ $message }}</p>@enderror
-                            @error('is_sample')<p class="text-sm font-semibold text-pink-700">{{ $message }}</p>@enderror
-                        </div>
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Quantity *</label>
-                            <input id="job-quantity" type="number" min="1" name="quantity" value="{{ old('quantity', 1) }}" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
-                            <p id="job-quantity-hint" class="text-xs font-bold text-slate-500">{{ old('is_sample') ? 'Sample quantity must be 1 or 2.' : 'Set quantity based on the requested production volume.' }}</p>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Unit Price (₦) *</label>
-                            <input type="number" min="0" step="0.01" name="unit_price" value="{{ old('unit_price') }}" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="0.00">
-                        </div>
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Amount Paid (₦)</label>
-                            <input type="number" min="0" step="0.01" name="amount_paid" value="{{ old('amount_paid', 0) }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="0.00">
-                        </div>
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Payment Status *</label>
-                            <select name="payment_status" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
-                                @foreach ($paymentStatuses as $status)<option @selected(old('payment_status', 'Invoice Issued') === $status)>{{ $status }}</option>@endforeach
-                            </select>
-                        </div>
-                        <div class="space-y-1 sm:col-span-2">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Internal Notes</label>
-                            <textarea name="internal_notes" rows="4" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Private notes for staff only">{{ old('internal_notes') }}</textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-primary group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-pink-600 to-pink-700 px-6 py-4 text-sm font-black text-white shadow-lg shadow-pink-600/20 transition-all duration-300 hover:shadow-xl hover:shadow-pink-600/30 hover:scale-[1.02]">
-                    <span class="relative z-10 flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                        </svg>
-                        Create Job & Send Invoice
-                    </span>
-                    <div class="absolute inset-0 -translate-x-full group-hover:translate-x-0 transition-transform duration-500 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                </button>
-            </section>
-
-            <!-- Sidebar -->
-            <aside class="space-y-6">
-                <div class="rounded-2xl border border-slate-200/60 bg-gradient-to-br from-pink-50/50 to-white p-6 shadow-sm">
-                    <div class="flex items-center gap-2 mb-3">
-                        <svg class="w-5 h-5 text-pink-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <p class="text-sm font-black uppercase tracking-wider text-pink-700">Access</p>
-                    </div>
-                    <p class="text-sm leading-relaxed text-slate-600">Only Super Admin, Management, and Customer Service can create jobs. The job starts at Analyzing Job Brief and is assigned a unique reference code after saving.</p>
-                </div>
-
-                <div class="rounded-2xl border border-slate-200/60 bg-gradient-to-br from-cyan-50/50 to-white p-6 shadow-sm">
-                    <div class="flex items-center gap-2 mb-3">
+            <!-- Job Brief Section -->
+            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2 rounded-xl bg-gradient-to-br from-cyan-100 to-cyan-50 border border-cyan-200">
                         <svg class="w-5 h-5 text-cyan-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                         </svg>
-                        <p class="text-sm font-black uppercase tracking-wider text-cyan-700">Created By</p>
                     </div>
-                    <p class="text-sm leading-relaxed text-slate-600">This job will be recorded under <strong class="text-slate-900">{{ auth()->user()->displayName() }}</strong>.</p>
+                    <div>
+                        <h2 class="text-lg font-black text-slate-950">Job Brief</h2>
+                        <p class="text-sm text-slate-500">Define job specifications and requirements</p>
+                    </div>
                 </div>
 
-                <div class="rounded-2xl border border-slate-200/60 bg-gradient-to-br from-cyan-50/50 to-white p-6 shadow-sm">
-                    <div class="flex items-center gap-2 mb-3">
-                        <svg class="w-5 h-5 text-cyan-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                        </svg>
-                        <p class="text-sm font-black uppercase tracking-wider text-cyan-700">Invoice Email</p>
+                <div class="grid gap-5 sm:grid-cols-2">
+                    <div class="space-y-1">
+                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Priority *</label>
+                        <select name="priority" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                            @foreach ($priorities as $priority)<option @selected(old('priority', '🟡 Normal') === $priority)>{{ $priority }}</option>@endforeach
+                        </select>
                     </div>
-                    <p class="text-sm leading-relaxed text-slate-600">An invoice is generated immediately and sent to the client email address on this form.</p>
+                    <div class="space-y-1">
+                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Assigned Designer</label>
+                        <p class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-slate-600">Auto-assigned after job creation.</p>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Brief Date</label>
+                        <p class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-slate-600">Set to job creation date/time.</p>
+                    </div>
+                    <div class="space-y-1 sm:col-span-2">
+                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Job Image Assets</label>
+                        <livewire:uploads.secure-image-upload
+                            input-name="job_asset_image_paths"
+                            :multiple="true"
+                            directory="job-assets/images"
+                            :max-size-kb="5120"
+                            :max-files="20"
+                            :initial-paths="old('job_asset_image_paths', [])"
+                        />
+                        <p class="mt-2 text-xs text-slate-500">Upload image assets securely via Livewire (JPG, PNG, WEBP up to 5MB each).</p>
+                        @error('job_asset_image_paths')
+                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                        @enderror
+                        @error('job_asset_image_paths.*')
+                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="space-y-1 sm:col-span-2">
+                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Artwork Documents (PDF, SVG, ZIP)</label>
+                        <input type="file" name="job_asset_files[]" multiple accept=".pdf,.svg,.zip" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                        <p class="mt-2 text-xs text-slate-500">Non-image assets (PDF, SVG, ZIP up to 20MB each).</p>
+                        @error('job_asset_files.*')
+                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
-            </aside>
+            </div>
+
+            <!-- Order Items Section -->
+            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8" id="order-items-section">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2 rounded-xl bg-gradient-to-br from-violet-100 to-violet-50 border border-violet-200">
+                        <svg class="w-5 h-5 text-violet-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-black text-slate-950">Order Items</h2>
+                        <p class="text-sm text-slate-500" id="order-items-hint">Add items with descriptions, quantities, and optional reference images. Unit price can be added when creating an invoice.</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="grid gap-3 text-xs font-semibold uppercase tracking-wide text-slate-500 bg-slate-100 rounded-2xl border border-slate-200 p-4" id="order-items-header">
+                        <div class="grid sm:grid-cols-[4fr_1fr_1fr_1fr_auto]">
+                            <div>Description</div>
+                            <div>Qty</div>
+                            <div>Unit Price (₦)</div>
+                            <div>Amount</div>
+                            <div>Size / Format</div>
+                            <div>Material / Substrate</div>
+                            <div>Finish / Lamination</div>
+                            <div>Artwork Notes</div>
+                            <div>Image</div>
+                            <div class="sr-only">Remove</div>
+                        </div>
+                    </div>
+
+                    <div id="order-items-rows" class="space-y-3">
+                        @foreach ($orderItems as $index => $item)
+                            <div class="order-item-row grid gap-3 sm:grid-cols-[4fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_auto] items-end rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                <div class="space-y-1">
+                                    <label class="text-xs font-black text-slate-700">Description *</label>
+                                    <input type="text" name="order_items[{{ $index }}][description]" value="{{ $item['description'] ?? '' }}" required
+                                           class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="Add item details">
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-xs font-black text-slate-700">Qty *</label>
+                                    <input type="number" min="1" name="order_items[{{ $index }}][quantity]" value="{{ $item['quantity'] ?? 1 }}" required
+                                           class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                                </div>
+                                <div class="space-y-1" id="invoice-unit-price-field-{{ $index }}">
+                                    <label class="text-xs font-black text-slate-700">Unit Price (₦)</label>
+                                    <div class="flex items-center gap-1">
+                                        <span class="text-xs text-slate-500">₦</span>
+                                        <input type="number" min="0" step="0.01" name="order_items[{{ $index }}][unit_price]" value="{{ $item['unit_price'] ?? 0 }}"
+                                               class="order-item-unit-price w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="0.00">
+                                    </div>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-xs font-black text-slate-700">Amount</label>
+                                    <p class="order-item-amount rounded-xl border border-slate-200 bg-slate-100 px-3 py-3 text-sm font-bold text-slate-700">
+                                        ₦{{ number_format(((float)($item['unit_price'] ?? 0)) * ((int)($item['quantity'] ?? 1)), 2) }}
+                                    </p>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-xs font-black text-slate-700">Size / Format</label>
+                                    <select name="order_items[{{ $index }}][size_format]" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                                        <option value="">— Select —</option>
+                                        @foreach ($sizes as $size)<option @selected(($item['size_format'] ?? '') === $size)>{{ $size }}</option>@endforeach
+                                    </select>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-xs font-black text-slate-700">Material / Substrate</label>
+                                    <select name="order_items[{{ $index }}][material_substrate]" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                                        <option value="">— Select —</option>
+                                        @foreach ($materials as $material)<option @selected(($item['material_substrate'] ?? '') === $material)>{{ $material }}</option>@endforeach
+                                    </select>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-xs font-black text-slate-700">Finish / Lamination</label>
+                                    <select name="order_items[{{ $index }}][finish_lamination]" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                                        <option value="">— Select —</option>
+                                        @foreach ($finishes as $finish)<option @selected(($item['finish_lamination'] ?? '') === $finish)>{{ $finish }}</option>@endforeach
+                                    </select>
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-xs font-black text-slate-700">Artwork Notes</label>
+                                    <input type="text" name="order_items[{{ $index }}][artwork_notes]" value="{{ $item['artwork_notes'] ?? '' }}"
+                                           class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="Optional notes">
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-xs font-black text-slate-700">Image</label>
+                                    <input type="file" name="order_items[{{ $index }}][image]" accept="image/jpeg,image/png,image/webp"
+                                           class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                                </div>
+                                <div class="flex items-center justify-end">
+                                    <button type="button" class="remove-order-item-row inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-600 transition-colors hover:border-pink-300 hover:text-pink-700" aria-label="Remove item row">&times;</button>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div>
+                        <button type="button" id="add-order-item-row" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-black text-slate-900 transition-all duration-200 hover:border-pink-300 hover:bg-pink-50 hover:text-pink-700">
+                            + Add another item
+                        </button>
+                    </div>
+                </div>
+                @error('order_items')<p class="mt-2 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                @error('order_items.*.description')<p class="mt-2 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                @error('order_items.*.quantity')<p class="mt-2 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                @error('order_items.*.image')<p class="mt-2 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+            </div>
+
+            <!-- Internal Notes -->
+            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
+                <div class="space-y-1">
+                    <label class="flex items-center gap-2 text-sm font-black text-slate-700">Internal Notes</label>
+                    <textarea name="internal_notes" rows="4" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Private notes for staff only">{{ old('internal_notes') }}</textarea>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-pink-600 to-pink-700 px-6 py-4 text-sm font-black text-white shadow-lg shadow-pink-600/20 transition-all duration-300 hover:shadow-xl hover:shadow-pink-600/30 hover:scale-[1.02]">
+                <span class="relative z-10 flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Create Job
+                </span>
+                <div class="absolute inset-0 -translate-x-full group-hover:translate-x-0 transition-transform duration-500 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+            </button>
         </form>
     </div>
 
@@ -424,17 +366,16 @@
             const phoneInput = document.getElementById('job-customer-phone');
             const toggleNewCustomerButton = document.getElementById('job-toggle-new-customer');
             const newCustomerForm = document.getElementById('job-new-customer-form');
-            const pickupRadio = document.getElementById('delivery-preference-pickup');
-            const deliveryRadio = document.getElementById('delivery-preference-delivery');
-            const deliveryFields = document.getElementById('delivery-fields');
-            const deliveryMethod = document.getElementById('delivery-method');
-            const deliveryCity = document.getElementById('delivery-city');
-            const deliveryAddress = document.getElementById('delivery-address');
-            const quantityInput = document.getElementById('job-quantity');
-            const quantityHint = document.getElementById('job-quantity-hint');
-            const expressCheckbox = document.getElementById('order-is-express');
-            const sampleCheckbox = document.getElementById('order-is-sample');
 
+            // Invoice toggle
+            const generateInvoiceCheckbox = document.getElementById('generate-invoice-checkbox');
+            const orderItemsHint = document.getElementById('order-items-hint');
+
+            // Order items rows
+            const itemsContainer = document.getElementById('order-items-rows');
+            const addItemBtn = document.getElementById('add-order-item-row');
+
+            // --- Customer helpers ---
             const hydrateFromOption = (option) => {
                 if (!option) return;
                 nameInput.value = option.getAttribute('data-customer-name') ?? nameInput.value;
@@ -447,50 +388,6 @@
                 newCustomerForm.classList.toggle('hidden', !visible);
                 toggleNewCustomerButton.setAttribute('aria-expanded', visible ? 'true' : 'false');
                 toggleNewCustomerButton.textContent = visible ? 'Hide New Customer Form' : 'Add New Customer';
-            };
-
-            const syncDeliveryState = () => {
-                const isDelivery = deliveryRadio?.checked;
-                if (!deliveryFields) return;
-                deliveryFields.style.display = isDelivery ? 'grid' : 'none';
-                deliveryMethod.required = Boolean(isDelivery);
-                deliveryCity.required = Boolean(isDelivery);
-                deliveryAddress.required = Boolean(isDelivery);
-                if (!isDelivery) {
-                    deliveryMethod.value = '';
-                    deliveryCity.value = '';
-                    deliveryAddress.value = '';
-                }
-            };
-
-            const syncSampleRules = () => {
-                if (!quantityInput) return;
-
-                const isSample = Boolean(sampleCheckbox?.checked);
-
-                if (isSample && expressCheckbox) {
-                    expressCheckbox.checked = true;
-                    expressCheckbox.disabled = true;
-                } else if (expressCheckbox) {
-                    expressCheckbox.disabled = false;
-                }
-
-                quantityInput.min = '1';
-
-                if (isSample) {
-                    quantityInput.max = '2';
-                    if (Number(quantityInput.value || 0) > 2) {
-                        quantityInput.value = '2';
-                    }
-                } else {
-                    quantityInput.removeAttribute('max');
-                }
-
-                if (quantityHint) {
-                    quantityHint.textContent = isSample
-                        ? 'Sample quantity must be 1 or 2.'
-                        : 'Set quantity based on the requested production volume.';
-                }
             };
 
             customerSelect?.addEventListener('change', (event) => {
@@ -506,7 +403,6 @@
                 const detail = Array.isArray(rawDetail) ? (rawDetail[0] ?? {}) : rawDetail;
                 const customer = detail.customer ?? {};
                 if (!customerSelect || !customer.id) return;
-
                 const customerId = String(customer.id);
                 let option = Array.from(customerSelect.options).find((item) => item.value === customerId);
                 if (!option) {
@@ -523,13 +419,132 @@
                 setNewCustomerFormVisible(false);
             });
 
-            pickupRadio?.addEventListener('change', syncDeliveryState);
-            deliveryRadio?.addEventListener('change', syncDeliveryState);
-            expressCheckbox?.addEventListener('change', syncSampleRules);
-            sampleCheckbox?.addEventListener('change', syncSampleRules);
+            // --- Invoice toggle logic ---
+            function toggleUnitPriceFields() {
+                const generateInvoice = generateInvoiceCheckbox.checked;
+                const unitPriceFields = document.querySelectorAll('[id^="invoice-unit-price-field-"]');
+                unitPriceFields.forEach(field => {
+                    field.style.display = generateInvoice ? 'block' : 'none';
+                });
+                // Recalculate amounts visibility
+                updateAmountFields();
+                orderItemsHint.textContent = generateInvoice
+                    ? 'Add items with descriptions, quantities, and optional reference images. Unit prices are now available for invoicing.'
+                    : 'Add items with descriptions, quantities, and optional reference images. Invoice can be created for this order later.';
+            }
+
+            // Calculate line item amounts
+            function updateAmountFields() {
+                document.querySelectorAll('.order-item-row').forEach(row => {
+                    const qtyInput = row.querySelector('input[name*="[quantity]"]');
+                    const priceInput = row.querySelector('.order-item-unit-price');
+                    const amountDisplay = row.querySelector('.order-item-amount');
+                    if (qtyInput && priceInput && amountDisplay) {
+                        const qty = parseInt(qtyInput.value) || 0;
+                        const price = parseFloat(priceInput.value) || 0;
+                        const amount = qty * price;
+                        amountDisplay.textContent = '₦' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    }
+                });
+            }
+
+            // Listen for changes in unit price and quantity
+            document.addEventListener('input', function(e) {
+                if (e.target.matches('.order-item-unit-price') || e.target.matches('input[name*="[quantity]"]')) {
+                    updateAmountFields();
+                }
+            });
+
+            generateInvoiceCheckbox.addEventListener('change', toggleUnitPriceFields);
+
+            // Initialize on load
+            setTimeout(toggleUnitPriceFields, 100);
+
+            // --- Order items row management ---
+            function renumberOrderItemRows() {
+                const rows = itemsContainer.querySelectorAll('.order-item-row');
+                rows.forEach((row, idx) => {
+                    row.querySelectorAll('[name]').forEach(input => {
+                        input.name = input.name.replace(/order_items\[\d+\]/, `order_items[${idx}]`);
+                    });
+                });
+            }
+
+            function createOrderItemRow() {
+                const row = document.createElement('div');
+                row.className = 'order-item-row grid gap-3 sm:grid-cols-[4fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_auto] items-end rounded-2xl border border-slate-200 bg-slate-50 p-4';
+                row.innerHTML = `
+                    <div class="space-y-1">
+                        <label class="text-xs font-black text-slate-700">Description *</label>
+                        <input type="text" name="order_items[0][description]" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="Add item details">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-black text-slate-700">Qty *</label>
+                        <input type="number" min="1" name="order_items[0][quantity]" value="1" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    </div>
+                    <div class="space-y-1" id="invoice-unit-price-field-0">
+                        <label class="text-xs font-black text-slate-700">Unit Price (₦)</label>
+                        <input type="number" min="0" step="0.01" name="order_items[0][unit_price]" value="0"
+                               class="order-item-unit-price w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="0.00">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-black text-slate-700">Amount</label>
+                        <p class="order-item-amount rounded-xl border border-slate-200 bg-slate-100 px-3 py-3 text-sm font-bold text-slate-700">₦0.00</p>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-black text-slate-700">Size / Format</label>
+                        <select name="order_items[0][size_format]" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                            <option value="">— Select —</option>
+                            @foreach ($sizes as $size)<option>{{ $size }}</option>@endforeach
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-black text-slate-700">Material / Substrate</label>
+                        <select name="order_items[0][material_substrate]" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                            <option value="">— Select —</option>
+                            @foreach ($materials as $material)<option>{{ $material }}</option>@endforeach
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-black text-slate-700">Finish / Lamination</label>
+                        <select name="order_items[0][finish_lamination]" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                            <option value="">— Select —</option>
+                            @foreach ($finishes as $finish)<option>{{ $finish }}</option>@endforeach
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-black text-slate-700">Artwork Notes</label>
+                        <input type="text" name="order_items[0][artwork_notes]" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="Optional notes">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-black text-slate-700">Image</label>
+                        <input type="file" name="order_items[0][image]" accept="image/jpeg,image/png,image/webp" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    </div>
+                    <div class="flex items-center justify-end">
+                        <button type="button" class="remove-order-item-row inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-600 transition-colors hover:border-pink-300 hover:text-pink-700" aria-label="Remove item row">&times;</button>
+                    </div>
+                `;
+                return row;
+            }
+
+            addItemBtn?.addEventListener('click', () => {
+                const newRow = createOrderItemRow();
+                itemsContainer.appendChild(newRow);
+                renumberOrderItemRows();
+            });
+
+            itemsContainer?.addEventListener('click', (e) => {
+                const removeBtn = e.target.closest('.remove-order-item-row');
+                if (!removeBtn) return;
+                const row = removeBtn.closest('.order-item-row');
+                if (itemsContainer.querySelectorAll('.order-item-row').length <= 1) return;
+                row.remove();
+                renumberOrderItemRows();
+            });
+
+            // Init states
             setNewCustomerFormVisible(false);
-            syncDeliveryState();
-            syncSampleRules();
+            updateInvoiceMode();
         })();
     </script>
 @endsection

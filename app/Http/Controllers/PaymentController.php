@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
-    public function process(Request $request, Invoice $invoice, PaystackService $paystackService): RedirectResponse
+    public function process(Request $request, Invoice $invoice): RedirectResponse
     {
         $invoice->loadMissing('order');
         $order = $invoice->order;
@@ -30,18 +30,10 @@ class PaymentController extends Controller
                 ->with('status', 'This invoice is not available for payment.');
         }
 
-        $paymentInit = $paystackService->initializeForInvoice($invoice, [
-            'payment_context' => 'invoice_retry',
-            'initiated_from' => 'invoice_portal',
-        ]);
-
-        if (($paymentInit['ok'] ?? false) && filled($paymentInit['authorization_url'] ?? null)) {
-            return redirect()->away((string) $paymentInit['authorization_url']);
-        }
-
+        // Redirect to invoice show page where bank transfer details are displayed
         return redirect()
             ->route('user.invoices.show', $invoice)
-            ->with('warning', $paymentInit['message'] ?? 'Unable to initialize payment right now. Please try again.');
+            ->with('status', 'Please use the bank transfer details below to complete your payment.');
     }
 
     public function paystackCallback(Request $request, PaystackService $paystackService, InvoiceLifecycleService $invoiceLifecycleService): RedirectResponse
@@ -115,3 +107,4 @@ class PaymentController extends Controller
         return route('orders.success', $order);
     }
 }
+

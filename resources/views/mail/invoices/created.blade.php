@@ -15,7 +15,6 @@
         $documentType = $invoice->documentTypeLabel();
         $documentTypeLower = strtolower($documentType);
         $lightLogoUrl = asset('logo-dark.svg');
-        $darkLogoUrl = asset('logo-dark.svg');
         $settings = \App\Support\SiteSettings::all();
         $companyAccountName = trim((string) ($settings['company_account_name'] ?? ''));
         $companyAccountNumber = trim((string) ($settings['company_account_number'] ?? ''));

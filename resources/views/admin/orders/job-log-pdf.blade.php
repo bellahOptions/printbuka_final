@@ -17,6 +17,9 @@
             .expense-item { padding: 12px; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 10px; }
             .expense-item-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
             .expense-item-meta { font-size: 11px; color: #6b7280; }
+            table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 16px; }
+            th { background: #f8fafc; text-align: left; padding: 8px; border-bottom: 2px solid #e5e7eb; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; font-size: 10px; color: #475569; }
+            td { padding: 8px; border-bottom: 1px solid #e5e7eb; }
         </style>
     </head>
     <body>
@@ -33,6 +36,34 @@
                 <div class="card"><span class="label">Delivered</span><p>{{ $order->actual_delivery_at?->format('M j, Y') ?? 'Pending' }}</p></div>
                 <div class="card"><span class="label">Total</span><p>₦{{ number_format((float) $order->total_price, 2) }}</p></div>
             </div>
+        </div>
+
+        <div class="section">
+            <h2>Staff Activity Log</h2>
+            @if (!isset($staffActivities) || $staffActivities->isEmpty())
+                <div class="card"><p>No staff activities logged for this job.</p></div>
+            @else
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Staff</th>
+                            <th>Role/Dept</th>
+                            <th>Action</th>
+                            <th>Date &amp; Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($staffActivities as $activity)
+                            <tr>
+                                <td>{{ $activity->user?->displayName() ?? 'Unknown' }}</td>
+                                <td>{{ $activity->role ?: ($activity->user?->role_label ?? '—') }}{{ $activity->department ? ' · '.$activity->department : '' }}</td>
+                                <td>{{ $activity->action }}</td>
+                                <td>{{ $activity->created_at->format('M j, Y h:i A') }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
         </div>
 
         <div class="section">
