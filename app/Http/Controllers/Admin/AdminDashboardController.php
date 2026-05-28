@@ -59,7 +59,7 @@ class AdminDashboardController extends Controller
         $productAnalytics = Product::query()
             ->where('is_active', true)
             ->with('category')
-            ->select('id', 'name', 'category_id', 'view_count', 'created_at')
+            ->select('id', 'name', 'product_category_id', 'view_count', 'created_at')
             ->orderByDesc('view_count')
             ->limit(10)
             ->get();
@@ -73,8 +73,8 @@ class AdminDashboardController extends Controller
         $productCategoryBreakdown = Product::query()
             ->where('is_active', true)
             ->whereHas('category')
-            ->select('category_id', DB::raw('COUNT(*) as total'))
-            ->groupBy('category_id')
+            ->select('product_category_id', DB::raw('COUNT(*) as total'))
+            ->groupBy('product_category_id')
             ->with('category:id,name')
             ->get()
             ->map(fn ($row) => [
