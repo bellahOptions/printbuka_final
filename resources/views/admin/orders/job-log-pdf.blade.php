@@ -77,13 +77,20 @@
             @if ($expenseEntries->isEmpty())
                 <div class="card"><p>No expense entries are attached to this job.</p></div>
             @else
+                @php $totalExpenses = $expenseEntries->sum(fn($e) => (float) $e->amount); @endphp
+
                 @foreach ($expenseEntries as $entry)
                     <div class="expense-item">
-                        <p class="expense-item-title">{{ $entry->category }} · -₦{{ number_format($entry->amount, 2) }}</p>
+                        <p class="expense-item-title">{{ $entry->category }} · ₦{{ number_format($entry->amount, 2) }}</p>
                         <p>{{ $entry->description }}</p>
                         <p class="expense-item-meta">{{ $entry->entry_date->format('M j, Y') }} · Recorded by {{ $entry->recorder?->displayName() ?? 'Unknown' }}</p>
                     </div>
                 @endforeach
+
+                <div class="card" style="margin-top: 12px; background: #fef2f2; border-color: #fecaca;">
+                    <span class="label">Total Expenses</span>
+                    <p style="font-size: 16px; font-weight: 800; color: #991b1b;">₦{{ number_format($totalExpenses, 2) }}</p>
+                </div>
             @endif
         </div>
     </body>
