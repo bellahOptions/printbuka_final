@@ -26,6 +26,10 @@
                 <p class="mt-2 text-sm text-slate-900">{{ ucfirst($entry->type) }}</p>
             </div>
             <div>
+                <p class="text-xs font-black uppercase tracking-wide text-slate-500">Entry Type</p>
+                <p class="mt-2 text-sm text-slate-900">{{ $entry->entryTypeLabel() }}</p>
+            </div>
+            <div>
                 <p class="text-xs font-black uppercase tracking-wide text-slate-500">Category</p>
                 <p class="mt-2 text-sm text-slate-900">{{ $entry->category }}</p>
             </div>

@@ -78,6 +78,7 @@ class InvoiceLifecycleService
             ],
             [
                 'entry_date' => ($invoice->paid_at ?? now())->toDateString(),
+                'entry_type' => 'auto_income',
                 'payee' => $order->customer_name,
                 'amount' => (float) $invoice->total_amount,
                 'payment_method' => $invoice->payment_gateway ?: 'Online',

@@ -193,11 +193,17 @@
                     <p class="text-sm text-slate-500">All financial entries</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <select class="text-sm rounded-lg border border-slate-300 px-3 py-2 font-semibold" id="filterType">
+                    <select class="text-sm rounded-lg border border-slate-300 px-3 py-2 font-semibold" id="filterType" name="type">
                         <option value="">All Types</option>
                         <option value="income">Income Only</option>
                         <option value="expense">Expenses Only</option>
                     </select>
+                    <a href="{{ route('admin.finance.report-form') }}" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-800 transition hover:border-pink-300 hover:text-pink-700">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Download Report
+                    </a>
                 </div>
             </div>
             
@@ -218,12 +224,15 @@
                             <tr class="group transition-all duration-200 hover:bg-slate-50/80">
                                 <td class="px-6 py-4">
                                     <p class="font-semibold text-slate-900">{{ $entry->entry_date->format('M j, Y') }}</p>
-                                    <p class="text-xs text-slate-500">{{ $entry->entry_date->format('h:i A') }}</p>
+                                    <p class="text-xs text-slate-500">{{ $entry->created_at->format('h:i A') }}</p>
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider {{ $entry->type === 'income' ? 'bg-emerald-100 text-emerald-700' : 'bg-pink-100 text-pink-700' }}">
                                         <span class="w-1.5 h-1.5 rounded-full {{ $entry->type === 'income' ? 'bg-emerald-500' : 'bg-pink-500' }}"></span>
                                         {{ ucfirst($entry->type) }}
+                                        @if($entry->entry_type === 'credit_from_ceo')
+                                            <span class="ml-1 text-[9px]">(CEO Credit)</span>
+                                        @endif
                                     </span>
                                 </td>
                                 <td class="px-6 py-4">

@@ -45,6 +45,14 @@
                 </label>
 
                 <label class="text-sm font-black">
+                    Entry Type
+                    <select name="entry_type" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold" @disabled($isAutoIncome)>
+                        <option value="">Manual Entry</option>
+                        <option value="credit_from_ceo" @selected(old('entry_type', $entry->entry_type) === 'credit_from_ceo')>Credit from CEO</option>
+                    </select>
+                </label>
+
+                <label class="text-sm font-black">
                     Category
                     <input name="category" value="{{ old('category', $entry->category) }}" required class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold" @disabled($isAutoIncome)>
                 </label>

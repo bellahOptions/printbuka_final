@@ -25,7 +25,7 @@
             </div>
             <div class="meta">
                 <p>{{ $entry->entry_date->format('F j, Y') }}</p>
-                <p>{{ ucfirst($entry->type) }}</p>
+                <p>{{ ucfirst($entry->type) }} · {{ $entry->entryTypeLabel() }}</p>
             </div>
         </div>
 

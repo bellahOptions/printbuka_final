@@ -149,10 +149,13 @@ class AdminOrderController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
+        $generatedBy = request()->user();
+
         $pdf = Pdf::loadView('admin.orders.job-log-pdf', [
             'order' => $order->load('product', 'invoice'),
             'expenseEntries' => $expenseEntries,
             'staffActivities' => $staffActivities,
+            'generatedBy' => $generatedBy,
             'asPdf' => true,
         ]);
 

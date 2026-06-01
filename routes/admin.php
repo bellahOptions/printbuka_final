@@ -100,6 +100,12 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
             ->middleware('admin.permission:finance.view')
             ->whereNumber('finance')
             ->name('finance.download');
+        Route::get('/finance-reports', [AdminFinanceController::class, 'reportForm'])
+            ->middleware('admin.permission:finance.view')
+            ->name('finance.report-form');
+        Route::get('/finance-reports/download', [AdminFinanceController::class, 'downloadReport'])
+            ->middleware('admin.permission:finance.view')
+            ->name('finance.report-download');
         Route::resource('finance', AdminFinanceController::class)
             ->except('show')
             ->whereNumber('finance')
