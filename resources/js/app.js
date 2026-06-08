@@ -1,5 +1,28 @@
 import './bootstrap';
 
+/* ─── Popover (data-popover-btn / data-popover-panel) ─── */
+document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-popover-btn]');
+        if (btn) {
+            const wrapper = btn.closest('.pb-popover-wrapper');
+            const panel   = wrapper?.querySelector('[data-popover-panel]');
+            if (!panel) return;
+            const isOpen = !panel.classList.contains('hidden');
+            // Close all other open popovers first
+            document.querySelectorAll('[data-popover-panel]:not(.hidden)')
+                .forEach(p => p.classList.add('hidden'));
+            if (!isOpen) panel.classList.remove('hidden');
+            return;
+        }
+        // Click outside any wrapper → close all
+        if (!e.target.closest('.pb-popover-wrapper')) {
+            document.querySelectorAll('[data-popover-panel]:not(.hidden)')
+                .forEach(p => p.classList.add('hidden'));
+        }
+    });
+});
+
 const disableSubmittingForm = (form, submitter) => {
     if (!(form instanceof HTMLFormElement)) {
         return;

@@ -1,329 +1,379 @@
 @extends('layouts.admin')
 
-@section('title', 'Staff Access | Printbuka')
+@section('title', 'Staff Management (ERM) | Printbuka')
 
 @section('content')
-    <div class="mx-auto max-w-7xl space-y-8">
-        <section class="fade-in-up rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white via-white to-pink-50/30 p-8 shadow-sm backdrop-blur-sm">
-            <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-                <div class="space-y-3">
-                    <div class="flex flex-wrap items-center gap-3">
-                        <span class="inline-flex items-center rounded-full bg-pink-100 px-3 py-1 text-[0.65rem] font-black uppercase tracking-wider text-pink-700">
-                            Staff Management
-                        </span>
-                        <span class="inline-flex items-center gap-1 text-xs font-semibold text-slate-500">
-                            <span class="relative flex h-2 w-2">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                            </span>
-                            {{ number_format($staffStats['pending']) }} pending approval
-                        </span>
+<div class="mx-auto max-w-[1440px] space-y-6">
+
+    {{-- ════════ HERO ════════ --}}
+    <section class="animate-fade-in-up pb-card overflow-hidden">
+        <div class="h-1 bg-gradient-to-r from-violet-600 via-violet-500 to-purple-400"></div>
+        <div class="flex flex-col gap-5 p-6 lg:flex-row lg:items-center lg:justify-between">
+            <div class="space-y-2">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="pb-badge pb-badge-purple">ERM — People Management</span>
+                    <span class="flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                        <span class="pb-status-dot pb-status-pending"><span></span><span></span></span>
+                        {{ number_format($staffStats['pending']) }} awaiting approval
+                    </span>
+                </div>
+                <h1 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                    Staff <span class="text-violet-700">access & departments</span>
+                </h1>
+                <p class="text-sm text-slate-500 max-w-lg">
+                    Approve registrations, manage roles and departments, track employment status, and monitor team performance.
+                </p>
+            </div>
+            <a href="{{ route('admin.dashboard') }}" class="pb-btn pb-btn-md pb-btn-outline self-start text-sm">
+                ← Dashboard
+            </a>
+        </div>
+
+        @if(session('status'))
+            <div class="pb-alert pb-alert-success mx-6 mb-6">
+                <svg class="h-4 w-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                {{ session('status') }}
+            </div>
+        @endif
+        @if($errors->has('photo'))
+            <div class="pb-alert pb-alert-error mx-6 mb-6">{{ $errors->first('photo') }}</div>
+        @endif
+    </section>
+
+    {{-- ════════ ERM KPI CARDS ════════ --}}
+    <div class="animate-fade-in-up delay-100 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        @php
+            $kpis = [
+                ['label'=>'Total Staff',  'value'=>$staffStats['total'],    'badge'=>'pb-badge-secondary', 'icon'=>'M17 20h5V8a2 2 0 00-2-2h-3m-7 14H5a2 2 0 01-2-2V8a2 2 0 012-2h3m4 14v-4a2 2 0 00-2-2H8a2 2 0 00-2 2v4m6 0h2m-6 0H6m6-14V4a2 2 0 00-2-2H8a2 2 0 00-2 2v2m6 0H6', 'color'=>'text-slate-700', 'bar'=>'bg-slate-400'],
+                ['label'=>'Active',       'value'=>$staffStats['active'],   'badge'=>'pb-badge-success',   'icon'=>'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',                                                                                                                                                                                                     'color'=>'text-emerald-700','bar'=>'bg-emerald-500'],
+                ['label'=>'Pending',      'value'=>$staffStats['pending'],  'badge'=>'pb-badge-warning',   'icon'=>'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',                                                                                                                                                                                                       'color'=>'text-amber-700',  'bar'=>'bg-amber-500'],
+                ['label'=>'Inactive',     'value'=>$staffStats['inactive'], 'badge'=>'pb-badge-danger',    'icon'=>'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636',                                                                                                                                                    'color'=>'text-red-700',    'bar'=>'bg-red-500'],
+            ];
+        @endphp
+        @foreach($kpis as $kpi)
+            <article class="pb-kpi-card">
+                <div class="pb-kpi-accent-bar {{ $kpi['bar'] }}"></div>
+                <div class="flex items-start justify-between gap-3 mt-1">
+                    <div>
+                        <p class="pb-stat-label">{{ $kpi['label'] }}</p>
+                        <p class="pb-stat-value {{ $kpi['color'] }} mt-2">{{ number_format($kpi['value']) }}</p>
                     </div>
-                    <h1 class="text-5xl font-black tracking-tight text-slate-950 lg:text-6xl">
-                        Staff access <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-700 to-pink-500">and departments</span>
-                    </h1>
-                    <p class="max-w-3xl text-base leading-relaxed text-slate-600">
-                        Approve registrations, assign departments, and keep the active team distribution visible from the admin workspace.
-                    </p>
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100">
+                        <svg class="h-5 w-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ $kpi['icon'] }}"/>
+                        </svg>
+                    </span>
                 </div>
-                <a href="{{ route('admin.dashboard') }}" class="group inline-flex items-center gap-2 rounded-xl border-2 border-slate-200 bg-white/80 px-6 py-3.5 text-sm font-black text-slate-800 shadow-sm transition-all duration-300 hover:border-pink-300 hover:text-pink-700 hover:shadow-lg">
-                    Admin Dashboard
-                    <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                    </svg>
-                </a>
+            </article>
+        @endforeach
+    </div>
+
+    {{-- ════════ ROLE & DEPARTMENT BREAKDOWN ════════ --}}
+    <div class="animate-fade-in-up delay-200 grid gap-5 xl:grid-cols-2">
+        {{-- Role distribution --}}
+        <div class="pb-card">
+            <div class="pb-card-header border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <div class="h-4 w-1 rounded-full bg-cyan-500"></div>
+                    <h3 class="pb-card-title">Role distribution</h3>
+                </div>
+                <p class="pb-card-description">Headcount by assigned role</p>
             </div>
-
-            @if (session('status'))
-                <p class="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">{{ session('status') }}</p>
-            @endif
-            @if ($errors->has('photo'))
-                <p class="mt-3 rounded-xl border border-pink-200 bg-pink-50 px-4 py-3 text-sm font-bold text-pink-700">{{ $errors->first('photo') }}</p>
-            @endif
-
-            <div class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                @foreach ([['label' => 'Total Staff', 'value' => $staffStats['total'], 'valueClass' => 'text-slate-950', 'dotClass' => 'bg-slate-400'], ['label' => 'Active', 'value' => $staffStats['active'], 'valueClass' => 'text-emerald-800', 'dotClass' => 'bg-emerald-500'], ['label' => 'Pending', 'value' => $staffStats['pending'], 'valueClass' => 'text-amber-800', 'dotClass' => 'bg-amber-500'], ['label' => 'Inactive', 'value' => $staffStats['inactive'], 'valueClass' => 'text-pink-800', 'dotClass' => 'bg-pink-500']] as $card)
-                    <article class="card-hover rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                        <div class="flex items-center justify-between gap-4">
-                            <p class="text-xs font-black uppercase tracking-wider text-slate-500">{{ $card['label'] }}</p>
-                            <span class="h-2 w-2 rounded-full {{ $card['dotClass'] }}"></span>
+            <div class="pb-card-content space-y-3 pt-4">
+                @forelse($roleCounts as $rc)
+                    @php($pct = $staffStats['total'] > 0 ? min(100, ($rc->total / $staffStats['total']) * 100) : 0)
+                    <div>
+                        <div class="flex items-center justify-between text-sm mb-1.5">
+                            <span class="font-medium text-slate-700">{{ $roles[$rc->role] ?? $rc->role }}</span>
+                            <span class="font-semibold text-slate-900">{{ number_format($rc->total) }}</span>
                         </div>
-                        <p class="mt-4 text-4xl font-black leading-none {{ $card['valueClass'] }}">{{ number_format($card['value']) }}</p>
-                    </article>
-                @endforeach
-            </div>
-        </section>
-
-        <section class="fade-in-up section-delay-1 grid gap-6 xl:grid-cols-2">
-            <div class="card-hover rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
-                <div class="flex items-center gap-2 mb-5">
-                    <svg class="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
-                    </svg>
-                    <p class="text-sm font-black uppercase tracking-wider text-cyan-700">Role Chart</p>
-                </div>
-                <div class="space-y-4">
-                    @forelse ($roleCounts as $roleCount)
-                        @php($percentage = $staffStats['total'] > 0 ? min(100, ($roleCount->total / $staffStats['total']) * 100) : 0)
-                        <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-                            <div class="flex justify-between gap-4 text-sm font-black">
-                                <span class="text-slate-800">{{ $roles[$roleCount->role] ?? $roleCount->role }}</span>
-                                <span class="text-slate-950">{{ number_format($roleCount->total) }}</span>
-                            </div>
-                            <div class="mt-3 h-2.5 overflow-hidden rounded-full bg-white">
-                                <div class="h-full rounded-full bg-gradient-to-r from-cyan-500 to-cyan-600" style="width: {{ $percentage }}%"></div>
-                            </div>
+                        <div class="pb-progress">
+                            <div class="pb-progress-info" style="width:{{ $pct }}%"></div>
                         </div>
-                    @empty
-                        <p class="rounded-xl border border-dashed border-slate-300 p-5 text-sm font-semibold text-slate-500">No staff roles available.</p>
-                    @endforelse
-                </div>
-            </div>
-
-            <div class="card-hover rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
-                <div class="flex items-center gap-2 mb-5">
-                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                    </svg>
-                    <p class="text-sm font-black uppercase tracking-wider text-emerald-700">Department Chart</p>
-                </div>
-                <div class="space-y-4">
-                    @forelse ($departmentCounts as $departmentCount)
-                        @php($percentage = $staffStats['total'] > 0 ? min(100, ($departmentCount->total / $staffStats['total']) * 100) : 0)
-                        <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-                            <div class="flex justify-between gap-4 text-sm font-black">
-                                <span class="text-slate-800">{{ $departmentCount->department ?? 'Unassigned' }}</span>
-                                <span class="text-slate-950">{{ number_format($departmentCount->total) }}</span>
-                            </div>
-                            <div class="mt-3 h-2.5 overflow-hidden rounded-full bg-white">
-                                <div class="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600" style="width: {{ $percentage }}%"></div>
-                            </div>
-                        </div>
-                    @empty
-                        <p class="rounded-xl border border-dashed border-slate-300 p-5 text-sm font-semibold text-slate-500">No departments assigned yet.</p>
-                    @endforelse
-                </div>
-            </div>
-        </section>
-
-        <section class="fade-in-up section-delay-2 card-hover rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
-            <div class="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
-                <div>
-                    <div class="flex items-center gap-3 mb-2">
-                        <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-[0.65rem] font-black uppercase tracking-wider text-amber-700">
-                            <span class="relative flex h-2 w-2">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                            </span>
-                            Pending Approval
-                        </span>
                     </div>
-                    <h2 class="text-3xl font-black tracking-tight text-slate-950">Review staff registrations</h2>
-                    <p class="mt-2 text-sm leading-6 text-slate-600">Confirm final roles, choose departments, and activate approved staff accounts.</p>
-                </div>
-                <p class="text-xs font-black uppercase tracking-wider text-slate-500">{{ number_format($staffStats['pending']) }} waiting</p>
-            </div>
-
-            <div class="mt-6 space-y-5">
-                @forelse ($pendingStaff as $person)
-                    @if ($canAssignRoles)
-                        <form action="{{ route('admin.staff.update', $person) }}" method="POST" enctype="multipart/form-data" class="grid gap-4 rounded-xl border border-slate-200 bg-slate-50/70 p-5 xl:grid-cols-[1.2fr_0.8fr_0.8fr_auto] xl:items-end">
-                            @csrf
-                            @method('PUT')
-                    @else
-                        <div class="grid gap-4 rounded-xl border border-slate-200 bg-slate-50/70 p-5 xl:grid-cols-[1.2fr_0.8fr_0.8fr_auto] xl:items-end">
-                    @endif
-                        <div>
-                            <div class="flex items-start gap-4">
-                                @if ($person->profilePhotoUrl())
-                                    <img src="{{ $person->profilePhotoUrl() }}" alt="{{ $person->displayName() }}" class="h-14 w-14 rounded-full border border-slate-200 object-cover">
-                                @else
-                                    <div class="flex h-14 w-14 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-sm font-black text-slate-700">
-                                        {{ $person->profileInitials() }}
-                                    </div>
-                                @endif
-                                <div>
-                                    <p class="font-black text-slate-950">{{ $person->displayName() }}</p>
-                                    <p class="mt-1 text-sm font-semibold text-slate-500">{{ $person->email }} · {{ $person->phone }}</p>
-                                    <p class="mt-2 text-xs font-black uppercase tracking-wider text-amber-700">
-                                        Requested: {{ $roles[$person->requested_role] ?? $person->requested_role ?? 'Pending' }} {{ $person->other_role ? '· '.$person->other_role : '' }}
-                                    </p>
-                                </div>
-                            </div>
-                            <label class="mt-3 block text-xs font-black uppercase tracking-wider text-slate-500">
-                                Profile Image (JPG/PNG/WebP)
-                                <div class="mt-2">
-                                    <livewire:uploads.secure-image-upload
-                                        :key="'pending-staff-photo-'.$person->id"
-                                        input-name="photo_upload_path"
-                                        directory="staff-photos"
-                                        :max-size-kb="2048"
-                                        :max-files="1"
-                                        :multiple="false"
-                                    />
-                                </div>
-                            </label>
-                            @error('photo')
-                                <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        <label class="text-sm font-black text-slate-800">
-                            Final Role
-                            <select name="role" @disabled(! $canAssignRoles) class="mt-2 min-h-12 w-full rounded-xl border border-slate-200 bg-white px-4 font-semibold text-slate-950 outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 disabled:bg-slate-100 disabled:text-slate-500">
-                                @foreach ($roles as $value => $label)
-                                    <option value="{{ $value }}" @selected(old('role', $person->requested_role) === $value)>{{ $label }}</option>
-                                @endforeach
-                            </select>
-                        </label>
-                        <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                            <p class="font-black text-slate-800">Department assignment</p>
-                            <p class="mt-2">This staff member's department is auto-derived from the selected role.</p>
-                            <p class="mt-2 text-sm font-semibold text-slate-700">Current department: {{ $person->department ?? 'Unassigned' }}</p>
-                        </div>
-                        <div class="flex flex-wrap gap-3">
-                            @if ($canAssignRoles)
-                                <label class="flex min-h-12 items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 text-sm font-black text-slate-800">
-                                    <input type="checkbox" name="is_active" value="1" checked class="h-5 w-5 rounded border-slate-300 text-pink-600">
-                                    Approve
-                                </label>
-                                <button class="btn-primary rounded-xl bg-gradient-to-r from-pink-600 to-pink-700 px-5 py-3 text-sm font-black text-white shadow-lg shadow-pink-600/20 transition-all duration-300 hover:shadow-xl hover:shadow-pink-600/30">Save</button>
-                            @else
-                                <p class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-xs font-black uppercase tracking-wide text-slate-500">
-                                    Super Admin assigns role/department
-                                </p>
-                            @endif
-                        </div>
-                    @if ($canAssignRoles)
-                        </form>
-                    @else
-                        </div>
-                    @endif
                 @empty
-                    <p class="rounded-xl border border-dashed border-slate-300 p-6 text-sm font-semibold text-slate-500">No staff registrations are pending.</p>
+                    <div class="pb-empty"><p class="pb-empty-title">No roles yet</p></div>
                 @endforelse
             </div>
+        </div>
 
-            <div class="mt-6">{{ $pendingStaff->links() }}</div>
-        </section>
-
-        <section class="fade-in-up section-delay-3 card-hover rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
-            <div class="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
-                <div>
-                    <div class="flex items-center gap-3 mb-2">
-                        <span class="inline-flex items-center gap-1.5 rounded-full bg-cyan-50 px-3 py-1 text-[0.65rem] font-black uppercase tracking-wider text-cyan-700">
-                            <span class="w-2 h-2 rounded-full bg-cyan-500"></span>
-                            Active Staff
-                        </span>
-                    </div>
-                    <h2 class="text-3xl font-black tracking-tight text-slate-950">Approved staff directory</h2>
-                    <p class="mt-2 text-sm leading-6 text-slate-600">Current staff access status, role assignments, and approval dates.</p>
+        {{-- Department distribution --}}
+        <div class="pb-card">
+            <div class="pb-card-header border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <div class="h-4 w-1 rounded-full bg-emerald-500"></div>
+                    <h3 class="pb-card-title">Department distribution</h3>
                 </div>
-                <p class="text-xs font-black uppercase tracking-wider text-slate-500">{{ number_format($staffStats['active']) }} active</p>
+                <p class="pb-card-description">Headcount by department</p>
             </div>
-
-            <div class="mt-6 overflow-x-auto rounded-xl border border-slate-100">
-                <table class="w-full min-w-[1180px] text-left text-sm">
-                    <thead>
-                        <tr class="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100/50">
-                            <th class="px-5 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Staff</th>
-                            <th class="px-5 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Role</th>
-                            <th class="px-5 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Department</th>
-                            <th class="px-5 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Status</th>
-                            <th class="px-5 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Employment</th>
-                            <th class="px-5 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Approved</th>
-                            <th class="px-5 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Profile Photo</th>
-                            <th class="px-5 py-4 text-xs font-black uppercase tracking-wider text-slate-500">Access Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @forelse ($staff as $person)
-                            <tr class="table-row-hover">
-                                <td class="px-5 py-4">
-                                    <div class="flex items-center gap-3">
-                                        @if ($person->profilePhotoUrl())
-                                            <img src="{{ $person->profilePhotoUrl() }}" alt="{{ $person->displayName() }}" class="h-12 w-12 rounded-full border border-slate-200 object-cover">
-                                        @else
-                                            <div class="flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-xs font-black text-slate-700">
-                                                {{ $person->profileInitials() }}
-                                            </div>
-                                        @endif
-                                        <div>
-                                            <span class="block font-black text-slate-950">{{ $person->displayName() }}</span>
-                                            <span class="text-xs font-semibold text-slate-500">{{ $person->email }}</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-5 py-4 font-semibold text-slate-700">{{ $roles[$person->role] ?? $person->role }}</td>
-                                <td class="px-5 py-4 font-semibold text-slate-700">{{ $person->department ?? 'Pending' }}</td>
-                                <td class="px-5 py-4">
-                                    <span class="status-badge {{ $person->is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-pink-50 text-pink-700' }}">
-                                        {{ $person->is_active ? 'Active' : 'Inactive' }}
-                                    </span>
-                                </td>
-                                <td class="px-5 py-4">
-                                    <span class="status-badge {{ ($person->employment_status ?? 'active') === 'active' ? 'bg-emerald-50 text-emerald-700' : ((($person->employment_status ?? '') === 'terminated') ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700') }}">
-                                        {{ $person->employmentStatusLabel() }}
-                                    </span>
-                                    @if ($person->employment_status_changed_at)
-                                        <p class="mt-1 text-xs font-semibold text-slate-500">{{ $person->employment_status_changed_at->format('M j, Y') }}</p>
-                                    @endif
-                                </td>
-                                <td class="px-5 py-4 font-semibold text-slate-500">{{ $person->approved_at?->format('M j, Y') ?? 'Pending' }}</td>
-                                <td class="px-5 py-4">
-                                    @if ($canAssignRoles)
-                                        <form action="{{ route('admin.staff.update', $person) }}" method="POST" enctype="multipart/form-data" class="flex items-center gap-2">
-                                            @csrf
-                                            @method('PUT')
-                                            <input type="hidden" name="role" value="{{ $person->role }}">
-                                            <input type="hidden" name="department" value="{{ $person->department }}">
-                                            <input type="hidden" name="is_active" value="{{ $person->is_active ? 1 : 0 }}">
-                                            <div class="max-w-[190px]">
-                                                <livewire:uploads.secure-image-upload
-                                                    :key="'active-staff-photo-'.$person->id"
-                                                    input-name="photo_upload_path"
-                                                    directory="staff-photos"
-                                                    :max-size-kb="2048"
-                                                    :max-files="1"
-                                                    :multiple="false"
-                                                />
-                                            </div>
-                                            <button class="rounded-md bg-pink-600 px-3 py-2 text-xs font-black uppercase tracking-wider text-white transition hover:bg-pink-700">Upload</button>
-                                        </form>
-                                    @else
-                                        <span class="text-xs font-black uppercase tracking-wide text-slate-500">Super Admin Only</span>
-                                    @endif
-                                </td>
-                                <td class="px-5 py-4">
-                                    @if ($canManageEmployment)
-                                        <form action="{{ route('admin.staff.employment-status', $person) }}" method="POST" class="space-y-2">
-                                            @csrf
-                                            @method('PATCH')
-                                            <select name="employment_status" class="h-10 w-full rounded-md border border-slate-200 px-3 text-xs font-bold">
-                                                <option value="active" @selected(($person->employment_status ?? 'active') === 'active')>Onboard / Active</option>
-                                                <option value="suspended" @selected(($person->employment_status ?? '') === 'suspended')>Suspend indefinitely</option>
-                                                <option value="terminated" @selected(($person->employment_status ?? '') === 'terminated')>Terminate contract</option>
-                                            </select>
-                                            <input name="employment_status_reason" value="{{ $person->employment_status_reason }}" class="h-10 w-full rounded-md border border-slate-200 px-3 text-xs font-semibold" placeholder="Optional reason">
-                                            <button class="rounded-md bg-slate-900 px-3 py-2 text-xs font-black uppercase tracking-wider text-white transition hover:bg-pink-700">Apply</button>
-                                        </form>
-                                    @else
-                                        <span class="text-xs font-black uppercase tracking-wide text-slate-500">HR / Super Admin</span>
-                                    @endif
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="px-5 py-16 text-center">
-                                    <p class="text-sm font-semibold text-slate-500">No approved staff records yet.</p>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+            <div class="pb-card-content space-y-3 pt-4">
+                @forelse($departmentCounts as $dc)
+                    @php($pct = $staffStats['total'] > 0 ? min(100, ($dc->total / $staffStats['total']) * 100) : 0)
+                    <div>
+                        <div class="flex items-center justify-between text-sm mb-1.5">
+                            <span class="font-medium text-slate-700">{{ $dc->department ?? 'Unassigned' }}</span>
+                            <span class="font-semibold text-slate-900">{{ number_format($dc->total) }}</span>
+                        </div>
+                        <div class="pb-progress">
+                            <div class="pb-progress-success" style="width:{{ $pct }}%"></div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="pb-empty"><p class="pb-empty-title">No departments yet</p></div>
+                @endforelse
             </div>
-
-            <div class="mt-6">{{ $staff->links() }}</div>
-        </section>
+        </div>
     </div>
+
+    {{-- ════════ PENDING APPROVALS ════════ --}}
+    <section class="animate-fade-in-up delay-200 pb-card overflow-hidden">
+        <div class="border-b border-slate-100 p-6">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <div class="h-4 w-1 rounded-full bg-amber-500"></div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Pending Approval</p>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-900">Review staff registrations</h2>
+                    <p class="mt-1 text-sm text-slate-500">
+                        Confirm roles, assign departments, and activate accounts. {{ number_format($staffStats['pending']) }} waiting.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="divide-y divide-slate-100">
+            @forelse($pendingStaff as $person)
+                @if($canAssignRoles)
+                    <form action="{{ route('admin.staff.update', $person) }}" method="POST"
+                          enctype="multipart/form-data"
+                          class="p-6 grid gap-5 lg:grid-cols-[1fr_200px_200px_auto] lg:items-end">
+                        @csrf @method('PUT')
+                @else
+                    <div class="p-6 grid gap-5 lg:grid-cols-[1fr_200px_200px_auto] lg:items-end">
+                @endif
+
+                    {{-- Staff info + photo upload --}}
+                    <div>
+                        <div class="flex items-start gap-4">
+                            @if($person->profilePhotoUrl())
+                                <img src="{{ $person->profilePhotoUrl() }}" alt="{{ $person->displayName() }}"
+                                     class="h-14 w-14 rounded-full border-2 border-slate-200 object-cover shrink-0">
+                            @else
+                                <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full
+                                            border-2 border-slate-200 bg-violet-100 text-sm font-bold text-violet-800">
+                                    {{ $person->profileInitials() }}
+                                </div>
+                            @endif
+                            <div>
+                                <p class="font-semibold text-slate-900">{{ $person->displayName() }}</p>
+                                <p class="text-sm text-slate-500">{{ $person->email }}</p>
+                                <p class="text-xs text-slate-400 mt-0.5">{{ $person->phone }}</p>
+                                <span class="pb-badge pb-badge-warning mt-2 text-[10px]">
+                                    Requested: {{ $roles[$person->requested_role] ?? $person->requested_role ?? 'N/A' }}
+                                    {{ $person->other_role ? '· '.$person->other_role : '' }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <p class="pb-label">Profile photo (optional)</p>
+                            <livewire:uploads.secure-image-upload
+                                :key="'pending-photo-'.$person->id"
+                                input-name="photo_upload_path"
+                                directory="staff-photos"
+                                :max-size-kb="2048"
+                                :multiple="false"
+                            />
+                        </div>
+                    </div>
+
+                    {{-- Role select --}}
+                    <div class="pb-field">
+                        <label class="pb-label" for="role-{{ $person->id }}">Final role</label>
+                        <select id="role-{{ $person->id }}" name="role" @disabled(!$canAssignRoles)
+                            class="pb-select @disabled(!$canAssignRoles) disabled:opacity-60">
+                            @foreach($roles as $value => $label)
+                                <option value="{{ $value }}" @selected(old('role', $person->requested_role) === $value)>
+                                    {{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Department info --}}
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm">
+                        <p class="font-semibold text-slate-800 mb-1">Department</p>
+                        <p class="text-xs text-slate-500">Auto-derived from role selection.</p>
+                        <p class="mt-2 text-sm font-medium text-slate-700">{{ $person->department ?? 'Unassigned' }}</p>
+                    </div>
+
+                    {{-- Actions --}}
+                    <div class="flex flex-wrap gap-2">
+                        @if($canAssignRoles)
+                            <label class="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 cursor-pointer hover:border-emerald-300 transition">
+                                <input type="checkbox" name="is_active" value="1" checked
+                                       class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                                Approve
+                            </label>
+                            <button type="submit" class="pb-btn pb-btn-md pb-btn-primary text-sm">
+                                Save & Activate
+                            </button>
+                        @else
+                            <span class="pb-badge pb-badge-secondary">Super Admin assigns role</span>
+                        @endif
+                    </div>
+
+                @if($canAssignRoles)
+                    </form>
+                @else
+                    </div>
+                @endif
+            @empty
+                <div class="pb-empty m-6">
+                    <svg class="pb-empty-icon h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <p class="pb-empty-title">No pending registrations</p>
+                    <p class="pb-empty-body">All staff registrations have been reviewed.</p>
+                </div>
+            @endforelse
+        </div>
+        <div class="border-t border-slate-100 px-6 py-4">{{ $pendingStaff->links() }}</div>
+    </section>
+
+    {{-- ════════ ACTIVE STAFF DIRECTORY ════════ --}}
+    <section class="animate-fade-in-up delay-300 pb-card overflow-hidden">
+        <div class="border-b border-slate-100 p-6">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <div class="h-4 w-1 rounded-full bg-emerald-500"></div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Staff Directory</p>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-900">Approved staff</h2>
+                    <p class="mt-1 text-sm text-slate-500">
+                        {{ number_format($staffStats['active']) }} active employees — manage roles, photos, and employment status.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-scroll-container overflow-x-auto">
+            <table class="pb-table w-full min-w-[1200px]">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Role</th>
+                        <th>Department</th>
+                        <th>Status</th>
+                        <th>Employment</th>
+                        <th>Approved</th>
+                        <th>Profile Photo</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($staff as $person)
+                        <tr>
+                            <td>
+                                <div class="flex items-center gap-3">
+                                    @if($person->profilePhotoUrl())
+                                        <img src="{{ $person->profilePhotoUrl() }}" alt="{{ $person->displayName() }}"
+                                             class="h-10 w-10 rounded-full border border-slate-200 object-cover shrink-0">
+                                    @else
+                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full
+                                                    bg-violet-100 text-xs font-bold text-violet-800">
+                                            {{ $person->profileInitials() }}
+                                        </div>
+                                    @endif
+                                    <div>
+                                        <p class="font-semibold text-slate-900 text-sm">{{ $person->displayName() }}</p>
+                                        <p class="text-xs text-slate-400">{{ $person->email }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="text-sm font-medium text-slate-700">{{ $roles[$person->role] ?? $person->role }}</span>
+                            </td>
+                            <td>
+                                <span class="text-sm text-slate-600">{{ $person->department ?? '—' }}</span>
+                            </td>
+                            <td>
+                                <span class="pb-badge {{ $person->is_active ? 'pb-badge-success' : 'pb-badge-danger' }} text-[10px]">
+                                    {{ $person->is_active ? 'Active' : 'Inactive' }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="pb-badge {{ match($person->employment_status ?? 'active') { 'active'=>'pb-badge-success','suspended'=>'pb-badge-warning','terminated'=>'pb-badge-danger', default=>'pb-badge-secondary' } }} text-[10px]">{{ $person->employmentStatusLabel() }}</span>
+                                @if($person->employment_status_changed_at)
+                                    <p class="text-[10px] text-slate-400 mt-1">{{ $person->employment_status_changed_at->format('M j, Y') }}</p>
+                                @endif
+                            </td>
+                            <td>
+                                <span class="text-xs text-slate-500">{{ $person->approved_at?->format('M j, Y') ?? '—' }}</span>
+                            </td>
+                            <td>
+                                @if($canAssignRoles)
+                                    <form action="{{ route('admin.staff.update', $person) }}" method="POST"
+                                          enctype="multipart/form-data"
+                                          class="flex items-start gap-2">
+                                        @csrf @method('PUT')
+                                        <input type="hidden" name="role" value="{{ $person->role }}">
+                                        <input type="hidden" name="department" value="{{ $person->department }}">
+                                        <input type="hidden" name="is_active" value="{{ $person->is_active ? 1 : 0 }}">
+                                        <div class="min-w-[180px]">
+                                            <livewire:uploads.secure-image-upload
+                                                :key="'staff-photo-'.$person->id"
+                                                input-name="photo_upload_path"
+                                                directory="staff-photos"
+                                                :max-size-kb="2048"
+                                                :multiple="false"
+                                            />
+                                        </div>
+                                        <button type="submit" class="pb-btn pb-btn-sm pb-btn-primary text-xs shrink-0">
+                                            Upload
+                                        </button>
+                                    </form>
+                                @else
+                                    <span class="pb-badge pb-badge-secondary text-[10px]">Super Admin only</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($canManageEmployment)
+                                    <form action="{{ route('admin.staff.employment-status', $person) }}" method="POST"
+                                          class="space-y-2 min-w-[200px]">
+                                        @csrf @method('PATCH')
+                                        <select name="employment_status" class="pb-select text-xs h-9 py-0">
+                                            <option value="active"     @selected(($person->employment_status ?? 'active') === 'active')>Onboard / Active</option>
+                                            <option value="suspended"  @selected(($person->employment_status ?? '') === 'suspended')>Suspend</option>
+                                            <option value="terminated" @selected(($person->employment_status ?? '') === 'terminated')>Terminate</option>
+                                        </select>
+                                        <input name="employment_status_reason" value="{{ $person->employment_status_reason }}"
+                                               class="pb-input text-xs h-9 py-0" placeholder="Reason (optional)">
+                                        <button type="submit" class="pb-btn pb-btn-sm pb-btn-ink text-xs w-full">Apply</button>
+                                    </form>
+                                @else
+                                    <span class="pb-badge pb-badge-secondary text-[10px]">HR / Super Admin</span>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8" class="py-12 text-center">
+                                <div class="pb-empty border-0 bg-transparent">
+                                    <p class="pb-empty-title">No approved staff yet</p>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        <div class="border-t border-slate-100 px-6 py-4">{{ $staff->links() }}</div>
+    </section>
+
+</div>
 @endsection

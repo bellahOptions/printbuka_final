@@ -149,13 +149,13 @@ class SecureImageUpload extends Component
 
             if ($this->isCloudinary) {
                 $result = $cloudinaryService->storeToBoth($upload, $this->directory, $this->directory);
-                $this->storedPaths[] = $result['cloudinary_public_id'] ?? $result['path'];
+                $newPath = $result['cloudinary_public_id'] ?? $result['path'];
             } else {
-                $path = $upload->store($this->directory, 'public');
-                $this->storedPaths[] = $path;
+                $newPath = $upload->store($this->directory, 'public');
             }
 
-            LivewireSecureUploads::register(request(), (string) $this->storedPath);
+            $this->storedPaths[] = $newPath;
+            LivewireSecureUploads::register(request(), (string) $newPath);
         }
 
         $this->storedPaths = collect($this->storedPaths)

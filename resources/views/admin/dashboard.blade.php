@@ -1,447 +1,467 @@
 @extends('layouts.admin')
 
-@section('title', 'Admin Dashboard | Printbuka')
+@section('title', 'Dashboard | Printbuka Admin')
 
 @section('content')
-    <div class="mx-auto max-w-7xl space-y-6 lg:space-y-8">
+@php
+    $admin = auth()->user();
+@endphp
+<div class="mx-auto max-w-[1440px] space-y-6">
 
-        <!-- Hero Section -->
-        <section class="fade-in-up rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white via-white to-pink-50/30 p-5 sm:p-8 shadow-sm">
-            <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-                <div class="space-y-3">
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span class="inline-flex items-center rounded-full bg-pink-100 px-3 py-1 text-[0.65rem] font-black uppercase tracking-wider text-pink-700">
-                            {{ $adminRoleLabel }}
-                        </span>
-                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500">
-                            <span class="relative flex h-2 w-2">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                            </span>
-                            Live
-                        </span>
-                    </div>
-                    <!-- Responsive heading: smaller on mobile -->
-                    <h1 class="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl lg:text-5xl xl:text-6xl">
-                        {{ $adminRoleLabel }} <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-700 to-pink-500">Dashboard</span>
-                    </h1>
-                    <p class="max-w-xl text-sm leading-relaxed text-slate-600 sm:text-base lg:max-w-3xl">
-                        Finance, live job statistics, ongoing production jobs, staff performance, and minimal live activity in one clean workspace.
-                    </p>
+    {{-- ════════════════════════════════════════════════
+         HERO: Welcome + Quick Actions
+    ════════════════════════════════════════════════ --}}
+    <section class="animate-fade-in-up pb-card overflow-hidden">
+        {{-- Accent stripe --}}
+        <div class="h-1 w-full bg-gradient-to-r from-brand-600 via-brand-500 to-pink-400"></div>
+        <div class="flex flex-col gap-5 p-6 lg:flex-row lg:items-center lg:justify-between">
+            <div class="space-y-2">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="pb-badge pb-badge-primary">{{ $adminRoleLabel }}</span>
+                    <span class="flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                        <span class="pb-status-dot pb-status-online"><span></span><span></span></span>
+                        Live workspace
+                    </span>
                 </div>
-                <!-- Action buttons: stack on mobile, row on sm+ -->
-                <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                    @if (auth()->user()->canAdmin('orders.create'))
-                        <a href="{{ route('admin.orders.create') }}" class="btn-primary group relative inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-pink-600 to-pink-700 px-5 py-3 text-sm font-black text-white shadow-lg shadow-pink-600/20 transition-all duration-300 hover:shadow-xl hover:shadow-pink-600/30 hover:scale-105">
-                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                            </svg>
-                            Create Job
-                        </a>
-                    @endif
-                    <a href="{{ route('admin.orders.index') }}" class="group relative inline-flex items-center justify-center gap-2 rounded-xl border-2 border-slate-200 bg-white/80 px-5 py-3 text-sm font-black text-slate-800 transition-all duration-300 hover:border-pink-300 hover:text-pink-700 hover:shadow-lg">
-                        <svg class="w-5 h-5 shrink-0 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                <h1 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                    Good {{ now()->hour < 12 ? 'morning' : (now()->hour < 17 ? 'afternoon' : 'evening') }},
+                    <span class="text-brand-700">{{ $admin->first_name ?? $admin->displayName() }}</span>
+                </h1>
+                <p class="text-sm text-slate-500 max-w-lg">
+                    Here's what's happening across production, sales, and your team today.
+                </p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                @if($admin->canAdmin('orders.create'))
+                    <a href="{{ route('admin.orders.create') }}"
+                       class="pb-btn pb-btn-md pb-btn-primary text-sm">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
-                        Open Job Tracker
+                        Create Job
                     </a>
-                </div>
-            </div>
-        </section>
-
-        <!-- Today's Tasks -->
-        <section class="fade-in-up section-delay-1 rounded-2xl border border-slate-200/60 bg-white p-5 sm:p-6 shadow-sm">
-            <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-                <div>
-                    <h2 class="mt-2 text-2xl font-black text-slate-950">Tasks due for you today</h2>
-                    <p class="mt-2 text-sm leading-6 text-slate-600">Review your assigned tasks and move them to review once complete.</p>
-                </div>
-                
-            </div>
-
-            @if ($todayTasks->isNotEmpty())
-                <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                    @foreach ($todayTasks->take(3) as $todo)
-                        <article class="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                            <div class="flex items-center justify-between gap-3">
-                                <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
-                                    {{
-                                        match ($todo->status) {
-                                            'pending' => 'Open',
-                                            'working_on_it' => 'Working',
-                                            'completed', 'review_requested' => 'Completed',
-                                            'reviewed', 'approved', 'rejected' => 'Reviewed',
-                                            default => ucfirst(str_replace('_', ' ', (string) $todo->status)),
-                                        }
-                                    }}
-                                </p>
-                                <div class="flex items-center gap-2">
-        <span class="rounded-full px-2 py-0.5 text-[0.65rem] font-black uppercase tracking-wider
-            {{ $todo->priority === 'high' ? 'bg-red-100 text-red-800' : ($todo->priority === 'medium' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800') }}">
-            {{ ucfirst($todo->priority) }}
-        </span>
-        <span class="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-700 ring-1 ring-slate-200">Due {{ $todo->due_date->format('M j') }}</span>
-    </div>
-                            </div>
-                            <h3 class="mt-4 text-lg font-black text-slate-950">{{ $todo->task }}</h3>
-                            <p class="mt-2 text-sm leading-6 text-slate-600">Assigned by {{ $todo->assigner?->displayName() ?? 'System' }}</p>
-                            @if ($todo->order)
-                                <p class="mt-3 text-sm font-semibold text-pink-700">Order: {{ $todo->order->job_order_number ?? $todo->order->displayNumber() }}</p>
-                            @endif
-                        </article>
-                    @endforeach
-                </div>
-                <div class="mt-6 text-right">
-                    <a href="{{ route('admin.tasks.index') }}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 transition hover:border-pink-300 hover:text-pink-700">View all tasks</a>
-                </div>
-            @else
-                <div class="mt-6 rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm font-semibold text-slate-600">
-                    No tasks are scheduled for today. Your task list will appear here once assignments are made.
-                </div>
-            @endif
-        </section>
-
-        <!-- Real-time Stats -->
-        <div class="fade-in-up section-delay-2">
-            <livewire:admin.realtime-stats />
-        </div>
-
-        <!-- Ongoing Jobs Table -->
-        <section class="fade-in-up section-delay-2 card-hover rounded-2xl border border-slate-200/60 bg-white p-4 sm:p-6 shadow-sm">
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                    <div class="flex items-center gap-3 mb-2">
-                        <span class="inline-flex items-center gap-1.5 rounded-full bg-cyan-50 px-3 py-1 text-[0.65rem] font-black uppercase tracking-wider text-cyan-700">
-                            <span class="relative flex h-2 w-2">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-                            </span>
-                            Live Queue
-                        </span>
-                    </div>
-                    <h2 class="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">Live production queue</h2>
-                    <p class="mt-1.5 text-sm leading-6 text-slate-600">Active work moving through the workbook process.</p>
-                </div>
-                <a href="{{ route('admin.orders.index') }}" class="group inline-flex items-center gap-2 self-start rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-black text-slate-800 transition-all duration-300 hover:border-pink-300 hover:text-pink-700 hover:bg-pink-50/50 sm:self-auto">
-                    View All Jobs
-                    <svg class="w-4 h-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                @endif
+                <a href="{{ route('admin.orders.index') }}" class="pb-btn pb-btn-md pb-btn-outline text-sm">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                     </svg>
+                    Job Tracker
                 </a>
             </div>
+        </div>
+    </section>
 
-            <!-- Scroll-hint wrapper gives a fade on the right edge to signal scrollability -->
-            <div class="mt-5 table-scroll-container overflow-x-auto rounded-xl border border-slate-100 -mx-1 px-1">
-                <table class="w-full min-w-[700px] text-left text-sm">
-                    <thead>
-                        <tr class="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100/50">
-                            <th class="px-4 py-3.5 text-xs font-black uppercase tracking-wider text-slate-500">Job</th>
-                            <th class="px-4 py-3.5 text-xs font-black uppercase tracking-wider text-slate-500">Client</th>
-                            <th class="px-4 py-3.5 text-xs font-black uppercase tracking-wider text-slate-500 hidden sm:table-cell">Product</th>
-                            <th class="px-4 py-3.5 text-xs font-black uppercase tracking-wider text-slate-500">Status</th>
-                            <th class="px-4 py-3.5 text-xs font-black uppercase tracking-wider text-slate-500 hidden md:table-cell">Invoice</th>
-                            <th class="px-4 py-3.5 text-xs font-black uppercase tracking-wider text-slate-500 hidden lg:table-cell">Phase Approval</th>
-                            <th class="px-4 py-3.5 text-xs font-black uppercase tracking-wider text-slate-500"></th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @forelse ($recentOrders as $order)
-                            <tr class="table-row-hover group">
-                                <td class="px-4 py-4">
-                                    <p class="font-black text-slate-950 text-xs sm:text-sm">{{ $order->job_order_number ?? $order->displayNumber() }}</p>
-                                    <p class="mt-0.5 text-xs font-semibold text-slate-500">{{ $order->created_at->format('M j, Y') }}</p>
-                                    <p class="mt-0.5 text-xs font-semibold text-slate-500">By {{ $order->creatorAdmin?->displayName() ?? $order->briefReceiver?->displayName() ?? 'System' }}</p>
-                                </td>
-                                <td class="px-4 py-4">
-                                    <p class="font-black text-slate-900 text-xs sm:text-sm">{{ $order->customer_name }}</p>
-                                    <p class="mt-0.5 text-xs font-semibold text-slate-500 hidden sm:block">{{ $order->customer_email }}</p>
-                                </td>
-                                <td class="px-4 py-4 hidden sm:table-cell">
-                                    <span class="font-semibold text-slate-700 text-sm">{{ $order->product?->name ?? 'Custom order' }}</span>
-                                </td>
-                                <td class="px-4 py-4">
-                                    <span class="status-badge bg-cyan-50 text-cyan-800">
-                                        {{ $order->status }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-4 hidden md:table-cell">
-                                    <span class="font-semibold text-slate-700 text-sm">{{ $order->invoice?->invoice_number ?? 'Pending' }}</span>
-                                </td>
-                                <td class="px-4 py-4 hidden lg:table-cell">
-                                    <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-700">
-                                        <span class="w-1.5 h-1.5 shrink-0 rounded-full bg-amber-400"></span>
-                                        {{ $order->phase_approval_status ?? 'Pending Operations Approval' }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-4 text-right">
-                                    <a href="{{ route('admin.orders.show', $order) }}" class="group inline-flex items-center gap-1 font-black text-pink-700 transition-all duration-300 hover:text-pink-800 text-sm whitespace-nowrap">
-                                        Open
-                                        <svg class="w-4 h-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                        </svg>
-                                    </a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="px-5 py-14 text-center">
-                                    <div class="flex flex-col items-center gap-3">
-                                        <svg class="w-12 h-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
-                                        </svg>
-                                        <p class="text-slate-500 font-semibold">No active jobs yet.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </section>
+    {{-- ════════════════════════════════════════════════
+         ORM KPIs — Order / Operations Resource Metrics
+    ════════════════════════════════════════════════ --}}
+    <div class="animate-fade-in-up delay-100">
+        <div class="mb-3 flex items-center gap-2">
+            <div class="h-4 w-1 rounded-full bg-brand-600"></div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Operations (ORM)</p>
+        </div>
+        <livewire:admin.realtime-stats />
+    </div>
 
-        <section class="fade-in-up section-delay-3 card-hover rounded-2xl border border-slate-200/60 bg-white p-4 sm:p-6 shadow-sm">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                    <p class="text-sm font-black uppercase tracking-wide text-slate-500">Product Analytics</p>
-                    <h2 class="mt-1 text-2xl font-black text-slate-950 sm:text-3xl">Most Viewed Products</h2>
+    {{-- ════════════════════════════════════════════════
+         TODAY'S TASKS
+    ════════════════════════════════════════════════ --}}
+    <section class="animate-fade-in-up delay-200 pb-card">
+        <div class="flex flex-col gap-4 p-6 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <div class="h-4 w-1 rounded-full bg-amber-500"></div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Task Management</p>
                 </div>
-                <a href="{{ route('admin.products.index') }}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-black text-slate-800 transition hover:border-pink-300 hover:text-pink-700">
+                <h2 class="text-xl font-bold text-slate-900">Your tasks today</h2>
+                <p class="mt-1 text-sm text-slate-500">Assigned tasks due for completion today.</p>
+            </div>
+            <a href="{{ route('admin.tasks.index') }}"
+               class="pb-btn pb-btn-sm pb-btn-outline self-start text-xs">
+                View All Tasks
+            </a>
+        </div>
+
+        @if($todayTasks->isNotEmpty())
+            @php
+                $taskStatusColors = ['pending'=>'pb-badge-warning','working_on_it'=>'pb-badge-info','completed'=>'pb-badge-success','review_requested'=>'pb-badge-success','reviewed'=>'pb-badge-secondary','approved'=>'pb-badge-success','rejected'=>'pb-badge-danger'];
+                $taskStatusLabels = ['pending'=>'Open','working_on_it'=>'In Progress','completed'=>'Done','review_requested'=>'Review','reviewed'=>'Reviewed','approved'=>'Approved','rejected'=>'Rejected'];
+            @endphp
+            <div class="grid gap-3 px-6 pb-6 sm:grid-cols-2 xl:grid-cols-3">
+                @foreach($todayTasks->take(3) as $todo)
+                    <article class="rounded-xl border border-slate-200 bg-slate-50 p-4 hover:border-slate-300 transition-colors">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex items-center gap-1.5">
+                                <span class="pb-badge {{ $taskStatusColors[$todo->status] ?? 'pb-badge-secondary' }} text-[10px]">
+                                    {{ $taskStatusLabels[$todo->status] ?? ucfirst(str_replace('_',' ',$todo->status)) }}
+                                </span>
+                            </div>
+                            <span class="pb-badge {{ $todo->priority === 'high' ? 'pb-badge-danger' : ($todo->priority === 'medium' ? 'pb-badge-warning' : 'pb-badge-info') }} text-[10px]">
+                                {{ ucfirst($todo->priority) }}
+                            </span>
+                        </div>
+                        <h3 class="mt-3 text-sm font-semibold text-slate-900 leading-snug">{{ $todo->task }}</h3>
+                        <div class="mt-2.5 flex items-center justify-between gap-2">
+                            <p class="text-xs text-slate-500">By {{ $todo->assigner?->displayName() ?? 'System' }}</p>
+                            <span class="text-xs font-medium text-slate-600">Due {{ $todo->due_date->format('M j') }}</span>
+                        </div>
+                        @if($todo->order)
+                            <p class="mt-2 text-xs font-medium text-brand-700">
+                                Job: {{ $todo->order->job_order_number ?? $todo->order->displayNumber() }}
+                            </p>
+                        @endif
+                    </article>
+                @endforeach
+            </div>
+        @else
+            <div class="pb-empty mx-6 mb-6">
+                <svg class="pb-empty-icon h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                </svg>
+                <p class="pb-empty-title">All clear — no tasks today</p>
+                <p class="pb-empty-body">Tasks assigned to you will appear here once created.</p>
+            </div>
+        @endif
+    </section>
+
+    {{-- ════════════════════════════════════════════════
+         ORM — LIVE PRODUCTION QUEUE
+    ════════════════════════════════════════════════ --}}
+    <section class="animate-fade-in-up delay-200 pb-card">
+        <div class="flex flex-col gap-4 p-6 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <div class="h-4 w-1 rounded-full bg-cyan-500"></div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">ORM — Live Queue</p>
+                </div>
+                <h2 class="text-xl font-bold text-slate-900">Production pipeline</h2>
+                <p class="mt-1 text-sm text-slate-500">Active jobs moving through the production workbook.</p>
+            </div>
+            <a href="{{ route('admin.orders.index') }}" class="pb-btn pb-btn-sm pb-btn-outline self-start text-xs">
+                View All Jobs
+            </a>
+        </div>
+
+        <div class="table-scroll-container overflow-x-auto border-t border-slate-100">
+            <table class="pb-table w-full min-w-[720px]">
+                <thead>
+                    <tr>
+                        <th>Job</th>
+                        <th>Client</th>
+                        <th class="hidden sm:table-cell">Product</th>
+                        <th>Status</th>
+                        <th class="hidden md:table-cell">Invoice</th>
+                        <th class="hidden lg:table-cell">Phase</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($recentOrders as $order)
+                        <tr>
+                            <td>
+                                <p class="font-semibold text-slate-900 text-sm">{{ $order->job_order_number ?? $order->displayNumber() }}</p>
+                                <p class="text-xs text-slate-400 mt-0.5">{{ $order->created_at->format('M j, Y') }}</p>
+                            </td>
+                            <td>
+                                <p class="font-medium text-slate-800 text-sm">{{ $order->customer_name }}</p>
+                                <p class="text-xs text-slate-400 mt-0.5 hidden sm:block">{{ $order->customer_email }}</p>
+                            </td>
+                            <td class="hidden sm:table-cell">
+                                <span class="text-sm text-slate-600">{{ $order->product?->name ?? 'Custom' }}</span>
+                            </td>
+                            <td>
+                                <span class="pb-badge pb-badge-cyan text-[10px]">{{ $order->status }}</span>
+                            </td>
+                            <td class="hidden md:table-cell">
+                                <span class="text-sm {{ $order->invoice ? 'text-slate-700 font-medium' : 'text-slate-400' }}">
+                                    {{ $order->invoice?->invoice_number ?? 'Pending' }}
+                                </span>
+                            </td>
+                            <td class="hidden lg:table-cell">
+                                <div class="flex items-center gap-1.5 text-xs text-slate-600">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-amber-400 shrink-0"></span>
+                                    {{ $order->phase_approval_status ?? 'Awaiting approval' }}
+                                </div>
+                            </td>
+                            <td class="text-right">
+                                <a href="{{ route('admin.orders.show', $order) }}"
+                                   class="text-xs font-semibold text-brand-700 hover:text-brand-900 transition-colors">
+                                    Open →
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="py-12 text-center">
+                                <div class="pb-empty border-0 bg-transparent py-6">
+                                    <svg class="pb-empty-icon h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                              d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                                    </svg>
+                                    <p class="pb-empty-title">No active jobs</p>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    {{-- ════════════════════════════════════════════════
+         CRM — CUSTOMER & PRODUCT ANALYTICS
+    ════════════════════════════════════════════════ --}}
+    <section class="animate-fade-in-up delay-300 pb-card">
+        <div class="p-6 pb-0">
+            <div class="flex items-center gap-2 mb-1">
+                <div class="h-4 w-1 rounded-full bg-violet-500"></div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">CRM — Product Intelligence</p>
+            </div>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h2 class="text-xl font-bold text-slate-900">Product analytics</h2>
+                <a href="{{ route('admin.products.index') }}" class="pb-btn pb-btn-sm pb-btn-outline text-xs self-start">
                     Manage Products
                 </a>
             </div>
+        </div>
 
-            <div class="mt-5 grid gap-6 lg:grid-cols-2">
-                {{-- Product Views Bar Chart --}}
-                <div class="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
-                    <p class="text-xs font-black uppercase tracking-wide text-slate-500 mb-4">Product Views (Top 10)</p>
-                    <div class="space-y-2">
-                        @forelse ($productChartData as $item)
-                            @php
-                                $maxViews = $productChartData->max('views') ?: 1;
-                                $barWidth = min(100, max(2, ($item['views'] / $maxViews) * 100));
-                            @endphp
-                            <div>
-                                <div class="flex items-center justify-between text-xs mb-1">
-                                    <span class="font-bold text-slate-700 truncate max-w-[180px]">{{ $item['name'] }}</span>
-                                    <span class="font-black text-pink-700">{{ number_format($item['views']) }}</span>
-                                </div>
-                                <div class="h-2 w-full rounded-full bg-slate-200 overflow-hidden">
-                                    <div class="h-full rounded-full bg-gradient-to-r from-pink-500 to-rose-600 transition-all duration-700" style="width: {{ $barWidth }}%"></div>
-                                </div>
+        <div class="p-6 grid gap-5 lg:grid-cols-2">
+            {{-- Views bar chart --}}
+            @php $maxV = $productChartData->max('views') ?: 1; @endphp
+            <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
+                <p class="pb-stat-label mb-4">Top 10 products by views</p>
+                <div class="space-y-3">
+                    @forelse($productChartData as $item)
+                        <div>
+                            <div class="flex items-center justify-between text-xs mb-1">
+                                <span class="font-medium text-slate-700 truncate max-w-[200px]">{{ $item['name'] }}</span>
+                                <span class="font-bold text-brand-700 shrink-0 ml-2">{{ number_format($item['views']) }}</span>
                             </div>
-                        @empty
-                            <p class="text-sm font-semibold text-slate-500 text-center py-6">No product views recorded yet.</p>
-                        @endforelse
-                    </div>
-                </div>
-
-                {{-- Category Breakdown --}}
-                <div class="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
-                    <p class="text-xs font-black uppercase tracking-wide text-slate-500 mb-4">Products by Category</p>
-                    <div class="space-y-2">
-                        @forelse ($productCategoryBreakdown as $cat)
-                            @php
-                                $maxCat = $productCategoryBreakdown->max('count') ?: 1;
-                                $catBarWidth = min(100, max(2, ($cat['count'] / $maxCat) * 100));
-                            @endphp
-                            <div>
-                                <div class="flex items-center justify-between text-xs mb-1">
-                                    <span class="font-bold text-slate-700">{{ $cat['name'] }}</span>
-                                    <span class="font-black text-cyan-700">{{ $cat['count'] }}</span>
-                                </div>
-                                <div class="h-2 w-full rounded-full bg-slate-200 overflow-hidden">
-                                    <div class="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-700" style="width: {{ $catBarWidth }}%"></div>
-                                </div>
+                            <div class="pb-progress">
+                                <div class="pb-progress-primary" style="width:{{ min(100, max(2, ($item['views'] / $maxV) * 100)) }}%"></div>
                             </div>
-                        @empty
-                            <p class="text-sm font-semibold text-slate-500 text-center py-6">No categories available.</p>
-                        @endforelse
-                    </div>
+                        </div>
+                    @empty
+                        <p class="text-sm text-slate-400 text-center py-4">No product views yet.</p>
+                    @endforelse
                 </div>
             </div>
 
-            {{-- Product Views Table --}}
-            <div class="mt-5 overflow-x-auto rounded-xl border border-slate-100">
-                <table class="w-full min-w-[540px] text-left text-sm">
-                    <thead>
-                        <tr class="border-b border-slate-200 bg-slate-50">
-                            <th class="px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-500">Product</th>
-                            <th class="px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-500">Category</th>
-                            <th class="px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-500">Views</th>
+            {{-- Category breakdown --}}
+            @php $maxC = $productCategoryBreakdown->max('count') ?: 1; @endphp
+            <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
+                <p class="pb-stat-label mb-4">Products by category</p>
+                <div class="space-y-3">
+                    @forelse($productCategoryBreakdown as $cat)
+                        <div>
+                            <div class="flex items-center justify-between text-xs mb-1">
+                                <span class="font-medium text-slate-700">{{ $cat['name'] }}</span>
+                                <span class="font-bold text-cyan-700 shrink-0 ml-2">{{ $cat['count'] }}</span>
+                            </div>
+                            <div class="pb-progress">
+                                <div class="pb-progress-info" style="width:{{ min(100, max(2, ($cat['count'] / $maxC) * 100)) }}%"></div>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-sm text-slate-400 text-center py-4">No categories yet.</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
+        {{-- Most viewed table --}}
+        <div class="border-t border-slate-100">
+            <table class="pb-table w-full min-w-[460px]">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>Views</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($mostViewedProducts as $product)
+                        <tr>
+                            <td class="font-medium text-slate-900">{{ $product->name }}</td>
+                            <td class="text-slate-500">{{ $product->category?->name ?? 'Uncategorized' }}</td>
+                            <td class="font-bold text-brand-700">{{ number_format((int)$product->view_count) }}</td>
                         </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @forelse ($mostViewedProducts as $product)
-                            <tr>
-                                <td class="px-4 py-3 font-black text-slate-900">{{ $product->name }}</td>
-                                <td class="px-4 py-3 font-semibold text-slate-600">{{ $product->category?->name ?? 'Uncategorized' }}</td>
-                                <td class="px-4 py-3 font-black text-pink-700">{{ number_format((int) $product->view_count) }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="3" class="px-4 py-10 text-center font-semibold text-slate-500">No product views recorded yet.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </section>
+                    @empty
+                        <tr>
+                            <td colspan="3" class="py-8 text-center text-sm text-slate-400">No views yet.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </section>
 
-        <!-- Staff Top Performers & Activity -->
-        @if (auth()->user()->canAdmin('*') || auth()->user()->canAdmin('staff.view'))
-        <section class="fade-in-up section-delay-3 card-hover rounded-2xl border border-slate-200/60 bg-white p-4 sm:p-6 shadow-sm">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                    <p class="text-sm font-black uppercase tracking-wide text-slate-500">Staff Performance</p>
-                    <h2 class="mt-1 text-2xl font-black text-slate-950 sm:text-3xl">Top Performers & Activity</h2>
+    {{-- ════════════════════════════════════════════════
+         ERM — STAFF PERFORMANCE
+    ════════════════════════════════════════════════ --}}
+    @if($admin->canAdmin('*') || $admin->canAdmin('staff.view'))
+        <section class="animate-fade-in-up delay-300 pb-card">
+            <div class="p-6 pb-0">
+                <div class="flex items-center gap-2 mb-1">
+                    <div class="h-4 w-1 rounded-full bg-violet-500"></div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">ERM — People Intelligence</p>
                 </div>
-                <a href="{{ route('admin.staff.index') }}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-black text-slate-800 transition hover:border-pink-300 hover:text-pink-700">
-                    Manage Staff
-                </a>
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <h2 class="text-xl font-bold text-slate-900">Staff performance</h2>
+                    <a href="{{ route('admin.staff.index') }}" class="pb-btn pb-btn-sm pb-btn-outline text-xs self-start">
+                        Manage Staff
+                    </a>
+                </div>
             </div>
 
-            <div class="mt-5 grid gap-6 lg:grid-cols-2">
-                {{-- Staff Activity Bar Chart --}}
-                <div class="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
-                    <p class="text-xs font-black uppercase tracking-wide text-slate-500 mb-4">Staff Activity (Last 7 Days)</p>
-                    <div class="space-y-2">
-                        @forelse ($staffChartData as $staff)
-                            @php
-                                $maxActivity = $staffChartData->max('activities') ?: 1;
-                                $staffBarWidth = min(100, max(2, ($staff['activities'] / $maxActivity) * 100));
-                            @endphp
+            <div class="p-6 grid gap-5 lg:grid-cols-2">
+                {{-- Activity bar --}}
+                @php $maxA = $staffChartData->max('activities') ?: 1; @endphp
+                <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
+                    <p class="pb-stat-label mb-4">Staff activity — last 7 days</p>
+                    <div class="space-y-3">
+                        @forelse($staffChartData as $staff)
                             <div>
                                 <div class="flex items-center justify-between text-xs mb-1">
-                                    <span class="font-bold text-slate-700 truncate max-w-[180px]">{{ $staff['name'] }}</span>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-[10px] font-semibold text-slate-400">{{ $staff['role'] }}</span>
-                                        <span class="font-black text-violet-700">{{ $staff['activities'] }}</span>
+                                    <span class="font-medium text-slate-700 truncate max-w-[160px]">{{ $staff['name'] }}</span>
+                                    <div class="flex items-center gap-2 shrink-0 ml-2">
+                                        <span class="text-slate-400 text-[10px]">{{ $staff['role'] }}</span>
+                                        <span class="font-bold text-violet-700">{{ $staff['activities'] }}</span>
                                     </div>
                                 </div>
-                                <div class="h-2 w-full rounded-full bg-slate-200 overflow-hidden">
-                                    <div class="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-600 transition-all duration-700" style="width: {{ $staffBarWidth }}%"></div>
+                                <div class="pb-progress">
+                                    <div class="pb-progress-purple" style="width:{{ min(100, max(2, ($staff['activities'] / $maxA) * 100)) }}%"></div>
                                 </div>
                             </div>
                         @empty
-                            <p class="text-sm font-semibold text-slate-500 text-center py-6">No staff activity recorded yet.</p>
+                            <p class="text-sm text-slate-400 text-center py-4">No activity data yet.</p>
                         @endforelse
                     </div>
                 </div>
 
-                {{-- Weekly Activity Trend --}}
-                <div class="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
-                    <p class="text-xs font-black uppercase tracking-wide text-slate-500 mb-4">Daily Activity Trend (7 Days)</p>
-                    @php
-                        $maxDaily = $weeklyStaffActivity->max('total') ?: 1;
-                        $dayLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                    @endphp
-                    <div class="flex items-end justify-between gap-2" style="min-height: 120px;">
-                        @forelse ($weeklyStaffActivity as $day)
-                            @php
-                                $dayBarHeight = max(4, ($day['total'] / max($maxDaily, 1)) * 100);
-                                $dayOfWeek = \Carbon\Carbon::parse($day['date'])->dayOfWeekIso;
-                                $dayLabel = $dayLabels[$dayOfWeek - 1] ?? $day['date'];
-                            @endphp
+                {{-- Weekly trend bars --}}
+                @php
+                    $maxD      = $weeklyStaffActivity->max('total') ?: 1;
+                    $dayLabels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+                @endphp
+                <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
+                    <p class="pb-stat-label mb-4">Daily activity trend (7 days)</p>
+                    <div class="flex items-end justify-between gap-1.5" style="min-height:100px">
+                        @forelse($weeklyStaffActivity as $day)
                             <div class="flex flex-col items-center gap-1 flex-1">
-                                <span class="text-[10px] font-black text-violet-700">{{ $day['total'] }}</span>
-                                <div class="w-full rounded-full bg-violet-100 overflow-hidden" style="height: {{ $dayBarHeight }}px; max-height: 100px;">
-                                    <div class="h-full w-full rounded-full bg-gradient-to-t from-violet-500 to-purple-500" style="height: {{ $dayBarHeight }}%"></div>
+                                <span class="text-[9px] font-bold text-violet-600">{{ $day['total'] }}</span>
+                                <div class="w-full rounded-t overflow-hidden bg-violet-100" style="height:{{ max(8, ($day['total'] / $maxD) * 90) }}px">
+                                    <div class="h-full w-full bg-gradient-to-t from-violet-600 to-violet-400"></div>
                                 </div>
-                                <span class="text-[9px] font-semibold text-slate-500">{{ $dayLabel }}</span>
+                                <span class="text-[9px] text-slate-400">{{ $dayLabels[\Carbon\Carbon::parse($day['date'])->dayOfWeekIso - 1] ?? '' }}</span>
                             </div>
                         @empty
-                            <p class="text-sm font-semibold text-slate-500 text-center py-6 w-full">No activity data for this week.</p>
+                            <p class="text-sm text-slate-400 w-full text-center">No data this week.</p>
                         @endforelse
                     </div>
                 </div>
             </div>
 
-            {{-- Top Staff Table --}}
-            <div class="mt-5 overflow-x-auto rounded-xl border border-slate-100">
-                <table class="w-full min-w-[540px] text-left text-sm">
+            {{-- Top staff table --}}
+            <div class="border-t border-slate-100">
+                <table class="pb-table w-full min-w-[460px]">
                     <thead>
-                        <tr class="border-b border-slate-200 bg-slate-50">
-                            <th class="px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-500">Staff</th>
-                            <th class="px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-500">Role</th>
-                            <th class="px-4 py-3 text-xs font-black uppercase tracking-wider text-slate-500">Activities (7 days)</th>
+                        <tr>
+                            <th>Staff Member</th>
+                            <th>Role</th>
+                            <th>Activities (7 days)</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @forelse ($topStaff as $staffMember)
+                    <tbody>
+                        @forelse($topStaff as $s)
                             <tr>
-                                <td class="px-4 py-3 font-black text-slate-900">{{ $staffMember->displayName() }}</td>
-                                <td class="px-4 py-3 font-semibold text-slate-600">{{ config('printbuka_admin.role_labels.'.$staffMember->role, $staffMember->role) }}</td>
-                                <td class="px-4 py-3 font-black text-violet-700">{{ number_format((int) $staffMember->staff_activities_count) }}</td>
+                                <td class="font-medium text-slate-900">{{ $s->displayName() }}</td>
+                                <td class="text-slate-500">{{ config('printbuka_admin.role_labels.'.$s->role, $s->role) }}</td>
+                                <td class="font-bold text-violet-700">{{ number_format((int)$s->staff_activities_count) }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="3" class="px-4 py-10 text-center font-semibold text-slate-500">No staff data available.</td>
+                                <td colspan="3" class="py-8 text-center text-sm text-slate-400">No staff data.</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
         </section>
-        @endif
+    @endif
 
-        <!-- Bottom Grid Sections — single column on mobile, two columns on xl -->
-        <section class="fade-in-up section-delay-4 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+    {{-- ════════════════════════════════════════════════
+         BOTTOM GRID: Role Menu + Workflow Phases
+    ════════════════════════════════════════════════ --}}
+    <div class="animate-fade-in-up delay-400 grid gap-5 xl:grid-cols-2">
 
-            <!-- Admin Menu Card -->
-            <div class="card-hover rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white to-pink-50/20 p-5 sm:p-6 shadow-sm">
+        {{-- Admin menu card --}}
+        <div class="pb-card overflow-hidden">
+            <div class="h-0.5 bg-gradient-to-r from-brand-600 to-pink-400"></div>
+            <div class="p-6">
                 <div class="flex items-center gap-2 mb-4">
-                    <svg class="w-5 h-5 shrink-0 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    <svg class="h-4 w-4 text-brand-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                     </svg>
-                    <p class="text-sm font-black uppercase tracking-wider text-pink-700">Admin Related Menu</p>
+                    <p class="pb-section-title text-base">{{ $adminRoleLabel }}</p>
                 </div>
-                <h2 class="text-2xl font-black text-slate-950 mb-5 sm:text-3xl">{{ $adminRoleLabel }}</h2>
-                <div class="divide-y divide-slate-100 border-y border-slate-100">
-                    @foreach ($dashboardMenus as $menu)
-                        <p class="py-3 text-sm font-black text-slate-800 hover:text-pink-700 transition-colors cursor-default">{{ $menu }}</p>
+                <p class="pb-section-subtitle mb-4">Your module access in this workspace.</p>
+                <ul class="divide-y divide-slate-100 border-y border-slate-100">
+                    @foreach($dashboardMenus as $menu)
+                        <li class="py-2.5 text-sm font-medium text-slate-700">{{ $menu }}</li>
                     @endforeach
-                </div>
-                @if (auth()->user()->canAdmin('staff.view'))
-                    <a href="{{ route('admin.staff.index') }}" class="mt-5 inline-flex items-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-800 transition-all duration-300 hover:border-pink-300 hover:text-pink-700 hover:shadow-md">
-                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                        </svg>
-                        Staff Access
-                        @if($pendingStaffCount)
-                            <span class="ml-1 rounded-full bg-pink-100 px-2 py-0.5 text-xs font-black text-pink-700">{{ $pendingStaffCount }}</span>
-                        @endif
-                    </a>
+                </ul>
+                @if($admin->canAdmin('staff.view'))
+                    <div class="mt-4">
+                        <a href="{{ route('admin.staff.index') }}"
+                           class="pb-btn pb-btn-md pb-btn-outline text-sm">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                            </svg>
+                            Staff Access
+                            @if(isset($pendingStaffCount) && $pendingStaffCount)
+                                <span class="pb-badge pb-badge-danger ml-1 text-[10px]">{{ $pendingStaffCount }}</span>
+                            @endif
+                        </a>
+                    </div>
                 @endif
             </div>
+        </div>
 
-            <!-- Workflow Phases Card -->
-            <div class="card-hover rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white to-cyan-50/20 p-5 sm:p-6 shadow-sm">
+        {{-- Workflow phases --}}
+        <div class="pb-card overflow-hidden">
+            <div class="h-0.5 bg-gradient-to-r from-cyan-500 to-blue-500"></div>
+            <div class="p-6">
                 <div class="flex items-center gap-2 mb-4">
-                    <svg class="w-5 h-5 shrink-0 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                    <svg class="h-4 w-4 text-cyan-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                     </svg>
-                    <p class="text-sm font-black uppercase tracking-wider text-cyan-700">Workflow</p>
+                    <p class="pb-section-title text-base">Workbook phases</p>
                 </div>
-                <h2 class="text-2xl font-black text-slate-950 mb-5 sm:text-3xl">Workbook phases</h2>
-                <!-- 1 col on mobile, 2 cols on sm+ -->
+                <p class="pb-section-subtitle mb-4">Production workflow status overview.</p>
                 <div class="grid gap-3 sm:grid-cols-2">
-                    @foreach ($workflowPhases as $phase)
-                        <article class="group rounded-xl border border-slate-200 bg-white p-4 transition-all duration-300 hover:shadow-md hover:border-cyan-200">
-                            <div class="flex items-start justify-between gap-2 mb-2">
-                                <p class="font-black text-slate-950 text-sm group-hover:text-cyan-700 transition-colors leading-snug">{{ $phase['phase'] }}</p>
-                                <span class="shrink-0 rounded-full bg-gradient-to-r {{ str_contains(strtolower($phase['status']), 'complete') ? 'from-emerald-100 to-emerald-200 text-emerald-800' : 'from-amber-100 to-amber-200 text-amber-800' }} px-2 py-0.5 text-[0.6rem] font-black uppercase tracking-wider">
+                    @foreach($workflowPhases as $phase)
+                        <article class="rounded-xl border border-slate-200 bg-slate-50/70 p-4 hover:border-slate-300 transition-colors">
+                            <div class="flex items-start justify-between gap-2 mb-1">
+                                <p class="text-sm font-semibold text-slate-900 leading-snug">{{ $phase['phase'] }}</p>
+                                <span class="pb-badge {{ str_contains(strtolower((string)$phase['status']), 'complete') ? 'pb-badge-success' : 'pb-badge-warning' }} text-[10px] shrink-0">
                                     {{ $phase['status'] }}
                                 </span>
                             </div>
-                            <p class="text-xs font-semibold text-slate-600 mb-3">{{ $phase['responsible'] }}</p>
-                            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                <div class="h-full bg-gradient-to-r from-cyan-500 to-cyan-600 rounded-full transition-all duration-500"
-                                     style="width: {{ str_contains(strtolower($phase['status']), 'complete') ? '100%' : (str_contains(strtolower($phase['status']), 'progress') ? '65%' : '25%') }}"></div>
+                            <p class="text-xs text-slate-500 mb-3">{{ $phase['responsible'] }}</p>
+                            <div class="pb-progress">
+                                <div class="pb-progress-{{ str_contains(strtolower((string)$phase['status']), 'complete') ? 'success' : (str_contains(strtolower((string)$phase['status']), 'progress') ? 'primary' : 'warning') }}"
+                                     style="width:{{ str_contains(strtolower((string)$phase['status']), 'complete') ? 100 : (str_contains(strtolower((string)$phase['status']), 'progress') ? 65 : 20) }}%"></div>
                             </div>
                         </article>
                     @endforeach
                 </div>
             </div>
-        </section>
+        </div>
     </div>
+
+</div>
 @endsection
