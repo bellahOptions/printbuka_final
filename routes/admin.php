@@ -106,6 +106,9 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::get('/finance-reports/download', [AdminFinanceController::class, 'downloadReport'])
             ->middleware('admin.permission:finance.view')
             ->name('finance.report-download');
+        Route::post('/finance-reports/email', [AdminFinanceController::class, 'emailReport'])
+            ->middleware('admin.permission:finance.view')
+            ->name('finance.report-email');
         Route::resource('finance', AdminFinanceController::class)
             ->except('show')
             ->whereNumber('finance')

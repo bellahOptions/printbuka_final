@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\FinanceReportMail;
 use App\Models\FinanceEntry;
 use App\Models\Order;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class AdminFinanceController extends Controller
@@ -143,6 +145,72 @@ class AdminFinanceController extends Controller
         };
 
         return $pdf->download('finance-'.strtolower($periodLabel).'-'.now()->format('Y-m-d').'.pdf');
+    }
+
+    public function emailReport(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'email'       => ['required', 'email', 'max:255'],
+            'period'      => ['required', 'in:weekly,monthly,custom'],
+            'type'        => ['nullable', 'string', 'max:50'],
+            'entry_type'  => ['nullable', 'string', 'max:50'],
+            'category'    => ['nullable', 'string', 'max:255'],
+            'date_from'   => ['nullable', 'date', 'required_if:period,custom'],
+            'date_to'     => ['nullable', 'date', 'required_if:period,custom', 'after_or_equal:date_from'],
+        ]);
+
+        $query = FinanceEntry::query()->with('order', 'recorder');
+
+        if ($request->period === 'weekly') {
+            $query->whereDate('entry_date', '>=', now()->startOfWeek())
+                  ->whereDate('entry_date', '<=', now()->endOfWeek());
+        } elseif ($request->period === 'monthly') {
+            $query->whereMonth('entry_date', now()->month)
+                  ->whereYear('entry_date', now()->year);
+        } elseif ($request->period === 'custom') {
+            if ($request->filled('date_from')) {
+                $query->whereDate('entry_date', '>=', $request->date('date_from'));
+            }
+            if ($request->filled('date_to')) {
+                $query->whereDate('entry_date', '<=', $request->date('date_to'));
+            }
+        }
+
+        if ($request->filled('type')) {
+            $query->where('type', $request->input('type'));
+        }
+        if ($request->filled('entry_type')) {
+            $query->where('entry_type', $request->input('entry_type'));
+        }
+        if ($request->filled('category')) {
+            $query->where('category', $request->input('category'));
+        }
+
+        $entries      = $query->orderByDesc('entry_date')->orderByDesc('created_at')->get();
+        $incomeTotal  = $entries->where('type', 'income')->sum('amount');
+        $expenseTotal = $entries->where('type', 'expense')->sum('amount');
+        $netTotal     = $incomeTotal - $expenseTotal;
+
+        $periodLabel = match ($request->period) {
+            'weekly'  => 'Weekly',
+            'monthly' => 'Monthly',
+            'custom'  => 'Report',
+        };
+
+        Mail::to($request->input('email'))->send(new FinanceReportMail(
+            entries:         $entries,
+            incomeTotal:     (float) $incomeTotal,
+            expenseTotal:    (float) $expenseTotal,
+            netTotal:        (float) $netTotal,
+            period:          $request->period,
+            dateFrom:        $request->input('date_from'),
+            dateTo:          $request->input('date_to'),
+            generatedByName: $request->user()?->displayName() ?? 'System',
+            periodLabel:     $periodLabel,
+        ));
+
+        return redirect()->route('admin.finance.report-form')
+            ->with('success', "Finance report sent to {$request->input('email')} successfully.");
     }
 
     public function download(FinanceEntry $finance)

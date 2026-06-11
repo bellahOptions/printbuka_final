@@ -3,16 +3,24 @@
 <head>
 <meta charset="utf-8">
 <title>Printbuka Finance Report</title>
+@php $fp = public_path('fonts'); @endphp
 <style>
+@@font-face { font-family:'Raleway'; font-weight:400; font-style:normal; src:url('{{ $fp }}/Raleway-Regular.ttf') format('truetype'); }
+@@font-face { font-family:'Raleway'; font-weight:700; font-style:normal; src:url('{{ $fp }}/Raleway-Bold.ttf') format('truetype'); }
+@@font-face { font-family:'Raleway'; font-weight:800; font-style:normal; src:url('{{ $fp }}/Raleway-ExtraBold.ttf') format('truetype'); }
+
 * { margin:0; padding:0; box-sizing:border-box; }
 
 body {
-    font-family: 'DejaVu Sans', Helvetica, Arial, sans-serif;
+    font-family: 'Raleway', 'DejaVu Sans', sans-serif;
     font-size: 10px;
     color: #1e293b;
     background: #ffffff;
     line-height: 1.5;
 }
+
+/* ₦ always renders via DejaVu Sans which contains the glyph */
+.naira { font-family: 'DejaVu Sans'; }
 
 /* ── PAGE WRAPPER ── */
 .page { padding: 30px 36px 28px; }
@@ -23,7 +31,7 @@ body {
 
 .brand-logo { height:46px; width:auto; }
 
-.brand-wordmark { font-size:26px; font-weight:900; color:#1e293b; }
+.brand-wordmark { font-size:26px; font-weight:800; color:#1e293b; }
 .brand-wordmark em { color:#db2777; font-style:normal; }
 .brand-tag { font-size:7.5px; color:#94a3b8; text-transform:uppercase; margin-top:3px; }
 
@@ -32,7 +40,7 @@ body {
     font-size:7.5px; font-weight:700; text-transform:uppercase;
     color:#94a3b8; margin-bottom:4px;
 }
-.doc-h1 { font-size:22px; font-weight:900; color:#be185d; }
+.doc-h1 { font-size:22px; font-weight:800; color:#be185d; }
 .doc-period { font-size:10px; color:#475569; font-weight:600; margin-top:3px; }
 
 /* ── ACCENT BAR ── */
@@ -88,7 +96,7 @@ body {
 .kpi-card.expense .kpi-label { color:#9f1239; }
 .kpi-card.net     .kpi-label { color:#3730a3; }
 
-.kpi-amount { font-size:20px; font-weight:900; display:block; line-height:1.1; }
+.kpi-amount { font-size:20px; font-weight:800; display:block; line-height:1.1; }
 .kpi-card.income .kpi-amount { color:#047857; }
 .kpi-card.expense .kpi-amount { color:#be123c; }
 .kpi-card.net     .kpi-amount { color:#1d4ed8; }
@@ -271,21 +279,21 @@ body {
         <td class="kpi-cell">
             <div class="kpi-card income">
                 <span class="kpi-label">Total Income</span>
-                <span class="kpi-amount">₦{{ number_format($incomeTotal, 2) }}</span>
+                <span class="kpi-amount"><span class="naira">₦</span>{{ number_format($incomeTotal, 2) }}</span>
                 <span class="kpi-sub">Payments received in period</span>
             </div>
         </td>
         <td class="kpi-cell">
             <div class="kpi-card expense">
                 <span class="kpi-label">Total Expenses</span>
-                <span class="kpi-amount">₦{{ number_format($expenseTotal, 2) }}</span>
+                <span class="kpi-amount"><span class="naira">₦</span>{{ number_format($expenseTotal, 2) }}</span>
                 <span class="kpi-sub">Outgoing payments in period</span>
             </div>
         </td>
         <td class="kpi-cell">
             <div class="kpi-card net">
                 <span class="kpi-label">Net {{ $netTotal >= 0 ? 'Profit' : 'Loss' }}</span>
-                <span class="kpi-amount">₦{{ number_format(abs($netTotal), 2) }}</span>
+                <span class="kpi-amount"><span class="naira">₦</span>{{ number_format(abs($netTotal), 2) }}</span>
                 <span class="kpi-sub">{{ $netTotal >= 0 ? 'Surplus for period' : 'Deficit for period' }}</span>
             </div>
         </td>
@@ -359,10 +367,10 @@ body {
                 </td>
                 <td>{{ $entry->category }}</td>
                 <td style="color:#475569;">{{ $entry->description }}</td>
-                <td style="color:#64748b;">{{ $entry->payee ?: '&mdash;' }}</td>
-                <td style="color:#64748b;">{{ $entry->payment_method ?: '&mdash;' }}</td>
+                <td style="color:#64748b;">{{ $entry->payee ?: '—' }}</td>
+                <td style="color:#64748b;">{{ $entry->payment_method ?: '—' }}</td>
                 <td class="r {{ $entry->type === 'income' ? 'income-amt' : 'expense-amt' }}">
-                    {{ $entry->type === 'income' ? '+' : '&minus;' }}&nbsp;₦{{ number_format($entry->amount, 2) }}
+                    {{ $entry->type === 'income' ? '+' : '-' }}&nbsp;<span class="naira">₦</span>{{ number_format($entry->amount, 2) }}
                 </td>
             </tr>
             @endforeach
@@ -373,12 +381,12 @@ body {
                     Period totals &mdash; {{ $entries->count() }} transactions
                 </td>
                 <td colspan="2" style="text-align:right; color:#64748b; font-size:8.5px; font-weight:600;">
-                    Income &nbsp;₦{{ number_format($incomeTotal, 2) }}
+                    Income &nbsp;<span class="naira">₦</span>{{ number_format($incomeTotal, 2) }}
                     &nbsp;&nbsp;|&nbsp;&nbsp;
-                    Expenses &nbsp;₦{{ number_format($expenseTotal, 2) }}
+                    Expenses &nbsp;<span class="naira">₦</span>{{ number_format($expenseTotal, 2) }}
                 </td>
                 <td class="r {{ $netTotal >= 0 ? 'income-amt' : 'expense-amt' }}" style="font-size:11px;">
-                    ₦{{ number_format($netTotal, 2) }}
+                    <span class="naira">₦</span>{{ number_format($netTotal, 2) }}
                 </td>
             </tr>
         </tfoot>

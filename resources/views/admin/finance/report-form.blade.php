@@ -166,6 +166,66 @@
 
         </form>
 
+        {{-- ════ SEND VIA EMAIL ════ --}}
+        @if (session('success'))
+            <div class="animate-fade-in-up pb-card border-l-4 border-emerald-500 bg-emerald-50 px-5 py-4 mt-4 lg:col-span-2 flex items-start gap-3">
+                <svg class="h-5 w-5 shrink-0 text-emerald-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <p class="text-sm font-semibold text-emerald-800">{{ session('success') }}</p>
+            </div>
+        @endif
+
+        <form id="emailReportForm"
+              action="{{ route('admin.finance.report-email') }}"
+              method="POST"
+              class="animate-fade-in-up delay-150 lg:col-span-2">
+            @csrf
+
+            {{-- Mirror the same period/filter fields as hidden inputs so they travel with the email form --}}
+            <div id="emailMirrorFields"></div>
+
+            <div class="pb-card overflow-hidden mt-4">
+                <div class="border-b border-slate-100 px-6 py-4">
+                    <div class="flex items-center gap-2 mb-1">
+                        <div class="h-4 w-1 rounded-full bg-pink-500"></div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Optional — Send by Email</p>
+                    </div>
+                    <h2 class="text-lg font-bold text-slate-900">Email this report</h2>
+                </div>
+
+                <div class="p-6">
+                    <div class="pb-field">
+                        <label class="pb-label" for="email">Recipient email address</label>
+                        <input type="email" id="email" name="email"
+                               class="pb-input mt-1 @error('email') border-red-400 @enderror"
+                               placeholder="e.g. finance@printbuka.com"
+                               value="{{ old('email') }}">
+                        @error('email')
+                            <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                        @enderror
+                        <p class="mt-1 text-xs text-slate-400">
+                            The PDF will be generated with the same period and filters selected above, then emailed as an attachment.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 px-6 py-4 flex items-center justify-between gap-4 bg-slate-50/50">
+                    <p class="text-xs text-slate-400">
+                        Report will be sent immediately.
+                    </p>
+                    <button type="submit"
+                            class="pb-btn pb-btn-md pb-btn-primary text-sm">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        Send Report via Email
+                    </button>
+                </div>
+            </div>
+        </form>
+
         {{-- ════ SIDEBAR ════ --}}
         <aside class="animate-fade-in-up delay-200 space-y-4">
 
@@ -257,6 +317,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
     radios.forEach(r => r.addEventListener('change', toggle));
     toggle();
+
+    // Mirror download-form fields into the email form before submit
+    const downloadForm = document.querySelector('form[action*="report-download"]');
+    const emailForm    = document.getElementById('emailReportForm');
+    const mirrorDiv    = document.getElementById('emailMirrorFields');
+
+    function syncMirrorFields() {
+        mirrorDiv.innerHTML = '';
+        const data = new FormData(downloadForm);
+        for (const [key, val] of data.entries()) {
+            if (key === '_token') continue;
+            const inp = document.createElement('input');
+            inp.type  = 'hidden';
+            inp.name  = key;
+            inp.value = val;
+            mirrorDiv.appendChild(inp);
+        }
+    }
+
+    // Sync on email form submit so values are always current
+    emailForm.addEventListener('submit', syncMirrorFields);
 });
 </script>
 @endpush
