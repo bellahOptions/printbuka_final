@@ -19,8 +19,8 @@ body {
     line-height: 1.5;
 }
 
-/* ₦ always renders via DejaVu Sans which contains the glyph */
-.naira { font-family: 'DejaVu Sans'; }
+/* ₦ pinned to DejaVu Sans Bold — Raleway lacks this glyph and DejaVu has no weight >700 */
+.naira { font-family: 'DejaVu Sans'; font-weight: bold; font-size: inherit; }
 
 /* ── PAGE WRAPPER ── */
 .page { padding: 30px 36px 28px; }
