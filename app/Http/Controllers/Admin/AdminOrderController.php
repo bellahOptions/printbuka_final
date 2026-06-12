@@ -37,7 +37,7 @@ class AdminOrderController extends Controller
         $user = request()->user();
 
         return view('admin.orders.index', [
-            'staffTodos' => $pendingJobReminderService->todosByStaff(),
+            'staffTodos' => collect($pendingJobReminderService->todosByStaff()),
             'canSendTodoReminders' => $this->canSendTodoReminders($user),
         ]);
     }
