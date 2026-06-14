@@ -7,9 +7,11 @@ use App\Mail\TaskAssignedMail;
 use App\Mail\TaskReviewOutcomeMail;
 use App\Models\DailyTodo;
 use App\Models\User;
+use App\Notifications\StaffPushNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class DailyTodoController extends Controller
@@ -100,6 +102,7 @@ $validated = $request->validate([
             $created++;
 
             $this->sendAssignmentEmail($assignee, $todo, $user);
+            $this->notifyAssignee($assignee, $todo, $user);
         }
 
         if ($created === 0) {
@@ -160,6 +163,7 @@ $validated = $request->validate([
 
         $todo->loadMissing(['assignee', 'reviewer', 'order', 'assigner']);
         $this->sendOutcomeEmailIfRequired($todo, $rating);
+        $this->notifyReviewOutcome($todo, $rating, $user);
 
         return back()->with('status', 'Task review submitted successfully.');
     }
@@ -177,6 +181,57 @@ $validated = $request->validate([
     private function canAssign(?User $user): bool
     {
         return $user !== null && in_array($user->role, ['operations_manager', 'super_admin'], true);
+    }
+
+    private function notifyAssignee(User $assignee, DailyTodo $todo, User $assigner): void
+    {
+        try {
+            $assignee->notify(new StaffPushNotification(
+                title: 'New Task Assigned',
+                body: $todo->task,
+                type: 'task_assigned',
+                data: [
+                    'task_id'     => $todo->id,
+                    'priority'    => $todo->priority ?? '',
+                    'due_date'    => $todo->due_date?->toDateString() ?? '',
+                    'assigned_by' => $assigner->displayName(),
+                ],
+            ));
+        } catch (\Throwable $e) {
+            report($e);
+        }
+    }
+
+    private function notifyReviewOutcome(DailyTodo $todo, int $rating, User $reviewer): void
+    {
+        $assignee = $todo->assignee;
+
+        if (! $assignee) {
+            return;
+        }
+
+        $outcome = match (true) {
+            $rating >= 4 => 'approved',
+            $rating === 1 => 'rejected',
+            default      => 'reviewed',
+        };
+
+        try {
+            $assignee->notify(new StaffPushNotification(
+                title: 'Task '.ucfirst($outcome),
+                body: $todo->task,
+                type: 'task_reviewed',
+                data: [
+                    'task_id'     => $todo->id,
+                    'outcome'     => $outcome,
+                    'rating'      => $rating,
+                    'reviewed_by' => $reviewer->displayName(),
+                    'comments'    => $todo->review_comments ?? '',
+                ],
+            ));
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     private function sendAssignmentEmail(User $assignee, DailyTodo $todo, User $assigner): void

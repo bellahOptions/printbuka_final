@@ -7,6 +7,7 @@ use App\Mail\JobPhaseRoleAlertMail;
 use App\Mail\JobStatusAdvancedCustomerMail;
 use App\Models\Order;
 use App\Models\User;
+use App\Notifications\StaffPushNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -78,9 +79,28 @@ class JobWorkflowNotificationService
             Mail::to($designer->email)->send(new JobAssignedDesignerMail($order, $designer));
         } catch (\Throwable $exception) {
             Log::error('Designer assignment notification failed.', [
-                'order_id' => $order->id,
+                'order_id'    => $order->id,
                 'designer_id' => $designerId,
-                'message' => $exception->getMessage(),
+                'message'     => $exception->getMessage(),
+            ]);
+        }
+
+        try {
+            $designer->notify(new StaffPushNotification(
+                title: 'New Job Assigned',
+                body: "Order #{$order->id} – {$order->product?->name}",
+                type: 'job_assigned',
+                data: [
+                    'order_id' => $order->id,
+                    'product'  => $order->product?->name ?? '',
+                    'status'   => $order->status ?? '',
+                ],
+            ));
+        } catch (\Throwable $exception) {
+            Log::error('Designer push notification failed.', [
+                'order_id'    => $order->id,
+                'designer_id' => $designerId,
+                'message'     => $exception->getMessage(),
             ]);
         }
     }
@@ -111,9 +131,29 @@ class JobWorkflowNotificationService
                 Mail::to($recipient->email)->send(new JobPhaseRoleAlertMail($order, $recipient, $phase, $oldStatus, $newStatus));
             } catch (\Throwable $exception) {
                 Log::error('Phase role notification failed.', [
-                    'order_id' => $order->id,
+                    'order_id'     => $order->id,
                     'recipient_id' => $recipient->id,
-                    'message' => $exception->getMessage(),
+                    'message'      => $exception->getMessage(),
+                ]);
+            }
+
+            try {
+                $recipient->notify(new StaffPushNotification(
+                    title: 'Job Status Changed',
+                    body: "Order #{$order->id} moved to: {$newStatus}",
+                    type: 'job_phase_changed',
+                    data: [
+                        'order_id'   => $order->id,
+                        'old_status' => $oldStatus,
+                        'new_status' => $newStatus,
+                        'product'    => $order->product?->name ?? '',
+                    ],
+                ));
+            } catch (\Throwable $exception) {
+                Log::error('Phase push notification failed.', [
+                    'order_id'     => $order->id,
+                    'recipient_id' => $recipient->id,
+                    'message'      => $exception->getMessage(),
                 ]);
             }
         }
