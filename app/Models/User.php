@@ -12,13 +12,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use Laravel\Sanctum\HasApiTokens;
 
 #[Fillable(['first_name', 'last_name', 'phone', 'companyName', 'email', 'password', 'google_id', 'avatar', 'email_verified_at', 'role', 'department', 'requested_role', 'other_role', 'address', 'date_of_birth', 'photo', 'approved_by_id', 'approved_at', 'is_active', 'employment_status', 'employment_status_reason', 'employment_status_changed_at', 'employment_status_changed_by_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmailContract
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens;
 
     /**
      * Get the attributes that should be cast.
@@ -92,6 +93,20 @@ class User extends Authenticatable implements MustVerifyEmailContract
     public function assignedByTodos(): HasMany
     {
         return $this->hasMany(DailyTodo::class, 'assigned_by_id');
+    }
+
+    public function pushSubscriptions(): HasMany
+    {
+        return $this->hasMany(StaffPushSubscription::class);
+    }
+
+    /**
+     * FCM channel resolves all registered device tokens for this user.
+     * Returns an array so the package fans out to every device the staff member owns.
+     */
+    public function routeNotificationForFcm(): array
+    {
+        return $this->pushSubscriptions()->pluck('device_token')->toArray();
     }
 
     public function profilePhotoUrl(): ?string

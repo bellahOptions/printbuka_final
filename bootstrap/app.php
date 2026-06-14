@@ -3,6 +3,7 @@
 use App\Http\Middleware\EnforceSiteMaintenance;
 use App\Http\Middleware\EnsureAdminPermission;
 use App\Http\Middleware\EnsureCustomerPortalAccess;
+use App\Http\Middleware\EnsureStaffIsActive;
 use App\Http\Middleware\EnsureSuperAdmin;
 use App\Http\Middleware\EnsureUserEmailIsVerified;
 use App\Http\Middleware\EnsureUserIsAuthenticated;
@@ -13,10 +14,13 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Support\Facades\Route;
+use Laravel\Sanctum\Http\Middleware\CheckAbilities;
+use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function (): void {
@@ -32,13 +36,18 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
-            'user.auth' => EnsureUserIsAuthenticated::class,
-            'user.guest' => RedirectIfUserAuthenticated::class,
-            'user.verified' => EnsureUserEmailIsVerified::class,
-            'customer.portal' => EnsureCustomerPortalAccess::class,
+            // Web
+            'user.auth'        => EnsureUserIsAuthenticated::class,
+            'user.guest'       => RedirectIfUserAuthenticated::class,
+            'user.verified'    => EnsureUserEmailIsVerified::class,
+            'customer.portal'  => EnsureCustomerPortalAccess::class,
             'admin.permission' => EnsureAdminPermission::class,
-            'super.admin' => EnsureSuperAdmin::class,
-            'admin.activity' => LogStaffActivity::class,
+            'super.admin'      => EnsureSuperAdmin::class,
+            'admin.activity'   => LogStaffActivity::class,
+            // Mobile API
+            'abilities'        => CheckAbilities::class,
+            'ability'          => CheckForAnyAbility::class,
+            'staff.active'     => EnsureStaffIsActive::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

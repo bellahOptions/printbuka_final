@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(grep -E \"\\\\.php$\")",
+      "Bash(xargs grep -l \"staff\\\\|notification\")"
     ]
   }
 }
