@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductCategory;
+use App\Models\ShopProduct;
 use App\Support\SafeCache;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -41,7 +43,28 @@ class HomeController extends Controller
         $featuredProducts = $this->orderedProductsFromCachedIds($featuredProductIds);
         $popularGiftItems = $this->orderedProductsFromCachedIds($popularGiftItemIds);
 
-        return view('welcome', compact('featuredProducts', 'popularGiftItems'));
+        $homeCategoryIds = SafeCache::remember('home:category-ids:v1', now()->addMinutes(5), function (): array {
+            return ProductCategory::homeCategories(6)->pluck('id')->all();
+        });
+
+        $homeCategories = $homeCategoryIds === [] ? collect() : ProductCategory::query()
+            ->whereIn('id', $homeCategoryIds)
+            ->withActiveProductsCount()
+            ->with(['children' => fn ($q) => $q->where('is_active', true)->orderBy('name')])
+            ->orderBy('name')
+            ->get();
+
+        $featuredShopIds = SafeCache::remember('shop:home-featured-ids:v1', now()->addMinutes(5), function (): array {
+            $ids = ShopProduct::query()->active()->featured()->orderByDesc('view_count')->limit(4)->pluck('id')->all();
+
+            return $ids ?: ShopProduct::query()->active()->orderByDesc('view_count')->limit(4)->pluck('id')->all();
+        });
+
+        $featuredShopProducts = $featuredShopIds === []
+            ? collect()
+            : ShopProduct::query()->whereIn('id', $featuredShopIds)->get()->sortBy(fn ($p) => array_search($p->id, $featuredShopIds))->values();
+
+        return view('welcome', compact('featuredProducts', 'popularGiftItems', 'homeCategories', 'featuredShopProducts'));
     }
 
     /**

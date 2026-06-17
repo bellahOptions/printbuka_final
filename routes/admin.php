@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminPolicyController;
 use App\Http\Controllers\Admin\AdminProductCategoryController;
 use App\Http\Controllers\Admin\AdminProductController;
+use App\Http\Controllers\Admin\AdminShopOrderController;
+use App\Http\Controllers\Admin\AdminShopProductController;
 use App\Http\Controllers\Admin\AdminSiteSettingController;
 use App\Http\Controllers\Admin\AdminStaffController;
 use App\Http\Controllers\Admin\AdminSupportTicketController;
@@ -234,5 +236,21 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::put('/policies/refund', [AdminPolicyController::class, 'updateRefund'])
             ->middleware('super.admin')
             ->name('policies.refund.update');
+
+        // ===== SHOP PRODUCTS =====
+        Route::resource('shop-products', AdminShopProductController::class)
+            ->except('show')
+            ->middleware('admin.permission:shop-products.manage');
+
+        // ===== SHOP ORDERS =====
+        Route::get('/shop-orders', [AdminShopOrderController::class, 'index'])
+            ->middleware('admin.permission:shop-orders.view')
+            ->name('shop-orders.index');
+        Route::get('/shop-orders/{shopOrder}', [AdminShopOrderController::class, 'show'])
+            ->middleware('admin.permission:shop-orders.view')
+            ->name('shop-orders.show');
+        Route::patch('/shop-orders/{shopOrder}/status', [AdminShopOrderController::class, 'updateStatus'])
+            ->middleware('admin.permission:shop-orders.view')
+            ->name('shop-orders.update-status');
     });
 });

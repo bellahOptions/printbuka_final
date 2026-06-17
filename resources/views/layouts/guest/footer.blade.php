@@ -11,8 +11,8 @@
                     Nigeria's online print shop for businesses, events and individuals. Quality prints, branded gifts and fast nationwide delivery.
                 </p>
                 <div class="space-y-2 text-sm font-semibold text-slate-300">
-                    <p>📞 {{ $siteSettings['contact_phone'] ?? '08035245784, 09054784526' }}</p>
-                    <p>✉️ {{ $siteSettings['contact_email'] ?? 'sales@printbuka.com.ng' }}</p>
+                    <p class="flex items-center gap-2"><x-heroicon-o-phone class="w-4 h-4 shrink-0" /> {{ $siteSettings['contact_phone'] ?? '08035245784, 09054784526' }}</p>
+                    <p class="flex items-center gap-2"><x-heroicon-o-envelope class="w-4 h-4 shrink-0" /> {{ $siteSettings['contact_email'] ?? 'sales@printbuka.com.ng' }}</p>
                 </div>
 
                 {{-- Stats strip --}}
@@ -94,7 +94,7 @@
                     <a href="{{ route('policies.refund') }}" class="hover:text-white transition">Refunds</a>
                 </div>
                 <p>
-                    Built with ❤️ by
+                    Built with <x-heroicon-s-heart class="w-4 h-4 inline text-pink-500" /> by
                     <a href="https://www.aidigitalagency.com.ng" target="_blank" rel="noopener noreferrer" class="font-bold text-white hover:text-cyan-300 transition">AI Digital Agency</a>
                 </p>
             </div>

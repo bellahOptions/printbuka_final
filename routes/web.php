@@ -18,6 +18,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceOrderController;
+use App\Http\Controllers\ShopCartController;
+use App\Http\Controllers\ShopCheckoutController;
+use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\TrackOrderController;
 use App\Http\Controllers\UserInvoiceController;
@@ -240,10 +243,33 @@ Route::get('/pgtp', [TrainingController::class, 'index'])->name('training');
 Route::get('/pgtp/apply', [TrainingController::class, 'register'])->name('training.apply');
 Route::post('/pgtp/apply', [TrainingController::class, 'store'])->name('training.store');
 
-//Careers
+// Careers
 Route::get('/careers', function () {
     return view('careers');
 })->name('careers');
+
+// ===== SHOP (physical products) =====
+Route::middleware(['customer.portal'])->group(function (): void {
+    Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
+    Route::get('/shop/{product:slug}', [ShopController::class, 'show'])->name('shop.show');
+
+    // Cart (session-based, no auth required)
+    Route::get('/cart', [ShopCartController::class, 'index'])->name('shop.cart');
+    Route::post('/shop/{product}/cart/add', [ShopCartController::class, 'add'])->name('shop.cart.add');
+    Route::post('/cart/update', [ShopCartController::class, 'update'])->name('shop.cart.update');
+    Route::delete('/cart/{index}', [ShopCartController::class, 'remove'])->name('shop.cart.remove');
+    Route::post('/cart/clear', [ShopCartController::class, 'clear'])->name('shop.cart.clear');
+
+    // Checkout
+    Route::get('/checkout', [ShopCheckoutController::class, 'create'])->name('shop.checkout');
+    Route::post('/checkout', [ShopCheckoutController::class, 'store'])->name('shop.checkout.store');
+
+    // Order confirmation (public — Paystack redirects here)
+    Route::get('/shop/orders/{reference}/confirmation', [ShopCheckoutController::class, 'confirmation'])->name('shop.orders.confirmation');
+});
+
+// Paystack callback (outside customer.portal so Paystack can reach it without session)
+Route::get('/checkout/callback', [ShopCheckoutController::class, 'callback'])->name('shop.checkout.callback');
 
 if (app()->environment('local')) {
     Route::prefix('/local-previews/invoices')

@@ -76,5 +76,6 @@
         <x-turnstile-auto />
         <x-form-icons />
         @livewireScripts
+        <x-shop-popup />
     </body>
 </html>

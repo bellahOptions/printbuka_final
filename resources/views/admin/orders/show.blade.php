@@ -61,7 +61,7 @@
 
         @if ($order->is_concluded)
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-800">
-                ✅ This job was concluded on {{ $order->concluded_at?->format('M j, Y h:i A') ?? 'N/A' }} by {{ $order->concludedBy?->displayName() ?? 'N/A' }}.
+                <x-heroicon-s-check-circle class="w-4 h-4 inline mr-1 shrink-0" /> This job was concluded on {{ $order->concluded_at?->format('M j, Y h:i A') ?? 'N/A' }} by {{ $order->concludedBy?->displayName() ?? 'N/A' }}.
                 @if ($order->invoice)
                     Invoice <strong>{{ $order->invoice->invoice_number }}</strong> was auto-settled.
                 @endif
@@ -194,7 +194,7 @@
 
             @if ($order->is_concluded)
                 <div class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-800">
-                    ⚠️ This job is concluded. Workflow edits are disabled.
+                    <x-heroicon-o-exclamation-triangle class="w-4 h-4 inline mr-1 shrink-0" /> This job is concluded. Workflow edits are disabled.
                 </div>
             @endif
 

@@ -39,9 +39,10 @@
                     <article class="group rounded-2xl border border-slate-100 bg-white shadow-md transition hover:-translate-y-1 hover:shadow-xl">
                         <figure class="h-48 overflow-hidden rounded-t-2xl">
                             <a href="{{ route('products.show', $product) }}">
-                                <img src="{{ $product->featuredImageUrl() ?? 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=900&q=80' }}"
+                                <img src="{{ $product->featuredImageUrl() ?? asset('img/product-placeholder.svg') }}"
                                      alt="{{ $product->name }}"
-                                     class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                                     class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                                     onerror="this.onerror=null;this.src='{{ asset('img/product-placeholder.svg') }}';" />
                             </a>
                         </figure>
                         <div class="p-5">

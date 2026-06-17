@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\ProductCategory;
+use App\Models\ShopProduct;
 use App\Support\SafeCache;
 use App\Support\SiteSettings;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -81,7 +82,46 @@ class AppServiceProvider extends ServiceProvider
                 ->values();
 
             $view->with('menuCategories', $publicCategories->take(6)->values());
-            $view->with('homeCategories', $publicCategories->take(5)->values());
+
+            // 3 shop products for the nav mega-menu "Shop" strip
+            $shopNavIds = SafeCache::remember('shop:nav-ids:v1', now()->addMinutes(5), function (): array {
+                $ids = ShopProduct::query()->active()->featured()->orderByDesc('view_count')->limit(3)->pluck('id')->all();
+
+                return $ids ?: ShopProduct::query()->active()->orderByDesc('view_count')->limit(3)->pluck('id')->all();
+            });
+
+            $shopNavProducts = $shopNavIds === []
+                ? collect()
+                : ShopProduct::query()->whereIn('id', $shopNavIds)->get();
+
+            $view->with('shopNavProducts', $shopNavProducts);
+        });
+
+        // Popup: share most-viewed shop products as a JSON-serialisable array to every customer page
+        View::composer('layouts.theme', function ($view): void {
+            $popupIds = SafeCache::remember('shop:popup-ids:v1', now()->addMinutes(5), function (): array {
+                return ShopProduct::query()->active()->orderByDesc('view_count')->limit(6)->pluck('id')->all();
+            });
+
+            $popupProducts = $popupIds === []
+                ? []
+                : ShopProduct::query()
+                    ->whereIn('id', $popupIds)
+                    ->get()
+                    ->map(fn (ShopProduct $p): array => [
+                        'name'              => $p->name,
+                        'slug'              => $p->slug,
+                        'short_description' => $p->short_description,
+                        'image'             => $p->featuredImageUrl() ?: asset('img/product-placeholder.svg'),
+                        'price'             => number_format((float) $p->price, 0),
+                        'current_price'     => number_format($p->currentPrice(), 0),
+                        'is_on_sale'        => $p->isOnSale(),
+                        'url'               => route('shop.show', $p->slug),
+                        'cart_url'          => route('shop.show', $p->slug),
+                    ])
+                    ->all();
+
+            $view->with('popupShopProducts', $popupProducts);
         });
     }
 }

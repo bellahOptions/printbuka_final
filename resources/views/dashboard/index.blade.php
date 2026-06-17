@@ -11,7 +11,7 @@
                     <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <div class="badge badge-ghost bg-cyan-500/20 text-cyan-300 border-0 mb-3">Customer Dashboard</div>
-                            <h1 class="text-3xl font-bold lg:text-4xl">Welcome back, {{ auth()->user()->first_name }}! 👋</h1>
+                            <h1 class="text-3xl font-bold lg:text-4xl">Welcome back, {{ auth()->user()->first_name }}!</h1>
                             <p class="mt-2 max-w-2xl text-sm text-slate-300">Manage your Printbuka account, track orders, and access exclusive print deals from one dashboard.</p>
                         </div>
                             {{--

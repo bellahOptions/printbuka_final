@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\ShopProduct;
 use App\Support\SafeCache;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -59,11 +60,20 @@ class ProductController extends Controller
                 ->orderBy('name')
                 ->get();
 
+        $shopProductIds = SafeCache::remember('shop:products-page-ids:v1', now()->addMinutes(5), function (): array {
+            return ShopProduct::query()->active()->orderByDesc('view_count')->limit(6)->pluck('id')->all();
+        });
+
+        $shopProducts = $shopProductIds === []
+            ? collect()
+            : ShopProduct::query()->whereIn('id', $shopProductIds)->get();
+
         return view('products.index', [
             'activeProductCount' => SafeCache::remember('products:index:active-count:v1', now()->addMinutes(5), fn (): int => Product::query()->where('is_active', true)->count()),
             'categories' => $categories,
             'filterCategories' => $filterCategories,
             'filters' => $filters,
+            'shopProducts' => $shopProducts,
         ]);
     }
 

@@ -14,15 +14,7 @@
             ->values()
             ->all();
 
-        $image = $primaryImage ?? match (true) {
-            str_contains(strtolower($product->name), 'business') => 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=1200&q=80',
-            str_contains(strtolower($product->name), 'flyer') => 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=1200&q=80',
-            str_contains(strtolower($product->name), 'sticker') => 'https://images.unsplash.com/photo-1605902711622-cfb43c44367f?auto=format&fit=crop&w=1200&q=80',
-            str_contains(strtolower($product->name), 'brochure') => 'https://images.unsplash.com/photo-1586282391129-76a6df230234?auto=format&fit=crop&w=1200&q=80',
-            str_contains(strtolower($product->name), 'letterhead') => 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1200&q=80',
-            str_contains(strtolower($product->name), 'gift'), str_contains(strtolower($product->name), 'mug'), str_contains(strtolower($product->name), 'shirt'), str_contains(strtolower($product->name), 'tote') => 'https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=1200&q=80',
-            default => 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=1200&q=80',
-        };
+        $image = $primaryImage ?? asset('img/product-placeholder.svg');
     @endphp
 
     <main class="bg-white text-slate-900">
@@ -74,13 +66,13 @@
 
                     <aside class="space-y-6">
                         <div class="overflow-hidden rounded-[2rem] bg-gradient-to-br from-cyan-50 via-white to-slate-100 shadow-xl ring-1 ring-slate-200">
-                            <img src="{{ $image }}" alt="{{ $product->name }}" class="h-[420px] w-full object-cover" />
+                            <img src="{{ $image }}" alt="{{ $product->name }}" class="h-[420px] w-full object-cover" onerror="this.onerror=null;this.src='{{ asset('img/product-placeholder.svg') }}';this.style.objectFit='contain';this.style.padding='10%';this.style.background='#f1f5f9';" />
                         </div>
 
                         @if (! empty($galleryImages))
                             <div class="grid grid-cols-3 gap-3">
                                 @foreach ($galleryImages as $galleryImage)
-                                    <img src="{{ $galleryImage }}" alt="{{ $product->name }} gallery image" class="h-24 w-full rounded-3xl border border-slate-200 object-cover bg-white" />
+                                    <img src="{{ $galleryImage }}" alt="{{ $product->name }} gallery image" class="h-24 w-full rounded-3xl border border-slate-200 object-cover bg-white" onerror="this.onerror=null;this.src='{{ asset('img/product-placeholder.svg') }}';" />
                                 @endforeach
                             </div>
                         @endif

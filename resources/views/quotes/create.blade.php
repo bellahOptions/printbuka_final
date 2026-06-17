@@ -56,8 +56,8 @@
                     {{-- Contact Info --}}
                     <div class="mt-6 pt-6 border-t border-white/10">
                         <p class="text-xs text-slate-400">Need help? Call us</p>
-                        <p class="text-sm font-bold text-white">📞 {{ $siteSettings['contact_phone'] ?? '08035245784' }}</p>
-                        <p class="text-xs text-slate-400 mt-2">✉️ {{ $siteSettings['contact_email'] ?? 'sales@printbuka.com.ng' }}</p>
+                        <p class="text-sm font-bold text-white flex items-center gap-1.5"><x-heroicon-o-phone class="w-4 h-4 shrink-0" /> {{ $siteSettings['contact_phone'] ?? '08035245784' }}</p>
+                        <p class="text-xs text-slate-400 mt-2 flex items-center gap-1.5"><x-heroicon-o-envelope class="w-3.5 h-3.5 shrink-0" /> {{ $siteSettings['contact_email'] ?? 'sales@printbuka.com.ng' }}</p>
                     </div>
                 </aside>
 

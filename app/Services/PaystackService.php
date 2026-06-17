@@ -75,6 +75,43 @@ class PaystackService
     }
 
     /**
+     * Generic payment initializer — use for shop checkout and other non-invoice flows.
+     *
+     * @param  array<string, mixed>  $metadata
+     * @return array{ok:bool,authorization_url?:string,reference?:string,message?:string}
+     */
+    public function initialize(string $email, int $amountKobo, string $reference, string $callbackUrl, array $metadata = []): array
+    {
+        if (! $this->enabled()) {
+            return ['ok' => false, 'message' => 'Paystack is not configured.'];
+        }
+
+        $response = Http::withToken($this->secretKey())
+            ->acceptJson()
+            ->post('https://api.paystack.co/transaction/initialize', [
+                'email' => $email,
+                'amount' => $amountKobo,
+                'currency' => 'NGN',
+                'reference' => $reference,
+                'callback_url' => $callbackUrl,
+                'metadata' => $metadata,
+            ]);
+
+        if (! $response->successful() || ! $response->json('status')) {
+            return [
+                'ok' => false,
+                'message' => (string) ($response->json('message') ?: 'Unable to initialize payment.'),
+            ];
+        }
+
+        return [
+            'ok' => true,
+            'authorization_url' => (string) $response->json('data.authorization_url'),
+            'reference' => $reference,
+        ];
+    }
+
+    /**
      * @return array{ok:bool,data?:array<string,mixed>,message?:string}
      */
     public function verifyReference(string $reference): array

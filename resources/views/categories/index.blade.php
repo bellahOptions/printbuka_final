@@ -15,11 +15,11 @@
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach($categories as $category)
                     @php
-                        $image = $category->imageUrl() ?: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=900&q=80';
+                        $image = $category->imageUrl() ?: asset('img/product-placeholder.svg');
                     @endphp
                     <article class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
                         <a href="{{ route('products.category', $category) }}" class="block">
-                            <img src="{{ $image }}" alt="{{ $category->name }}" class="h-48 w-full object-cover" />
+                            <img src="{{ $image }}" alt="{{ $category->name }}" class="h-48 w-full object-cover" onerror="this.onerror=null;this.src='{{ asset('img/product-placeholder.svg') }}';" />
                         </a>
                         <div class="p-5">
                             <h2 class="text-xl font-black text-slate-950">

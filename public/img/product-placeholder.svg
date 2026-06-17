@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f1f5f9"/>
+
+  <!-- Image frame -->
+  <rect x="240" y="140" width="320" height="230" rx="16" fill="#e2e8f0"/>
+
+  <!-- Landscape / image icon inside frame -->
+  <!-- Sky circle (sun) -->
+  <circle cx="468" cy="205" r="30" fill="#b4bfcc"/>
+  <!-- Mountain hills -->
+  <polygon points="260,350 330,250 385,305 435,240 520,350" fill="#94a3b8"/>
+  <!-- Foreground overlay -->
+  <rect x="240" y="335" width="320" height="35" rx="0" fill="#e2e8f0"/>
+
+  <!-- Frame border -->
+  <rect x="240" y="140" width="320" height="230" rx="16" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+
+  <!-- Printbuka wordmark (grayscale) -->
+  <text
+    x="400" y="432"
+    font-family="'Arial Black', Arial, Helvetica, sans-serif"
+    font-size="28"
+    font-weight="900"
+    text-anchor="middle"
+    fill="#94a3b8"
+    letter-spacing="7">PRINTBUKA</text>
+
+  <!-- Sub-label -->
+  <text
+    x="400" y="466"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="13"
+    text-anchor="middle"
+    fill="#cbd5e1"
+    letter-spacing="3">No image available</text>
+</svg>

@@ -20,8 +20,8 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
             @endif
         </div>
         <div class="flex items-center gap-6">
-            <span>📞 {{ $siteSettings['contact_phone'] ?? '08035245784, 09054784526' }}</span>
-            <span>✉️ {{ $siteSettings['contact_email'] ?? 'sales@printbuka.com.ng' }}</span>
+            <span class="flex items-center gap-1"><x-heroicon-o-phone class="w-3.5 h-3.5" /> {{ $siteSettings['contact_phone'] ?? '08035245784, 09054784526' }}</span>
+            <span class="flex items-center gap-1"><x-heroicon-o-envelope class="w-3.5 h-3.5" /> {{ $siteSettings['contact_email'] ?? 'sales@printbuka.com.ng' }}</span>
         </div>
     </div>
 </div>
@@ -57,7 +57,7 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
                                     All Products
                                     <svg class="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
                                 </summary>
-                                <ul class="bg-white rounded-2xl shadow-2xl shadow-slate-900/10 border border-slate-100 p-4 w-[620px] -left-24 z-50">
+                                <ul class="bg-white rounded-2xl shadow-2xl shadow-slate-900/10 border border-slate-100 p-4 w-[680px] -left-24 z-50">
                                     <li class="list-none">
                                         <div class="grid grid-cols-[1fr_1.4fr] gap-5 p-2">
                                             <div class="bg-base-200 rounded-xl p-5">
@@ -96,11 +96,49 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
                                                 @endforelse
                                             </div>
                                         </div>
+
+                                        {{-- Shop products strip --}}
+                                        @if(($shopNavProducts ?? collect())->isNotEmpty())
+                                            <div class="border-t border-slate-100 mt-2 pt-4 px-2 pb-1">
+                                                <div class="flex items-center justify-between mb-3">
+                                                    <p class="text-xs font-black uppercase tracking-wide text-pink-600 flex items-center gap-1">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                                                        Shop — Buy Now
+                                                    </p>
+                                                    <a href="{{ route('shop.index') }}" class="text-xs font-black text-slate-500 hover:text-pink-600 transition">View all →</a>
+                                                </div>
+                                                <div class="grid grid-cols-3 gap-3">
+                                                    @foreach(($shopNavProducts ?? collect())->take(3) as $shopItem)
+                                                        <a href="{{ route('shop.show', $shopItem) }}" class="flex items-center gap-2 rounded-xl border border-slate-200 p-2 hover:border-pink-300 hover:bg-pink-50 transition group">
+                                                            @if($shopItem->featuredImageUrl())
+                                                                <img src="{{ $shopItem->featuredImageUrl() }}" alt="{{ $shopItem->name }}"
+                                                                     class="w-10 h-10 rounded-lg object-cover shrink-0 border border-slate-100"
+                                                                     onerror="this.onerror=null;this.src='/img/product-placeholder.svg';" />
+                                                            @else
+                                                                <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                                                </div>
+                                                            @endif
+                                                            <div class="min-w-0">
+                                                                <p class="text-xs font-black text-slate-900 truncate group-hover:text-pink-700">{{ $shopItem->name }}</p>
+                                                                <p class="text-xs font-bold text-pink-600">NGN {{ number_format($shopItem->currentPrice(), 0) }}</p>
+                                                            </div>
+                                                        </a>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @endif
                                     </li>
                                 </ul>
                             </details>
                         </li>
 
+                        <li>
+                            <a href="{{ route('shop.index') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50 flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                                Shop
+                            </a>
+                        </li>
                         <li><a href="{{ route('services.index') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50">Services</a></li>
                         <li><a href="{{ route('partners.create') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50">Become a Partner</a></li>
                         <li><a href="{{ route('blog') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50">Blog</a></li>
@@ -229,6 +267,7 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
         <ul class="menu menu-lg gap-1 p-0 font-bold text-slate-700">
             @if (! auth()->check() || $isCustomer)
                 <li><a href="{{ route('products.index') }}" class="hover:text-pink-600 hover:bg-pink-50">All Products</a></li>
+                <li><a href="{{ route('shop.index') }}" class="hover:text-pink-600 hover:bg-pink-50">Shop — Buy Now</a></li>
                 <li><a href="{{ route('categories.index') }}" class="hover:text-pink-600 hover:bg-pink-50">Categories</a></li>
                 <li><a href="{{ route('services.index') }}" class="hover:text-pink-600 hover:bg-pink-50">Services</a></li>
                 <li><a href="{{ route('quotes.create') }}" class="hover:text-pink-600 hover:bg-pink-50">Get a Quote</a></li>
@@ -263,8 +302,8 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
         @endauth
 
         <div class="mt-6 text-xs text-slate-400 space-y-1">
-            <p>📞 {{ $siteSettings['contact_phone'] ?? '08035245784' }}</p>
-            <p>✉️ {{ $siteSettings['contact_email'] ?? 'sales@printbuka.com.ng' }}</p>
+            <p class="flex items-center gap-1"><x-heroicon-o-phone class="w-3.5 h-3.5" /> {{ $siteSettings['contact_phone'] ?? '08035245784' }}</p>
+            <p class="flex items-center gap-1"><x-heroicon-o-envelope class="w-3.5 h-3.5" /> {{ $siteSettings['contact_email'] ?? 'sales@printbuka.com.ng' }}</p>
         </div>
     </div>
 </div>

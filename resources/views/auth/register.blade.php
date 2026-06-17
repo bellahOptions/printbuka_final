@@ -12,7 +12,7 @@
     {{-- Hero Section --}}
     <div class="mx-auto max-w-7xl text-center mb-8 lg:mb-12">
         <div class="inline-flex items-center gap-2 rounded-full bg-pink-50 px-4 py-1.5 text-sm font-medium text-pink-700">
-            🚀 Join the Print Revolution
+            <x-heroicon-o-rocket-launch class="w-4 h-4" /> Join the Print Revolution
         </div>
         <h1 class="mt-6 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
             Start Your <span class="text-pink-600">Printing Journey</span>
@@ -187,9 +187,9 @@
 
                 {{-- Trust Badge --}}
                 <div class="mt-6 flex items-center justify-center gap-4 text-xs text-slate-400">
-                    <span class="flex items-center gap-1">🔒 SSL Secure</span>
-                    <span class="flex items-center gap-1">💳 Secure Payments</span>
-                    <span class="flex items-center gap-1">🚚 Fast Delivery</span>
+                    <span class="flex items-center gap-1"><x-heroicon-o-lock-closed class="w-3.5 h-3.5" /> SSL Secure</span>
+                    <span class="flex items-center gap-1"><x-heroicon-o-credit-card class="w-3.5 h-3.5" /> Secure Payments</span>
+                    <span class="flex items-center gap-1"><x-heroicon-o-truck class="w-3.5 h-3.5" /> Fast Delivery</span>
                 </div>
             </div>
         </div>
