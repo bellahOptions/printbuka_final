@@ -1,0 +1,29 @@
+
+:root {
+    
+    --body: #fff;
+    --black: #000;
+    --white: #fff;
+    --theme: #db2777;
+    --theme2: #0f172a;
+    --header: #0D1224;
+    --text: #6E707A;
+    --border: #fce7f3;
+    --border-2: #fbcfe8;
+    --bg: #fdf2f8;
+    --bg2: #fdf4ff;
+    --box-shadow: 0px 1px 14px 0px rgba(0, 0, 0, 0.13);
+}
+
+// Theme Color - Printbuka Brand Colors
+$black: var(--black);
+$white: var(--white);
+$theme-color: var(--theme);
+$theme-color-2: var(--theme2);
+$text-color: var(--text);
+$header-color: var(--header);
+$border-color: var(--border);
+$border-color-2: var(--border-2);
+$bg-color: var(--bg);
+$bg-color-2: var(--bg2);
+$shadow: var(--box-shadow);

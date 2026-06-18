@@ -1,0 +1,242 @@
+[
+  {
+    "id": 1,
+    "proImg": "/product/01.jpg",
+    "title": "Calendar Printing",
+    "slug": "calendar-printing",
+    "price": "35000.00",
+    "delPrice": "42000.00",
+    "brand": "Printbuka",
+    "size": "A3"
+  },
+  {
+    "id": 2,
+    "proImg": "/product/02.jpg",
+    "title": "Custom Pillow Print",
+    "slug": "custom-pillow-print",
+    "price": "8500.00",
+    "delPrice": "10000.00",
+    "brand": "Printbuka",
+    "size": "45x45cm"
+  },
+  {
+    "id": 3,
+    "proImg": "/product/03.jpg",
+    "title": "Glossy Button Pins",
+    "slug": "glossy-button-pins",
+    "price": "4500.00",
+    "delPrice": "5000.00",
+    "brand": "Printbuka",
+    "size": "58mm"
+  },
+  {
+    "id": 4,
+    "proImg": "/product/04.jpg",
+    "title": "Branded Cosmetic Bottle",
+    "slug": "branded-cosmetic-bottle",
+    "price": "12000.00",
+    "delPrice": "15000.00",
+    "brand": "Printbuka",
+    "size": "250ml"
+  },
+  {
+    "id": 5,
+    "proImg": "/product/05.jpg",
+    "title": "Custom Branded Shirt",
+    "slug": "custom-branded-shirt",
+    "price": "7500.00",
+    "delPrice": "9000.00",
+    "brand": "Printbuka",
+    "size": "XL"
+  },
+  {
+    "id": 6,
+    "proImg": "/product/06.jpg",
+    "title": "Premium Branded Mug",
+    "slug": "premium-branded-mug",
+    "price": "5500.00",
+    "delPrice": "7000.00",
+    "brand": "Printbuka",
+    "size": "350ml"
+  },
+  {
+    "id": 7,
+    "proImg": "/product/07.jpg",
+    "title": "Branded Baseball Cap",
+    "slug": "branded-baseball-cap",
+    "price": "6500.00",
+    "delPrice": "8000.00",
+    "brand": "Printbuka",
+    "size": "Free Size"
+  },
+  {
+    "id": 8,
+    "proImg": "/product/08.jpg",
+    "title": "Neoprene Can Cooler",
+    "slug": "neoprene-can-cooler",
+    "price": "3500.00",
+    "delPrice": "4500.00",
+    "brand": "Printbuka",
+    "size": "Standard"
+  },
+  {
+    "id": 9,
+    "proImg": "/product/09.jpg",
+    "title": "Branded Metal Flask",
+    "slug": "branded-metal-flask",
+    "price": "9500.00",
+    "delPrice": "12000.00",
+    "brand": "Printbuka",
+    "size": "500ml"
+  },
+  {
+    "id": 10,
+    "proImg": "/product/10.jpg",
+    "title": "Custom Crew Neck Tee",
+    "slug": "custom-crew-neck-tee",
+    "price": "7000.00",
+    "delPrice": "9000.00",
+    "brand": "Printbuka",
+    "size": "XL"
+  },
+  {
+    "id": 11,
+    "proImg": "/product/11.jpg",
+    "title": "Branded Tote Bag",
+    "slug": "branded-tote-bag",
+    "price": "4000.00",
+    "delPrice": "5500.00",
+    "brand": "Printbuka",
+    "size": "38x42cm"
+  },
+  {
+    "id": 12,
+    "proImg": "/product/12.jpg",
+    "title": "Custom Notebook",
+    "slug": "custom-notebook",
+    "price": "4500.00",
+    "delPrice": "6000.00",
+    "brand": "Printbuka",
+    "size": "A5"
+  },
+  {
+    "id": 13,
+    "proImg": "/product/p-1.png",
+    "title": "Letterhead & Stamps Pack",
+    "slug": "letterhead-stamps-pack",
+    "price": "25000.00",
+    "delPrice": "30000.00",
+    "brand": "Printbuka",
+    "size": "A4"
+  },
+  {
+    "id": 14,
+    "proImg": "/product/p-2.png",
+    "title": "Custom T-Shirt (DTF Print)",
+    "slug": "custom-tshirt-dtf",
+    "price": "8500.00",
+    "delPrice": "10000.00",
+    "brand": "Printbuka",
+    "size": "L"
+  },
+  {
+    "id": 15,
+    "proImg": "/product/p-3.png",
+    "title": "Custom Gift Box",
+    "slug": "custom-gift-box",
+    "price": "6000.00",
+    "delPrice": "7500.00",
+    "brand": "Printbuka",
+    "size": "Medium"
+  },
+  {
+    "id": 16,
+    "proImg": "/product/p-4.png",
+    "title": "Flyer Printing (500 pcs)",
+    "slug": "flyer-printing-500",
+    "price": "35000.00",
+    "delPrice": "42000.00",
+    "brand": "Printbuka",
+    "size": "A5"
+  },
+  {
+    "id": 17,
+    "proImg": "/product/p-5.png",
+    "title": "Sticker Sheet (100 pcs)",
+    "slug": "sticker-sheet-100",
+    "price": "12000.00",
+    "delPrice": "15000.00",
+    "brand": "Printbuka",
+    "size": "Custom"
+  },
+  {
+    "id": 18,
+    "proImg": "/product/p-2.png",
+    "title": "Custom Packaging Box",
+    "slug": "custom-packaging-box",
+    "price": "8000.00",
+    "delPrice": "10000.00",
+    "brand": "Printbuka",
+    "size": "Custom"
+  },
+  {
+    "id": 19,
+    "proImg": "/product/popular-product/01.jpg",
+    "title": "Polo Shirt Print",
+    "slug": "polo-shirt-print",
+    "price": "9500.00",
+    "delPrice": "12000.00",
+    "brand": "Printbuka",
+    "size": "XL"
+  },
+  {
+    "id": 20,
+    "proImg": "/product/popular-product/02.jpg",
+    "title": "Premium Branded Hoodie",
+    "slug": "premium-branded-hoodie",
+    "price": "18000.00",
+    "delPrice": "22000.00",
+    "brand": "Printbuka",
+    "size": "XL"
+  },
+  {
+    "id": 21,
+    "proImg": "/product/popular-product/03.jpg",
+    "title": "Sticky Note Pad",
+    "slug": "sticky-note-pad",
+    "price": "3500.00",
+    "delPrice": "4500.00",
+    "brand": "Printbuka",
+    "size": "75x75mm"
+  },
+  {
+    "id": 22,
+    "proImg": "/product/popular-product/04.jpg",
+    "title": "Product Gift Box",
+    "slug": "product-gift-box",
+    "price": "5500.00",
+    "delPrice": "7000.00",
+    "brand": "Printbuka",
+    "size": "Large"
+  },
+  {
+    "id": 23,
+    "proImg": "/product/popular-product/05.jpg",
+    "title": "Monday Branded Mug",
+    "slug": "monday-branded-mug",
+    "price": "4500.00",
+    "delPrice": "6000.00",
+    "brand": "Printbuka",
+    "size": "350ml"
+  },
+  {
+    "id": 24,
+    "proImg": "/product/popular-product/03.jpg",
+    "title": "Business Card (500 pcs)",
+    "slug": "business-card-500",
+    "price": "18000.00",
+    "delPrice": "22000.00",
+    "brand": "Printbuka",
+    "size": "85x55mm"
+  }
+]
