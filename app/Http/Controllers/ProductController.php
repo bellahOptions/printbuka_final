@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ShopProduct;
+use App\Services\ProductSuggestionService;
 use App\Support\SafeCache;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -107,6 +108,8 @@ class ProductController extends Controller
 
         $product->increment('view_count');
         $product->refresh();
+
+        app(ProductSuggestionService::class)->record('catalog', $product->id, $product->product_category_id);
 
         $relatedProducts = Product::query()
             ->where('is_active', true)

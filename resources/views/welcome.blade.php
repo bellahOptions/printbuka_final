@@ -4,78 +4,312 @@
 @section('content')
 <main class="bg-base-100 text-base-content">
 
-    {{-- ===== HERO ===== --}}
-    <section class="bg-slate-950 overflow-hidden relative">
-        <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-pink-600/8 rounded-full -translate-y-1/3 translate-x-1/3 blur-3xl pointer-events-none"></div>
-        <div class="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500/8 rounded-full translate-y-1/2 -translate-x-1/3 blur-3xl pointer-events-none"></div>
-        <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
-            <div class="grid lg:grid-cols-2 gap-12 items-center">
+    {{-- ===== HERO CAROUSEL (5 slides) ===== --}}
+    <section
+        x-data="{
+            current: 0,
+            total: 5,
+            timer: null,
+            paused: false,
+            init() {
+                this.startTimer();
+            },
+            startTimer() {
+                this.timer = setInterval(() => {
+                    if (!this.paused) this.next();
+                }, 5500);
+            },
+            go(i) {
+                this.current = i;
+                clearInterval(this.timer);
+                this.startTimer();
+            },
+            next() { this.go((this.current + 1) % this.total); },
+            prev() { this.go((this.current - 1 + this.total) % this.total); }
+        }"
+        @mouseenter="paused = true"
+        @mouseleave="paused = false"
+        class="relative overflow-hidden"
+        style="min-height: 580px;"
+    >
 
-                <div>
-                    <div class="badge badge-outline badge-lg text-pink-400 border-pink-700 font-black mb-6 inline-flex items-center gap-1.5">
-                        <x-heroicon-o-map-pin class="w-3.5 h-3.5" /> Nigeria's #1 Online Print Shop
-                    </div>
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
-                        Print. Brand.<br>
-                        <span class="text-pink-400">Gift.</span>
-                        Delivered.
-                    </h1>
-                    <p class="text-lg text-slate-400 leading-relaxed mb-8 max-w-xl">
-                        Business cards, flyers, stickers, branded gifts, UV-DTF, laser engraving and more — from one trusted print partner. Shipped to all 36 states in 3–7 days.
-                    </p>
-
-                    <div class="mb-8">
-                        <livewire:product.search />
-                    </div>
-
-                    <div class="flex flex-wrap gap-3 mb-10">
-                        <a href="{{ route('products.index') }}" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 btn-lg font-black">Browse Products</a>
-                        <a href="{{ route('quotes.create') }}" class="btn btn-outline btn-lg font-black text-white border-white/25 hover:bg-white hover:text-slate-950 hover:border-white">Get a Free Quote</a>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-3 max-w-sm">
-                        <div class="bg-white/5 border border-white/10 rounded-xl p-3 text-center">
-                            <p class="text-2xl font-black text-white">15k+</p>
-                            <p class="text-xs font-bold text-slate-400 mt-0.5">Orders Done</p>
+        {{-- ── SLIDE 1 · BRAND HERO ── --}}
+        <div
+            x-show="current === 0"
+            x-transition:enter="transition-opacity duration-700"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity duration-500"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="absolute inset-0 bg-slate-950"
+        >
+            <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-pink-600/8 rounded-full -translate-y-1/3 translate-x-1/3 blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-96 h-96 bg-cyan-500/8 rounded-full translate-y-1/2 -translate-x-1/3 blur-3xl pointer-events-none"></div>
+            <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 lg:py-20 h-full flex items-center">
+                <div class="grid lg:grid-cols-2 gap-12 items-center w-full">
+                    <div>
+                        <div class="badge badge-outline badge-lg text-pink-400 border-pink-700 font-black mb-6 inline-flex items-center gap-1.5">
+                            <x-heroicon-o-map-pin class="w-3.5 h-3.5" /> Nigeria's #1 Online Print Shop
                         </div>
-                        <div class="bg-white/5 border border-white/10 rounded-xl p-3 text-center">
-                            <p class="text-2xl font-black text-white">36</p>
-                            <p class="text-xs font-bold text-slate-400 mt-0.5">States Served</p>
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
+                            Print. Brand.<br><span class="text-pink-400">Gift.</span> Delivered.
+                        </h1>
+                        <p class="text-lg text-slate-400 leading-relaxed mb-8 max-w-xl">
+                            Business cards, flyers, stickers, branded gifts, UV-DTF, laser engraving and more — from one trusted print partner. Shipped to all 36 states in 3–7 days.
+                        </p>
+                        <div class="mb-8"><livewire:product.search /></div>
+                        <div class="flex flex-wrap gap-3 mb-10">
+                            <a href="{{ route('products.index') }}" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 btn-lg font-black">Browse Products</a>
+                            <a href="{{ route('quotes.create') }}" class="btn btn-outline btn-lg font-black text-white border-white/25 hover:bg-white hover:text-slate-950 hover:border-white">Get a Free Quote</a>
                         </div>
-                        <div class="bg-white/5 border border-white/10 rounded-xl p-3 text-center">
-                            <p class="text-2xl font-black text-white">24h</p>
-                            <p class="text-xs font-bold text-slate-400 mt-0.5">File Review</p>
+                        <div class="grid grid-cols-3 gap-3 max-w-sm">
+                            <div class="bg-white/5 border border-white/10 rounded-xl p-3 text-center"><p class="text-2xl font-black text-white">15k+</p><p class="text-xs font-bold text-slate-400 mt-0.5">Orders Done</p></div>
+                            <div class="bg-white/5 border border-white/10 rounded-xl p-3 text-center"><p class="text-2xl font-black text-white">36</p><p class="text-xs font-bold text-slate-400 mt-0.5">States Served</p></div>
+                            <div class="bg-white/5 border border-white/10 rounded-xl p-3 text-center"><p class="text-2xl font-black text-white">24h</p><p class="text-xs font-bold text-slate-400 mt-0.5">File Review</p></div>
+                        </div>
+                    </div>
+                    <div class="relative hidden lg:block">
+                        <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
+                            <img src="https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=1200&q=80" alt="Print materials" class="w-full h-[420px] object-cover" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/50 to-transparent"></div>
+                        </div>
+                        <div class="absolute -bottom-4 -left-4 bg-white rounded-2xl shadow-2xl p-5 max-w-[200px] border border-slate-100">
+                            <div class="badge badge-sm bg-pink-100 text-pink-700 border-0 font-black mb-2 inline-flex items-center gap-1"><x-heroicon-s-fire class="w-3 h-3" /> Popular Now</div>
+                            <p class="text-lg font-black text-slate-950 leading-snug">Flyers from<br><span class="text-pink-600">NGN 35,000</span></p>
+                            <a href="{{ route('products.index') }}" class="btn btn-xs btn-neutral w-full mt-3 font-black">Order Now</a>
                         </div>
                     </div>
                 </div>
-
-                <div class="relative">
-                    <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
-                        <img
-                            src="https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=1200&q=80"
-                            alt="Colourful print materials"
-                            class="w-full h-[480px] object-cover"
-                        />
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/50 to-transparent"></div>
-                    </div>
-
-                    <div class="relative mt-4 md:absolute md:-bottom-5 md:-left-4 md:mt-0 bg-white rounded-2xl shadow-2xl p-5 max-w-[220px] border border-slate-100">
-                        <div class="badge badge-sm bg-pink-100 text-pink-700 border-0 font-black mb-2 inline-flex items-center gap-1">
-                            <x-heroicon-s-fire class="w-3 h-3" /> Popular Now
-                        </div>
-                        <p class="text-xl font-black text-slate-950 leading-snug">Flyers from<br><span class="text-pink-600">NGN 35,000</span></p>
-                        <p class="text-xs text-slate-500 mt-1">per 500 copies</p>
-                        <a href="{{ route('products.index') }}" class="btn btn-sm btn-neutral w-full mt-3 font-black">Order Now</a>
-                    </div>
-
-                    <div class="relative mt-3 ml-auto md:absolute md:-top-4 md:-right-4 md:mt-0 md:ml-0 bg-white rounded-2xl shadow-xl p-4 border border-slate-100 text-center w-fit">
-                        <p class="text-2xl font-black text-emerald-600">✓</p>
-                        <p class="text-xs font-black text-slate-700 mt-1">Free File<br>Checks</p>
-                    </div>
-                </div>
-
             </div>
         </div>
+
+        {{-- ── SLIDE 2 · SHOP (buy now) ── --}}
+        <div
+            x-show="current === 1"
+            x-transition:enter="transition-opacity duration-700"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity duration-500"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="absolute inset-0 bg-gradient-to-br from-pink-950 via-slate-950 to-slate-950"
+            style="display:none;"
+        >
+            <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 70% 50%, #ec4899 0%, transparent 60%);"></div>
+            <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 lg:py-20 h-full flex items-center">
+                <div class="grid lg:grid-cols-2 gap-12 items-center w-full">
+                    <div>
+                        <div class="badge badge-outline badge-lg text-pink-300 border-pink-700 font-black mb-6 inline-flex items-center gap-1.5">
+                            <x-heroicon-o-shopping-bag class="w-3.5 h-3.5" /> Shop — Fixed Prices
+                        </div>
+                        <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
+                            Buy Now.<br><span class="text-pink-400">No Quote</span> Needed.
+                        </h2>
+                        <p class="text-lg text-slate-400 leading-relaxed mb-8 max-w-xl">
+                            Browse ready-made products with fixed prices — pick your options and pay securely via Paystack. Delivered to your door, nationwide.
+                        </p>
+                        <div class="flex flex-wrap gap-3">
+                            <a href="{{ route('shop.index') }}" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 btn-lg font-black">Shop Now</a>
+                            <a href="{{ route('products.index') }}" class="btn btn-outline btn-lg font-black text-white border-white/25 hover:bg-white hover:text-slate-950 hover:border-white">Browse All Products</a>
+                        </div>
+                        @if(($featuredShopProducts ?? collect())->isNotEmpty())
+                        <div class="mt-10 flex gap-3 flex-wrap">
+                            @foreach(($featuredShopProducts ?? collect())->take(3) as $sp)
+                                <a href="{{ route('shop.show', $sp) }}" class="flex items-center gap-3 bg-white/10 border border-white/15 rounded-xl px-4 py-2 hover:bg-white/20 transition">
+                                    @if($sp->featuredImageUrl())
+                                        <img src="{{ $sp->featuredImageUrl() }}" alt="{{ $sp->name }}" class="w-9 h-9 rounded-lg object-cover shrink-0" />
+                                    @endif
+                                    <div>
+                                        <p class="text-xs font-black text-white leading-snug">{{ \Illuminate\Support\Str::limit($sp->name, 22) }}</p>
+                                        <p class="text-xs font-bold text-pink-400">NGN {{ number_format($sp->currentPrice(), 0) }}</p>
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
+                        @endif
+                    </div>
+                    <div class="relative hidden lg:block">
+                        <div class="grid grid-cols-2 gap-4">
+                            <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=600&q=80" class="rounded-2xl h-48 w-full object-cover shadow-2xl" alt="Shop products" />
+                            <img src="https://images.unsplash.com/photo-1601924582970-9238bcb495d9?auto=format&fit=crop&w=600&q=80" class="rounded-2xl h-48 w-full object-cover shadow-2xl mt-8" alt="Branded gifts" />
+                            <img src="https://images.unsplash.com/photo-1572635148818-ef6fd45eb394?auto=format&fit=crop&w=600&q=80" class="rounded-2xl h-48 w-full object-cover shadow-2xl -mt-8" alt="Mugs and prints" />
+                            <img src="https://images.unsplash.com/photo-1612831456875-11f0bc7e07b5?auto=format&fit=crop&w=600&q=80" class="rounded-2xl h-48 w-full object-cover shadow-2xl" alt="Packaging" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ── SLIDE 3 · SPECIALIST SERVICES ── --}}
+        <div
+            x-show="current === 2"
+            x-transition:enter="transition-opacity duration-700"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity duration-500"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-950 to-cyan-950"
+            style="display:none;"
+        >
+            <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 30% 60%, #06b6d4 0%, transparent 55%);"></div>
+            <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 lg:py-20 h-full flex items-center">
+                <div class="grid lg:grid-cols-2 gap-12 items-center w-full">
+                    <div>
+                        <div class="badge badge-outline badge-lg text-cyan-300 border-cyan-700 font-black mb-6 inline-flex items-center gap-1.5">
+                            <x-heroicon-o-sparkles class="w-3.5 h-3.5" /> Advanced Print Tech
+                        </div>
+                        <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
+                            UV-DTF. DTF.<br><span class="text-cyan-400">Laser Engraving.</span>
+                        </h2>
+                        <p class="text-lg text-slate-400 leading-relaxed mb-8 max-w-xl">
+                            Specialist production services for surfaces, fabrics and personalised gifts. Crystal-clear UV transfers, full-colour DTF, and precision laser work — on demand.
+                        </p>
+                        <div class="flex flex-wrap gap-3 mb-8">
+                            <a href="{{ route('services.index') }}" class="btn bg-cyan-600 border-0 text-white hover:bg-cyan-700 btn-lg font-black">Explore Services</a>
+                            <a href="{{ route('quotes.create') }}" class="btn btn-outline btn-lg font-black text-white border-white/25 hover:bg-white hover:text-slate-950 hover:border-white">Get a Free Quote</a>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 max-w-md">
+                            @foreach([['UV-DTF Transfer','Sticks to glass, metal, plastic','cyan'],['DTF Printing','Full-colour on any fabric','emerald'],['Laser Engraving','Wood, acrylic, leather','amber'],['Direct Image','Vibrant prints on gifts','pink']] as [$svc, $desc, $col])
+                            <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+                                <p class="text-xs font-black text-{{ $col }}-400 mb-1">{{ $svc }}</p>
+                                <p class="text-xs text-slate-400">{{ $desc }}</p>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="relative hidden lg:block">
+                        <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-black/50">
+                            <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=1200&q=80" alt="UV-DTF printing" class="w-full h-[420px] object-cover" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 to-transparent"></div>
+                            <div class="absolute bottom-5 left-5">
+                                <span class="badge badge-lg bg-cyan-500 border-0 text-white font-black">Instant quote available</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ── SLIDE 4 · BRANDED GIFTS ── --}}
+        <div
+            x-show="current === 3"
+            x-transition:enter="transition-opacity duration-700"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity duration-500"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="absolute inset-0 bg-gradient-to-br from-amber-950 via-slate-950 to-slate-950"
+            style="display:none;"
+        >
+            <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 75% 40%, #f59e0b 0%, transparent 55%);"></div>
+            <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 lg:py-20 h-full flex items-center">
+                <div class="grid lg:grid-cols-2 gap-12 items-center w-full">
+                    <div>
+                        <div class="badge badge-outline badge-lg text-amber-300 border-amber-700 font-black mb-6 inline-flex items-center gap-1.5">
+                            <x-heroicon-o-gift class="w-3.5 h-3.5" /> Corporate Gifting
+                        </div>
+                        <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
+                            Branded Gifts for<br><span class="text-amber-400">Every Occasion.</span>
+                        </h2>
+                        <p class="text-lg text-slate-400 leading-relaxed mb-8 max-w-xl">
+                            Mugs, t-shirts, keyrings, tote bags and more — printed with your logo and delivered to all 36 states. Minimum orders available for every budget.
+                        </p>
+                        <div class="flex flex-wrap gap-3 mb-8">
+                            <a href="{{ route('products.index') }}" class="btn bg-amber-600 border-0 text-white hover:bg-amber-700 btn-lg font-black">Browse Gift Products</a>
+                            <a href="{{ route('quotes.create') }}" class="btn btn-outline btn-lg font-black text-white border-white/25 hover:bg-white hover:text-slate-950 hover:border-white">Get Bulk Pricing</a>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach(['Branded Mugs','Custom T-Shirts','Tote Bags','Keyrings','Award Plaques','Notebooks'] as $gift)
+                                <span class="badge badge-lg bg-white/10 border-white/15 text-white font-bold">{{ $gift }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="relative hidden lg:block">
+                        <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-black/50">
+                            <img src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?auto=format&fit=crop&w=1200&q=80" alt="Branded gifts" class="w-full h-[420px] object-cover" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-amber-950/60 to-transparent"></div>
+                            <div class="absolute bottom-5 left-5">
+                                <span class="badge badge-lg bg-amber-500 border-0 text-white font-black">Available from 12 pcs</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ── SLIDE 5 · PARTNER PROGRAMME ── --}}
+        <div
+            x-show="current === 4"
+            x-transition:enter="transition-opacity duration-700"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity duration-500"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="absolute inset-0 bg-gradient-to-br from-emerald-950 via-slate-950 to-slate-950"
+            style="display:none;"
+        >
+            <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 25% 55%, #10b981 0%, transparent 55%);"></div>
+            <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 lg:py-20 h-full flex items-center">
+                <div class="grid lg:grid-cols-2 gap-12 items-center w-full">
+                    <div>
+                        <div class="badge badge-outline badge-lg text-emerald-300 border-emerald-700 font-black mb-6 inline-flex items-center gap-1.5">
+                            <x-heroicon-o-users class="w-3.5 h-3.5" /> Partner Programme
+                        </div>
+                        <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
+                            Grow Your Business<br><span class="text-emerald-400">with Printbuka.</span>
+                        </h2>
+                        <p class="text-lg text-slate-400 leading-relaxed mb-8 max-w-xl">
+                            Join hundreds of entrepreneurs earning from referrals, reselling and white-label print services. No upfront cost — get your partner link today.
+                        </p>
+                        <div class="flex flex-wrap gap-3 mb-8">
+                            <a href="{{ route('partners.create') }}" class="btn bg-emerald-600 border-0 text-white hover:bg-emerald-700 btn-lg font-black">Become a Partner</a>
+                            <a href="{{ route('services.index') }}" class="btn btn-outline btn-lg font-black text-white border-white/25 hover:bg-white hover:text-slate-950 hover:border-white">View Services</a>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3 max-w-sm">
+                            <div class="bg-white/5 border border-white/10 rounded-xl p-3 text-center"><p class="text-xl font-black text-white">Free</p><p class="text-xs font-bold text-slate-400 mt-0.5">To Join</p></div>
+                            <div class="bg-white/5 border border-white/10 rounded-xl p-3 text-center"><p class="text-xl font-black text-white">15%</p><p class="text-xs font-bold text-slate-400 mt-0.5">Commission</p></div>
+                            <div class="bg-white/5 border border-white/10 rounded-xl p-3 text-center"><p class="text-xl font-black text-white">∞</p><p class="text-xs font-bold text-slate-400 mt-0.5">Earnings</p></div>
+                        </div>
+                    </div>
+                    <div class="relative hidden lg:block">
+                        <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-black/50">
+                            <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80" alt="Business partners" class="w-full h-[420px] object-cover" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-emerald-950/60 to-transparent"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ── CONTROLS ── --}}
+        {{-- Prev/Next arrows --}}
+        <button @click="prev()" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/25 transition flex items-center justify-center backdrop-blur-sm">
+            <x-heroicon-o-chevron-left class="w-5 h-5" />
+        </button>
+        <button @click="next()" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/25 transition flex items-center justify-center backdrop-blur-sm">
+            <x-heroicon-o-chevron-right class="w-5 h-5" />
+        </button>
+
+        {{-- Dot indicators --}}
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+            @for($dot = 0; $dot < 5; $dot++)
+                <button
+                    @click="go({{ $dot }})"
+                    :class="current === {{ $dot }} ? 'w-6 bg-white' : 'w-2 bg-white/40 hover:bg-white/70'"
+                    class="h-2 rounded-full transition-all duration-300"
+                ></button>
+            @endfor
+        </div>
+
+        {{-- Slide counter --}}
+        <div class="absolute bottom-6 right-6 z-20 text-xs font-black text-white/50 tabular-nums">
+            <span x-text="current + 1"></span>/<span>5</span>
+        </div>
+
     </section>
 
     {{-- ===== TRUST BAR ===== --}}
@@ -535,6 +769,9 @@
         </div>
     </section>
     @endif
+
+    {{-- ===== SUGGESTED FOR YOU (personalised, hidden for new visitors with no history) ===== --}}
+    <livewire:product.suggestions />
 
     {{-- ===== HOW IT WORKS ===== --}}
     <section class="bg-slate-950 py-20 text-white">

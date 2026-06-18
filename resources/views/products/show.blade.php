@@ -145,5 +145,7 @@
                 </div>
             </section>
         @endif
+
+        <livewire:product.suggestions :excludeCatalogId="$product->id" />
     </main>
 @endsection

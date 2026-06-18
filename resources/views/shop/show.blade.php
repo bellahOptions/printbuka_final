@@ -177,6 +177,8 @@
         </div>
     </div>
 
+    <livewire:product.suggestions :excludeShopId="$product->id" />
+
     {{-- Related products --}}
     @if($relatedProducts->isNotEmpty())
         <div class="mt-16">

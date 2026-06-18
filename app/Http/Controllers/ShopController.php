@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ShopProduct;
+use App\Services\ProductSuggestionService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -27,6 +28,7 @@ class ShopController extends Controller
         abort_unless($product->is_active, 404);
 
         $product->increment('view_count');
+        app(ProductSuggestionService::class)->record('shop', $product->id);
         $product->loadMissing('optionGroups.options');
 
         $relatedProducts = ShopProduct::query()
