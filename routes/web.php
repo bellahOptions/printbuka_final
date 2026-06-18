@@ -22,6 +22,8 @@ use App\Http\Controllers\ShopCartController;
 use App\Http\Controllers\ShopCheckoutController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SupportController;
+use App\Http\Controllers\AboutController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\TrackOrderController;
 use App\Http\Controllers\UserInvoiceController;
 use App\Http\Controllers\TrainingController;
@@ -173,6 +175,10 @@ Route::middleware('customer.portal')->group(function (): void {
 
     Route::get('/blog', [BlogController::class, 'index'])->name('blog');
     Route::get('/blog/{post:slug}', [BlogController::class, 'show'])->name('blog.show');
+
+    Route::get('/about', [AboutController::class, 'index'])->name('about');
+    Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+    Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 });
 
 Route::middleware('user.guest')->group(function (): void {

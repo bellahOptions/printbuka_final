@@ -1,6 +1,606 @@
 {
+  "_chunk-70_6E5lJ.js": {
+    "file": "assets/chunk-70_6E5lJ.js",
+    "name": "chunk"
+  },
+  "react-frontend/src/img/QRcode.png": {
+    "file": "assets/QRcode--HSwiTkg.png",
+    "src": "react-frontend/src/img/QRcode.png"
+  },
+  "react-frontend/src/img/Scroll_Down.png": {
+    "file": "assets/Scroll_Down-sMjviSTT.png",
+    "src": "react-frontend/src/img/Scroll_Down.png"
+  },
+  "react-frontend/src/img/about/01.jpg": {
+    "file": "assets/01-DYnkdZI9.jpg",
+    "src": "react-frontend/src/img/about/01.jpg"
+  },
+  "react-frontend/src/img/about/02.jpg": {
+    "file": "assets/02-Bwh9XjD-.jpg",
+    "src": "react-frontend/src/img/about/02.jpg"
+  },
+  "react-frontend/src/img/about/03.jpg": {
+    "file": "assets/03-CHZlb8qn.jpg",
+    "src": "react-frontend/src/img/about/03.jpg"
+  },
+  "react-frontend/src/img/about/04.jpg": {
+    "file": "assets/04-BzCKoIVz.jpg",
+    "src": "react-frontend/src/img/about/04.jpg"
+  },
+  "react-frontend/src/img/about/05.jpg": {
+    "file": "assets/05-C21ChHjt.jpg",
+    "src": "react-frontend/src/img/about/05.jpg"
+  },
+  "react-frontend/src/img/about/author.png": {
+    "file": "assets/author-CuyhDVHY.png",
+    "src": "react-frontend/src/img/about/author.png"
+  },
+  "react-frontend/src/img/about/cap.png": {
+    "file": "assets/cap-DmJPnqpF.png",
+    "src": "react-frontend/src/img/about/cap.png"
+  },
+  "react-frontend/src/img/about/circle.png": {
+    "file": "assets/circle-CDQowuMI.png",
+    "src": "react-frontend/src/img/about/circle.png"
+  },
+  "react-frontend/src/img/about/color_cycle.png": {
+    "file": "assets/color_cycle-DxUOkWBl.png",
+    "src": "react-frontend/src/img/about/color_cycle.png"
+  },
+  "react-frontend/src/img/about/dot-1.png": {
+    "file": "assets/dot-1-DycCexCR.png",
+    "src": "react-frontend/src/img/about/dot-1.png"
+  },
+  "react-frontend/src/img/about/dot-2.png": {
+    "file": "assets/dot-2-Ck6RXlpv.png",
+    "src": "react-frontend/src/img/about/dot-2.png"
+  },
+  "react-frontend/src/img/about/line.png": {
+    "file": "assets/line-Bc-bsaSx.png",
+    "src": "react-frontend/src/img/about/line.png"
+  },
+  "react-frontend/src/img/about/mug1.png": {
+    "file": "assets/mug1-DR9vnroM.png",
+    "src": "react-frontend/src/img/about/mug1.png"
+  },
+  "react-frontend/src/img/about/product-shape.png": {
+    "file": "assets/product-shape-C-yRaUmN.png",
+    "src": "react-frontend/src/img/about/product-shape.png"
+  },
+  "react-frontend/src/img/about/shape-1.png": {
+    "file": "assets/shape-1-DCPZIDtI.png",
+    "src": "react-frontend/src/img/about/shape-1.png"
+  },
+  "react-frontend/src/img/about/shape-2.png": {
+    "file": "assets/shape-2-BS7fD7go.png",
+    "src": "react-frontend/src/img/about/shape-2.png"
+  },
+  "react-frontend/src/img/about/shape.png": {
+    "file": "assets/shape-BpCdKjmy.png",
+    "src": "react-frontend/src/img/about/shape.png"
+  },
+  "react-frontend/src/img/about/sticer.png": {
+    "file": "assets/sticer-CYQlt0EU.png",
+    "src": "react-frontend/src/img/about/sticer.png"
+  },
+  "react-frontend/src/img/about/t-shirt.png": {
+    "file": "assets/t-shirt-CyHNYmF4.png",
+    "src": "react-frontend/src/img/about/t-shirt.png"
+  },
+  "react-frontend/src/img/apple.png": {
+    "file": "assets/apple-B6nkuuHV.png",
+    "src": "react-frontend/src/img/apple.png"
+  },
+  "react-frontend/src/img/brand/bg.jpg": {
+    "file": "assets/bg-BpAAWmGb.jpg",
+    "src": "react-frontend/src/img/brand/bg.jpg"
+  },
+  "react-frontend/src/img/brand/brand-logo-11.png": {
+    "file": "assets/brand-logo-11-D69gsTJE.png",
+    "src": "react-frontend/src/img/brand/brand-logo-11.png"
+  },
+  "react-frontend/src/img/brand/brand-logo-12.png": {
+    "file": "assets/brand-logo-12-0ZYs2I1L.png",
+    "src": "react-frontend/src/img/brand/brand-logo-12.png"
+  },
+  "react-frontend/src/img/brand/brand-logo-13.png": {
+    "file": "assets/brand-logo-13-DTcEVFKZ.png",
+    "src": "react-frontend/src/img/brand/brand-logo-13.png"
+  },
+  "react-frontend/src/img/brand/brand-logo-14.png": {
+    "file": "assets/brand-logo-14-BqcLXuVv.png",
+    "src": "react-frontend/src/img/brand/brand-logo-14.png"
+  },
+  "react-frontend/src/img/brand/brand-logo-15.png": {
+    "file": "assets/brand-logo-15-DaUqKxnS.png",
+    "src": "react-frontend/src/img/brand/brand-logo-15.png"
+  },
+  "react-frontend/src/img/breadcrumb-bg.jpg": {
+    "file": "assets/breadcrumb-bg-CmVv2IDe.jpg",
+    "src": "react-frontend/src/img/breadcrumb-bg.jpg"
+  },
+  "react-frontend/src/img/card.png": {
+    "file": "assets/card-0WQ1W7qu.png",
+    "src": "react-frontend/src/img/card.png"
+  },
+  "react-frontend/src/img/cta-bg-2.jpg": {
+    "file": "assets/cta-bg-2-uKkv3OvR.jpg",
+    "src": "react-frontend/src/img/cta-bg-2.jpg"
+  },
+  "react-frontend/src/img/cta-bg.jpg": {
+    "file": "assets/cta-bg-DRlyVbXR.jpg",
+    "src": "react-frontend/src/img/cta-bg.jpg"
+  },
+  "react-frontend/src/img/cta-img.png": {
+    "file": "assets/cta-img-Cx7vN7nA.png",
+    "src": "react-frontend/src/img/cta-img.png"
+  },
+  "react-frontend/src/img/cta-sticker.png": {
+    "file": "assets/cta-sticker-CisVgeNW.png",
+    "src": "react-frontend/src/img/cta-sticker.png"
+  },
+  "react-frontend/src/img/cta-t-shirt.png": {
+    "file": "assets/cta-t-shirt-B78utk4g.png",
+    "src": "react-frontend/src/img/cta-t-shirt.png"
+  },
+  "react-frontend/src/img/cta-video.jpg": {
+    "file": "assets/cta-video-Dx52-Fc7.jpg",
+    "src": "react-frontend/src/img/cta-video.jpg"
+  },
+  "react-frontend/src/img/feature/Group.png": {
+    "file": "assets/Group-CdTobP8V.png",
+    "src": "react-frontend/src/img/feature/Group.png"
+  },
+  "react-frontend/src/img/feature/StickersV30.png": {
+    "file": "assets/StickersV30-C0bvYH2O.png",
+    "src": "react-frontend/src/img/feature/StickersV30.png"
+  },
+  "react-frontend/src/img/feature/growth1.png": {
+    "file": "assets/growth1-CFeYLchV.png",
+    "src": "react-frontend/src/img/feature/growth1.png"
+  },
+  "react-frontend/src/img/feature/line-shape.png": {
+    "file": "assets/line-shape-DdhAkBHX.png",
+    "src": "react-frontend/src/img/feature/line-shape.png"
+  },
+  "react-frontend/src/img/feature/natural.png": {
+    "file": "assets/natural-DUPqvsM3.png",
+    "src": "react-frontend/src/img/feature/natural.png"
+  },
+  "react-frontend/src/img/feature/printing1.png": {
+    "file": "assets/printing1-PL3xiDE6.png",
+    "src": "react-frontend/src/img/feature/printing1.png"
+  },
+  "react-frontend/src/img/feature/return.png": {
+    "file": "assets/return-PyDWpwPP.png",
+    "src": "react-frontend/src/img/feature/return.png"
+  },
+  "react-frontend/src/img/feature/tshirt-2.png": {
+    "file": "assets/tshirt-2-BiU6_cuy.png",
+    "src": "react-frontend/src/img/feature/tshirt-2.png"
+  },
+  "react-frontend/src/img/feature/tshirt.png": {
+    "file": "assets/tshirt-C1oMFdU5.png",
+    "src": "react-frontend/src/img/feature/tshirt.png"
+  },
+  "react-frontend/src/img/flower-shape.png": {
+    "file": "assets/flower-shape-BN2STdtl.png",
+    "src": "react-frontend/src/img/flower-shape.png"
+  },
+  "react-frontend/src/img/footer/dot.png": {
+    "file": "assets/dot-BkalSiO-.png",
+    "src": "react-frontend/src/img/footer/dot.png"
+  },
+  "react-frontend/src/img/footer/footer-shape-1.png": {
+    "file": "assets/footer-shape-1-CVyAeY3l.png",
+    "src": "react-frontend/src/img/footer/footer-shape-1.png"
+  },
+  "react-frontend/src/img/footer/footer-shape-2.png": {
+    "file": "assets/footer-shape-2-Jtr0IzwS.png",
+    "src": "react-frontend/src/img/footer/footer-shape-2.png"
+  },
+  "react-frontend/src/img/hand-bag.png": {
+    "file": "assets/hand-bag-iCUOClkm.png",
+    "src": "react-frontend/src/img/hand-bag.png"
+  },
+  "react-frontend/src/img/header/home-1.jpg": {
+    "file": "assets/home-1-Cjc6Xsya.jpg",
+    "src": "react-frontend/src/img/header/home-1.jpg"
+  },
+  "react-frontend/src/img/header/home-2.jpg": {
+    "file": "assets/home-1-Cjc6Xsya.jpg",
+    "src": "react-frontend/src/img/header/home-1.jpg"
+  },
+  "react-frontend/src/img/header/home-3.jpg": {
+    "file": "assets/home-1-Cjc6Xsya.jpg",
+    "src": "react-frontend/src/img/header/home-1.jpg"
+  },
+  "react-frontend/src/img/hero/arrow-up.png": {
+    "file": "assets/arrow-up-VHDRXJOM.png",
+    "src": "react-frontend/src/img/hero/arrow-up.png"
+  },
+  "react-frontend/src/img/hero/bar.png": {
+    "file": "assets/bar-BtdRMGaD.png",
+    "src": "react-frontend/src/img/hero/bar.png"
+  },
+  "react-frontend/src/img/hero/circle-2.png": {
+    "file": "assets/circle-2-B-S9hVGA.png",
+    "src": "react-frontend/src/img/hero/circle-2.png"
+  },
+  "react-frontend/src/img/hero/circle.png": {
+    "file": "assets/circle-CIa7XnBi.png",
+    "src": "react-frontend/src/img/hero/circle.png"
+  },
+  "react-frontend/src/img/hero/hero-1.png": {
+    "file": "assets/hero-1-dNCv5EkR.png",
+    "src": "react-frontend/src/img/hero/hero-1.png"
+  },
+  "react-frontend/src/img/hero/hero-bg.jpg": {
+    "file": "assets/hero-bg-s4w1Xffo.jpg",
+    "src": "react-frontend/src/img/hero/hero-bg.jpg"
+  },
+  "react-frontend/src/img/hero/information.png": {
+    "file": "assets/information-C3nzSC_i.png",
+    "src": "react-frontend/src/img/hero/information.png"
+  },
+  "react-frontend/src/img/hero/vector.png": {
+    "file": "assets/vector-CIxqMMfD.png",
+    "src": "react-frontend/src/img/hero/vector.png"
+  },
+  "react-frontend/src/img/icon/01.svg": {
+    "file": "assets/01-C4oXN77R.svg",
+    "src": "react-frontend/src/img/icon/01.svg"
+  },
+  "react-frontend/src/img/icon/02.svg": {
+    "file": "assets/02-Bh8Pqdqk.svg",
+    "src": "react-frontend/src/img/icon/02.svg"
+  },
+  "react-frontend/src/img/icon/12.svg": {
+    "file": "assets/12-BkA2bPUZ.svg",
+    "src": "react-frontend/src/img/icon/12.svg"
+  },
+  "react-frontend/src/img/icon/13.svg": {
+    "file": "assets/13-u7p2vB7b.svg",
+    "src": "react-frontend/src/img/icon/13.svg"
+  },
+  "react-frontend/src/img/icon/location.png": {
+    "file": "assets/location-95007Oqv.png",
+    "src": "react-frontend/src/img/icon/location.png"
+  },
+  "react-frontend/src/img/line.png": {
+    "file": "assets/line-DVcUG7WR.png",
+    "src": "react-frontend/src/img/line.png"
+  },
+  "react-frontend/src/img/logo/black-logo.svg": {
+    "file": "assets/black-logo-DrncKgKO.svg",
+    "src": "react-frontend/src/img/logo/black-logo.svg"
+  },
+  "react-frontend/src/img/marquee-box-3.png": {
+    "file": "assets/marquee-box-3-FyplGsyz.png",
+    "src": "react-frontend/src/img/marquee-box-3.png"
+  },
+  "react-frontend/src/img/marquee-box.png": {
+    "file": "assets/marquee-box-COjRSVsT.png",
+    "src": "react-frontend/src/img/marquee-box.png"
+  },
+  "react-frontend/src/img/news/01.jpg": {
+    "file": "assets/01-DiW6TSQG.jpg",
+    "src": "react-frontend/src/img/news/01.jpg"
+  },
+  "react-frontend/src/img/news/02.jpg": {
+    "file": "assets/01-DiW6TSQG.jpg",
+    "src": "react-frontend/src/img/news/01.jpg"
+  },
+  "react-frontend/src/img/news/03.jpg": {
+    "file": "assets/01-DiW6TSQG.jpg",
+    "src": "react-frontend/src/img/news/01.jpg"
+  },
+  "react-frontend/src/img/news/author.png": {
+    "file": "assets/author-BHWeJFhN.png",
+    "src": "react-frontend/src/img/news/author.png"
+  },
+  "react-frontend/src/img/news/comment-2.png": {
+    "file": "assets/comment-2-BhgJIROM.png",
+    "src": "react-frontend/src/img/news/comment-2.png"
+  },
+  "react-frontend/src/img/news/comment.png": {
+    "file": "assets/comment-vhPfmVmH.png",
+    "src": "react-frontend/src/img/news/comment.png"
+  },
+  "react-frontend/src/img/news/post-1.jpg": {
+    "file": "assets/post-3-CrzlakUJ.jpg",
+    "src": "react-frontend/src/img/news/post-1.jpg"
+  },
+  "react-frontend/src/img/news/post-2.jpg": {
+    "file": "assets/post-3-CrzlakUJ.jpg",
+    "src": "react-frontend/src/img/news/post-1.jpg"
+  },
+  "react-frontend/src/img/news/post-3.jpg": {
+    "file": "assets/post-3-CrzlakUJ.jpg",
+    "src": "react-frontend/src/img/news/post-1.jpg"
+  },
+  "react-frontend/src/img/news/post-5.jpg": {
+    "file": "assets/post-5-CO1z83f3.jpg",
+    "src": "react-frontend/src/img/news/post-5.jpg"
+  },
+  "react-frontend/src/img/news/post-6.jpg": {
+    "file": "assets/post-7-CzsfVR7M.jpg",
+    "src": "react-frontend/src/img/news/post-6.jpg"
+  },
+  "react-frontend/src/img/news/post-7.jpg": {
+    "file": "assets/post-7-CzsfVR7M.jpg",
+    "src": "react-frontend/src/img/news/post-6.jpg"
+  },
+  "react-frontend/src/img/news/pp1.jpg": {
+    "file": "assets/pp3-DXmVeLbJ.jpg",
+    "src": "react-frontend/src/img/news/pp1.jpg"
+  },
+  "react-frontend/src/img/news/pp2.jpg": {
+    "file": "assets/pp3-DXmVeLbJ.jpg",
+    "src": "react-frontend/src/img/news/pp1.jpg"
+  },
+  "react-frontend/src/img/news/pp3.jpg": {
+    "file": "assets/pp3-DXmVeLbJ.jpg",
+    "src": "react-frontend/src/img/news/pp1.jpg"
+  },
+  "react-frontend/src/img/play-store.png": {
+    "file": "assets/play-store-fkECulX8.png",
+    "src": "react-frontend/src/img/play-store.png"
+  },
+  "react-frontend/src/img/print-box.png": {
+    "file": "assets/print-box-B6xFZ7d2.png",
+    "src": "react-frontend/src/img/print-box.png"
+  },
+  "react-frontend/src/img/product/shape-1.png": {
+    "file": "assets/shape-1-Dlqt_ypv.png",
+    "src": "react-frontend/src/img/product/shape-1.png"
+  },
+  "react-frontend/src/img/review/01.jpg": {
+    "file": "assets/01-B1xIRc06.jpg",
+    "src": "react-frontend/src/img/review/01.jpg"
+  },
+  "react-frontend/src/img/review/02.jpg": {
+    "file": "assets/01-B1xIRc06.jpg",
+    "src": "react-frontend/src/img/review/01.jpg"
+  },
+  "react-frontend/src/img/service-details/1.jpg": {
+    "file": "assets/17-BN6l0n9j.jpg",
+    "src": "react-frontend/src/img/service-details/1.jpg"
+  },
+  "react-frontend/src/img/service-details/10.jpg": {
+    "file": "assets/17-BN6l0n9j.jpg",
+    "src": "react-frontend/src/img/service-details/1.jpg"
+  },
+  "react-frontend/src/img/service-details/11.jpg": {
+    "file": "assets/17-BN6l0n9j.jpg",
+    "src": "react-frontend/src/img/service-details/1.jpg"
+  },
+  "react-frontend/src/img/service-details/12.jpg": {
+    "file": "assets/17-BN6l0n9j.jpg",
+    "src": "react-frontend/src/img/service-details/1.jpg"
+  },
+  "react-frontend/src/img/service-details/13.jpg": {
+    "file": "assets/17-BN6l0n9j.jpg",
+    "src": "react-frontend/src/img/service-details/1.jpg"
+  },
+  "react-frontend/src/img/service-details/14.jpg": {
+    "file": "assets/17-BN6l0n9j.jpg",
+    "src": "react-frontend/src/img/service-details/1.jpg"
+  },
+  "react-frontend/src/img/service-details/15.jpg": {
+    "file": "assets/17-BN6l0n9j.jpg",
+    "src": "react-frontend/src/img/service-details/1.jpg"
+  },
+  "react-frontend/src/img/service-details/16.jpg": {
+    "file": "assets/17-BN6l0n9j.jpg",
+    "src": "react-frontend/src/img/service-details/1.jpg"
+  },
+  "react-frontend/src/img/service-details/17.jpg": {
+    "file": "assets/17-BN6l0n9j.jpg",
+    "src": "react-frontend/src/img/service-details/1.jpg"
+  },
+  "react-frontend/src/img/service-details/2.jpg": {
+    "file": "assets/17-BN6l0n9j.jpg",
+    "src": "react-frontend/src/img/service-details/1.jpg"
+  },
+  "react-frontend/src/img/service-details/3.jpg": {
+    "file": "assets/17-BN6l0n9j.jpg",
+    "src": "react-frontend/src/img/service-details/1.jpg"
+  },
+  "react-frontend/src/img/service-details/4.jpg": {
+    "file": "assets/17-BN6l0n9j.jpg",
+    "src": "react-frontend/src/img/service-details/1.jpg"
+  },
+  "react-frontend/src/img/service-details/5.jpg": {
+    "file": "assets/17-BN6l0n9j.jpg",
+    "src": "react-frontend/src/img/service-details/1.jpg"
+  },
+  "react-frontend/src/img/service-details/6.jpg": {
+    "file": "assets/17-BN6l0n9j.jpg",
+    "src": "react-frontend/src/img/service-details/1.jpg"
+  },
+  "react-frontend/src/img/service-details/7.jpg": {
+    "file": "assets/17-BN6l0n9j.jpg",
+    "src": "react-frontend/src/img/service-details/1.jpg"
+  },
+  "react-frontend/src/img/service-details/8.jpg": {
+    "file": "assets/17-BN6l0n9j.jpg",
+    "src": "react-frontend/src/img/service-details/1.jpg"
+  },
+  "react-frontend/src/img/service-details/9.jpg": {
+    "file": "assets/17-BN6l0n9j.jpg",
+    "src": "react-frontend/src/img/service-details/1.jpg"
+  },
+  "react-frontend/src/img/service/01.png": {
+    "file": "assets/01-BQis3djx.png",
+    "src": "react-frontend/src/img/service/01.png"
+  },
+  "react-frontend/src/img/service/02.png": {
+    "file": "assets/01-BQis3djx.png",
+    "src": "react-frontend/src/img/service/01.png"
+  },
+  "react-frontend/src/img/service/03.png": {
+    "file": "assets/01-BQis3djx.png",
+    "src": "react-frontend/src/img/service/01.png"
+  },
+  "react-frontend/src/img/service/04.png": {
+    "file": "assets/01-BQis3djx.png",
+    "src": "react-frontend/src/img/service/01.png"
+  },
+  "react-frontend/src/img/service/06.png": {
+    "file": "assets/06-B4Cc7oMY.png",
+    "src": "react-frontend/src/img/service/06.png"
+  },
+  "react-frontend/src/img/service/07.png": {
+    "file": "assets/07-B7N-mtVX.png",
+    "src": "react-frontend/src/img/service/07.png"
+  },
+  "react-frontend/src/img/service/08.png": {
+    "file": "assets/08-Bw5o6sMU.png",
+    "src": "react-frontend/src/img/service/08.png"
+  },
+  "react-frontend/src/img/service/09.png": {
+    "file": "assets/09-0mQfRPAr.png",
+    "src": "react-frontend/src/img/service/09.png"
+  },
+  "react-frontend/src/img/service/10.png": {
+    "file": "assets/10-t3Alr4Pq.png",
+    "src": "react-frontend/src/img/service/10.png"
+  },
+  "react-frontend/src/img/service/details-2.jpg": {
+    "file": "assets/details-2-DvfAJkIN.jpg",
+    "src": "react-frontend/src/img/service/details-2.jpg"
+  },
+  "react-frontend/src/img/service/details-3.jpg": {
+    "file": "assets/details-3-DsrCqfOa.jpg",
+    "src": "react-frontend/src/img/service/details-3.jpg"
+  },
+  "react-frontend/src/img/service/details-4.jpg": {
+    "file": "assets/details-4-C8XCM2pD.jpg",
+    "src": "react-frontend/src/img/service/details-4.jpg"
+  },
+  "react-frontend/src/img/service/s1.jpg": {
+    "file": "assets/s1-CBVNJgkw.jpg",
+    "src": "react-frontend/src/img/service/s1.jpg"
+  },
+  "react-frontend/src/img/service/s2.jpg": {
+    "file": "assets/s1-CBVNJgkw.jpg",
+    "src": "react-frontend/src/img/service/s1.jpg"
+  },
+  "react-frontend/src/img/service/s3.jpg": {
+    "file": "assets/s1-CBVNJgkw.jpg",
+    "src": "react-frontend/src/img/service/s1.jpg"
+  },
+  "react-frontend/src/img/service/service-bg.jpg": {
+    "file": "assets/service-bg-CeCgH6r7.jpg",
+    "src": "react-frontend/src/img/service/service-bg.jpg"
+  },
+  "react-frontend/src/img/service/service-contact.jpg": {
+    "file": "assets/service-contact-DInufgbU.jpg",
+    "src": "react-frontend/src/img/service/service-contact.jpg"
+  },
+  "react-frontend/src/img/service/shape.png": {
+    "file": "assets/shape-jl3KwTih.png",
+    "src": "react-frontend/src/img/service/shape.png"
+  },
+  "react-frontend/src/img/star-shape.png": {
+    "file": "assets/star-shape-DkvxJJ9O.png",
+    "src": "react-frontend/src/img/star-shape.png"
+  },
+  "react-frontend/src/img/t-shirt.png": {
+    "file": "assets/t-shirt-TbYsrUhk.png",
+    "src": "react-frontend/src/img/t-shirt.png"
+  },
+  "react-frontend/src/img/testimonial/line.png": {
+    "file": "assets/line-CveupGla.png",
+    "src": "react-frontend/src/img/testimonial/line.png"
+  },
+  "react-frontend/src/img/testimonial/testimonial-bg-2.jpg": {
+    "file": "assets/testimonial-bg-2-C-S8HBe9.jpg",
+    "src": "react-frontend/src/img/testimonial/testimonial-bg-2.jpg"
+  },
+  "react-frontend/src/img/testimonial/testimonial-bg.jpg": {
+    "file": "assets/testimonial-bg-CUbCfRIR.jpg",
+    "src": "react-frontend/src/img/testimonial/testimonial-bg.jpg"
+  },
+  "react-frontend/src/img/testimonial/testimonial.png": {
+    "file": "assets/testimonial-CKrNRycQ.png",
+    "src": "react-frontend/src/img/testimonial/testimonial.png"
+  },
+  "react-frontend/src/img/testimonial/work-shape.png": {
+    "file": "assets/work-shape-CJC5rfI1.png",
+    "src": "react-frontend/src/img/testimonial/work-shape.png"
+  },
+  "react-frontend/src/img/work-process/01.jpg": {
+    "file": "assets/03-CQgofELH.jpg",
+    "src": "react-frontend/src/img/work-process/01.jpg"
+  },
+  "react-frontend/src/img/work-process/02.jpg": {
+    "file": "assets/03-CQgofELH.jpg",
+    "src": "react-frontend/src/img/work-process/01.jpg"
+  },
+  "react-frontend/src/img/work-process/03.jpg": {
+    "file": "assets/03-CQgofELH.jpg",
+    "src": "react-frontend/src/img/work-process/01.jpg"
+  },
+  "react-frontend/src/webfonts/fa-brands-400.ttf": {
+    "file": "assets/fa-brands-400-GADgr3Or.ttf",
+    "src": "react-frontend/src/webfonts/fa-brands-400.ttf"
+  },
+  "react-frontend/src/webfonts/fa-brands-400.woff2": {
+    "file": "assets/fa-brands-400-P7kvyP95.woff2",
+    "src": "react-frontend/src/webfonts/fa-brands-400.woff2"
+  },
+  "react-frontend/src/webfonts/fa-duotone-900.ttf": {
+    "file": "assets/fa-duotone-900-DFMZFPM3.ttf",
+    "src": "react-frontend/src/webfonts/fa-duotone-900.ttf"
+  },
+  "react-frontend/src/webfonts/fa-duotone-900.woff2": {
+    "file": "assets/fa-duotone-900-BMuDPG_o.woff2",
+    "src": "react-frontend/src/webfonts/fa-duotone-900.woff2"
+  },
+  "react-frontend/src/webfonts/fa-light-300.ttf": {
+    "file": "assets/fa-light-300-BxGUUM1t.ttf",
+    "src": "react-frontend/src/webfonts/fa-light-300.ttf"
+  },
+  "react-frontend/src/webfonts/fa-light-300.woff2": {
+    "file": "assets/fa-light-300-D4npn_Em.woff2",
+    "src": "react-frontend/src/webfonts/fa-light-300.woff2"
+  },
+  "react-frontend/src/webfonts/fa-regular-400.ttf": {
+    "file": "assets/fa-regular-400-BI9qSWGe.ttf",
+    "src": "react-frontend/src/webfonts/fa-regular-400.ttf"
+  },
+  "react-frontend/src/webfonts/fa-regular-400.woff2": {
+    "file": "assets/fa-regular-400-4Qv4MTlO.woff2",
+    "src": "react-frontend/src/webfonts/fa-regular-400.woff2"
+  },
+  "react-frontend/src/webfonts/fa-solid-900.ttf": {
+    "file": "assets/fa-solid-900-DBKKAbIh.ttf",
+    "src": "react-frontend/src/webfonts/fa-solid-900.ttf"
+  },
+  "react-frontend/src/webfonts/fa-solid-900.woff2": {
+    "file": "assets/fa-solid-900-CUdZ59N1.woff2",
+    "src": "react-frontend/src/webfonts/fa-solid-900.woff2"
+  },
+  "react-frontend/src/webfonts/fa-thin-100.ttf": {
+    "file": "assets/fa-thin-100-jZxqlSz5.ttf",
+    "src": "react-frontend/src/webfonts/fa-thin-100.ttf"
+  },
+  "react-frontend/src/webfonts/fa-thin-100.woff2": {
+    "file": "assets/fa-thin-100-Cnj4OYWf.woff2",
+    "src": "react-frontend/src/webfonts/fa-thin-100.woff2"
+  },
+  "react-frontend/src/webfonts/fa-v4compatibility.ttf": {
+    "file": "assets/fa-v4compatibility-DiUbXVNU.ttf",
+    "src": "react-frontend/src/webfonts/fa-v4compatibility.ttf"
+  },
+  "react-frontend/src/webfonts/fa-v4compatibility.woff2": {
+    "file": "assets/fa-v4compatibility-D48W2ssU.woff2",
+    "src": "react-frontend/src/webfonts/fa-v4compatibility.woff2"
+  },
   "resources/css/app.css": {
-    "file": "assets/app-Cvr5TyDP.css",
+    "file": "assets/app-Bpe6Jj7e.css",
     "name": "app",
     "names": [
       "app.css"
@@ -9,9 +609,141 @@
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-GRi43zRl.js",
+    "file": "assets/app-DbUSoWPk.js",
     "name": "app",
     "src": "resources/js/app.js",
-    "isEntry": true
+    "isEntry": true,
+    "imports": [
+      "_chunk-70_6E5lJ.js"
+    ]
+  },
+  "resources/js/app.jsx": {
+    "file": "assets/app-BlIVWIZR.js",
+    "name": "app",
+    "src": "resources/js/app.jsx",
+    "isEntry": true,
+    "imports": [
+      "_chunk-70_6E5lJ.js"
+    ],
+    "css": [
+      "assets/app-ClC2zKDz.css"
+    ],
+    "assets": [
+      "assets/black-logo-DrncKgKO.svg",
+      "assets/home-1-Cjc6Xsya.jpg",
+      "assets/breadcrumb-bg-CmVv2IDe.jpg",
+      "assets/flower-shape-BN2STdtl.png",
+      "assets/star-shape-DkvxJJ9O.png",
+      "assets/t-shirt-CyHNYmF4.png",
+      "assets/shape-1-DCPZIDtI.png",
+      "assets/mug1-DR9vnroM.png",
+      "assets/color_cycle-DxUOkWBl.png",
+      "assets/sticer-CYQlt0EU.png",
+      "assets/shape-2-BS7fD7go.png",
+      "assets/line-DVcUG7WR.png",
+      "assets/author-CuyhDVHY.png",
+      "assets/line-Bc-bsaSx.png",
+      "assets/marquee-box-COjRSVsT.png",
+      "assets/01-BQis3djx.png",
+      "assets/06-B4Cc7oMY.png",
+      "assets/07-B7N-mtVX.png",
+      "assets/08-Bw5o6sMU.png",
+      "assets/09-0mQfRPAr.png",
+      "assets/10-t3Alr4Pq.png",
+      "assets/s1-CBVNJgkw.jpg",
+      "assets/17-BN6l0n9j.jpg",
+      "assets/shape-jl3KwTih.png",
+      "assets/product-shape-C-yRaUmN.png",
+      "assets/04-BzCKoIVz.jpg",
+      "assets/05-C21ChHjt.jpg",
+      "assets/StickersV30-C0bvYH2O.png",
+      "assets/cta-video-Dx52-Fc7.jpg",
+      "assets/bg-BpAAWmGb.jpg",
+      "assets/brand-logo-11-D69gsTJE.png",
+      "assets/brand-logo-12-0ZYs2I1L.png",
+      "assets/brand-logo-13-DTcEVFKZ.png",
+      "assets/brand-logo-14-BqcLXuVv.png",
+      "assets/brand-logo-15-DaUqKxnS.png",
+      "assets/03-CQgofELH.jpg",
+      "assets/testimonial-bg-2-C-S8HBe9.jpg",
+      "assets/marquee-box-3-FyplGsyz.png",
+      "assets/cta-bg-2-uKkv3OvR.jpg",
+      "assets/print-box-B6xFZ7d2.png",
+      "assets/hand-bag-iCUOClkm.png",
+      "assets/cta-sticker-CisVgeNW.png",
+      "assets/cta-t-shirt-B78utk4g.png",
+      "assets/dot-BkalSiO-.png",
+      "assets/footer-shape-1-CVyAeY3l.png",
+      "assets/footer-shape-2-Jtr0IzwS.png",
+      "assets/QRcode--HSwiTkg.png",
+      "assets/apple-B6nkuuHV.png",
+      "assets/play-store-fkECulX8.png",
+      "assets/card-0WQ1W7qu.png",
+      "assets/service-bg-CeCgH6r7.jpg",
+      "assets/author-BHWeJFhN.png",
+      "assets/pp3-DXmVeLbJ.jpg",
+      "assets/01-DiW6TSQG.jpg",
+      "assets/post-3-CrzlakUJ.jpg",
+      "assets/post-5-CO1z83f3.jpg",
+      "assets/post-7-CzsfVR7M.jpg",
+      "assets/comment-vhPfmVmH.png",
+      "assets/comment-2-BhgJIROM.png",
+      "assets/location-95007Oqv.png",
+      "assets/12-BkA2bPUZ.svg",
+      "assets/13-u7p2vB7b.svg",
+      "assets/hero-bg-s4w1Xffo.jpg",
+      "assets/circle-2-B-S9hVGA.png",
+      "assets/vector-CIxqMMfD.png",
+      "assets/circle-CIa7XnBi.png",
+      "assets/arrow-up-VHDRXJOM.png",
+      "assets/Scroll_Down-sMjviSTT.png",
+      "assets/bar-BtdRMGaD.png",
+      "assets/hero-1-dNCv5EkR.png",
+      "assets/information-C3nzSC_i.png",
+      "assets/tshirt-C1oMFdU5.png",
+      "assets/tshirt-2-BiU6_cuy.png",
+      "assets/return-PyDWpwPP.png",
+      "assets/dot-1-DycCexCR.png",
+      "assets/dot-2-Ck6RXlpv.png",
+      "assets/circle-CDQowuMI.png",
+      "assets/cap-DmJPnqpF.png",
+      "assets/shape-BpCdKjmy.png",
+      "assets/01-DYnkdZI9.jpg",
+      "assets/02-Bwh9XjD-.jpg",
+      "assets/03-CHZlb8qn.jpg",
+      "assets/01-C4oXN77R.svg",
+      "assets/02-Bh8Pqdqk.svg",
+      "assets/line-shape-DdhAkBHX.png",
+      "assets/natural-DUPqvsM3.png",
+      "assets/Group-CdTobP8V.png",
+      "assets/printing1-PL3xiDE6.png",
+      "assets/growth1-CFeYLchV.png",
+      "assets/testimonial-bg-CUbCfRIR.jpg",
+      "assets/line-CveupGla.png",
+      "assets/testimonial-CKrNRycQ.png",
+      "assets/work-shape-CJC5rfI1.png",
+      "assets/cta-img-Cx7vN7nA.png",
+      "assets/t-shirt-TbYsrUhk.png",
+      "assets/cta-bg-DRlyVbXR.jpg",
+      "assets/shape-1-Dlqt_ypv.png",
+      "assets/service-contact-DInufgbU.jpg",
+      "assets/details-3-DsrCqfOa.jpg",
+      "assets/details-4-C8XCM2pD.jpg",
+      "assets/01-B1xIRc06.jpg",
+      "assets/fa-brands-400-P7kvyP95.woff2",
+      "assets/fa-brands-400-GADgr3Or.ttf",
+      "assets/fa-duotone-900-BMuDPG_o.woff2",
+      "assets/fa-duotone-900-DFMZFPM3.ttf",
+      "assets/fa-light-300-D4npn_Em.woff2",
+      "assets/fa-light-300-BxGUUM1t.ttf",
+      "assets/fa-regular-400-4Qv4MTlO.woff2",
+      "assets/fa-regular-400-BI9qSWGe.ttf",
+      "assets/fa-solid-900-CUdZ59N1.woff2",
+      "assets/fa-solid-900-DBKKAbIh.ttf",
+      "assets/fa-thin-100-Cnj4OYWf.woff2",
+      "assets/fa-thin-100-jZxqlSz5.ttf",
+      "assets/fa-v4compatibility-D48W2ssU.woff2",
+      "assets/fa-v4compatibility-DiUbXVNU.ttf"
+    ]
   }
 }

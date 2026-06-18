@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Support\SafeCache;
 use App\Support\ServiceCatalog;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ServiceController extends Controller
 {
-    public function index(): View
+    public function index(): Response
     {
         $services = SafeCache::remember('services:index:v1', now()->addMinutes(5), function (): array {
             return collect(ServiceCatalog::all())
@@ -24,22 +24,18 @@ class ServiceController extends Controller
                 ->all();
         });
 
-        return view('services.index', [
+        return Inertia::render('Service/Index', [
             'services' => $services,
         ]);
     }
 
-    public function show(Request $request, string $service): View
+    public function show(string $service): Response
     {
         $serviceData = ServiceCatalog::find($service);
         abort_if(! $serviceData, 404);
 
-        $customer = $request->user();
-
-        return view('services.show', [
-            'service' => $serviceData,
-            'customer' => $customer,
-            'deliveryMethods' => ['Client Pickup', 'Delivery Address'],
+        return Inertia::render('Service/Show', [
+            'service' => [...$serviceData, 'slug' => $service],
         ]);
     }
 }

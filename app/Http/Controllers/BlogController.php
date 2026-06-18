@@ -7,11 +7,12 @@ use App\Support\SafeCache;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class BlogController extends Controller
 {
-    public function index(): View
+    public function index(): Response
     {
         $perPage = 9;
         $page = Paginator::resolveCurrentPage('page');
@@ -52,12 +53,17 @@ class BlogController extends Controller
             ]
         );
 
-        return view('blog.index', [
-            'posts' => $paginator,
+        return Inertia::render('Blog/Index', [
+            'posts' => $paginator->map(fn (BlogPost $p) => $this->postProps($p))->values(),
+            'pagination' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page'    => $paginator->lastPage(),
+                'total'        => $paginator->total(),
+            ],
         ]);
     }
 
-    public function show(BlogPost $post): View
+    public function show(BlogPost $post): Response
     {
         abort_unless(
             $post->status === 'published'
@@ -85,11 +91,31 @@ class BlogController extends Controller
                 })
                 ->values();
 
-        return view('blog.show', [
-            'post' => $post,
-            'safeContent' => $this->sanitizeHtmlForRender((string) $post->content),
-            'relatedPosts' => $relatedPosts,
+        return Inertia::render('Blog/Show', [
+            'post' => array_merge($this->postProps($post), [
+                'content'      => $this->sanitizeHtmlForRender((string) $post->content),
+                'author'       => $post->author?->name ?? 'Printbuka Team',
+            ]),
+            'relatedPosts' => $relatedPosts->map(fn (BlogPost $p) => $this->postProps($p))->values(),
         ]);
+    }
+
+    private function postProps(BlogPost $post): array
+    {
+        $date = $post->published_at ?? $post->created_at;
+
+        return [
+            'id'          => $post->id,
+            'title'       => $post->title,
+            'slug'        => $post->slug,
+            'description' => $post->excerpt ?? '',
+            'screens'     => $post->featuredImageUrl() ?? '/img/product-placeholder.svg',
+            'author'      => $post->author?->name ?? 'Printbuka Team',
+            'create_at'   => $date?->format('d M Y') ?? '',
+            'day'         => $date?->format('d') ?? '',
+            'month'       => $date?->format('M') ?? '',
+            'blClass'     => 'format-standard-image',
+        ];
     }
 
     private function sanitizeHtmlForRender(string $html): string

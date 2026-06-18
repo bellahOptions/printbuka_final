@@ -7,11 +7,12 @@ use App\Models\ProductCategory;
 use App\Models\ShopProduct;
 use App\Support\SafeCache;
 use Illuminate\Support\Collection;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class HomeController extends Controller
 {
-    public function index(): View
+    public function index(): Response
     {
         $featuredProductIds = SafeCache::remember('home:featured-product-ids:v1', now()->addMinutes(5), function (): array {
             return Product::query()
@@ -64,7 +65,22 @@ class HomeController extends Controller
             ? collect()
             : ShopProduct::query()->whereIn('id', $featuredShopIds)->get()->sortBy(fn ($p) => array_search($p->id, $featuredShopIds))->values();
 
-        return view('welcome', compact('featuredProducts', 'popularGiftItems', 'homeCategories', 'featuredShopProducts'));
+        return Inertia::render('Home', [
+            'shopProducts' => $featuredShopProducts->map(fn (ShopProduct $p) => $this->shopProductProps($p))->values(),
+        ]);
+    }
+
+    private function shopProductProps(ShopProduct $p): array
+    {
+        return [
+            'id'       => $p->id,
+            'proImg'   => $p->featuredImageUrl() ?? '/img/product-placeholder.svg',
+            'title'    => $p->name,
+            'slug'     => $p->slug,
+            'price'    => number_format($p->currentPrice(), 2, '.', ''),
+            'delPrice' => $p->isOnSale() ? number_format((float) $p->price, 2, '.', '') : null,
+            'brand'    => 'Printbuka',
+        ];
     }
 
     /**
