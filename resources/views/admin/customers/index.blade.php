@@ -119,14 +119,14 @@
                                 <span class="text-sm text-slate-600">{{ $customer->companyName ?: '—' }}</span>
                             </td>
                             <td>
-                                <span class="font-semibold text-slate-900">{{ number_format($orders) }}</span>
+                                <span class="font-semibold text-slate-900">{{ number_format((int)($customer->orders_count ?? 0)) }}</span>
                             </td>
                             <td>
                                 <span class="font-semibold text-slate-700">{{ number_format((int)($customer->invoices_count ?? 0)) }}</span>
                             </td>
                             <td>
                                 <span class="font-semibold text-slate-900">
-                                    ₦{{ number_format($ltv, 0) }}
+                                    ₦{{ number_format((float)($customer->total_paid ?? 0), 0) }}
                                 </span>
                             </td>
                             <td>
