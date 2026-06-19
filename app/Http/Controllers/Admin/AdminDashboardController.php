@@ -8,6 +8,7 @@ use App\Models\FinanceEntry;
 use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ShopOrder;
 use App\Models\StaffActivity;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -110,6 +111,23 @@ class AdminDashboardController extends Controller
                 'total' => (int) $row->total,
             ]);
 
+        // ---- Shop Order Stats (shown to shop-orders.view permission holders) ----
+        $shopOrderStats = null;
+        if ($user->canAdmin('shop-orders.view') || $user->canAdmin('*')) {
+            $monthShopOrders = ShopOrder::query()->whereBetween('created_at', [$monthStart, $monthEnd]);
+            $shopOrderStats = [
+                'total'          => ShopOrder::count(),
+                'this_month'     => (clone $monthShopOrders)->count(),
+                'order_received' => ShopOrder::where('fulfillment_status', 'order_received')->count(),
+                'processing'     => ShopOrder::where('fulfillment_status', 'processing')->count(),
+                'dispatched'     => ShopOrder::where('fulfillment_status', 'dispatched')->count(),
+                'delivered'      => ShopOrder::where('fulfillment_status', 'delivered')->count(),
+                'revenue_month'  => (float) (clone $monthShopOrders)->where('payment_status', 'paid')->sum('total'),
+                'revenue_total'  => (float) ShopOrder::where('payment_status', 'paid')->sum('total'),
+                'pending_dispatch' => ShopOrder::whereIn('fulfillment_status', ['order_received', 'processing'])->where('payment_status', 'paid')->count(),
+            ];
+        }
+
         return view('admin.dashboard', [
             'orderCount' => Order::count(),
             'activeJobs' => Order::query()->whereNotIn('status', ['Delivered', 'Cancelled'])->count(),
@@ -151,6 +169,7 @@ class AdminDashboardController extends Controller
             'topStaff' => $topStaff,
             'staffChartData' => $staffChartData,
             'weeklyStaffActivity' => $weeklyStaffActivity,
+            'shopOrderStats' => $shopOrderStats,
         ]);
     }
 }

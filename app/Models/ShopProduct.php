@@ -12,7 +12,7 @@ class ShopProduct extends Model
 {
     protected $fillable = [
         'name', 'slug', 'short_description', 'description',
-        'price', 'sale_price', 'sku', 'stock_quantity', 'manage_stock',
+        'price', 'sale_price', 'sku', 'sku_sequence', 'stock_quantity', 'manage_stock',
         'is_active', 'is_featured', 'featured_image', 'additional_images', 'created_by',
         'view_count',
     ];
@@ -42,11 +42,32 @@ class ShopProduct extends Model
                 $product->slug = $slug;
             }
         });
+
+        // Auto-generate SKU after record is persisted so we have the ID.
+        // Format: PBK-YYYY-NNNNN  e.g. PBK-2026-00003
+        static::created(function (ShopProduct $product): void {
+            if (filled($product->sku)) {
+                return;
+            }
+
+            $year     = now()->format('Y');
+            $sequence = static::max('sku_sequence') ?? 0;
+            $sequence++;
+
+            $sku = 'PBK-' . $year . '-' . str_pad((string) $sequence, 5, '0', STR_PAD_LEFT);
+
+            $product->updateQuietly(['sku' => $sku, 'sku_sequence' => $sequence]);
+        });
     }
 
     public function optionGroups(): HasMany
     {
         return $this->hasMany(ShopProductOptionGroup::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function stockLogs(): HasMany
+    {
+        return $this->hasMany(ShopProductStockLog::class);
     }
 
     public function scopeActive(Builder $query): Builder

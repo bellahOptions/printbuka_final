@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ShopProduct;
 use App\Models\ShopProductOption;
 use App\Models\ShopProductOptionGroup;
+use App\Models\ShopProductStockLog;
 use App\Services\CloudinaryUploadService;
 use App\Support\CloudinaryUrl;
 use Illuminate\Http\RedirectResponse;
@@ -15,11 +16,31 @@ use Illuminate\View\View;
 
 class AdminShopProductController extends Controller
 {
-    public function index(): View
+    public function index(\Illuminate\Http\Request $request): View
     {
-        $products = ShopProduct::query()->withCount('optionGroups')->latest()->paginate(25);
+        $products = ShopProduct::query()
+            ->withCount('optionGroups')
+            ->when($request->input('search'), fn ($q, $s) => $q->where(function ($q) use ($s): void {
+                $q->where('name', 'like', "%{$s}%")
+                    ->orWhere('sku', 'like', "%{$s}%")
+                    ->orWhere('short_description', 'like', "%{$s}%");
+            }))
+            ->when($request->input('status') === 'active',   fn ($q) => $q->where('is_active', true))
+            ->when($request->input('status') === 'inactive', fn ($q) => $q->where('is_active', false))
+            ->when($request->input('status') === 'featured', fn ($q) => $q->where('is_featured', true))
+            ->when($request->input('stock') === 'out',       fn ($q) => $q->where('manage_stock', true)->where('stock_quantity', 0))
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
 
-        return view('admin.shop-products.index', compact('products'));
+        $stats = [
+            'total'    => ShopProduct::count(),
+            'active'   => ShopProduct::where('is_active', true)->count(),
+            'featured' => ShopProduct::where('is_featured', true)->count(),
+            'out_of_stock' => ShopProduct::where('manage_stock', true)->where('stock_quantity', 0)->count(),
+        ];
+
+        return view('admin.shop-products.index', compact('products', 'stats'));
     }
 
     public function create(): View
@@ -58,6 +79,8 @@ class AdminShopProductController extends Controller
                 'name' => $opt->name,
                 'price_modifier' => (float) $opt->price_modifier,
                 'is_available' => $opt->is_available,
+                'stock_quantity' => $opt->stock_quantity,
+                'image' => $opt->image ?? '',
             ])->values()->all(),
         ])->values()->all();
 
@@ -117,6 +140,8 @@ class AdminShopProductController extends Controller
             'option_groups.*.options.*.name' => ['required', 'string', 'max:100'],
             'option_groups.*.options.*.price_modifier' => ['nullable', 'numeric'],
             'option_groups.*.options.*.is_available' => ['nullable', 'boolean'],
+            'option_groups.*.options.*.stock_quantity' => ['nullable', 'integer', 'min:0'],
+            'option_groups.*.options.*.image' => ['nullable', 'string', 'max:500'],
         ]);
 
         $fields = [
@@ -159,34 +184,107 @@ class AdminShopProductController extends Controller
     /** @param array<int, array<string, mixed>> $groups */
     private function syncOptionGroups(ShopProduct $product, array $groups): void
     {
-        $product->optionGroups()->delete();
+        $seenGroupIds = [];
+        $seenOptionIds = [];
 
         foreach ($groups as $i => $groupData) {
             if (empty($groupData['name'])) {
                 continue;
             }
 
-            $group = ShopProductOptionGroup::create([
-                'shop_product_id' => $product->id,
-                'name' => $groupData['name'],
-                'is_required' => ! empty($groupData['is_required']),
-                'sort_order' => $i,
-            ]);
+            $groupId = isset($groupData['id']) ? (int) $groupData['id'] : null;
+
+            if ($groupId && ShopProductOptionGroup::where('id', $groupId)->where('shop_product_id', $product->id)->exists()) {
+                ShopProductOptionGroup::where('id', $groupId)->update([
+                    'name' => $groupData['name'],
+                    'is_required' => ! empty($groupData['is_required']),
+                    'sort_order' => $i,
+                ]);
+                $group = ShopProductOptionGroup::find($groupId);
+            } else {
+                $group = ShopProductOptionGroup::create([
+                    'shop_product_id' => $product->id,
+                    'name' => $groupData['name'],
+                    'is_required' => ! empty($groupData['is_required']),
+                    'sort_order' => $i,
+                ]);
+            }
+
+            $seenGroupIds[] = $group->id;
 
             foreach ((array) ($groupData['options'] ?? []) as $j => $optData) {
                 if (empty($optData['name'])) {
                     continue;
                 }
 
-                ShopProductOption::create([
-                    'shop_product_option_group_id' => $group->id,
-                    'name' => $optData['name'],
-                    'price_modifier' => (float) ($optData['price_modifier'] ?? 0),
-                    'is_available' => ! isset($optData['is_available']) || (bool) $optData['is_available'],
-                    'sort_order' => $j,
-                ]);
+                $optionId = isset($optData['id']) ? (int) $optData['id'] : null;
+                $newQty = isset($optData['stock_quantity']) && $optData['stock_quantity'] !== '' ? (int) $optData['stock_quantity'] : null;
+                $newImage = filled($optData['image'] ?? '') ? $optData['image'] : null;
+
+                if ($optionId && ShopProductOption::where('id', $optionId)->where('shop_product_option_group_id', $group->id)->exists()) {
+                    $existing = ShopProductOption::find($optionId);
+                    $oldQty = $existing->stock_quantity;
+
+                    $existing->update([
+                        'name' => $optData['name'],
+                        'price_modifier' => (float) ($optData['price_modifier'] ?? 0),
+                        'is_available' => ! isset($optData['is_available']) || (bool) $optData['is_available'],
+                        'sort_order' => $j,
+                        'stock_quantity' => $newQty,
+                        'image' => $newImage,
+                    ]);
+
+                    // Log stock change if quantity was modified
+                    if ($newQty !== null && $newQty !== $oldQty) {
+                        $change = $oldQty === null ? $newQty : ($newQty - $oldQty);
+                        ShopProductStockLog::create([
+                            'shop_product_id' => $product->id,
+                            'shop_product_option_id' => $existing->id,
+                            'change' => $change,
+                            'balance_after' => $newQty,
+                            'reason' => $oldQty === null ? 'admin_set' : 'admin_adjust',
+                            'created_by' => auth()->id(),
+                        ]);
+                    }
+
+                    $seenOptionIds[] = $optionId;
+                } else {
+                    $option = ShopProductOption::create([
+                        'shop_product_option_group_id' => $group->id,
+                        'name' => $optData['name'],
+                        'price_modifier' => (float) ($optData['price_modifier'] ?? 0),
+                        'is_available' => ! isset($optData['is_available']) || (bool) $optData['is_available'],
+                        'sort_order' => $j,
+                        'stock_quantity' => $newQty,
+                        'image' => $newImage,
+                    ]);
+
+                    if ($newQty !== null) {
+                        ShopProductStockLog::create([
+                            'shop_product_id' => $product->id,
+                            'shop_product_option_id' => $option->id,
+                            'change' => $newQty,
+                            'balance_after' => $newQty,
+                            'reason' => 'admin_set',
+                            'created_by' => auth()->id(),
+                        ]);
+                    }
+
+                    $seenOptionIds[] = $option->id;
+                }
             }
         }
+
+        // Remove options and groups no longer in the submitted data
+        $product->optionGroups()->each(function (ShopProductOptionGroup $group) use ($seenGroupIds, $seenOptionIds): void {
+            $group->options()
+                ->whereNotIn('id', $seenOptionIds)
+                ->delete();
+
+            if (! in_array($group->id, $seenGroupIds, true)) {
+                $group->delete();
+            }
+        });
     }
 
     private function deleteImage(string $path): void

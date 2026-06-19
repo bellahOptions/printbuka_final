@@ -2,12 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Admin\AdminShopOrderController;
+use App\Mail\ShopOrderConfirmationMail;
+use App\Mail\ShopOrderFailedMail;
 use App\Models\ShopOrder;
 use App\Models\ShopOrderItem;
 use App\Models\ShopOrderItemOption;
+use App\Services\CustomerSyncService;
+use App\Services\OrderAlertService;
 use App\Services\PaystackService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -35,6 +41,17 @@ class ShopCheckoutController extends Controller
             return redirect()->route('shop.cart')->with('warning', 'Your cart is empty.');
         }
 
+        // Verify all options are still in stock before accepting the order
+        foreach ($cartItems as $cartItem) {
+            foreach ($cartItem['selected_options'] as $option) {
+                if (! $option->isInStock($cartItem['quantity'])) {
+                    return back()
+                        ->with('error', 'Sorry, "' . $option->name . '" is out of stock or has insufficient quantity. Please update your cart.')
+                        ->withInput();
+                }
+            }
+        }
+
         $validated = $request->validate([
             'customer_name' => ['required', 'string', 'max:255'],
             'customer_email' => ['required', 'email', 'max:255'],
@@ -59,7 +76,7 @@ class ShopCheckoutController extends Controller
             'subtotal' => $subtotal,
             'total' => $total,
             'payment_status' => 'pending',
-            'fulfillment_status' => 'pending',
+            'fulfillment_status' => 'order_received',
         ]);
 
         foreach ($cartItems as $cartItem) {
@@ -75,6 +92,7 @@ class ShopCheckoutController extends Controller
             foreach ($cartItem['selected_options'] as $option) {
                 ShopOrderItemOption::create([
                     'shop_order_item_id' => $item->id,
+                    'shop_product_option_id' => $option->id,
                     'group_name' => $option->group?->name ?? 'Option',
                     'option_name' => $option->name,
                     'price_modifier' => $option->price_modifier,
@@ -149,11 +167,31 @@ class ShopCheckoutController extends Controller
                 'paystack_data' => $data,
             ]);
 
+            $order->loadMissing('items.selectedOptions.productOption');
+
+            foreach ($order->items as $item) {
+                foreach ($item->selectedOptions as $itemOption) {
+                    $itemOption->productOption?->decrementStock(
+                        $item->quantity,
+                        $order->reference,
+                        $item->shop_product_id,
+                    );
+                }
+            }
+
+            Mail::to($order->customer_email)->queue(new ShopOrderConfirmationMail($order));
+
+            app(CustomerSyncService::class)->syncFromShopOrder($order);
+            app(OrderAlertService::class)->notifyShopOrder($order);
+            AdminShopOrderController::notifyStaffNewOrder($order);
+
             return redirect()->route('shop.orders.confirmation', $order->reference)
                 ->with('status', 'Payment confirmed! Your order is being processed.');
         }
 
         $order->update(['payment_status' => 'failed', 'paystack_data' => $data]);
+
+        Mail::to($order->customer_email)->queue(new ShopOrderFailedMail($order));
 
         return redirect()->route('shop.checkout')
             ->with('error', 'Payment was not completed. Please try again.');

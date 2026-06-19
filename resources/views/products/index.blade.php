@@ -36,7 +36,7 @@
                 </div>
                 <div class="flex flex-wrap gap-2 shrink-0">
                     <a href="#categories" class="btn btn-sm btn-outline text-white border-white/25 hover:bg-white hover:text-slate-950 hover:border-white font-black">Categories</a>
-                    <a href="{{ route('quotes.create') }}" class="btn btn-sm bg-pink-600 border-0 text-white hover:bg-pink-700 font-black">Get Free Quote</a>
+                    <a href="{{ route('shop.index') }}" class="btn btn-sm bg-pink-600 border-0 text-white hover:bg-pink-700 font-black">Shop Now</a>
                 </div>
             </div>
             <livewire:product.search />
@@ -208,7 +208,7 @@
                     <p class="text-slate-400 text-sm mt-1">Our team handles custom jobs. Tell us what you need and we will help you out.</p>
                 </div>
                 <div class="flex flex-wrap gap-3 shrink-0">
-                    <a href="{{ route('quotes.create') }}" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black">Get a Free Quote</a>
+                    <a href="{{ route('services.index') }}" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black">View Services</a>
                     <a href="{{ route('services.index') }}" class="btn btn-outline text-white border-white/25 hover:bg-white hover:text-slate-950 font-black">View Services</a>
                 </div>
             </div>

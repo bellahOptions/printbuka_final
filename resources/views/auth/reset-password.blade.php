@@ -1,94 +1,100 @@
-{{-- 
-    PrintBuka Password Reset - DaisyUI Redesign
---}}
+@extends('layouts.auth')
 
-@extends('layouts.theme')
-
-@section('title', 'Reset Password | PrintBuka')
+@section('title', 'Set New Password | Printbuka')
 
 @section('content')
-<main class="min-h-screen bg-gradient-to-br from-[#f4fbfb] to-white px-4 py-16 sm:px-6 lg:px-8">
-    <div class="mx-auto max-w-md">
-        {{-- Logo/Brand --}}
+<div class="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12"
+     style="background-image: radial-gradient(circle, rgba(219,39,119,0.04) 1px, transparent 1px); background-size: 32px 32px;">
+
+    <div class="w-full max-w-md">
         <div class="mb-8 text-center">
-            <div class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-pink-600 shadow-lg">
-                <svg class="h-7 w-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
-                </svg>
-            </div>
-            <h2 class="mt-4 text-2xl font-bold text-slate-900">Set New Password</h2>
-            <p class="mt-1 text-sm text-slate-600">Create a strong, unique password for your account</p>
+            <a href="{{ route('home') }}">
+                <img src="{{ asset('logo.png') }}" alt="Printbuka" class="mx-auto h-10 w-auto">
+            </a>
         </div>
 
-        {{-- Main Card --}}
-        <div class="card bg-white shadow-xl rounded-2xl">
-            <div class="card-body p-6 sm:p-8">
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-900/5">
+
+            <div class="border-b border-slate-100 bg-slate-950 px-8 py-7 text-center">
+                <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10">
+                    <svg class="h-7 w-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                </div>
+                <h1 class="text-xl font-black text-white">Set a new password</h1>
+                <p class="mt-1 text-sm text-slate-400">Choose something strong and unique.</p>
+            </div>
+
+            <div class="px-8 py-7">
                 @if (session('status'))
-                    <div class="alert alert-success shadow-lg mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>{{ session('status') }}</span>
+                    <div class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-800">
+                        {{ session('status') }}
                     </div>
                 @endif
 
-                <form action="{{ route('password.update') }}" method="POST" class="space-y-5">
+                <form action="{{ route('password.update') }}" method="POST" class="space-y-5" x-data="{ showP: false, showC: false }">
                     @csrf
                     <input type="hidden" name="token" value="{{ $token }}">
 
-                    {{-- Email Field --}}
-                    <div class="form-control w-full">
-                        <label class="label"><span class="label-text font-semibold text-slate-700">Email Address</span></label>
-                        <input type="email" name="email" value="{{ old('email', $email) }}" 
-                            class="input input-bordered w-full focus:input-primary @error('email') input-error @enderror"
-                            placeholder="you@example.com" required />
-                        @error('email') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                    <div>
+                        <label class="mb-1.5 block text-sm font-black text-slate-700">Email address</label>
+                        <input type="email" name="email" value="{{ old('email', $email) }}"
+                               class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold outline-none transition focus:border-pink-400 focus:bg-white focus:ring-2 focus:ring-pink-100 @error('email') border-pink-400 @enderror"
+                               required>
+                        @error('email') <p class="mt-1 text-xs text-pink-600">{{ $message }}</p> @enderror
                     </div>
 
-                    {{-- New Password --}}
-                    <div class="form-control w-full">
-                        <label class="label"><span class="label-text font-semibold text-slate-700">New Password</span></label>
-                        <input type="password" name="password" 
-                            class="input input-bordered w-full focus:input-primary @error('password') input-error @enderror"
-                            placeholder="••••••••" required />
-                        @error('password') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                    <div>
+                        <label class="mb-1.5 block text-sm font-black text-slate-700">New password</label>
+                        <div class="relative">
+                            <input :type="showP ? 'text' : 'password'" name="password"
+                                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 pr-16 text-sm font-semibold outline-none transition focus:border-pink-400 focus:bg-white focus:ring-2 focus:ring-pink-100 @error('password') border-pink-400 @enderror"
+                                   placeholder="Min. 8 characters" required>
+                            <button type="button" @click="showP = !showP"
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400 hover:text-pink-600"
+                                    x-text="showP ? 'Hide' : 'Show'">Show</button>
+                        </div>
+                        @error('password') <p class="mt-1 text-xs text-pink-600">{{ $message }}</p> @enderror
                     </div>
 
-                    {{-- Confirm Password --}}
-                    <div class="form-control w-full">
-                        <label class="label"><span class="label-text font-semibold text-slate-700">Confirm Password</span></label>
-                        <input type="password" name="password_confirmation" 
-                            class="input input-bordered w-full focus:input-primary"
-                            placeholder="••••••••" required />
+                    <div>
+                        <label class="mb-1.5 block text-sm font-black text-slate-700">Confirm new password</label>
+                        <div class="relative">
+                            <input :type="showC ? 'text' : 'password'" name="password_confirmation"
+                                   class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 pr-16 text-sm font-semibold outline-none transition focus:border-pink-400 focus:bg-white focus:ring-2 focus:ring-pink-100"
+                                   placeholder="Repeat password" required>
+                            <button type="button" @click="showC = !showC"
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400 hover:text-pink-600"
+                                    x-text="showC ? 'Hide' : 'Show'">Show</button>
+                        </div>
                     </div>
 
-                    {{-- Password Tips --}}
-                    <div class="text-xs text-slate-500 space-y-1">
-                        <p class="font-semibold">Password must:</p>
-                        <ul class="list-disc list-inside space-y-0.5">
-                            <li>Be at least 8 characters long</li>
-                            <li>Include letters and numbers</li>
-                            <li>Not be commonly used</li>
-                        </ul>
+                    <div class="rounded-xl border border-slate-100 bg-slate-50 p-4 text-xs text-slate-500 space-y-1">
+                        <p class="font-black text-slate-700">Password requirements</p>
+                        <p>• At least 8 characters</p>
+                        <p>• Mix of letters and numbers</p>
+                        <p>• Avoid commonly used passwords</p>
                     </div>
 
-                    {{-- Submit Button --}}
-                    <button type="submit" class="btn btn-block bg-pink-600 hover:bg-pink-700 border-pink-600 text-white font-bold mt-4">
-                        Reset Password
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    <button type="submit"
+                            class="flex w-full items-center justify-center gap-2 rounded-xl bg-pink-600 px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-pink-200 transition hover:bg-pink-700 active:scale-[0.98]">
+                        Update password
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
                         </svg>
                     </button>
                 </form>
 
-                {{-- Back to Login --}}
-                <div class="mt-4 text-center">
-                    <a href="{{ route('login') }}" class="link link-hover text-sm text-slate-500 hover:text-pink-600">
-                        ← Back to Sign In
+                <div class="mt-6 text-center">
+                    <a href="{{ route('login') }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 transition hover:text-pink-600">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Back to sign in
                     </a>
                 </div>
             </div>
         </div>
     </div>
-</main>
+</div>
 @endsection

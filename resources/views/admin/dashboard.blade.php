@@ -63,6 +63,73 @@
     </div>
 
     {{-- ════════════════════════════════════════════════
+         SHOP ORDERS — stats (visible to shop-orders.view)
+    ════════════════════════════════════════════════ --}}
+    @if(!is_null($shopOrderStats))
+    <section class="animate-fade-in-up delay-100">
+        <div class="mb-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="h-4 w-1 rounded-full bg-pink-500"></div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Shop Orders</p>
+            </div>
+            <a href="{{ route('admin.shop-orders.index') }}" class="pb-btn pb-btn-sm pb-btn-outline text-xs">
+                View All Orders
+            </a>
+        </div>
+
+        {{-- KPI row --}}
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-3">
+            <div class="pb-card p-4">
+                <p class="text-xs font-bold uppercase text-slate-400 mb-1">Total Orders</p>
+                <p class="text-2xl font-black text-slate-900">{{ number_format($shopOrderStats['total']) }}</p>
+                <p class="text-xs text-slate-400 mt-0.5">{{ number_format($shopOrderStats['this_month']) }} this month</p>
+            </div>
+            <div class="pb-card p-4 border-l-2 border-l-sky-400">
+                <p class="text-xs font-bold uppercase text-sky-600 mb-1">Received</p>
+                <p class="text-2xl font-black text-slate-900">{{ number_format($shopOrderStats['order_received']) }}</p>
+                <p class="text-xs text-slate-400 mt-0.5">Awaiting processing</p>
+            </div>
+            <div class="pb-card p-4 border-l-2 border-l-amber-400">
+                <p class="text-xs font-bold uppercase text-amber-600 mb-1">Processing</p>
+                <p class="text-2xl font-black text-slate-900">{{ number_format($shopOrderStats['processing']) }}</p>
+                <p class="text-xs text-slate-400 mt-0.5">Being prepared</p>
+            </div>
+            <div class="pb-card p-4 border-l-2 border-l-violet-400">
+                <p class="text-xs font-bold uppercase text-violet-600 mb-1">Dispatched</p>
+                <p class="text-2xl font-black text-slate-900">{{ number_format($shopOrderStats['dispatched']) }}</p>
+                <p class="text-xs text-slate-400 mt-0.5">En route to customer</p>
+            </div>
+            <div class="pb-card p-4 border-l-2 border-l-emerald-400">
+                <p class="text-xs font-bold uppercase text-emerald-600 mb-1">Delivered</p>
+                <p class="text-2xl font-black text-slate-900">{{ number_format($shopOrderStats['delivered']) }}</p>
+                <p class="text-xs text-slate-400 mt-0.5">Completed</p>
+            </div>
+        </div>
+
+        {{-- Revenue row --}}
+        <div class="grid sm:grid-cols-3 gap-3">
+            <div class="pb-card p-4 bg-gradient-to-br from-pink-50 to-white">
+                <p class="text-xs font-bold uppercase text-pink-600 mb-1">Shop Revenue (Month)</p>
+                <p class="text-xl font-black text-slate-900">₦{{ number_format($shopOrderStats['revenue_month'], 0) }}</p>
+                <p class="text-xs text-slate-400 mt-0.5">Paid orders this month</p>
+            </div>
+            <div class="pb-card p-4">
+                <p class="text-xs font-bold uppercase text-slate-400 mb-1">Total Shop Revenue</p>
+                <p class="text-xl font-black text-slate-900">₦{{ number_format($shopOrderStats['revenue_total'], 0) }}</p>
+                <p class="text-xs text-slate-400 mt-0.5">All time</p>
+            </div>
+            <div class="pb-card p-4 {{ $shopOrderStats['pending_dispatch'] > 0 ? 'border border-amber-200 bg-amber-50/50' : '' }}">
+                <p class="text-xs font-bold uppercase {{ $shopOrderStats['pending_dispatch'] > 0 ? 'text-amber-600' : 'text-slate-400' }} mb-1">Needs Action</p>
+                <p class="text-xl font-black {{ $shopOrderStats['pending_dispatch'] > 0 ? 'text-amber-700' : 'text-slate-900' }}">
+                    {{ number_format($shopOrderStats['pending_dispatch']) }}
+                </p>
+                <p class="text-xs text-slate-400 mt-0.5">Paid but not yet dispatched</p>
+            </div>
+        </div>
+    </section>
+    @endif
+
+    {{-- ════════════════════════════════════════════════
          TODAY'S TASKS
     ════════════════════════════════════════════════ --}}
     <section class="animate-fade-in-up delay-200 pb-card">

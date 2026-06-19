@@ -1,5 +1,5 @@
 @php
-    $only = collect((array) ($placements ?? ['top_banner', 'inline_banner', 'floating_card', 'footer_banner']));
+    $only = collect((array) ($placements ?? ['popup', 'top_banner', 'inline_banner', 'floating_card', 'footer_banner']));
     $ads = collect();
 
     if (\Illuminate\Support\Facades\Schema::hasTable('advertisements')) {
@@ -65,6 +65,86 @@
             <a href="{{ $ad->cta_url }}" class="mt-3 inline-flex min-h-10 items-center justify-center rounded-md bg-pink-600 px-4 text-sm font-black text-white transition hover:bg-pink-700">{{ $ad->cta_label }}</a>
         @endif
     </aside>
+@endif
+
+{{-- ── Popup modal ad (shows once per session per ad, after 1.5 s delay) ── --}}
+@if ($only->contains('popup') && ($ads->get('popup') ?? collect())->isNotEmpty())
+    @php($popupAd = $ads->get('popup')->first())
+    <div x-data="{
+            open: false,
+            init() {
+                const key = 'pb_ad_seen_{{ $popupAd->id }}';
+                if (!sessionStorage.getItem(key)) {
+                    setTimeout(() => { this.open = true; }, 1500);
+                }
+            },
+            dismiss() {
+                sessionStorage.setItem('pb_ad_seen_{{ $popupAd->id }}', '1');
+                this.open = false;
+            }
+         }"
+         x-show="open"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @keydown.escape.window="dismiss()"
+         class="fixed inset-0 z-[500] flex items-end justify-center p-4 sm:items-center"
+         style="display:none;"
+         role="dialog"
+         aria-modal="true">
+
+        {{-- Backdrop --}}
+        <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" @click="dismiss()"></div>
+
+        {{-- Modal card --}}
+        <div x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-y-6 scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+             x-transition:leave-end="opacity-0 translate-y-6 scale-95"
+             class="relative z-10 w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl shadow-slate-900/30">
+
+            {{-- Close button --}}
+            <button @click="dismiss()"
+                    class="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-slate-500 backdrop-blur-sm transition hover:bg-white hover:text-slate-900"
+                    aria-label="Close">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+
+            @if ($popupAd->image_url)
+                <img src="{{ $popupAd->image_url }}" alt="{{ $popupAd->title }}" class="h-52 w-full object-cover">
+            @else
+                <div class="h-1.5 w-full bg-gradient-to-r from-pink-500 to-pink-700"></div>
+            @endif
+
+            <div class="p-6">
+                <p class="text-xl font-black text-slate-950">{{ $popupAd->title }}</p>
+
+                @if ($popupAd->body)
+                    <p class="mt-2 text-sm font-semibold leading-6 text-slate-600">{{ $popupAd->body }}</p>
+                @endif
+
+                @if ($popupAd->cta_url && $popupAd->cta_label)
+                    <a href="{{ $popupAd->cta_url }}"
+                       @click="dismiss()"
+                       class="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-pink-600 px-5 text-sm font-black text-white transition hover:bg-pink-700">
+                        {{ $popupAd->cta_label }}
+                    </a>
+                @endif
+
+                <button @click="dismiss()"
+                        class="mt-3 block w-full text-center text-xs font-bold uppercase tracking-wide text-slate-400 transition hover:text-slate-600">
+                    No thanks, close
+                </button>
+            </div>
+        </div>
+    </div>
 @endif
 
 @if ($only->contains('footer_banner') && ($ads->get('footer_banner') ?? collect())->isNotEmpty())

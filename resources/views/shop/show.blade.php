@@ -163,7 +163,7 @@
             @else
                 <div class="rounded-xl border border-red-200 bg-red-50 p-5 text-center">
                     <p class="font-black text-red-700">This product is currently out of stock.</p>
-                    <p class="text-sm text-red-500 mt-1">Check back soon or <a href="{{ route('quotes.create') }}" class="underline">request a quote</a>.</p>
+                    <p class="text-sm text-red-500 mt-1">Check back soon or <a href="{{ route('services.index') }}" class="underline">view our services</a>.</p>
                 </div>
             @endif
 

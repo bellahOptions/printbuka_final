@@ -15,7 +15,6 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PolicyPageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceOrderController;
 use App\Http\Controllers\ShopCartController;
@@ -39,7 +38,6 @@ Route::get('/sitemap.xml', function () {
             ['loc' => route('products.index'), 'lastmod' => now()->toDateString(), 'changefreq' => 'daily', 'priority' => '0.9'],
             ['loc' => route('categories.index'), 'lastmod' => now()->toDateString(), 'changefreq' => 'weekly', 'priority' => '0.7'],
             ['loc' => route('services.index'), 'lastmod' => now()->toDateString(), 'changefreq' => 'weekly', 'priority' => '0.8'],
-            ['loc' => route('quotes.create'), 'lastmod' => now()->toDateString(), 'changefreq' => 'weekly', 'priority' => '0.6'],
             ['loc' => route('partners.create'), 'lastmod' => now()->toDateString(), 'changefreq' => 'monthly', 'priority' => '0.5'],
             ['loc' => route('orders.track'), 'lastmod' => now()->toDateString(), 'changefreq' => 'weekly', 'priority' => '0.5'],
             ['loc' => route('blog'), 'lastmod' => now()->toDateString(), 'changefreq' => 'daily', 'priority' => '0.8'],
@@ -165,10 +163,6 @@ Route::middleware('customer.portal')->group(function (): void {
     Route::post('/services/{service}/order', [ServiceOrderController::class, 'store'])->name('services.orders.store');
     Route::get('/services/{service}/orders/{order}/success', [ServiceOrderController::class, 'success'])->name('services.orders.success');
 
-    Route::get('/get-quote', [QuoteController::class, 'create'])->name('quotes.create');
-    Route::post('/get-quote', [QuoteController::class, 'store'])->name('quotes.store');
-    Route::get('/get-quote/{order}/success', [QuoteController::class, 'success'])->name('quotes.success');
-
     Route::get('/payments/paystack/callback', [PaymentController::class, 'paystackCallback'])->name('payments.paystack.callback');
 
     Route::get('/blog', [BlogController::class, 'index'])->name('blog');
@@ -197,7 +191,9 @@ Route::middleware('user.guest')->group(function (): void {
         ->middleware('throttle:6,1')
         ->name('password.email');
     Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
-    Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
+    Route::post('/reset-password', [PasswordResetController::class, 'reset'])
+        ->middleware('throttle:6,1')
+        ->name('password.update');
 });
 
 Route::middleware('user.auth')->group(function (): void {

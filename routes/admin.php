@@ -7,7 +7,6 @@ use App\Http\Controllers\Admin\AdminCustomerController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminFinanceController;
 use App\Http\Controllers\Admin\AdminInvoiceController;
-use App\Http\Controllers\Admin\AdminNewsletterController;
 use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminPolicyController;
@@ -88,12 +87,6 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::delete('/advertisements/{advertisement}', [AdminAdvertisementController::class, 'destroy'])
             ->middleware('super.admin')
             ->name('advertisements.destroy');
-        Route::get('/newsletters', [AdminNewsletterController::class, 'index'])
-            ->middleware('admin.permission:newsletters.manage')
-            ->name('newsletters.index');
-        Route::post('/newsletters', [AdminNewsletterController::class, 'store'])
-            ->middleware('admin.permission:newsletters.manage')
-            ->name('newsletters.store');
         Route::get('/finance/{finance}', [AdminFinanceController::class, 'show'])
             ->middleware('admin.permission:finance.view')
             ->whereNumber('finance')

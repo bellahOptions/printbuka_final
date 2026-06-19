@@ -7,6 +7,16 @@ use Livewire\Component;
 
 class NotificationBell extends Component
 {
+    public function markAsReadAndOpen(string $notificationId, string $url): void
+    {
+        $this->markAsRead($notificationId);
+        $scheme = strtolower((string) parse_url($url, PHP_URL_SCHEME));
+        if (! in_array($scheme, ['http', 'https'], true)) {
+            return;
+        }
+        $this->redirect($url, navigate: true);
+    }
+
     public function markAsRead(string $notificationId): void
     {
         if (! auth()->check()) {

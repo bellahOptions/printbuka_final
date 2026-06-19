@@ -170,12 +170,29 @@ class CloudinaryUrl
 
     /**
      * Check if a string looks like a Cloudinary resource identifier.
+     *
+     * Matches only genuine Cloudinary identifiers:
+     *   - Full cloudinary.com URLs
+     *   - Cloudinary API paths  (image/upload/...)
+     *   - Paths that begin with our configured default folder (e.g. "printbuka/...")
+     *
+     * Deliberately does NOT match bare relative storage paths like
+     * "product-images/featured/abc.jpg" so local-only files are never
+     * mistakenly routed through the CDN.
      */
     public static function isCloudinaryResource(string $value): bool
     {
-        return str_contains($value, 'cloudinary.com')
-            || preg_match('#^[a-zA-Z0-9_\-/]+\.[a-zA-Z0-9]{2,4}$#', $value)
-            || str_starts_with($value, 'image/upload/');
+        if (str_contains($value, 'cloudinary.com')) {
+            return true;
+        }
+
+        if (str_starts_with($value, 'image/upload/')) {
+            return true;
+        }
+
+        $defaultFolder = trim((string) config('cloudinary.default_folder', 'printbuka'), '/');
+
+        return $defaultFolder !== '' && str_starts_with($value, $defaultFolder.'/');
     }
 
     /**

@@ -16,7 +16,7 @@
                             <td style="background:#0f172a;padding:22px 24px;color:#ffffff;">
                                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                                     <tr>
-                                        <td style="vertical-align:top;"><img src="{{ $logoUrl }}" alt="Printbuka" width="150" style="display:inline-block;height:auto;"></td>
+                                        <td style="vertical-align:top;"><img src="{{ $message->embed(public_path('logo-dark.svg')) }}" alt="Printbuka" width="150" style="display:inline-block;height:auto;"></td>
                                         <td style="text-align:right;vertical-align:top;color:#cbd5e1;font-size:11px;font-weight:700;letter-spacing:0.06em;">SUPPORT REMINDER</td>
                                     </tr>
                                 </table>

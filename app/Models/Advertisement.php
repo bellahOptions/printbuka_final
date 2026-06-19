@@ -51,7 +51,8 @@ class Advertisement extends Model
     public static function placements(): array
     {
         return [
-            'top_banner' => 'Top Banner',
+            'popup'        => 'Popup (Modal)',
+            'top_banner'   => 'Top Banner',
             'inline_banner' => 'Inline Banner',
             'floating_card' => 'Floating Card',
             'footer_banner' => 'Footer Banner',

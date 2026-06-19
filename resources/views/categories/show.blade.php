@@ -52,11 +52,11 @@
                             <p class="mt-2 line-clamp-2 text-sm text-slate-500">{{ $product->short_description }}</p>
                             <div class="mt-3">
                                 <p class="text-xs font-bold text-slate-400">{{ $product->hasAvailablePrice() ? 'starting at' : 'pricing' }}</p>
-                                <p class="text-xl font-black text-pink-600">{{ $product->hasAvailablePrice() ? '₦'.number_format((float) $product->price, 0) : 'Request quote' }}</p>
+                                <p class="text-xl font-black text-pink-600">{{ $product->hasAvailablePrice() ? '₦'.number_format((float) $product->price, 0) : 'Contact us' }}</p>
                             </div>
                             <div class="mt-4 grid grid-cols-2 gap-2">
                                 <a href="{{ route('products.show', $product) }}" class="btn btn-sm btn-outline border-slate-200 hover:border-pink-400 hover:text-pink-700">View</a>
-                                <a href="{{ $product->hasAvailablePrice() ? route('orders.create', $product) : $product->quoteRequestUrl() }}" class="btn btn-sm border-0 bg-pink-600 text-white hover:bg-pink-700">{{ $product->hasAvailablePrice() ? 'Order' : 'Quote' }}</a>
+                                <a href="{{ $product->hasAvailablePrice() ? route('orders.create', $product) : route('products.show', $product) }}" class="btn btn-sm border-0 bg-pink-600 text-white hover:bg-pink-700">{{ $product->hasAvailablePrice() ? 'Order' : 'View' }}</a>
                             </div>
                         </div>
                     </article>

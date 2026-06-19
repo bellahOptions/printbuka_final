@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ShopOrderItemOption extends Model
 {
-    protected $fillable = ['shop_order_item_id', 'group_name', 'option_name', 'price_modifier'];
+    protected $fillable = ['shop_order_item_id', 'shop_product_option_id', 'group_name', 'option_name', 'price_modifier'];
 
     protected function casts(): array
     {
@@ -17,5 +17,10 @@ class ShopOrderItemOption extends Model
     public function item(): BelongsTo
     {
         return $this->belongsTo(ShopOrderItem::class, 'shop_order_item_id');
+    }
+
+    public function productOption(): BelongsTo
+    {
+        return $this->belongsTo(ShopProductOption::class, 'shop_product_option_id');
     }
 }

@@ -3,8 +3,6 @@
 namespace App\Services;
 
 use App\Support\CloudinaryUrl;
-use Cloudinary\Api\Admin\AdminApi;
-use Cloudinary\Api\Upload\UploadApi;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 
@@ -110,9 +108,8 @@ class CloudinaryUploadService
 
         try {
             $client = CloudinaryUrl::client();
-            $adminApi = $client->adminApi();
 
-            $adminApi->deleteAssets($publicId, $options);
+            $client->uploadApi()->destroy($publicId, $options);
 
             return [
                 'ok' => true,

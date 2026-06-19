@@ -4,77 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\ProductCategory;
-use App\Models\ShopProduct;
 use App\Support\SafeCache;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ProductController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): RedirectResponse
     {
-        $filters = [
-            'search' => trim((string) $request->query('search', '')),
-            'category' => trim((string) $request->query('category', '')),
-            'sort' => trim((string) $request->query('sort', 'name_asc')),
-            'min_price' => $request->query('min_price'),
-            'max_price' => $request->query('max_price'),
-        ];
-
-        $filterCategoryIds = SafeCache::remember('products:index:filter-category-ids:v1', now()->addMinutes(5), function (): array {
-            return ProductCategory::query()
-                ->where('is_active', true)
-                ->orderBy('parent_id')
-                ->orderBy('name')
-                ->pluck('id')
-                ->all();
-        });
-
-        $filterCategories = $filterCategoryIds === []
-            ? collect()
-            : ProductCategory::query()
-                ->whereIn('id', $filterCategoryIds)
-                ->with('parent:id,name')
-                ->orderBy('parent_id')
-                ->orderBy('name')
-                ->get();
-
-        $publicCategoryIds = SafeCache::remember('products:index:public-category-ids:v1', now()->addMinutes(5), function (): array {
-            return ProductCategory::publicTreeQuery()
-                ->pluck('id')
-                ->all();
-        });
-
-        $categories = $publicCategoryIds === []
-            ? collect()
-            : ProductCategory::query()
-                ->whereIn('id', $publicCategoryIds)
-                ->withActiveProductsCount()
-                ->with([
-                    'children' => fn ($childrenQuery) => $childrenQuery
-                        ->where('is_active', true)
-                        ->whereHas('products', fn ($productsQuery) => $productsQuery->where('is_active', true))
-                        ->withActiveProductsCount()
-                        ->orderBy('name'),
-                ])
-                ->orderBy('name')
-                ->get();
-
-        $shopProductIds = SafeCache::remember('shop:products-page-ids:v1', now()->addMinutes(5), function (): array {
-            return ShopProduct::query()->active()->orderByDesc('view_count')->limit(6)->pluck('id')->all();
-        });
-
-        $shopProducts = $shopProductIds === []
-            ? collect()
-            : ShopProduct::query()->whereIn('id', $shopProductIds)->get();
-
-        return view('products.index', [
-            'activeProductCount' => SafeCache::remember('products:index:active-count:v1', now()->addMinutes(5), fn (): int => Product::query()->where('is_active', true)->count()),
-            'categories' => $categories,
-            'filterCategories' => $filterCategories,
-            'filters' => $filters,
-            'shopProducts' => $shopProducts,
-        ]);
+        return redirect()->route('shop.index', $request->only(['search', 'sort']), 301);
     }
 
     public function byCategory(ProductCategory $category): View

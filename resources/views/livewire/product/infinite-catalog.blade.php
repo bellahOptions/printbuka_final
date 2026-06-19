@@ -57,7 +57,7 @@
 
                         <div class="card-actions mt-4 grid grid-cols-2 gap-2">
                             <a href="{{ route('products.show', $product) }}" class="btn btn-sm btn-outline font-black border-slate-200 hover:border-pink-400 hover:text-pink-700">View</a>
-                            <a href="{{ $product->hasAvailablePrice() ? route('orders.create', $product) : $product->quoteRequestUrl() }}" class="btn btn-sm btn-neutral font-black hover:bg-pink-700">{{ $product->hasAvailablePrice() ? 'Order' : 'Quote' }}</a>
+                            <a href="{{ $product->hasAvailablePrice() ? route('orders.create', $product) : route('products.show', $product) }}" class="btn btn-sm btn-neutral font-black hover:bg-pink-700">{{ $product->hasAvailablePrice() ? 'Order' : 'View' }}</a>
                         </div>
                     </div>
                 </article>

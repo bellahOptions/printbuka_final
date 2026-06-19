@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Services\CustomerSyncService;
+use App\Services\OrderAlertService;
 use App\Support\ExternalAssetLinks;
 use App\Support\JobAssetUpload;
 use App\Support\ReferenceCode;
@@ -96,6 +98,9 @@ class QuoteController extends Controller
         ]);
 
         session()->put('tracked_orders.'.$order->id, true);
+
+        app(CustomerSyncService::class)->syncFromQuote($order);
+        app(OrderAlertService::class)->notifyQuoteRequest($order);
 
         return redirect()
             ->route('quotes.success', $order)

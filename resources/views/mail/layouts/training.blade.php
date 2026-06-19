@@ -20,7 +20,7 @@
                                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                                     <tr>
                                         <td style="vertical-align:top;">
-                                            <img src="{{ $logoUrl }}" alt="Printbuka" width="150" style="display:inline-block;height:auto;">
+                                            <img src="{{ $message->embed(public_path('logo-dark.svg')) }}" alt="Printbuka" width="150" style="display:inline-block;height:auto;">
                                         </td>
                                         <td style="text-align:right;vertical-align:top;color:#67e8f9;font-size:11px;font-weight:700;letter-spacing:0.08em;"></td>
                                     </tr>

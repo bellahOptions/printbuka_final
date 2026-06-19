@@ -37,7 +37,7 @@
                             <div class="grid gap-3 sm:grid-cols-2">
                                 <div class="rounded-3xl bg-slate-50 p-5">
                                     <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Price</p>
-                                    <p class="mt-3 text-2xl font-black text-pink-700">{{ $product->hasAvailablePrice() ? 'NGN '.number_format($product->price, 2) : 'Quote required' }}</p>
+                                    <p class="mt-3 text-2xl font-black text-pink-700">{{ $product->hasAvailablePrice() ? 'NGN '.number_format($product->price, 2) : 'Contact us' }}</p>
                                 </div>
                                 <div class="rounded-3xl bg-slate-50 p-5">
                                     <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-500">Finish</p>
@@ -82,17 +82,17 @@
                                 <div class="flex items-center justify-between gap-4">
                                     <div>
                                         <p class="text-sm font-black uppercase tracking-[0.2em] text-slate-500">Order</p>
-                                        <p class="mt-2 text-3xl font-black text-pink-700">{{ $product->hasAvailablePrice() ? 'NGN '.number_format($product->price, 2) : 'Quote only' }}</p>
+                                        <p class="mt-2 text-3xl font-black text-pink-700">{{ $product->hasAvailablePrice() ? 'NGN '.number_format($product->price, 2) : 'Contact us' }}</p>
                                     </div>
                                     <span class="rounded-full bg-pink-50 px-4 py-2 text-sm font-black text-pink-700">MOQ {{ $product->moq }}</span>
                                 </div>
 
-                                <p class="text-sm leading-6 text-slate-600">{{ $product->hasAvailablePrice() ? 'Order now and our team will prepare your artwork and delivery plan.' : 'Submit a quote request and our sales team will follow up quickly.' }}</p>
+                                <p class="text-sm leading-6 text-slate-600">{{ $product->hasAvailablePrice() ? 'Order now and our team will prepare your artwork and delivery plan.' : 'Contact us to discuss custom pricing and options.' }}</p>
 
                                 @if ($product->hasAvailablePrice())
                                     <a href="{{ route('orders.create', $product) }}" class="inline-flex w-full items-center justify-center rounded-3xl bg-pink-600 px-5 py-4 text-sm font-black text-white transition hover:bg-pink-700">Start order</a>
                                 @else
-                                    <a href="{{ $product->quoteRequestUrl() }}" class="inline-flex w-full items-center justify-center rounded-3xl bg-pink-600 px-5 py-4 text-sm font-black text-white transition hover:bg-pink-700">Request a quote</a>
+                                    <a href="{{ route('services.index') }}" class="inline-flex w-full items-center justify-center rounded-3xl bg-pink-600 px-5 py-4 text-sm font-black text-white transition hover:bg-pink-700">View Services</a>
                                 @endif
 
                                 <div class="rounded-3xl bg-slate-50 p-4 text-sm text-slate-600">
@@ -138,7 +138,7 @@
                             <a href="{{ route('products.show', $relatedProduct) }}" class="rounded-[1.75rem] border border-slate-200 bg-white p-5 transition hover:-translate-y-1 hover:shadow-lg">
                                 <h3 class="font-black text-slate-950">{{ $relatedProduct->name }}</h3>
                                 <p class="mt-2 min-h-[3rem] text-sm leading-6 text-slate-600">{{ $relatedProduct->short_description }}</p>
-                                <p class="mt-4 text-lg font-black text-pink-700">{{ $relatedProduct->hasAvailablePrice() ? 'NGN '.number_format($relatedProduct->price, 2) : 'Request quote' }}</p>
+                                <p class="mt-4 text-lg font-black text-pink-700">{{ $relatedProduct->hasAvailablePrice() ? 'NGN '.number_format($relatedProduct->price, 2) : 'Contact us' }}</p>
                             </a>
                         @endforeach
                     </div>

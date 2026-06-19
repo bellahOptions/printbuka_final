@@ -67,9 +67,11 @@
         @stack('head')
     </head>
     <body class="bg-slate-50 text-slate-950 antialiased">
-        <x-public-advertisements :placements="['top_banner', 'floating_card']" />
+        <x-public-advertisements :placements="['popup', 'top_banner', 'floating_card']" />
         @include('layouts.guest.nav')
+        @auth
         @include('layouts.partials.breadcrumbs', ['rootLabel' => 'Home', 'rootRoute' => 'home'])
+        @endauth
         @yield('content')
         <x-public-advertisements :placements="['inline_banner', 'footer_banner']" />
         @include('layouts.guest.footer')

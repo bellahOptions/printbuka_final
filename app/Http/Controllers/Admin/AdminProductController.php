@@ -206,8 +206,11 @@ class AdminProductController extends Controller
                 $this->deleteStoredImage($product->featured_image);
             }
 
-            // For Livewire uploaded images (already stored locally), also push to Cloudinary if configured
-            if (CloudinaryUrl::isConfigured()) {
+            // If the Livewire component already pushed to Cloudinary, the path is already a
+            // public_id — just store it directly. Otherwise upload the local file now.
+            if (CloudinaryUrl::isCloudinaryResource($livewireFeaturedPath)) {
+                $updates['featured_image'] = $livewireFeaturedPath;
+            } elseif (CloudinaryUrl::isConfigured()) {
                 $fullPath = Storage::disk('public')->path($livewireFeaturedPath);
                 $result = $cloudinaryService->upload($fullPath, ['folder' => 'product-images/featured']);
                 $updates['featured_image'] = $result['public_id'] ?? $livewireFeaturedPath;
@@ -231,7 +234,7 @@ class AdminProductController extends Controller
 
             $newImages = collect((array) $request->file('additional_images'))
                 ->filter()
-                ->map(fn ($file): string => $cloudinaryService->storeToBoth($file, 'product-images/gallery', 'product-images/gallery'))
+                ->map(fn ($file): array => $cloudinaryService->storeToBoth($file, 'product-images/gallery', 'product-images/gallery'))
                 ->map(fn (array $result): string => $result['cloudinary_public_id'] ?? $result['path']);
 
             $updates['additional_images'] = $existingImages
@@ -261,9 +264,12 @@ class AdminProductController extends Controller
 
             $baseImages = collect($updates['additional_images'] ?? (($product && ! $removeAdditionalImages) ? (array) $product->additional_images : []));
 
-            // Also upload Livewire paths to Cloudinary
+            // Upload Livewire paths to Cloudinary only when they are not already there.
             $cloudinaryPaths = collect($livewireAdditionalPaths)
                 ->map(function (string $path) use ($cloudinaryService): string {
+                    if (CloudinaryUrl::isCloudinaryResource($path)) {
+                        return $path;
+                    }
                     if (CloudinaryUrl::isConfigured()) {
                         $fullPath = Storage::disk('public')->path($path);
                         $result = $cloudinaryService->upload($fullPath, ['folder' => 'product-images/gallery']);

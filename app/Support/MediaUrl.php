@@ -40,16 +40,7 @@ class MediaUrl
             return self::normalizeUrlHostDependency($candidate);
         }
 
-        // 4. Check if it looks like a Cloudinary public_id (even if not detected above)
-        //    e.g., "printbuka/job-assets/image.jpg" – only if Cloudinary is configured
-        if (CloudinaryUrl::isConfigured() && preg_match('#^[a-zA-Z0-9_\-/]+\.[a-zA-Z0-9]{2,4}$#', $candidate)) {
-            $cloudUrl = CloudinaryUrl::resolve($candidate);
-            if ($cloudUrl !== null) {
-                return $cloudUrl;
-            }
-        }
-
-        // 5. Local absolute path
+        // 4. Local absolute path
         if (str_starts_with($candidate, '/')) {
             return self::normalizeRootPath($candidate, $disk);
         }

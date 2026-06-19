@@ -97,10 +97,13 @@ class AdminPolicyController extends Controller
         $cleaned = strip_tags($value, $allowedTags);
         $cleaned = preg_replace('/<\s*script[^>]*>.*?<\s*\/\s*script>/is', '', $cleaned) ?? '';
         $cleaned = preg_replace('/<\s*style[^>]*>.*?<\s*\/\s*style>/is', '', $cleaned) ?? '';
-        $cleaned = preg_replace('/\son\w+="[^"]*"/i', '', $cleaned) ?? '';
-        $cleaned = preg_replace("/\son\w+='[^']*'/i", '', $cleaned) ?? '';
-        $cleaned = preg_replace('/\shref="javascript:[^"]*"/i', ' href="#"', $cleaned) ?? '';
-        $cleaned = preg_replace("/\shref='javascript:[^']*'/i", " href='#'", $cleaned) ?? '';
+        // Strip event handlers (quoted and unquoted)
+        $cleaned = preg_replace('/\son\w+\s*=\s*"[^"]*"/i', '', $cleaned) ?? '';
+        $cleaned = preg_replace("/\son\w+\s*=\s*'[^']*'/i", '', $cleaned) ?? '';
+        $cleaned = preg_replace('/\son\w+\s*=\s*[^\s>]*/i', '', $cleaned) ?? '';
+        // Restrict href to http/https only
+        $cleaned = preg_replace('/\shref\s*=\s*"(?!https?:\/\/)[^"]*"/i', ' href="#"', $cleaned) ?? '';
+        $cleaned = preg_replace("/\shref\s*=\s*'(?!https?:\\/\\/)[^']*'/i", " href='#'", $cleaned) ?? '';
 
         return trim($cleaned) !== '' ? trim($cleaned) : null;
     }

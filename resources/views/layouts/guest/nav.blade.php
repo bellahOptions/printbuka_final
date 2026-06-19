@@ -14,7 +14,6 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
         <div class="flex items-center gap-6">
             <a href="{{ route('services.index') }}" class="hover:text-white transition">Services</a>
             <a href="{{ route('orders.track') }}" class="hover:text-white transition">Track Order</a>
-            <a href="{{ route('quotes.create') }}" class="hover:text-white transition">Get Free Quote</a>
             @if ($isCustomer)
                 <a href="{{ route('support.index') }}" class="hover:text-white transition">Support</a>
             @endif
@@ -270,7 +269,6 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
                 <li><a href="{{ route('shop.index') }}" class="hover:text-pink-600 hover:bg-pink-50">Shop — Buy Now</a></li>
                 <li><a href="{{ route('categories.index') }}" class="hover:text-pink-600 hover:bg-pink-50">Categories</a></li>
                 <li><a href="{{ route('services.index') }}" class="hover:text-pink-600 hover:bg-pink-50">Services</a></li>
-                <li><a href="{{ route('quotes.create') }}" class="hover:text-pink-600 hover:bg-pink-50">Get a Quote</a></li>
                 <li><a href="{{ route('orders.track') }}" class="hover:text-pink-600 hover:bg-pink-50">Track Order</a></li>
                 <li><a href="{{ route('partners.create') }}" class="hover:text-pink-600 hover:bg-pink-50">Become a Partner</a></li>
                 <li><a href="{{ route('blog') }}" class="hover:text-pink-600 hover:bg-pink-50">Blog</a></li>

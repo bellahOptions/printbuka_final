@@ -38,7 +38,7 @@ class AdminNotificationController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'message' => ['required', 'string', 'max:1000'],
             'type' => ['required', Rule::in(array_keys($this->types()))],
-            'action_url' => ['nullable', 'url', 'max:1000'],
+            'action_url' => ['nullable', 'string', 'max:1000', 'regex:/^https?:\/\//i'],
         ]);
 
         $recipients = User::query()
