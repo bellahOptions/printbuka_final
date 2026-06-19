@@ -9,9 +9,11 @@ use App\Models\ShopProductOptionGroup;
 use App\Models\ShopProductStockLog;
 use App\Services\CloudinaryUploadService;
 use App\Support\CloudinaryUrl;
+use App\Support\LivewireSecureUploads;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class AdminShopProductController extends Controller
@@ -60,7 +62,10 @@ class AdminShopProductController extends Controller
             'created_by' => auth()->id(),
         ]);
 
-        $this->handleImage($request, $product);
+        $imageUpdates = $this->syncProductImages($request, $product);
+        if ($imageUpdates !== []) {
+            $product->update($imageUpdates);
+        }
         $this->syncOptionGroups($product, $validated['groups']);
 
         return redirect()->route('admin.shop-products.index')->with('status', 'Product created successfully.');
@@ -95,7 +100,10 @@ class AdminShopProductController extends Controller
         $validated = $this->validated($request, $shopProduct);
 
         $shopProduct->update($validated['fields']);
-        $this->handleImage($request, $shopProduct);
+        $imageUpdates = $this->syncProductImages($request, $shopProduct);
+        if ($imageUpdates !== []) {
+            $shopProduct->update($imageUpdates);
+        }
         $this->syncOptionGroups($shopProduct, $validated['groups']);
 
         return redirect()->route('admin.shop-products.index')->with('status', 'Product updated.');
@@ -161,24 +169,111 @@ class AdminShopProductController extends Controller
         return ['fields' => $fields, 'groups' => (array) ($data['option_groups'] ?? [])];
     }
 
-    private function handleImage(Request $request, ShopProduct $product): void
+    /** @return array<string, mixed> */
+    private function syncProductImages(Request $request, ShopProduct $product): array
     {
-        if (! $request->hasFile('featured_image')) {
-            return;
-        }
-
-        $request->validate([
-            'featured_image' => ['file', 'max:4096', 'mimes:jpg,jpeg,png,webp'],
-        ]);
-
-        if (filled($product->featured_image)) {
-            $this->deleteImage((string) $product->featured_image);
-        }
-
-        $file = $request->file('featured_image');
+        $updates = [];
         $cloudinary = app(CloudinaryUploadService::class);
-        $result = $cloudinary->storeToBoth($file, 'shop-products', 'shop-products');
-        $product->update(['featured_image' => $result['cloudinary_public_id'] ?? $result['path']]);
+
+        // Remove featured image
+        if ($request->boolean('remove_featured_image') && filled($product->featured_image)) {
+            $this->deleteImage((string) $product->featured_image);
+            $updates['featured_image'] = null;
+        }
+
+        // Direct featured image upload
+        if ($request->hasFile('featured_image')) {
+            if (filled($product->featured_image)) {
+                $this->deleteImage((string) $product->featured_image);
+            }
+            $result = $cloudinary->storeToBoth($request->file('featured_image'), 'shop-products/featured', 'shop-products/featured');
+            $updates['featured_image'] = $result['cloudinary_public_id'] ?? $result['path'];
+        } elseif (filled($request->input('featured_image_path'))) {
+            // Livewire featured image upload
+            $livewirePath = LivewireSecureUploads::consumePath(
+                $request,
+                (string) $request->input('featured_image_path'),
+                ['shop-products/featured']
+            );
+
+            if (! $livewirePath) {
+                throw ValidationException::withMessages([
+                    'featured_image' => 'The uploaded featured image is invalid or expired. Please upload again.',
+                ]);
+            }
+
+            if (filled($product->featured_image)) {
+                $this->deleteImage((string) $product->featured_image);
+            }
+
+            if (CloudinaryUrl::isCloudinaryResource($livewirePath)) {
+                $updates['featured_image'] = $livewirePath;
+            } elseif (CloudinaryUrl::isConfigured()) {
+                $fullPath = Storage::disk('public')->path($livewirePath);
+                $result = $cloudinary->upload($fullPath, ['folder' => 'shop-products/featured']);
+                $updates['featured_image'] = $result['public_id'] ?? $livewirePath;
+            } else {
+                $updates['featured_image'] = $livewirePath;
+            }
+        }
+
+        // Remove all additional images
+        $removeAdditional = $request->boolean('remove_additional_images');
+        if ($removeAdditional) {
+            foreach ((array) $product->additional_images as $img) {
+                $this->deleteImage((string) $img);
+            }
+            $updates['additional_images'] = [];
+        }
+
+        // Direct additional images upload
+        if ($request->hasFile('additional_images')) {
+            $existing = (! $removeAdditional) ? collect((array) $product->additional_images) : collect();
+            $newImages = collect((array) $request->file('additional_images'))
+                ->filter()
+                ->map(fn ($file) => $cloudinary->storeToBoth($file, 'shop-products/gallery', 'shop-products/gallery'))
+                ->map(fn (array $r) => $r['cloudinary_public_id'] ?? $r['path']);
+            $updates['additional_images'] = $existing->merge($newImages)->values()->all();
+        }
+
+        // Livewire additional images
+        $additionalPaths = collect((array) $request->input('additional_image_paths'))
+            ->filter(fn ($p) => filled($p))
+            ->map(fn ($p) => (string) $p)
+            ->values()
+            ->all();
+
+        if ($additionalPaths !== []) {
+            $consumed = LivewireSecureUploads::consumePaths($request, $additionalPaths, ['shop-products/gallery']);
+
+            if (count($consumed) !== count($additionalPaths)) {
+                throw ValidationException::withMessages([
+                    'additional_images' => 'One or more gallery images are invalid or expired. Please upload them again.',
+                ]);
+            }
+
+            $base = collect($updates['additional_images'] ?? ((! $removeAdditional) ? (array) $product->additional_images : []));
+
+            $cloudinaryPaths = collect($consumed)->map(function (string $path) use ($cloudinary): string {
+                if (CloudinaryUrl::isCloudinaryResource($path)) {
+                    return $path;
+                }
+                if (CloudinaryUrl::isConfigured()) {
+                    $fullPath = Storage::disk('public')->path($path);
+                    $result = $cloudinary->upload($fullPath, ['folder' => 'shop-products/gallery']);
+                    return $result['public_id'] ?? $path;
+                }
+                return $path;
+            });
+
+            $updates['additional_images'] = $base
+                ->merge($cloudinaryPaths)
+                ->filter(fn ($p) => filled($p))
+                ->values()
+                ->all();
+        }
+
+        return $updates;
     }
 
     /** @param array<int, array<string, mixed>> $groups */

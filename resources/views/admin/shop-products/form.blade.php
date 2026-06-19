@@ -335,44 +335,85 @@
                 </div>
             </div>
 
-            {{-- Product Image --}}
-            <div class="pb-card overflow-hidden" x-data="{ preview: null }">
+            {{-- Product Images --}}
+            <div class="pb-card overflow-hidden">
                 <div class="h-0.5 bg-gradient-to-r from-pink-500 to-orange-400"></div>
-                <div class="p-5">
-                    <h2 class="font-black text-slate-950 text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
-                        <x-heroicon-o-photo class="w-4 h-4 text-pink-500" /> Featured Image
+                <div class="p-5 space-y-5">
+                    <h2 class="font-black text-slate-950 text-sm uppercase tracking-wider flex items-center gap-2">
+                        <x-heroicon-o-photo class="w-4 h-4 text-pink-500" /> Product Images
                     </h2>
 
-                    {{-- Current image --}}
-                    @if($product?->featuredImageUrl())
-                        <div class="mb-3 relative group">
-                            <img src="{{ $product->featuredImageUrl() }}" alt="{{ $product->name }}"
-                                 x-show="!preview"
-                                 class="w-full h-44 object-cover rounded-xl border border-slate-200" />
-                            <div x-show="!preview" class="absolute inset-0 bg-black/30 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <span class="text-white text-xs font-bold bg-black/50 px-3 py-1 rounded-full">Upload to replace</span>
-                            </div>
-                        </div>
-                    @endif
-
-                    {{-- New image preview --}}
-                    <div x-show="preview" class="mb-3">
-                        <img :src="preview" alt="New image" class="w-full h-44 object-cover rounded-xl border border-pink-200" />
-                        <p class="text-xs text-pink-600 font-bold mt-1 text-center">New image selected</p>
+                    {{-- Featured Image --}}
+                    <div>
+                        <p class="text-xs font-black text-slate-700 uppercase tracking-wide mb-2">Featured Image</p>
+                        <livewire:uploads.secure-image-upload
+                            :key="'shop-featured-'.($product?->id ?: 'create')"
+                            input-name="featured_image_path"
+                            directory="shop-products/featured"
+                            :max-size-kb="4096"
+                            :max-files="1"
+                            :multiple="false"
+                            :initial-path="old('featured_image_path')"
+                        />
+                        <p class="text-xs text-slate-400 mt-1.5">JPG, PNG or WebP · max 4 MB · used on product cards</p>
+                        @error('featured_image') <p class="text-xs text-pink-600 mt-1">{{ $message }}</p> @enderror
+                        @error('featured_image_path') <p class="text-xs text-pink-600 mt-1">{{ $message }}</p> @enderror
                     </div>
 
-                    {{-- No image placeholder --}}
-                    @if(!$product?->featuredImageUrl())
-                        <div x-show="!preview" class="w-full h-36 rounded-xl bg-slate-100 flex flex-col items-center justify-center mb-3 border-2 border-dashed border-slate-200">
-                            <x-heroicon-o-photo class="w-8 h-8 text-slate-300 mb-1" />
-                            <p class="text-xs text-slate-400">No image yet</p>
+                    {{-- Additional Images --}}
+                    <div>
+                        <p class="text-xs font-black text-slate-700 uppercase tracking-wide mb-2">Gallery Images</p>
+                        <livewire:uploads.secure-image-upload
+                            :key="'shop-gallery-'.($product?->id ?: 'create')"
+                            input-name="additional_image_paths"
+                            directory="shop-products/gallery"
+                            :max-size-kb="4096"
+                            :max-files="10"
+                            :multiple="true"
+                            :initial-paths="old('additional_image_paths', [])"
+                        />
+                        <p class="text-xs text-slate-400 mt-1.5">Up to 10 images · shown in the product image slider</p>
+                        @error('additional_images') <p class="text-xs text-pink-600 mt-1">{{ $message }}</p> @enderror
+                        @error('additional_image_paths') <p class="text-xs text-pink-600 mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    {{-- Existing images (edit mode) --}}
+                    @if($product?->exists && ($product->featured_image || !empty($product->additional_images)))
+                        <div class="space-y-3 pt-3 border-t border-slate-100">
+                            <p class="text-xs font-black text-slate-500 uppercase tracking-wide">Current Images</p>
+
+                            @if($product->featuredImageUrl())
+                                <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                                    <p class="text-xs font-bold text-slate-500 mb-2">Featured</p>
+                                    <img src="{{ $product->featuredImageUrl() }}" alt="{{ $product->name }}"
+                                         class="h-32 w-full rounded-lg border border-slate-200 object-cover bg-white" />
+                                    <label class="flex cursor-pointer items-center gap-2 mt-2">
+                                        <input type="checkbox" name="remove_featured_image" value="1" class="checkbox checkbox-sm checkbox-error" @checked(old('remove_featured_image'))>
+                                        <span class="text-xs text-slate-600">Remove featured image</span>
+                                    </label>
+                                </div>
+                            @endif
+
+                            @if(!empty($product->additional_images))
+                                <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <p class="text-xs font-bold text-slate-500">Gallery ({{ count($product->additional_images) }})</p>
+                                        <label class="flex cursor-pointer items-center gap-1.5">
+                                            <input type="checkbox" name="remove_additional_images" value="1" class="checkbox checkbox-sm checkbox-error" @checked(old('remove_additional_images'))>
+                                            <span class="text-xs text-slate-600">Clear gallery</span>
+                                        </label>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-1.5">
+                                        @foreach($product->additionalImageUrls() as $imgUrl)
+                                            <img src="{{ $imgUrl }}" alt="{{ $product->name }}"
+                                                 class="h-16 w-full rounded-lg border border-slate-200 object-cover bg-white" />
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     @endif
 
-                    <input type="file" name="featured_image" accept="image/jpeg,image/png,image/webp"
-                           class="file-input file-input-bordered border-slate-200 file-input-sm w-full text-xs"
-                           @change="preview = $event.target.files[0] ? URL.createObjectURL($event.target.files[0]) : null" />
-                    <p class="text-xs text-slate-400 mt-2">JPG, PNG or WebP · max 4 MB</p>
                 </div>
             </div>
 
