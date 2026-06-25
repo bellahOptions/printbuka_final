@@ -129,13 +129,20 @@
 
         @if($storedPath)
             @php($url = $this->imageUrl($storedPath))
-            <div class="flex items-start gap-3">
-                <div class="pb-upload-preview h-20 w-20 shrink-0 rounded-full overflow-hidden">
+            <div class="flex items-center gap-3">
+                <div class="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
                     @if($url)
-                        <img src="{{ $url }}" alt="Uploaded image" class="h-full w-full object-cover">
+                        <img src="{{ $url }}" alt="" class="block h-full w-full object-cover"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                        <div class="hidden h-full w-full items-center justify-center">
+                            <svg class="h-6 w-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16M14 14l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
                     @else
-                        <div class="flex h-full w-full items-center justify-center bg-slate-100">
-                            <svg class="h-6 w-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="flex h-full w-full items-center justify-center">
+                            <svg class="h-6 w-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16M14 14l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
@@ -143,7 +150,7 @@
                     @endif
                 </div>
                 <div class="flex flex-col gap-2">
-                    <p class="text-xs font-medium text-emerald-700 flex items-center gap-1">
+                    <p class="flex items-center gap-1 text-xs font-medium text-emerald-700">
                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>

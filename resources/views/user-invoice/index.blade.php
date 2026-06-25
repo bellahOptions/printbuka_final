@@ -1,4 +1,4 @@
-@extends('layouts.theme')
+﻿@extends('layouts.new-app')
 
 @section('title', 'My Invoices | PrintBuka')
 
@@ -50,7 +50,7 @@
                     </svg>
                 </div>
                 <div class="stat-title text-slate-500">Pending Payment</div>
-                <div class="stat-value text-2xl text-slate-900">₦{{ number_format($pendingAmount, 2) }}</div>
+                <div class="stat-value text-2xl text-slate-900">â‚¦{{ number_format($pendingAmount, 2) }}</div>
                 <div class="stat-desc text-amber-600">{{ $overdueInvoices }} overdue</div>
             </div>
 
@@ -62,7 +62,7 @@
                     </svg>
                 </div>
                 <div class="stat-title text-slate-500">Total Paid</div>
-                <div class="stat-value text-2xl text-slate-900">₦{{ number_format($paidAmount, 2) }}</div>
+                <div class="stat-value text-2xl text-slate-900">â‚¦{{ number_format($paidAmount, 2) }}</div>
                 <div class="stat-desc text-emerald-600">Completed payments</div>
             </div>
 
@@ -132,7 +132,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <p class="font-bold text-slate-900">₦{{ number_format($invoice->total_amount, 2) }}</p>
+                                        <p class="font-bold text-slate-900">â‚¦{{ number_format($invoice->total_amount, 2) }}</p>
                                     </td>
                                     <td>
                                         @php
@@ -155,7 +155,7 @@
                                                 {{ $invoice->due_at->format('M d, Y') }}
                                             </p>
                                         @else
-                                            <p class="text-sm text-slate-400">—</p>
+                                            <p class="text-sm text-slate-400">â€”</p>
                                         @endif
                                     </td>
                                     <td class="text-center">

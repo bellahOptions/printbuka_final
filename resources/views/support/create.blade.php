@@ -1,4 +1,4 @@
-@extends('layouts.theme')
+﻿@extends('layouts.new-app')
 
 @section('title', 'Create Support Ticket | Printbuka')
 

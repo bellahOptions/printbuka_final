@@ -40,7 +40,7 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
                 </label>
 
                 <a href="{{ route('home') }}" class="flex items-center gap-2">
-                    <img src="{{ asset('logo.png') }}" class="h-6 md:h-9 w-auto" alt="Printbuka" />
+                    <img src="{{ asset('logo-04.svg') }}" class="h-6 md:h-9 w-auto" alt="Printbuka" />
                 </a>
             </div>
 
@@ -259,7 +259,7 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
     <label for="mobile-drawer" class="drawer-overlay"></label>
     <div class="bg-white min-h-full w-72 p-5 shadow-2xl">
         <div class="flex items-center justify-between mb-8">
-            <img src="{{ asset('logo.png') }}" class="h-8 w-auto" alt="Printbuka" />
+            <img src="{{ asset('logo-04.svg') }}" class="h-8 w-auto" alt="Printbuka" />
             <label for="mobile-drawer" class="btn btn-ghost btn-sm btn-circle">✕</label>
         </div>
 

@@ -1,4 +1,4 @@
-@extends('layouts.theme')
+﻿@extends('layouts.new-app')
 
 @section('title', $invoice->documentTypeLabel() . ' ' . ($invoice->invoice_number ?? '#' . $invoice->id) . ' | PrintBuka')
 
@@ -120,8 +120,8 @@
                                         @endif
                                     </td>
                                     <td class="py-3 text-right text-slate-700">{{ $invoice->order->quantity ?? 1 }}</td>
-                                    <td class="py-3 text-right text-slate-700">₦{{ number_format($invoice->subtotal / max($invoice->order->quantity ?? 1, 1), 2) }}</td>
-                                    <td class="py-3 text-right font-semibold text-slate-800">₦{{ number_format($invoice->subtotal, 2) }}</td>
+                                    <td class="py-3 text-right text-slate-700">â‚¦{{ number_format($invoice->subtotal / max($invoice->order->quantity ?? 1, 1), 2) }}</td>
+                                    <td class="py-3 text-right font-semibold text-slate-800">â‚¦{{ number_format($invoice->subtotal, 2) }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -134,23 +134,23 @@
                         <div class="w-full sm:w-80 space-y-2">
                             <div class="flex justify-between text-sm">
                                 <span class="text-slate-500">Subtotal:</span>
-                                <span class="text-slate-700">₦{{ number_format($invoice->subtotal, 2) }}</span>
+                                <span class="text-slate-700">â‚¦{{ number_format($invoice->subtotal, 2) }}</span>
                             </div>
                             @if($invoice->discount_amount > 0)
                             <div class="flex justify-between text-sm">
                                 <span class="text-slate-500">Discount:</span>
-                                <span class="text-emerald-600">-₦{{ number_format($invoice->discount_amount, 2) }}</span>
+                                <span class="text-emerald-600">-â‚¦{{ number_format($invoice->discount_amount, 2) }}</span>
                             </div>
                             @endif
                             @if($invoice->tax_amount > 0)
                             <div class="flex justify-between text-sm">
                                 <span class="text-slate-500">Tax (VAT):</span>
-                                <span class="text-slate-700">₦{{ number_format($invoice->tax_amount, 2) }}</span>
+                                <span class="text-slate-700">â‚¦{{ number_format($invoice->tax_amount, 2) }}</span>
                             </div>
                             @endif
                             <div class="flex justify-between text-lg font-bold pt-2 border-t border-slate-200">
                                 <span class="text-slate-900">Total:</span>
-                                <span class="text-pink-600">₦{{ number_format($invoice->total_amount, 2) }}</span>
+                                <span class="text-pink-600">â‚¦{{ number_format($invoice->total_amount, 2) }}</span>
                             </div>
                         </div>
                     </div>

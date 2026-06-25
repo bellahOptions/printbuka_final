@@ -20,12 +20,12 @@
             <p class="text-sm font-black uppercase tracking-wide text-emerald-700">Finance Graph / Figures</p>
             <div class="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
                 @foreach ($financeCards as $card)
-                    <article class="rounded-md border border-slate-200 p-4">
-                        <p class="text-xs font-black uppercase tracking-wide text-slate-500">{{ $card['label'] }}</p>
+                    <article class="overflow-hidden rounded-md border border-slate-200 p-4">
+                        <p class="truncate text-xs font-black uppercase tracking-wide text-slate-500">{{ $card['label'] }}</p>
                         @if (($card['suffix'] ?? null) === '%')
-                            <p class="mt-2 text-2xl font-black text-slate-950">₦{{ number_format($card['value'], 1) }}%</p>
+                            <p class="mt-2 text-xl font-black text-slate-950">{{ number_format($card['value'], 1) }}%</p>
                         @else
-                            <p class="mt-2 text-2xl font-black text-slate-950">₦{{ number_format($card['value'], 2) }}</p>
+                            <p class="mt-2 text-xl font-black text-slate-950">₦{{ number_format($card['value'], 2) }}</p>
                         @endif
                     </article>
                 @endforeach

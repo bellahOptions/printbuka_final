@@ -1,4 +1,4 @@
-@extends('layouts.theme')
+﻿@extends('layouts.new-app')
 
 @section('title', $product->name.' | Printbuka')
 @section('meta_description', \Illuminate\Support\Str::limit($product->short_description ?: $product->description, 155))
@@ -57,9 +57,9 @@
                         <div class="rounded-[2rem] bg-white p-8 shadow-xl ring-1 ring-slate-200">
                             <h2 class="text-xl font-black text-slate-950">Why choose this product?</h2>
                             <ul class="mt-6 space-y-4 text-sm leading-6 text-slate-600">
-                                <li class="flex gap-3"><span class="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-2xl bg-pink-100 text-pink-700">✓</span> Clear print quality for every run.</li>
-                                <li class="flex gap-3"><span class="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700">✓</span> Fast review and delivery coordination.</li>
-                                <li class="flex gap-3"><span class="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">✓</span> Flexible quantity, material, and artwork support.</li>
+                                <li class="flex gap-3"><span class="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-2xl bg-pink-100 text-pink-700">âœ“</span> Clear print quality for every run.</li>
+                                <li class="flex gap-3"><span class="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700">âœ“</span> Fast review and delivery coordination.</li>
+                                <li class="flex gap-3"><span class="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">âœ“</span> Flexible quantity, material, and artwork support.</li>
                             </ul>
                         </div>
                     </div>

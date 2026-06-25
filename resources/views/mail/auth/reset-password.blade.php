@@ -47,7 +47,7 @@
                             <tr>
                                 <td align="center">
                                     <a href="{{ $resetUrl }}"
-                                       style="display:inline-block;padding:14px 36px;background:#0f172a;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:700;font-size:14px;letter-spacing:.3px;">
+                                       style="display:inline-block;padding:14px 36px;background:#EC268F;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:700;font-size:14px;letter-spacing:.3px;">
                                         Reset Password &rarr;
                                     </a>
                                 </td>

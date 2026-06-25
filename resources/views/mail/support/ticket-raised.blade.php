@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="light" style="color-scheme: light;">
     <head>
         <meta charset="utf-8">
@@ -61,7 +61,7 @@
                                     <p style="margin:0;font-size:13px;line-height:1.6;color:#7f1d1d;">{{ Str::limit((string) $ticket->message, 350) }}</p>
                                 </div>
 
-                                <a href="{{ $ticketUrl }}" style="display:inline-block;background:#db2777;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;padding:12px 18px;border-radius:8px;">Open Ticket</a>
+                                <a href="{{ $ticketUrl }}" style="display:inline-block;background:#EC268F;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;padding:12px 18px;border-radius:8px;">Open Ticket</a>
                             </td>
                         </tr>
                     </table>

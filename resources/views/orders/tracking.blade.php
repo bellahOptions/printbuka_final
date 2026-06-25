@@ -1,4 +1,4 @@
-@extends('layouts.theme')
+﻿@extends('layouts.new-app')
 
 @section('title', 'Order '.($order->job_order_number ?? $order->displayNumber()).' | Printbuka')
 
@@ -64,7 +64,7 @@
                         <div class="flex justify-between gap-4 border-b border-slate-100 pb-3">
                             <span class="font-bold text-slate-500">Fulfilment</span>
                             <span class="font-black text-slate-950">
-                                {{ $order->is_sample ? 'Sample · Express' : ($order->is_express ? 'Express' : 'Standard') }}
+                                {{ $order->is_sample ? 'Sample Â· Express' : ($order->is_express ? 'Express' : 'Standard') }}
                             </span>
                         </div>
                     </div>

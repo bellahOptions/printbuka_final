@@ -1,4 +1,4 @@
-@extends('layouts.theme')
+﻿@extends('layouts.new-app')
 @section('title', 'Printbuka | No. 1 Online Print Shop in Nigeria')
 @section('meta_description', 'Order quality prints, branded gifts, UV-DTF, DTF, and laser engraving from Printbuka with nationwide delivery across Nigeria.')
 @push('head')
@@ -45,7 +45,7 @@
                                 The Leader in<br>Quality <span class="text-pink-400">Custom</span><br>Print Design
                             </h1>
                             <p class="text-slate-400 text-lg leading-relaxed mb-8 max-w-lg">
-                                Business cards, flyers, stickers, branded gifts, UV-DTF and laser engraving — from one trusted print partner. Shipped nationwide in 3–7 days.
+                                Business cards, flyers, stickers, branded gifts, UV-DTF and laser engraving â€” from one trusted print partner. Shipped nationwide in 3â€“7 days.
                             </p>
                             <div class="mb-8">
                                 <livewire:product.search />
@@ -78,7 +78,7 @@
                                 </div>
                             </div>
                             <div class="absolute -top-4 -right-6 z-20 bg-white rounded-2xl shadow-xl p-4 border border-slate-100 text-center">
-                                <p class="text-2xl font-black text-emerald-600">✓</p>
+                                <p class="text-2xl font-black text-emerald-600">âœ“</p>
                                 <p class="text-xs font-black text-slate-700 mt-0.5">Free File<br>Checks</p>
                             </div>
                             <div class="absolute top-1/2 -translate-y-1/2 -left-8 w-6 h-6 bg-pink-500/50 rounded-full blur-sm"></div>
@@ -204,7 +204,7 @@
                     </div>
                     <div>
                         <p class="text-sm font-black text-slate-900">Express Production</p>
-                        <p class="text-xs text-slate-500">3–7 working days</p>
+                        <p class="text-xs text-slate-500">3â€“7 working days</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -231,8 +231,8 @@
 
     {{-- ===== ABOUT / WHY CHOOSE US ===== --}}
     <section class="py-20 lg:py-28 bg-white overflow-hidden">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="grid lg:grid-cols-2 gap-14 lg:gap-20 items-center">
+        <div class="mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="gap-14 lg:gap-20 items-center">
 
                 {{-- Left: Icon feature boxes --}}
                 <div>
@@ -253,7 +253,7 @@
                             </div>
                             <div>
                                 <h3 class="font-black text-slate-950 mb-1">Free File Review</h3>
-                                <p class="text-sm text-slate-500 leading-relaxed">Every design checked by our team before print — zero extra charge.</p>
+                                <p class="text-sm text-slate-500 leading-relaxed">Every design checked by our team before print â€” zero extra charge.</p>
                             </div>
                         </div>
                         <div class="flex gap-4 p-5 rounded-2xl border border-slate-100 bg-slate-50 hover:border-cyan-200 hover:bg-cyan-50/50 transition-colors">
@@ -271,7 +271,7 @@
                             </div>
                             <div>
                                 <h3 class="font-black text-slate-950 mb-1">Nationwide Shipping</h3>
-                                <p class="text-sm text-slate-500 leading-relaxed">Door-to-door delivery to all 36 states + FCT, 3–7 working days.</p>
+                                <p class="text-sm text-slate-500 leading-relaxed">Door-to-door delivery to all 36 states + FCT, 3â€“7 working days.</p>
                             </div>
                         </div>
                         <div class="flex gap-4 p-5 rounded-2xl border border-slate-100 bg-slate-50 hover:border-amber-200 hover:bg-amber-50/50 transition-colors">
@@ -286,74 +286,7 @@
                     </div>
                 </div>
 
-                {{-- Right: Stats, progress bars, images --}}
-                <div class="space-y-8">
-
-                    {{-- Progress bars --}}
-                    <div class="bg-slate-950 rounded-3xl p-8 text-white">
-                        <h3 class="text-xl font-black mb-6">Our performance metrics</h3>
-                        <div class="space-y-6">
-                            <div>
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="text-sm font-bold text-slate-300">On-Time Delivery Rate</span>
-                                    <span class="text-sm font-black text-pink-400">94%</span>
                                 </div>
-                                <div class="h-2 bg-slate-800 rounded-full overflow-hidden">
-                                    <div class="h-full w-[94%] bg-gradient-to-r from-pink-600 to-pink-400 rounded-full pb-progress-bar"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="text-sm font-bold text-slate-300">Customer Satisfaction</span>
-                                    <span class="text-sm font-black text-cyan-400">97%</span>
-                                </div>
-                                <div class="h-2 bg-slate-800 rounded-full overflow-hidden">
-                                    <div class="h-full w-[97%] bg-gradient-to-r from-cyan-600 to-cyan-400 rounded-full pb-progress-bar"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="text-sm font-bold text-slate-300">Print Quality Score</span>
-                                    <span class="text-sm font-black text-emerald-400">99%</span>
-                                </div>
-                                <div class="h-2 bg-slate-800 rounded-full overflow-hidden">
-                                    <div class="h-full w-[99%] bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full pb-progress-bar"></div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="text-sm font-bold text-slate-300">File Artwork Approval</span>
-                                    <span class="text-sm font-black text-amber-400">88%</span>
-                                </div>
-                                <div class="h-2 bg-slate-800 rounded-full overflow-hidden">
-                                    <div class="h-full w-[88%] bg-gradient-to-r from-amber-500 to-amber-400 rounded-full pb-progress-bar"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4 mt-8 pt-6 border-t border-slate-800">
-                            <div class="w-12 h-12 rounded-full bg-pink-600/20 border border-pink-600/40 flex items-center justify-center shrink-0">
-                                <x-heroicon-s-star class="w-6 h-6 text-pink-400" />
-                            </div>
-                            <div>
-                                <p class="font-black text-white">Trusted by 15,000+ businesses</p>
-                                <p class="text-sm text-slate-400 mt-0.5">Rated 4.9/5 by our customers across Nigeria</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- 2x2 image mosaic --}}
-                    <div class="grid grid-cols-2 gap-3">
-                        <img src="https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=400&q=80"
-                             alt="Print production" class="w-full h-36 object-cover rounded-2xl" />
-                        <img src="https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=400&q=80"
-                             alt="Print delivery" class="w-full h-36 object-cover rounded-2xl" />
-                        <img src="https://images.unsplash.com/photo-1605902711622-cfb43c44367f?auto=format&fit=crop&w=400&q=80"
-                             alt="Branded merchandise" class="w-full h-36 object-cover rounded-2xl" />
-                        <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=400&q=80"
-                             alt="Quality printing" class="w-full h-36 object-cover rounded-2xl" />
-                    </div>
-
-                </div>
             </div>
         </div>
     </section>
@@ -373,7 +306,7 @@
                             Custom Printing
                         </span>
                         <h3 class="text-2xl font-black text-white leading-snug mb-2">Business Cards,<br>Flyers &amp; More</h3>
-                        <p class="text-white/70 text-sm">Professional prints from NGN 5,000 →</p>
+                        <p class="text-white/70 text-sm">Professional prints from NGN 5,000 â†’</p>
                     </div>
                 </a>
 
@@ -384,10 +317,10 @@
                     <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/50 to-transparent"></div>
                     <div class="absolute inset-0 p-8 flex flex-col justify-end">
                         <span class="inline-block bg-amber-500 text-white text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-full mb-3 w-fit">
-                            Shop — Buy Now
+                            Shop â€” Buy Now
                         </span>
                         <h3 class="text-2xl font-black text-white leading-snug mb-2">Branded Gifts &amp;<br>Merchandise</h3>
-                        <p class="text-white/70 text-sm">Fixed prices, instant checkout →</p>
+                        <p class="text-white/70 text-sm">Fixed prices, instant checkout â†’</p>
                     </div>
                 </a>
 
@@ -407,7 +340,7 @@
                     <h2 class="text-3xl sm:text-4xl font-black text-slate-950">Everything you need to print,<br class="hidden lg:block"> brand and gift.</h2>
                 </div>
                 <a href="{{ route('categories.index') }}" class="btn btn-outline font-black border-slate-200 hover:border-pink-400 hover:text-pink-700 hover:bg-pink-50 shrink-0">
-                    All Categories →
+                    All Categories â†’
                 </a>
             </div>
 
@@ -532,12 +465,9 @@
 
             <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
                 <div>
-                    <div class="inline-block bg-pink-50 text-pink-600 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full border border-pink-200 mb-4">
-                        Featured Products
-                    </div>
                     <h2 class="text-3xl sm:text-4xl font-black text-slate-950">Handpicked picks for quick ordering.</h2>
                 </div>
-                <a href="{{ route('products.index') }}" class="btn btn-outline font-black border-slate-200 hover:border-pink-400 hover:text-pink-700 hover:bg-pink-50 shrink-0">See All Products →</a>
+                <a href="{{ route('products.index') }}" class="btn btn-outline font-black border-slate-200 hover:border-pink-400 hover:text-pink-700 hover:bg-pink-50 shrink-0">See All Products â†’</a>
             </div>
 
             @if($featuredProducts->isNotEmpty())
@@ -677,7 +607,7 @@
                     </div>
                     <h2 class="text-3xl sm:text-4xl font-black text-slate-950">Most popular gift-ready products.</h2>
                 </div>
-                <a href="{{ route('products.index') }}" class="btn btn-outline font-black border-slate-200 hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50 shrink-0">Browse Gifts →</a>
+                <a href="{{ route('products.index') }}" class="btn btn-outline font-black border-slate-200 hover:border-amber-400 hover:text-amber-700 hover:bg-amber-50 shrink-0">Browse Gifts â†’</a>
             </div>
             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 @foreach($popularGiftItems as $product)
@@ -724,12 +654,12 @@
                 <div>
                     <div class="inline-block bg-emerald-50 text-emerald-700 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full border border-emerald-200 mb-4 inline-flex items-center gap-2">
                         <x-heroicon-o-shopping-bag class="w-3.5 h-3.5" />
-                        Shop — Buy Now
+                        Shop â€” Buy Now
                     </div>
                     <h2 class="text-3xl sm:text-4xl font-black text-slate-950">Ready-to-buy products.<br class="hidden lg:block"> <span class="text-pink-600">No quote needed.</span></h2>
-                    <p class="text-slate-500 mt-3 max-w-xl">Fixed prices, instant checkout. Pay securely via Paystack — delivered to your door.</p>
+                    <p class="text-slate-500 mt-3 max-w-xl">Fixed prices, instant checkout. Pay securely via Paystack â€” delivered to your door.</p>
                 </div>
-                <a href="{{ route('shop.index') }}" class="btn btn-outline font-black border-slate-200 hover:border-pink-400 hover:text-pink-700 hover:bg-pink-50 shrink-0">Browse Shop →</a>
+                <a href="{{ route('shop.index') }}" class="btn btn-outline font-black border-slate-200 hover:border-pink-400 hover:text-pink-700 hover:bg-pink-50 shrink-0">Browse Shop â†’</a>
             </div>
 
             <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -795,7 +725,7 @@
                     How It Works
                 </div>
                 <h2 class="text-3xl sm:text-4xl font-black text-white">Order in 3 simple steps.</h2>
-                <p class="text-slate-400 mt-3 max-w-lg mx-auto">From choosing your product to delivery at your door — fast, simple and stress-free.</p>
+                <p class="text-slate-400 mt-3 max-w-lg mx-auto">From choosing your product to delivery at your door â€” fast, simple and stress-free.</p>
             </div>
 
             <div class="grid sm:grid-cols-3 gap-5">
@@ -811,14 +741,14 @@
                         <span class="text-white font-black text-2xl">2</span>
                     </div>
                     <h3 class="font-black text-white text-xl mb-3">Share Your Artwork</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">Upload your design or describe what you need. Our team reviews your file within 24 hours — for free.</p>
+                    <p class="text-sm text-slate-400 leading-relaxed">Upload your design or describe what you need. Our team reviews your file within 24 hours â€” for free.</p>
                 </div>
                 <div class="rounded-3xl bg-white/5 border border-white/10 p-7 hover:bg-white/8 hover:border-emerald-600/40 transition-all">
                     <div class="w-14 h-14 rounded-2xl bg-emerald-600 flex items-center justify-center mb-6">
                         <span class="text-white font-black text-2xl">3</span>
                     </div>
                     <h3 class="font-black text-white text-xl mb-3">We Print &amp; Deliver</h3>
-                    <p class="text-sm text-slate-400 leading-relaxed">We produce and ship your order nationwide within 3–7 working days. Track every step.</p>
+                    <p class="text-sm text-slate-400 leading-relaxed">We produce and ship your order nationwide within 3â€“7 working days. Track every step.</p>
                 </div>
             </div>
 

@@ -1,4 +1,4 @@
-@extends('layouts.theme')
+﻿@extends('layouts.new-app')
 
 @section('title', $category->name . ' | Printbuka')
 @section('meta_description', \Illuminate\Support\Str::limit($category->description ?: ('Browse available '.strtolower($category->name).' products from Printbuka.'), 155))
@@ -52,7 +52,7 @@
                             <p class="mt-2 line-clamp-2 text-sm text-slate-500">{{ $product->short_description }}</p>
                             <div class="mt-3">
                                 <p class="text-xs font-bold text-slate-400">{{ $product->hasAvailablePrice() ? 'starting at' : 'pricing' }}</p>
-                                <p class="text-xl font-black text-pink-600">{{ $product->hasAvailablePrice() ? '₦'.number_format((float) $product->price, 0) : 'Contact us' }}</p>
+                                <p class="text-xl font-black text-pink-600">{{ $product->hasAvailablePrice() ? 'â‚¦'.number_format((float) $product->price, 0) : 'Contact us' }}</p>
                             </div>
                             <div class="mt-4 grid grid-cols-2 gap-2">
                                 <a href="{{ route('products.show', $product) }}" class="btn btn-sm btn-outline border-slate-200 hover:border-pink-400 hover:text-pink-700">View</a>

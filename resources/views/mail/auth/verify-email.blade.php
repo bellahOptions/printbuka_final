@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" style="color-scheme:light;">
 <head>
     <meta charset="utf-8">
@@ -24,7 +24,7 @@
                                     <img src="{{ $message->embed(public_path('logo-dark.svg')) }}" alt="{{ $siteName }}" width="130" style="display:block;height:auto;">
                                 </td>
                                 <td align="right">
-                                    <span style="background:#db2777;color:#fff;font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:1px;">VERIFY EMAIL</span>
+                                    <span style="background:#EC268F;color:#fff;font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:1px;">VERIFY EMAIL</span>
                                 </td>
                             </tr>
                         </table>
@@ -47,7 +47,7 @@
                             <tr>
                                 <td align="center">
                                     <a href="{{ $verificationUrl }}"
-                                       style="display:inline-block;padding:14px 36px;background:#db2777;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:700;font-size:14px;letter-spacing:.3px;">
+                                       style="display:inline-block;padding:14px 36px;background:#EC268F;color:#ffffff;text-decoration:none;border-radius:8px;font-weight:700;font-size:14px;letter-spacing:.3px;">
                                         Verify Email Address &rarr;
                                     </a>
                                 </td>

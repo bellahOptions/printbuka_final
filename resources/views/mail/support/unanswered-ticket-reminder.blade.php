@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="light" style="color-scheme: light;">
     <head>
         <meta charset="utf-8">
@@ -50,7 +50,7 @@
                                 </table>
 
                                 <p style="margin:16px 0 0;font-size:13px;line-height:1.6;color:#475569;">Open the admin support portal to respond and keep SLA compliance on track.</p>
-                                <a href="{{ route('admin.support.index') }}" style="display:inline-block;margin-top:14px;background:#db2777;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;padding:12px 18px;border-radius:8px;">Open Support Queue</a>
+                                <a href="{{ route('admin.support.index') }}" style="display:inline-block;margin-top:14px;background:#EC268F;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;padding:12px 18px;border-radius:8px;">Open Support Queue</a>
                             </td>
                         </tr>
                     </table>

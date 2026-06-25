@@ -64,7 +64,23 @@ class HomeController extends Controller
             ? collect()
             : ShopProduct::query()->whereIn('id', $featuredShopIds)->get()->sortBy(fn ($p) => array_search($p->id, $featuredShopIds))->values();
 
-        return view('welcome', compact('featuredProducts', 'popularGiftItems', 'homeCategories', 'featuredShopProducts'));
+        return view('new-home', compact('featuredProducts', 'popularGiftItems', 'homeCategories', 'featuredShopProducts'));
+    }
+
+    public function newHome(): \Illuminate\View\View
+    {
+        $featuredProductIds = SafeCache::remember('home:featured-product-ids:v1', now()->addMinutes(5), function (): array {
+            return Product::query()
+                ->featured()
+                ->orderByDesc('view_count')
+                ->limit(6)
+                ->pluck('id')
+                ->all();
+        });
+
+        $featuredProducts = $this->orderedProductsFromCachedIds($featuredProductIds);
+
+        return view('new-home', compact('featuredProducts'));
     }
 
     /**

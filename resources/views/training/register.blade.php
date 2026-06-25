@@ -1,4 +1,4 @@
-@extends('layouts.theme')
+﻿@extends('layouts.new-app')
 
 @section('title', 'Apply for PGTP | Printbuka')
 @section('meta_description', 'Register for the Printbuka Graduate Trainee Program and choose your preferred practical training skill path.')

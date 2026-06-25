@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -27,7 +27,7 @@
                             </p>
 
                             @if (filled($campaign->cta_label) && filled($campaign->cta_url))
-                                <a href="{{ $campaign->cta_url }}" style="display:inline-block;background:#db2777;color:#ffffff;padding:12px 18px;border-radius:6px;font-weight:700;text-decoration:none;">
+                                <a href="{{ $campaign->cta_url }}" style="display:inline-block;background:#EC268F;color:#ffffff;padding:12px 18px;border-radius:6px;font-weight:700;text-decoration:none;">
                                     {{ $campaign->cta_label }}
                                 </a>
                             @endif

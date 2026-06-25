@@ -1,4 +1,4 @@
-@extends('layouts.theme')
+﻿@extends('layouts.new-app')
 @section('title', 'Order Confirmed | Printbuka Shop')
 @section('content')
 <main class="bg-slate-50 min-h-screen py-16">
@@ -21,7 +21,7 @@
                 <x-heroicon-o-clock class="w-10 h-10 text-amber-600" />
             </div>
             <h1 class="text-3xl font-black text-slate-950">Order Received</h1>
-            <p class="text-slate-500 mt-2">Payment pending — we will update you at <strong>{{ $order->customer_email }}</strong>.</p>
+            <p class="text-slate-500 mt-2">Payment pending â€” we will update you at <strong>{{ $order->customer_email }}</strong>.</p>
         </div>
     @endif
 
@@ -52,7 +52,7 @@
                             @foreach($item->selectedOptions as $opt)
                                 <p class="text-xs text-slate-400 font-bold">{{ $opt->group_name }}: {{ $opt->option_name }}</p>
                             @endforeach
-                            <p class="text-xs text-slate-500 mt-0.5">× {{ $item->quantity }} @ NGN {{ number_format((float)$item->unit_price, 0) }}</p>
+                            <p class="text-xs text-slate-500 mt-0.5">Ã— {{ $item->quantity }} @ NGN {{ number_format((float)$item->unit_price, 0) }}</p>
                         </div>
                         <p class="font-black text-slate-900 shrink-0">NGN {{ number_format((float)$item->line_total, 0) }}</p>
                     </div>

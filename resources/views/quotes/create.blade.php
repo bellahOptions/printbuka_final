@@ -1,4 +1,4 @@
-@extends('layouts.theme')
+﻿@extends('layouts.new-app')
 
 @section('title', 'Get Quote | Printbuka')
 
@@ -89,7 +89,7 @@
                             <div class="mb-6 rounded-xl border border-pink-100 bg-pink-50 p-4">
                                 <p class="text-xs font-black uppercase tracking-wide text-pink-700">Selected product</p>
                                 <p class="mt-1 text-lg font-black text-slate-950">{{ $selectedQuoteProduct->name }}</p>
-                                <p class="mt-1 text-sm font-semibold text-slate-600">MOQ {{ $selectedQuoteProduct->moq }}{{ $selectedQuoteProduct->paper_size ? ' · '.$selectedQuoteProduct->paper_size : '' }}{{ $selectedQuoteProduct->paper_density ? ' · '.$selectedQuoteProduct->paper_density : '' }}</p>
+                                <p class="mt-1 text-sm font-semibold text-slate-600">MOQ {{ $selectedQuoteProduct->moq }}{{ $selectedQuoteProduct->paper_size ? ' Â· '.$selectedQuoteProduct->paper_size : '' }}{{ $selectedQuoteProduct->paper_density ? ' Â· '.$selectedQuoteProduct->paper_density : '' }}</p>
                             </div>
                         @endif
 
@@ -160,14 +160,14 @@
                                     <span class="label-text font-semibold text-slate-700">Budget (Subject to negotiation & approval)</span>
                                 </label>
                                 <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold">₦</span>
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold">â‚¦</span>
                                     <input type="number" min="0" step="0.01" name="quote_budget" value="{{ old('quote_budget') }}" 
                                         id="quote-budget-input"
                                         data-naira-input data-naira-preview-id="quote-budget-preview"
                                         placeholder="Enter your planned budget"
                                         class="input input-bordered w-full pl-10 focus:input-primary @error('quote_budget') input-error @enderror" />
                                 </div>
-                                <span id="quote-budget-preview" class="mt-2 text-xs font-semibold text-slate-500">₦0.00</span>
+                                <span id="quote-budget-preview" class="mt-2 text-xs font-semibold text-slate-500">â‚¦0.00</span>
                                 <span class="mt-1 text-xs text-slate-400">Final pricing is still subject to Printbuka review, negotiation, and approval.</span>
                                 @error('quote_budget') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
                             </div>

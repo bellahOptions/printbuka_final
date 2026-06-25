@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="light" style="color-scheme: light;">
     <head>
         <meta charset="utf-8">
@@ -72,7 +72,7 @@
                                     </div>
                                 @endif
 
-                                <a href="{{ $adminOrderUrl }}" style="display:inline-block;background:#db2777;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;padding:12px 18px;border-radius:8px;">Open Job in Admin Dashboard</a>
+                                <a href="{{ $adminOrderUrl }}" style="display:inline-block;background:#EC268F;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;padding:12px 18px;border-radius:8px;">Open Job in Admin Dashboard</a>
                             </td>
                         </tr>
                     </table>

@@ -1,4 +1,4 @@
-@extends('layouts.theme')
+﻿@extends('layouts.new-app')
 @section('title', 'Your Cart | Printbuka Shop')
 @section('content')
 <main class="bg-slate-50 min-h-screen py-12">
@@ -83,7 +83,7 @@
                                             </div>
 
                                             <div class="text-right">
-                                                <p class="text-xs text-slate-400 font-bold">NGN {{ number_format($item['unit_price'], 0) }} × {{ $item['quantity'] }}</p>
+                                                <p class="text-xs text-slate-400 font-bold">NGN {{ number_format($item['unit_price'], 0) }} Ã— {{ $item['quantity'] }}</p>
                                                 <p class="text-lg font-black text-pink-600">NGN {{ number_format($item['line_total'], 0) }}</p>
                                             </div>
                                         </div>
@@ -121,7 +121,7 @@
                     <div class="space-y-3 mb-5">
                         @foreach($cartItems as $item)
                             <div class="flex justify-between text-sm">
-                                <span class="text-slate-600 font-bold">{{ $item['product']->name }} × {{ $item['quantity'] }}</span>
+                                <span class="text-slate-600 font-bold">{{ $item['product']->name }} Ã— {{ $item['quantity'] }}</span>
                                 <span class="font-black text-slate-900">NGN {{ number_format($item['line_total'], 0) }}</span>
                             </div>
                         @endforeach

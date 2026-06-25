@@ -104,6 +104,42 @@ return [
                 'Support team available through each stage',
             ],
         ],
+        'dtf-borderless' => [
+            'name'             => 'DTF Borderless Printing',
+            'pricing_mode'     => 'variable',
+            'pricing_factors'  => ['Film Size (A4, A3, A2, A1)', 'Quantity'],
+            'default_price'    => 0,
+            'summary'          => 'Full-surface borderless DTF transfers with no outline or frame — ideal for all-over designs, sportswear, and vibrant branded apparel.',
+            'hero_kicker'      => 'All-Over Print Specialist',
+            'hero_title'       => 'DTF Borderless Printing for Full-Surface Brand Expressions',
+            'hero_summary'     => 'Go edge-to-edge with your designs. Our borderless DTF transfers deliver vivid, wash-fast prints across the entire film area — no white border, no compromise.',
+            'proof_points'     => [
+                'True edge-to-edge print coverage',
+                'Wash-fast colors for lasting brand impact',
+                'Consistent output across bulk runs',
+            ],
+            'features'         => [
+                'No border or outline on transfer',
+                'Full-bleed print on light and dark fabrics',
+                'Vibrant CMYK color reproduction',
+                'Durable wash-fast adhesion',
+            ],
+            'use_cases'        => [
+                'All-over print apparel and fashion pieces',
+                'Sportswear, activewear and team kits',
+                'Colorful event merchandise and campaign shirts',
+            ],
+            'process_steps'    => [
+                'Submit film size, quantity and your artwork file (PDF, AI, or high-res PNG).',
+                'We check files, confirm scope, and lock the price before payment.',
+                'Production begins immediately after payment — QC checked before dispatch.',
+            ],
+            'trust_points'     => [
+                'Pre-press file check before every run',
+                'Predictable output across repeat orders',
+                'Clear timeline and status updates throughout',
+            ],
+        ],
         'laser-engraving' => [
             'name' => 'Laser Engraving',
             'pricing_mode' => 'variable',

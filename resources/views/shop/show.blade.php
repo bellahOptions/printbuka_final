@@ -1,4 +1,4 @@
-@extends('layouts.theme')
+﻿@extends('layouts.new-app')
 @section('title', $product->name . ' | Printbuka Shop')
 @section('meta_description', \Illuminate\Support\Str::limit($product->short_description ?? $product->name, 155))
 @section('content')
@@ -129,9 +129,9 @@
                     <div class="flex items-center gap-3">
                         <label class="text-sm font-black text-slate-700">Qty</label>
                         <div class="flex items-center border border-slate-200 rounded-xl overflow-hidden">
-                            <button type="button" @click="qty = Math.max(1, qty - 1)" class="w-10 h-10 flex items-center justify-center hover:bg-slate-100 font-black text-slate-700">−</button>
-                            <input type="number" name="quantity" x-model="qty" min="1" max="99"
-                                   class="w-12 h-10 text-center font-black text-slate-900 border-0 focus:ring-0 bg-transparent" readonly />
+                            <button type="button" @click="qty = Math.max(1, qty - 1)" class="w-10 h-10 flex items-center justify-center hover:bg-slate-100 font-black text-slate-700">-</button>
+                            <span x-text="qty" class="w-12 h-10 flex items-center justify-center font-black text-slate-900 select-none"></span>
+                            <input type="hidden" name="quantity" :value="qty" />
                             <button type="button" @click="qty = Math.min(99, qty + 1)" class="w-10 h-10 flex items-center justify-center hover:bg-slate-100 font-black text-slate-700">+</button>
                         </div>
                     </div>

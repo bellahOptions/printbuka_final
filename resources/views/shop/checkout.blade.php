@@ -1,4 +1,4 @@
-@extends('layouts.theme')
+﻿@extends('layouts.new-app')
 @section('title', 'Checkout | Printbuka Shop')
 @section('content')
 <main class="bg-slate-50 min-h-screen py-12">
@@ -142,7 +142,7 @@
                                     <p class="text-xs text-slate-400 font-bold">{{ $opt->group?->name }}: {{ $opt->name }}</p>
                                 @endforeach
                                 <div class="flex justify-between mt-1">
-                                    <span class="text-xs text-slate-400">× {{ $item['quantity'] }}</span>
+                                    <span class="text-xs text-slate-400">Ã— {{ $item['quantity'] }}</span>
                                     <span class="text-sm font-black text-slate-900">NGN {{ number_format($item['line_total'], 0) }}</span>
                                 </div>
                             </div>
@@ -165,7 +165,7 @@
                     </div>
                 </div>
 
-                <a href="{{ route('shop.cart') }}" class="btn btn-ghost font-black text-slate-500 w-full mt-3 btn-sm">← Edit Cart</a>
+                <a href="{{ route('shop.cart') }}" class="btn btn-ghost font-black text-slate-500 w-full mt-3 btn-sm">â† Edit Cart</a>
             </div>
         </div>
 

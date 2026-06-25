@@ -1,191 +1,405 @@
-@extends('layouts.theme')
+@extends('layouts.new-app')
 
-@section('title', 'Services | Printbuka')
-@section('meta_description', 'Explore Printbuka services including direct image printing, UV-DTF, DTF, and laser engraving.')
+@section('title', 'Print Services | Printbuka — Direct Image, UV-DTF, DTF & Laser Engraving')
+@section('meta_description', 'Professional print services including direct image printing, UV-DTF transfers, DTF fabric printing and laser engraving. Clear pricing, trackable orders, nationwide delivery.')
+
+@push('head')
+<style>
+.svc-slide { position:absolute; inset:0; transition: opacity 1s ease-in-out; }
+.svc-dot   { width:8px; height:8px; border-radius:9999px; background:rgba(255,255,255,0.35); transition: all .3s; cursor:pointer; }
+.svc-dot.active { background:#EC268F; width:24px; }
+</style>
+@endpush
 
 @section('content')
+<main>
+
+    {{-- ===== HERO WITH SLIDESHOW ===== --}}
     @php
-        $serviceCount = count($services);
-        $fixedServicePrices = collect($services)
-            ->filter(fn (array $service): bool => (string) ($service['pricing_mode'] ?? 'fixed') !== 'variable')
-            ->pluck('price')
-            ->filter(fn ($price): bool => is_numeric($price) && (float) $price > 0);
-        $startingPrice = $fixedServicePrices->min();
+        $indexSlides = [
+            ['img' => 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=1600&q=80', 'label' => 'Direct Image Printing'],
+            ['img' => 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=1600&q=80', 'label' => 'Branded Merchandise'],
+            ['img' => 'https://images.unsplash.com/photo-1524638431109-93d95c968f03?auto=format&fit=crop&w=1600&q=80', 'label' => 'DTF Fabric Printing'],
+            ['img' => 'https://images.unsplash.com/photo-1590005354167-6da97870c757?auto=format&fit=crop&w=1600&q=80', 'label' => 'Laser Engraving'],
+            ['img' => 'https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=1600&q=80', 'label' => 'UV-DTF Transfers'],
+        ];
     @endphp
 
-    <style>
-        .services-landing {
-            --heading-font: "Sora", "Montserrat", "Segoe UI", sans-serif;
-            --body-font: "Manrope", "Nunito Sans", "Segoe UI", sans-serif;
-            font-family: var(--body-font);
-        }
+    <section class="overflow-hidden">
 
-        .services-landing h1,
-        .services-landing h2,
-        .services-landing h3 {
-            font-family: var(--heading-font);
-            letter-spacing: -0.02em;
-        }
+        {{-- Slides --}}
+        @foreach($indexSlides as $i => $slide)
+            <div class="svc-slide {{ $i === 0 ? 'opacity-100' : 'opacity-0' }}" aria-hidden="true" data-svc-slide="{{ $i }}">
+                <img src="{{ $slide['img'] }}" alt="" class="absolute inset-0 w-full h-full object-cover">
+                {{-- Dark overlay --}}
+                <div class="absolute inset-0 bg-slate-950/80"></div>
+                {{-- Pink accent gradient --}}
+                <div class="absolute inset-0 bg-gradient-to-br from-[#EC268F]/20 via-transparent to-cyan-900/15"></div>
+            </div>
+        @endforeach
 
-        .services-fade-up {
-            animation: services-fade-up 620ms cubic-bezier(0.21, 0.98, 0.6, 0.99) both;
-        }
+        {{-- Content --}}
+        <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+            <div class="max-w-3xl">
+                <h1 class="text-5xl sm:text-6xl font-black text-white leading-[1.05] mb-6">
+                    Print Services Built<br>
+                    for <span class="text-[#EC268F]">Business Results</span>
+                </h1>
+                <p class="text-slate-300 text-xl leading-relaxed mb-10 max-w-2xl">
+                    From direct image printing to laser engraving — clear pricing, file checks, production tracking and dependable delivery. No guesswork, no surprises.
+                </p>
+                <div class="flex flex-wrap gap-4 mb-14">
+                    <a href="#services"
+                       class="inline-flex items-center gap-2 bg-[#EC268F] hover:bg-pink-700 text-white font-black px-8 py-4 rounded-xl transition-colors text-sm shadow-lg shadow-pink-900/30">
+                        <x-heroicon-o-squares-2x2 class="w-5 h-5" />
+                        Browse All Services
+                    </a>
+                    <a href="#how-it-works"
+                       class="inline-flex items-center gap-2 border border-white/25 hover:border-white/60 text-white font-black px-8 py-4 rounded-xl transition-colors text-sm">
+                        <x-heroicon-o-play-circle class="w-5 h-5" />
+                        How It Works
+                    </a>
+                </div>
 
-        .services-fade-up-delay-1 { animation-delay: 90ms; }
-        .services-fade-up-delay-2 { animation-delay: 170ms; }
-        .services-fade-up-delay-3 { animation-delay: 250ms; }
-
-        @keyframes services-fade-up {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
-
-    <main class="services-landing relative overflow-hidden bg-[#f3faf8] px-4 py-12 text-slate-900 sm:px-6 lg:px-8">
-        <div class="pointer-events-none absolute inset-0">
-            <div class="absolute -top-20 -left-20 h-56 w-56 rounded-full bg-cyan-300/30 blur-3xl"></div>
-            <div class="absolute top-24 right-0 h-72 w-72 rounded-full bg-pink-200/40 blur-3xl"></div>
-            <div class="absolute bottom-24 left-1/3 h-56 w-56 rounded-full bg-emerald-200/40 blur-3xl"></div>
+                
+            </div>
         </div>
 
-        <section class="relative mx-auto max-w-7xl space-y-10">
-            <div class="services-fade-up overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-2xl shadow-cyan-950/10">
-                <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-cyan-900 px-7 py-10 text-white sm:px-10">
-                    <p class="inline-flex rounded-full bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-cyan-100">Printbuka Services</p>
-                    <h1 class="mt-6 max-w-4xl text-4xl font-black leading-tight sm:text-5xl">Our Services</h1>
-                    <p class="mt-5 max-w-3xl text-base leading-7 text-slate-100/90">From direct image printing to engraving, we provide business-ready production with clear pricing, secure checkout, and dependable delivery support.</p>
+        {{-- Slide label + dots --}}
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-3">
+            <span id="svc-index-label" class="text-xs font-black text-white/60 uppercase tracking-widest transition-all">{{ $indexSlides[0]['label'] }}</span>
+            <div class="flex gap-2" id="svc-index-dots">
+                @foreach($indexSlides as $i => $slide)
+                    <button class="svc-dot {{ $i === 0 ? 'active' : '' }}" data-svc-target="{{ $i }}" aria-label="Slide {{ $i + 1 }}"></button>
+                @endforeach
+            </div>
+        </div>       
+    </section>
 
-                    <div class="mt-8 flex flex-wrap items-center gap-3">
-                        <a href="#services-grid" class="inline-flex min-h-12 items-center justify-center rounded-md bg-pink-500 px-6 text-sm font-black text-white transition hover:bg-pink-600">Place Order Now</a>
-                        <a href="#how-it-works" class="inline-flex min-h-12 items-center justify-center rounded-md border border-white/40 px-6 text-sm font-black text-white transition hover:border-white">How It Works</a>
-                    </div>
-                </div>
+    <script>
+    (function(){
+        const slides   = document.querySelectorAll('[data-svc-slide]');
+        const dots     = document.querySelectorAll('[data-svc-target]');
+        const label    = document.getElementById('svc-index-label');
+        const labels   = @json(array_column($indexSlides, 'label'));
+        let current    = 0, timer;
 
-                <div class="grid gap-4 bg-white px-7 py-7 sm:grid-cols-3 sm:px-10">
-                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
-                        <p class="text-xs font-black uppercase tracking-[0.15em] text-slate-500">Service Lines</p>
-                        <p class="mt-2 text-2xl font-black text-slate-950">{{ $serviceCount }}</p>
+        function goTo(n){
+            slides[current].classList.replace('opacity-100','opacity-0');
+            dots[current].classList.remove('active');
+            current = (n + slides.length) % slides.length;
+            slides[current].classList.replace('opacity-0','opacity-100');
+            dots[current].classList.add('active');
+            if(label) label.textContent = labels[current];
+        }
+
+        dots.forEach(d => d.addEventListener('click', () => { clearInterval(timer); goTo(+d.dataset.svcTarget); timer = setInterval(() => goTo(current + 1), 5000); }));
+        timer = setInterval(() => goTo(current + 1), 5000);
+    })();
+    </script>
+
+    {{-- ===== TRUST BAR ===== --}}
+    <section class="bg-slate-50 border-b border-slate-100">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                @php
+                    $trustItems = [
+                        ['icon' => 'shield-check',             'title' => 'Transparent Pricing', 'desc' => 'Prices shown before checkout — no hidden fees'],
+                        ['icon' => 'clock',                    'title' => 'Fast Turnaround',     'desc' => 'Most jobs complete in 3–7 business days'],
+                        ['icon' => 'map-pin',                  'title' => 'Nationwide Delivery', 'desc' => 'Pickup or delivery to any state'],
+                        ['icon' => 'arrow-path',               'title' => 'Order Tracking',      'desc' => 'Live status from submission to delivery'],
+                    ];
+                @endphp
+                @foreach($trustItems as $t)
+                    <div class="flex items-start gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-pink-100 flex items-center justify-center shrink-0 mt-0.5">
+                            <x-dynamic-component :component="'heroicon-o-'.$t['icon']" class="w-5 h-5 text-[#EC268F]" />
+                        </div>
+                        <div>
+                            <p class="text-sm font-black text-slate-900">{{ $t['title'] }}</p>
+                            <p class="text-xs text-slate-500 mt-0.5 leading-relaxed">{{ $t['desc'] }}</p>
+                        </div>
                     </div>
-                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
-                        <p class="text-xs font-black uppercase tracking-[0.15em] text-slate-500">Starting From</p>
-                        <p class="mt-2 text-2xl font-black text-pink-700">
-                            @if ($startingPrice !== null)
-                                NGN {{ number_format((float) $startingPrice, 2) }}
-                            @else
-                                Custom Pricing
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    {{-- ===== SERVICES CATALOG ===== --}}
+    <section id="services" class="py-20 bg-slate-50 scroll-mt-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+            <div class="text-center mb-14">
+                <span class="inline-block bg-pink-100 text-[#EC268F] text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-4">Service Catalog</span>
+                <h2 class="text-4xl font-black text-slate-950 leading-tight mb-3">Choose Your Service</h2>
+                <p class="text-slate-500 text-lg max-w-2xl mx-auto">Every service includes file review, production tracking and a dedicated support contact for your job.</p>
+            </div>
+
+            @php
+                $serviceIcons = [
+                    'direct-image-printing' => 'printer',
+                    'uv-dtf'                => 'sparkles',
+                    'dtf'                   => 'swatch',
+                    'dtf-borderless'        => 'rectangle-group',
+                    'laser-engraving'       => 'bolt',
+                ];
+                $serviceColors = [
+                    'direct-image-printing' => ['bg' => 'bg-pink-600',    'light' => 'bg-pink-50',    'text' => 'text-pink-600',    'border' => 'border-pink-200'],
+                    'uv-dtf'                => ['bg' => 'bg-violet-600',  'light' => 'bg-violet-50',  'text' => 'text-violet-600',  'border' => 'border-violet-200'],
+                    'dtf'                   => ['bg' => 'bg-sky-600',     'light' => 'bg-sky-50',     'text' => 'text-sky-600',     'border' => 'border-sky-200'],
+                    'dtf-borderless'        => ['bg' => 'bg-emerald-600', 'light' => 'bg-emerald-50', 'text' => 'text-emerald-600', 'border' => 'border-emerald-200'],
+                    'laser-engraving'       => ['bg' => 'bg-amber-600',   'light' => 'bg-amber-50',   'text' => 'text-amber-600',   'border' => 'border-amber-200'],
+                ];
+            @endphp
+
+            <div class="grid lg:grid-cols-2 gap-7">
+                @foreach($services as $service)
+                    @php
+                        $icon   = $serviceIcons[$service['slug']]  ?? 'star';
+                        $colors = $serviceColors[$service['slug']] ?? ['bg' => 'bg-pink-600', 'light' => 'bg-pink-50', 'text' => 'text-pink-600', 'border' => 'border-pink-200'];
+                    @endphp
+
+                    <article class="group bg-white rounded-3xl border border-slate-100 hover:border-pink-200 hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col">
+                        {{-- Accent header --}}
+                        <div class="{{ $colors['bg'] }} px-7 pt-7 pb-0 relative">
+                            <div class="flex items-start justify-between mb-5">
+                                <div class="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center">
+                                    <x-dynamic-component :component="'heroicon-o-'.$icon" class="w-7 h-7 text-white" />
+                                </div>
+                                <span class="text-[10px] font-black uppercase tracking-widest bg-white/20 text-white px-3 py-1.5 rounded-full border border-white/30">
+                                    {{ $service['hero_kicker'] }}
+                                </span>
+                            </div>
+                            <h3 class="text-2xl font-black text-white leading-snug mb-2">{{ $service['name'] }}</h3>
+                            <p class="text-white/80 text-sm leading-relaxed pb-5">{{ $service['summary'] }}</p>
+                            @if(!empty($service['pricing_factors']))
+                                <div class="flex flex-wrap gap-2 pb-6">
+                                    @foreach($service['pricing_factors'] as $factor)
+                                        <span class="text-[10px] font-black text-white/90 bg-white/15 border border-white/20 px-2.5 py-1 rounded-full">{{ $factor }}</span>
+                                    @endforeach
+                                </div>
                             @endif
-                        </p>
-                    </div>
-                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
-                        <p class="text-xs font-black uppercase tracking-[0.15em] text-slate-500">Checkout</p>
-                        <p class="mt-2 text-sm font-bold text-slate-700">Secure Paystack payment with order-linked invoice tracking.</p>
-                    </div>
-                </div>
-            </div>
+                        </div>
 
-            <div class="services-fade-up services-fade-up-delay-1 grid gap-4 md:grid-cols-3">
-                <article class="rounded-2xl border border-slate-200 bg-white px-6 py-6 shadow-sm">
-                    <p class="text-xs font-black uppercase tracking-[0.15em] text-pink-700">Production Quality</p>
-                    <h2 class="mt-3 text-2xl font-black text-slate-950">Output You Can Trust</h2>
-                    <p class="mt-3 text-sm leading-6 text-slate-600">Every job moves through a controlled production process with visibility and update points.</p>
-                </article>
-                <article class="rounded-2xl border border-slate-200 bg-white px-6 py-6 shadow-sm">
-                    <p class="text-xs font-black uppercase tracking-[0.15em] text-pink-700">Clear Pricing</p>
-                    <h2 class="mt-3 text-2xl font-black text-slate-950">No Guesswork</h2>
-                    <p class="mt-3 text-sm leading-6 text-slate-600">Current prices are shown clearly before checkout so you can decide confidently.</p>
-                </article>
-                <article class="rounded-2xl border border-slate-200 bg-white px-6 py-6 shadow-sm">
-                    <p class="text-xs font-black uppercase tracking-[0.15em] text-pink-700">Order Confidence</p>
-                    <h2 class="mt-3 text-2xl font-black text-slate-950">Trackable Workflow</h2>
-                    <p class="mt-3 text-sm leading-6 text-slate-600">Orders stay tied to invoice and status updates so you always know what is next.</p>
-                </article>
-            </div>
-
-            <div id="services-grid" class="services-fade-up services-fade-up-delay-2 scroll-mt-28 space-y-5">
-                <div class="flex flex-wrap items-end justify-between gap-4">
-                    <div>
-                        <p class="text-xs font-black uppercase tracking-[0.16em] text-pink-700">Service Catalog</p>
-                        <h2 class="mt-2 text-4xl font-black text-slate-950">Choose A Service and Start Ordering</h2>
-                    </div>
-                </div>
-
-                <div class="grid gap-5 md:grid-cols-2">
-                    @foreach ($services as $service)
-                        @php
-                            $orderUrl = match ($service['slug']) {
-                                'uv-dtf' => route('products.index').'#catalog',
-                                'laser-engraving' => route('products.index').'#catalog',
-                                default => route('services.show', $service['slug']).'#service-order-form',
-                            };
-                        @endphp
-                        <article class="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
-                            <p class="text-xs font-black uppercase tracking-[0.15em] text-pink-700">Service</p>
-                            <h3 class="mt-3 text-3xl font-black text-slate-950">{{ $service['name'] }}</h3>
-                            <p class="mt-3 text-sm leading-6 text-slate-600">{{ $service['summary'] }}</p>
-
-                            <ul class="mt-5 space-y-2 text-sm font-semibold text-slate-700">
-                                @foreach (array_slice((array) ($service['features'] ?? []), 0, 3) as $feature)
-                                    <li class="flex items-start gap-2">
-                                        <span class="mt-2 h-1.5 w-1.5 rounded-full bg-cyan-600"></span>
-                                        <span>{{ $feature }}</span>
-                                    </li>
-                                @endforeach
-                            </ul>
-
-                            <div class="mt-5 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                @if (($service['pricing_mode'] ?? 'fixed') === 'variable')
-                                    <p class="text-xs font-black uppercase tracking-[0.15em] text-slate-500">Pricing Model</p>
-                                    <p class="mt-1 text-xl font-black text-pink-700">Variable Pricing</p>
-                                    @if (filled($service['pricing_factors'] ?? []))
-                                        <p class="mt-1 text-xs font-semibold text-slate-500">Based on: {{ implode(', ', (array) $service['pricing_factors']) }}</p>
-                                    @endif
-                                @else
-                                    <p class="text-xs font-black uppercase tracking-[0.15em] text-slate-500">Starting Price</p>
-                                    <p class="mt-1 text-2xl font-black text-pink-700">NGN {{ number_format((float) $service['price'], 2) }}</p>
-                                @endif
+                        {{-- Body --}}
+                        <div class="p-7 flex-1 flex flex-col gap-5">
+                            <div class="grid sm:grid-cols-2 gap-5">
+                                <div>
+                                    <p class="text-[10px] font-black uppercase tracking-widest {{ $colors['text'] }} mb-3">What You Get</p>
+                                    <ul class="space-y-2">
+                                        @foreach($service['features'] as $feat)
+                                            <li class="flex items-start gap-2 text-sm text-slate-700">
+                                                <x-heroicon-s-check-circle class="w-4 h-4 {{ $colors['text'] }} shrink-0 mt-0.5" />
+                                                {{ $feat }}
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-black uppercase tracking-widest {{ $colors['text'] }} mb-3">Best For</p>
+                                    <ul class="space-y-2">
+                                        @foreach($service['use_cases'] as $uc)
+                                            <li class="flex items-start gap-2 text-sm text-slate-700">
+                                                <x-heroicon-o-arrow-right class="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                                                {{ $uc }}
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
                             </div>
 
-                            <div class="mt-6 flex flex-wrap items-center gap-3">
-                                <a href="{{ route('services.show', $service['slug']) }}" class="inline-flex min-h-12 items-center justify-center rounded-md bg-slate-900 px-5 text-sm font-black text-white transition group-hover:bg-slate-950">View Service</a>
-                                <a href="{{ $orderUrl }}" class="inline-flex min-h-12 items-center justify-center rounded-md bg-pink-600 px-5 text-sm font-black text-white transition hover:bg-pink-700">Place Order Now</a>
+                            @if(!empty($service['proof_points']))
+                                <div class="flex flex-wrap gap-2">
+                                    @foreach($service['proof_points'] as $point)
+                                        <span class="inline-flex items-center gap-1.5 text-xs font-bold {{ $colors['text'] }} {{ $colors['light'] }} {{ $colors['border'] }} border px-3 py-1.5 rounded-full">
+                                            <x-heroicon-s-check class="w-3 h-3" />
+                                            {{ $point }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @endif
+
+                            @if(!empty($service['price']) && $service['price'] > 0)
+                                <div class="rounded-xl {{ $colors['light'] }} {{ $colors['border'] }} border px-4 py-3 flex items-center justify-between">
+                                    <div>
+                                        <p class="text-[10px] font-black uppercase tracking-wide text-slate-500">Starting from</p>
+                                        <p class="text-xl font-black {{ $colors['text'] }}">NGN {{ number_format((float)$service['price'], 0) }}</p>
+                                    </div>
+                                    <span class="text-xs font-bold text-slate-400">Variable pricing applies</span>
+                                </div>
+                            @endif
+
+                            <div class="mt-auto flex gap-3">
+                                <a href="{{ route('services.show', $service['slug']) }}"
+                                   class="flex-1 inline-flex items-center justify-center gap-2 {{ $colors['bg'] }} hover:opacity-90 text-white font-black text-sm py-3.5 rounded-xl transition-all">
+                                    <x-heroicon-o-shopping-cart class="w-4 h-4" />
+                                    Order This Service
+                                </a>
+                                <a href="{{ route('services.show', $service['slug']) }}"
+                                   class="inline-flex items-center justify-center gap-1 border {{ $colors['border'] }} {{ $colors['text'] }} font-black text-sm px-4 py-3.5 rounded-xl hover:{{ $colors['light'] }} transition-colors">
+                                    Details
+                                    <x-heroicon-o-arrow-right class="w-4 h-4" />
+                                </a>
                             </div>
-                        </article>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    {{-- ===== HOW IT WORKS ===== --}}
+    <section id="how-it-works" class="py-20 bg-white scroll-mt-20">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-14">
+                <span class="inline-block bg-pink-100 text-[#EC268F] text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-4">Simple Process</span>
+                <h2 class="text-4xl font-black text-slate-950 mb-3">From Brief to Delivery</h2>
+                <p class="text-slate-500 text-lg max-w-xl mx-auto">Four steps stand between your order and your finished product — every one tracked and visible.</p>
+            </div>
+            <div class="relative">
+                <div class="hidden lg:block absolute top-10 left-[calc(12.5%+28px)] right-[calc(12.5%+28px)] h-0.5 bg-gradient-to-r from-pink-200 via-pink-400 to-pink-200 pointer-events-none"></div>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    @foreach([
+                        ['icon' => 'document-text',   'num' => '01', 'title' => 'Submit Your Brief',  'desc' => 'Choose a service, share your quantity, options, and upload your design.'],
+                        ['icon' => 'currency-dollar',  'num' => '02', 'title' => 'Review & Pay',       'desc' => 'We confirm your file, lock production scope, and you pay via Paystack.'],
+                        ['icon' => 'cog-6-tooth',      'num' => '03', 'title' => 'Production Begins',  'desc' => 'Your job moves through 6 tracked phases — design, print, QC, packaging.'],
+                        ['icon' => 'truck',            'num' => '04', 'title' => 'Pickup or Delivery', 'desc' => 'Collect in person or get delivery nationwide with status updates.'],
+                    ] as $step)
+                        <div class="bg-white rounded-2xl border border-slate-100 hover:border-pink-200 hover:shadow-lg transition-all p-6 text-center group">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#EC268F] to-pink-700 flex items-center justify-center mx-auto mb-4 shadow-md shadow-pink-200 group-hover:scale-110 transition-transform">
+                                <x-dynamic-component :component="'heroicon-o-'.$step['icon']" class="w-6 h-6 text-white" />
+                            </div>
+                            <span class="text-[10px] font-black text-pink-400 uppercase tracking-widest">Step {{ $step['num'] }}</span>
+                            <h3 class="text-base font-black text-slate-950 mt-1 mb-2">{{ $step['title'] }}</h3>
+                            <p class="text-sm text-slate-500 leading-relaxed">{{ $step['desc'] }}</p>
+                        </div>
                     @endforeach
                 </div>
             </div>
+        </div>
+    </section>
 
-            <div id="how-it-works" class="services-fade-up services-fade-up-delay-3 grid gap-6 rounded-2xl border border-slate-200 bg-white p-7 shadow-sm lg:grid-cols-2 lg:p-10">
-                <div>
-                    <p class="text-xs font-black uppercase tracking-[0.16em] text-pink-700">How It Works</p>
-                    <h2 class="mt-3 text-4xl font-black text-slate-950">From Brief to Delivery, Step by Step</h2>
-                    <p class="mt-4 max-w-xl text-sm leading-7 text-slate-600">We designed the flow to keep communication clear, payment secure, and execution consistent across all service categories.</p>
+    {{-- ===== WHY PRINTBUKA ===== --}}
+    <section class="py-20 bg-slate-50">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="lg:grid lg:grid-cols-2 lg:gap-16 lg:items-center">
+                <div class="mb-12 lg:mb-0">
+                    <span class="inline-block bg-pink-100 text-[#EC268F] text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5">Why Choose Us</span>
+                    <h2 class="text-4xl font-black text-slate-950 leading-tight mb-5">
+                        Production Quality You Can<br><span class="text-[#EC268F]">Bet Your Brand On</span>
+                    </h2>
+                    <p class="text-slate-500 text-lg leading-relaxed mb-8">
+                        Printbuka runs a structured print shop — every order handled by a specialist team with defined responsibilities across each production phase.
+                    </p>
+                    <div class="flex flex-col gap-4">
+                        @foreach([
+                            ['icon' => 'user-group',               'title' => 'Specialist Teams',      'desc' => 'Each phase handled by the right person — designer, operator, QC, logistics.'],
+                            ['icon' => 'eye',                      'title' => 'Full Order Visibility',  'desc' => 'Log in to see exactly where your job is in the 6-phase workflow at any time.'],
+                            ['icon' => 'banknotes',                'title' => 'No Hidden Charges',     'desc' => 'Prices set by management and shown before payment. No surprises.'],
+                            ['icon' => 'chat-bubble-left-right',   'title' => 'Dedicated Support',     'desc' => 'Raise a ticket, get a response. Our support team is tied to your specific job.'],
+                        ] as $r)
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-pink-100 flex items-center justify-center shrink-0">
+                                    <x-dynamic-component :component="'heroicon-o-'.$r['icon']" class="w-5 h-5 text-[#EC268F]" />
+                                </div>
+                                <div>
+                                    <p class="font-black text-slate-950 text-sm">{{ $r['title'] }}</p>
+                                    <p class="text-sm text-slate-500 mt-0.5 leading-relaxed">{{ $r['desc'] }}</p>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
-
-                <ol class="space-y-4">
-                    <li class="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
-                        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-pink-100 text-xs font-black text-pink-700">1</span>
-                        <span class="pt-1 text-sm font-semibold text-slate-700">Choose your service and submit order details.</span>
-                    </li>
-                    <li class="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
-                        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-pink-100 text-xs font-black text-pink-700">2</span>
-                        <span class="pt-1 text-sm font-semibold text-slate-700">Review pricing, then complete secure payment.</span>
-                    </li>
-                    <li class="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
-                        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-pink-100 text-xs font-black text-pink-700">3</span>
-                        <span class="pt-1 text-sm font-semibold text-slate-700">Production begins with role-based processing and updates.</span>
-                    </li>
-                    <li class="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-4">
-                        <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-pink-100 text-xs font-black text-pink-700">4</span>
-                        <span class="pt-1 text-sm font-semibold text-slate-700">Pickup or delivery is completed according to your selected method.</span>
-                    </li>
-                </ol>
+                <div class="space-y-4">
+                    <div class="bg-slate-950 rounded-3xl p-8 text-white relative overflow-hidden">
+                        <div class="pointer-events-none absolute top-0 right-0 w-48 h-48 rounded-full bg-pink-600/10 -translate-y-1/3 translate-x-1/4 blur-2xl"></div>
+                        <x-heroicon-s-chat-bubble-bottom-center-text class="w-8 h-8 text-pink-500 mb-4" />
+                        <p class="text-lg font-bold leading-relaxed text-slate-200 mb-6">
+                            "The order tracking made it easy to follow the job from the moment we paid. Our branded items arrived exactly as expected — clean print, clean finish."
+                        </p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-pink-600 flex items-center justify-center font-black text-white text-sm">A</div>
+                            <div>
+                                <p class="font-black text-white text-sm">Adaeze O.</p>
+                                <p class="text-xs text-slate-400">Brand Manager, Lagos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        @foreach([['6','Production Phases','text-[#EC268F]'],['100%','Tracked Orders','text-emerald-600'],['5+','Service Types','text-amber-600'],['3–7','Day Turnaround','text-sky-600']] as [$val,$lbl,$cls])
+                            <div class="bg-white rounded-2xl border border-slate-100 p-5 text-center hover:border-pink-200 transition-colors">
+                                <p class="text-3xl font-black {{ $cls }}">{{ $val }}</p>
+                                <p class="text-xs font-bold text-slate-500 mt-1 uppercase tracking-wide">{{ $lbl }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
             </div>
+        </div>
+    </section>
 
-            <div class="md:hidden fixed inset-x-0 bottom-4 z-40 px-4">
-                <a href="#services-grid" class="inline-flex min-h-12 w-full items-center justify-center rounded-md bg-pink-600 px-5 text-sm font-black text-white shadow-lg shadow-pink-900/30 transition hover:bg-pink-700">
-                    Place Order Now
-                </a>
+    {{-- ===== FAQ ===== --}}
+    <section class="py-20 bg-white">
+        <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <span class="inline-block bg-pink-100 text-[#EC268F] text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-4">Quick Answers</span>
+                <h2 class="text-4xl font-black text-slate-950">Common Questions</h2>
             </div>
-        </section>
-    </main>
+            <div class="divide-y divide-slate-100" x-data="{ open: null }">
+                @foreach([
+                    ['q'=>'How do I get a price for my job?',        'a'=>"Click any service above to see the order form. Pricing is calculated based on quantity, paper/material type and size. You'll see the total before you pay."],
+                    ['q'=>'Do I need to create an account?',          'a'=>"Yes — a free account lets you track your order, access your invoice, and communicate with our team. Sign up takes under 30 seconds."],
+                    ['q'=>'How do I submit my artwork?',              'a'=>"Upload files directly on the order page. We accept PDF, AI, PSD, and high-resolution JPG/PNG. Our team checks files before production begins."],
+                    ['q'=>'What if my files need corrections?',       'a'=>"We review every file before production. If adjustments are needed, we'll contact you directly before any work starts."],
+                    ['q'=>'Can I collect my order in person?',        'a'=>"Yes. Choose \"Client Pickup\" at checkout and we'll notify you when your order is ready for collection at our production facility."],
+                    ['q'=>'What payment methods are accepted?',       'a'=>"We accept all major debit cards and bank transfers via Paystack. All transactions are encrypted and receipts are issued automatically."],
+                ] as $i => $faq)
+                    <div class="py-5">
+                        <button @click="open = open === {{ $i }} ? null : {{ $i }}"
+                                class="w-full flex items-center justify-between gap-4 text-left group">
+                            <span class="font-black text-slate-950 group-hover:text-[#EC268F] transition-colors">{{ $faq['q'] }}</span>
+                            <span class="shrink-0 w-8 h-8 rounded-full bg-slate-100 group-hover:bg-pink-100 flex items-center justify-center transition-colors">
+                                <x-heroicon-o-plus class="w-4 h-4 text-slate-500 group-hover:text-[#EC268F]" x-show="open !== {{ $i }}" />
+                                <x-heroicon-o-minus class="w-4 h-4 text-[#EC268F]" x-show="open === {{ $i }}" x-cloak />
+                            </span>
+                        </button>
+                        <div x-show="open === {{ $i }}" x-transition x-cloak class="mt-3 text-slate-500 text-sm leading-relaxed pr-12">
+                            {{ $faq['a'] }}
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    {{-- ===== BOTTOM CTA ===== --}}
+    <section class="py-20 bg-slate-50">
+        <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+            <div class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-slate-950 via-[#1a002e] to-slate-950 px-8 sm:px-14 py-14 text-center">
+                <div class="pointer-events-none absolute inset-0">
+                    <div class="absolute -top-16 right-0 w-72 h-72 rounded-full bg-pink-600/10 translate-x-1/4 blur-2xl"></div>
+                    <div class="absolute -bottom-16 left-0 w-60 h-60 rounded-full bg-cyan-500/10 -translate-x-1/4 blur-2xl"></div>
+                </div>
+                <div class="relative">
+                    <div class="inline-block bg-pink-600/20 text-pink-400 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full border border-pink-600/30 mb-6">Ready to print?</div>
+                    <h2 class="text-4xl sm:text-5xl font-black text-white leading-tight mb-4">Start Your Order Today</h2>
+                    <p class="text-slate-400 text-lg max-w-xl mx-auto mb-10 leading-relaxed">Pick a service, submit your brief and let our production team handle the rest.</p>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <a href="#services"
+                           class="inline-flex items-center gap-2 bg-[#EC268F] hover:bg-pink-700 text-white font-black px-8 py-4 rounded-xl transition-colors text-sm shadow-lg shadow-pink-900/30">
+                            <x-heroicon-o-squares-2x2 class="w-5 h-5" />
+                            Browse All Services
+                        </a>
+                        <a href="{{ route('register') }}"
+                           class="inline-flex items-center gap-2 border border-white/25 hover:border-white/60 text-white font-black px-8 py-4 rounded-xl transition-colors text-sm">
+                            <x-heroicon-o-user-plus class="w-5 h-5" />
+                            Create Free Account
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
 @endsection

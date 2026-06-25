@@ -1,4 +1,4 @@
-@extends('layouts.theme')
+﻿@extends('layouts.new-app')
 
 @section('title', 'Ticket #' . $ticket->ticket_number . ' | Printbuka')
 

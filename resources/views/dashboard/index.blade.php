@@ -1,4 +1,4 @@
-@extends('layouts.theme')
+﻿@extends('layouts.new-app')
 
 @section('title', 'Welcome ' . auth()->user()->first_name . ' ' . auth()->user()->last_name)
 
@@ -38,7 +38,7 @@
                         </svg>
                     </div>
                     <div class="stat-title text-slate-500">Total Spent</div>
-                    <div class="stat-value text-2xl text-slate-900">₦{{ number_format($totalSpent, 2) }}</div>
+                    <div class="stat-value text-2xl text-slate-900">â‚¦{{ number_format($totalSpent, 2) }}</div>
                     <div class="stat-desc text-slate-400">Lifetime orders value</div>
                 </div>
 
@@ -115,7 +115,7 @@
                                             </h3>
                                             <p class="text-sm text-slate-500">
                                                 {{ $order->created_at ? $order->created_at->format('M d, Y') : 'Date not set' }} 
-                                                • {{ $order->quantity ?? 1 }} item(s)
+                                                â€¢ {{ $order->quantity ?? 1 }} item(s)
                                             </p>
                                             @if($order->product)
                                                 <p class="text-xs text-slate-400 mt-1">{{ $order->product->name ?? 'Product' }}</p>
@@ -123,7 +123,7 @@
                                         </div>
                                     </div>
                                     <div class="text-right">
-                                        <p class="font-bold text-slate-900">₦{{ number_format($order->total_price ?? 0, 2) }}</p>
+                                        <p class="font-bold text-slate-900">â‚¦{{ number_format($order->total_price ?? 0, 2) }}</p>
                                         <span class="badge badge-sm 
                                             @if($order->status === 'completed') badge-success 
                                             @elseif($order->status === 'processing') badge-warning 
@@ -148,7 +148,7 @@
 
                         @if($orders > 5)
                             <div class="mt-4 text-center">
-                                <a href="{{ route('orders.index') }}" class="link link-hover text-pink-600 font-semibold">View All Orders →</a>
+                                <a href="{{ route('orders.index') }}" class="link link-hover text-pink-600 font-semibold">View All Orders â†’</a>
                             </div>
                         @endif
                     </div>

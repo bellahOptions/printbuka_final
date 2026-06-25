@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -25,7 +25,7 @@
                                 <strong>Updated on:</strong>
                                 {{ optional($terms->updated_at)->format('M d, Y h:i A') ?? now()->format('M d, Y h:i A') }}
                             </p>
-                            <a href="{{ $termsUrl }}" style="display:inline-block;background:#db2777;color:#ffffff;padding:12px 18px;border-radius:6px;font-weight:700;text-decoration:none;">
+                            <a href="{{ $termsUrl }}" style="display:inline-block;background:#EC268F;color:#ffffff;padding:12px 18px;border-radius:6px;font-weight:700;text-decoration:none;">
                                 Review Terms & Conditions
                             </a>
                         </td>

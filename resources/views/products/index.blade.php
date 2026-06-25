@@ -1,4 +1,4 @@
-@extends('layouts.theme')
+﻿@extends('layouts.new-app')
 
 @section('title', 'All Products | Printbuka')
 @section('meta_description', 'Browse Printbuka products with live search and smart filters for cards, flyers, stickers, gifts, and more.')
@@ -19,7 +19,7 @@
 @endphp
 
 <main class="bg-base-100 text-base-content">
-    {{-- Compact dark header — gets users to the catalog faster --}}
+    {{-- Compact dark header â€” gets users to the catalog faster --}}
     <section class="bg-slate-950 py-10">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <nav class="flex items-center gap-1.5 text-xs font-bold text-slate-500 mb-5">
@@ -31,7 +31,7 @@
                 <div>
                     <h1 class="text-3xl sm:text-4xl font-black text-white leading-tight">Browse All Products</h1>
                     <p class="text-slate-400 text-sm mt-2">
-                        <span class="font-black text-pink-400">{{ $activeProductCount }}</span> products across every category — filtered, sorted and ready to order.
+                        <span class="font-black text-pink-400">{{ $activeProductCount }}</span> products across every category â€” filtered, sorted and ready to order.
                     </p>
                 </div>
                 <div class="flex flex-wrap gap-2 shrink-0">
@@ -148,7 +148,7 @@
         </div>
     </section>
 
-    {{-- ===== SHOP PRODUCTS — instant buy strip ===== --}}
+    {{-- ===== SHOP PRODUCTS â€” instant buy strip ===== --}}
     @if(($shopProducts ?? collect())->isNotEmpty())
     <section class="py-16 border-t border-slate-100 bg-white">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -157,10 +157,10 @@
                 <div>
                     <div class="badge badge-outline text-emerald-700 border-emerald-400 font-black mb-3 inline-flex items-center gap-1">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                        Shop — Instant Checkout
+                        Shop â€” Instant Checkout
                     </div>
                     <h2 class="text-3xl font-black text-slate-950">Fixed-price items. <span class="text-pink-600">Buy now, no quote needed.</span></h2>
-                    <p class="text-slate-500 mt-2 max-w-xl">These products have a set price — choose your options and pay securely via Paystack.</p>
+                    <p class="text-slate-500 mt-2 max-w-xl">These products have a set price â€” choose your options and pay securely via Paystack.</p>
                 </div>
                 <a href="{{ route('shop.index') }}" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black shrink-0">View All Shop Products</a>
             </div>

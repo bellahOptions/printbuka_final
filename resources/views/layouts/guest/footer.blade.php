@@ -24,7 +24,7 @@
             <div>
                 <div class="mb-6">
                     <a href="{{ route('home') }}">
-                        <img src="{{ asset('logo-dark.svg') }}"
+                        <img src="{{ asset('logo-05.svg') }}"
                              class="h-10 w-auto"
                              alt="{{ $siteName }}"
                              onerror="this.onerror=null;this.src='{{ asset('logo.png') }}';" />
@@ -248,27 +248,6 @@
                 </div>
             </div>
 
-        </div>
-    </div>
-
-    {{-- ===== BOTTOM BAR ===== --}}
-    <div class="relative border-t border-white/10">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-5">
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
-                <p>&copy; {{ date('Y') }} {{ $siteName }}. All rights reserved.</p>
-                <div class="flex items-center gap-1 text-xs text-slate-600">
-                    {{-- Payment icons strip --}}
-                    <span class="px-2 py-1 rounded bg-white/5 border border-white/10 font-bold text-slate-400 text-[10px] tracking-wide">VISA</span>
-                    <span class="px-2 py-1 rounded bg-white/5 border border-white/10 font-bold text-slate-400 text-[10px] tracking-wide">MASTERCARD</span>
-                    <span class="px-2 py-1 rounded bg-white/5 border border-white/10 font-bold text-slate-400 text-[10px] tracking-wide">PAYSTACK</span>
-                    <span class="px-2 py-1 rounded bg-white/5 border border-white/10 font-bold text-slate-400 text-[10px] tracking-wide">BANK</span>
-                </div>
-                <p>
-                    Built with <x-heroicon-s-heart class="w-3.5 h-3.5 inline text-pink-500" /> by
-                    <a href="https://www.aidigitalagency.com.ng" target="_blank" rel="noopener noreferrer"
-                       class="font-bold text-white hover:text-pink-400 transition">AI Digital Agency</a>
-                </p>
-            </div>
         </div>
     </div>
 

@@ -135,6 +135,8 @@ Route::get('/llms.txt', function () {
     return response($content.PHP_EOL, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
 })->name('llms');
 
+Route::get('/new-home', [HomeController::class, 'newHome'])->name('new-home');
+
 Route::middleware('customer.portal')->group(function (): void {
     Route::get('/', [HomeController::class, 'index'])->name('home');
 
