@@ -71,7 +71,7 @@ class CloudinaryUrl
         $publicId = self::normalizeToPublicId($path);
 
         if ($publicId === null) {
-            return $path;
+            return null;
         }
 
         // Try to return cached URL
@@ -139,8 +139,9 @@ class CloudinaryUrl
             return $m[1];
         }
 
-        // If it already looks like a relative path (contains / and has extension), treat as public_id
-        if (preg_match('#^[a-zA-Z0-9_\-/]+\.[a-zA-Z0-9]{2,4}$#', $path)) {
+        // Relative path with or without extension — Cloudinary public IDs often omit extensions
+        // when fetch_format:auto is used. Must contain a slash to distinguish from bare filenames.
+        if (str_contains($path, '/') && preg_match('#^[a-zA-Z0-9_\-/]+(\.[a-zA-Z0-9]{2,4})?$#', $path)) {
             return $path;
         }
 
