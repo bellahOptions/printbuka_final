@@ -3,7 +3,6 @@
 namespace App\Support;
 
 use Cloudinary\Cloudinary;
-use Cloudinary\Asset\Media;
 use Illuminate\Support\Facades\Cache;
 
 class CloudinaryUrl
@@ -79,36 +78,19 @@ class CloudinaryUrl
 
         return Cache::remember($cacheKey, 3600, function () use ($publicId, $transformations): ?string {
             try {
-                $media = Media::fromParams($publicId, [
-                    'cloud' => [
-                        'cloud_name' => config('cloudinary.cloud_name'),
-                        'secure' => true,
-                    ],
-                ]);
+                $image = self::client()->image($publicId);
 
-                if ($media === null) {
-                    return null;
-                }
-
-                $url = (string) $media->secureUrl();
-
-                // Apply transformations if any
                 if ($transformations !== []) {
-                    $transformedUrl = self::client()->image($publicId)
-                        ->secure()
-                        ->quality('auto')
-                        ->fetchFormat('auto');
+                    $image = $image->quality('auto')->fetchFormat('auto');
 
                     foreach ($transformations as $option => $value) {
-                        if (method_exists($transformedUrl, $option)) {
-                            $transformedUrl->{$option}($value);
+                        if (method_exists($image, $option)) {
+                            $image->{$option}($value);
                         }
                     }
-
-                    $url = (string) $transformedUrl;
                 }
 
-                return $url;
+                return (string) $image;
             } catch (\Throwable $e) {
                 report($e);
                 return null;

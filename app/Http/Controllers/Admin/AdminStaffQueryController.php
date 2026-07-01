@@ -128,6 +128,11 @@ class AdminStaffQueryController extends Controller
         return back()->with('status', 'Query '.$query->query_number.' has been closed.');
     }
 
+    private function queryTypes(): array
+    {
+        return StaffQuery::$types;
+    }
+
     private function generateQueryNumber(): string
     {
         $year = now()->year;

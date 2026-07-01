@@ -152,6 +152,24 @@
                         <span>Dashboard</span>
                     </a>
 
+                    {{-- My KYC — all non-customer staff (not shown to HR/admin who manage others' KYC) --}}
+                    @if($admin && $admin->role !== 'customer')
+                        @php($myKycStatus = $admin->staffProfile?->kyc_status ?? 'pending')
+                        <a href="{{ route('admin.staff.profile.show', $admin) }}" class="{{ $navLink('') }} {{ request()->routeIs('admin.staff.profile.*') && request()->route('user')?->id === $admin->id ? 'active' : '' }}">
+                            <svg class="pb-nav-icon h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2"/>
+                            </svg>
+                            <span>My KYC</span>
+                            @if($myKycStatus === 'approved')
+                                <span class="ml-auto flex h-4 w-4 items-center justify-center rounded-full bg-emerald-100 text-[9px] font-black text-emerald-700">✓</span>
+                            @elseif($myKycStatus === 'correction_requested')
+                                <span class="ml-auto pb-badge pb-badge-warning text-[10px] px-1.5 py-0">!</span>
+                            @else
+                                <span class="ml-auto pb-badge pb-badge-danger text-[10px] px-1.5 py-0">KYC</span>
+                            @endif
+                        </a>
+                    @endif
+
                     <a href="{{ route('admin.orders.index') }}" class="{{ $navLink('admin.orders.*') }}">
                         <svg class="pb-nav-icon h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
@@ -486,6 +504,50 @@
                             </svg>
                             {{ session('status') }}
                         </div>
+                    @endif
+
+                    @if(session('status_error'))
+                        <div class="mb-5 flex items-start gap-3 rounded-xl border border-pink-200 bg-pink-50 px-4 py-3 text-sm font-semibold text-pink-800" role="alert">
+                            <svg class="h-4 w-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {{ session('status_error') }}
+                        </div>
+                    @endif
+
+                    {{-- KYC Incomplete Banner — shown to all non-HR staff who haven't been approved --}}
+                    @php($adminKycProfile = $admin?->role !== 'customer' ? ($admin?->staffProfile) : null)
+                    @if($admin && $admin->role !== 'customer' && !($admin->canAdmin('staff.kyc') || $admin->canAdmin('*')))
+                        @if(($adminKycProfile?->kyc_status ?? 'pending') !== 'approved')
+                            @php($kycIsCorrection = ($adminKycProfile?->kyc_status ?? 'pending') === 'correction_requested')
+                            <div class="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border
+                                {{ $kycIsCorrection ? 'border-amber-300 bg-amber-50' : 'border-pink-200 bg-pink-50' }}
+                                px-4 py-3">
+                                <div class="flex items-start gap-3">
+                                    @if($kycIsCorrection)
+                                        <svg class="h-5 w-5 shrink-0 text-amber-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                        </svg>
+                                        <div>
+                                            <p class="text-sm font-black text-amber-900">KYC Correction Requested</p>
+                                            <p class="text-xs text-amber-700 mt-0.5">HR has requested changes to your KYC. Please update your profile and resubmit.</p>
+                                        </div>
+                                    @else
+                                        <svg class="h-5 w-5 shrink-0 text-pink-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                        </svg>
+                                        <div>
+                                            <p class="text-sm font-black text-pink-900">Action Required: Complete Your KYC</p>
+                                            <p class="text-xs text-pink-700 mt-0.5">Your KYC form is {{ $adminKycProfile ? $adminKycProfile->completionPercentage().'% complete' : '0% complete' }}. Fill in all required fields to complete onboarding.</p>
+                                        </div>
+                                    @endif
+                                </div>
+                                <a href="{{ route('admin.staff.profile.show', $admin) }}"
+                                   class="shrink-0 rounded-lg {{ $kycIsCorrection ? 'bg-amber-600 hover:bg-amber-700' : 'bg-pink-600 hover:bg-pink-700' }} px-4 py-2 text-xs font-black text-white transition">
+                                    {{ $kycIsCorrection ? 'Review & Update KYC' : 'Complete KYC Now' }}
+                                </a>
+                            </div>
+                        @endif
                     @endif
 
                     @yield('content')

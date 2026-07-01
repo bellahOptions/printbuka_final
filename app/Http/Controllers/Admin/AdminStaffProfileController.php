@@ -39,12 +39,18 @@ class AdminStaffProfileController extends Controller
     public function update(Request $request, User $user): RedirectResponse
     {
         abort_if($user->role === 'customer', 404);
-        abort_unless(
-            $request->user()?->canAdmin('staff.kyc')
-            || $request->user()?->canAdmin('*')
-            || $request->user()?->id === $user->id,
-            403
-        );
+
+        $actor      = $request->user();
+        $isHrOrAdmin = $actor?->canAdmin('staff.kyc') || $actor?->canAdmin('*');
+        $isSelf     = $actor?->id === $user->id;
+
+        abort_unless($isHrOrAdmin || $isSelf, 403);
+
+        // Once KYC is approved, only HR/admin can still edit
+        $profile = $user->staffProfile;
+        if (($profile?->kyc_status === 'approved') && ! $isHrOrAdmin) {
+            return back()->with('status_error', 'Your KYC has been approved and is now locked. Contact HR if a correction is needed.');
+        }
 
         $validated = $request->validate([
             'other_names'               => ['nullable', 'string', 'max:255'],
@@ -67,6 +73,7 @@ class AdminStaffProfileController extends Controller
             'bank_account_number'       => ['nullable', 'string', 'max:30'],
             'pension_pin'               => ['nullable', 'string', 'max:50'],
             'tax_id'                    => ['nullable', 'string', 'max:50'],
+            'declared_salary'           => ['nullable', 'integer', 'min:0'],
             'emergency_contact_notes'   => ['nullable', 'string', 'max:1000'],
             'mark_kyc_complete'         => ['nullable', 'boolean'],
         ]);

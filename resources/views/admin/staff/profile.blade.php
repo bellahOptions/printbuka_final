@@ -5,7 +5,10 @@
 @php($viewer = auth()->user())
 @php($canManageKyc = $viewer->canAdmin('staff.kyc') || $viewer->canAdmin('*'))
 @php($isSelf = $viewer->id === $staffMember->id)
-@php($canEdit = $canManageKyc || $isSelf)
+@php($kycStatus = $profile->kyc_status ?? 'pending')
+@php($kycApproved = $kycStatus === 'approved')
+@php($kycLocked = $kycApproved && !$canManageKyc)
+@php($canEdit = $canManageKyc || ($isSelf && !$kycApproved))
 
 <div class="mx-auto max-w-5xl space-y-6">
 
@@ -35,9 +38,31 @@
     @if (session('status'))
         <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-800">{{ session('status') }}</div>
     @endif
+    @if (session('status_error'))
+        <div class="rounded-xl border border-pink-200 bg-pink-50 p-4 text-sm font-bold text-pink-800">{{ session('status_error') }}</div>
+    @endif
     @if ($errors->any())
         <div class="rounded-xl border border-pink-200 bg-pink-50 p-4">
             @foreach ($errors->all() as $e)<p class="text-sm font-semibold text-pink-700">{{ $e }}</p>@endforeach
+        </div>
+    @endif
+
+    {{-- KYC Correction Notes (for self-view when correction was requested) --}}
+    @if ($isSelf && $kycStatus === 'correction_requested' && $profile->kyc_review_notes)
+        <div class="rounded-2xl border border-amber-300 bg-amber-50 p-5 flex gap-4">
+            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
+                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-black text-amber-900">HR has requested corrections to your KYC</p>
+                @if ($profile->reviewedBy)
+                    <p class="text-xs text-amber-700 mt-0.5">From {{ $profile->reviewedBy->displayName() }}{{ $profile->kyc_reviewed_at ? ' · '.$profile->kyc_reviewed_at->diffForHumans() : '' }}</p>
+                @endif
+                <p class="mt-2 text-sm text-amber-900 bg-amber-100 rounded-xl px-4 py-2.5">{{ $profile->kyc_review_notes }}</p>
+                <p class="mt-2 text-xs text-amber-700">Please make the requested changes below and save your profile. HR will be notified to review again.</p>
+            </div>
         </div>
     @endif
 
@@ -127,11 +152,45 @@
     @endif
 
     {{-- Bio-Data Form --}}
-    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="rounded-2xl border {{ $kycApproved ? 'border-emerald-200' : ($kycStatus === 'correction_requested' ? 'border-amber-300' : 'border-slate-200') }} bg-white shadow-sm overflow-hidden">
+
+        {{-- Priority callout strip for self-view with incomplete KYC --}}
+        @if ($isSelf && !$kycApproved)
+            <div class="px-6 py-3 {{ $kycStatus === 'correction_requested' ? 'bg-amber-500' : 'bg-pink-600' }} flex items-center gap-3">
+                <svg class="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <p class="text-xs font-black text-white">
+                    {{ $kycStatus === 'correction_requested' ? 'CORRECTIONS REQUIRED — Update the fields below and save' : 'PRIORITY: Complete your KYC before using other features' }}
+                </p>
+                <span class="ml-auto text-xs font-bold text-white/80">{{ $profile->completionPercentage() }}% complete</span>
+            </div>
+        @endif
+
+        {{-- Approved lock banner for self-view --}}
+        @if ($isSelf && $kycApproved)
+            <div class="px-6 py-3 bg-emerald-600 flex items-center gap-3">
+                <svg class="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+                <p class="text-xs font-black text-white">KYC APPROVED — This form is now locked. Contact HR if a correction is needed.</p>
+                @if ($profile->kyc_reviewed_at)
+                    <span class="ml-auto text-xs text-white/80">Approved {{ $profile->kyc_reviewed_at->diffForHumans() }}</span>
+                @endif
+            </div>
+        @endif
+
+        <div class="p-6">
         <div class="flex items-center justify-between mb-6">
             <div>
                 <h2 class="text-lg font-black text-slate-950">Staff Employment Bio-Data</h2>
-                <p class="text-xs font-semibold text-slate-500 mt-1">Compulsory KYC — all fields should be completed</p>
+                <p class="text-xs font-semibold text-slate-500 mt-1">
+                    @if ($kycApproved)
+                        KYC approved and verified ✓
+                    @else
+                        Compulsory KYC — all fields should be completed
+                    @endif
+                </p>
             </div>
         </div>
 
@@ -265,6 +324,20 @@
                     <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Tax ID (TIN)</label>
                     <input type="text" name="tax_id" value="{{ old('tax_id', $profile->tax_id) }}" @disabled(!$canEdit) class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none disabled:bg-slate-50">
                 </div>
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">
+                        Declared Gross Monthly Salary
+                        <span class="normal-case font-normal text-slate-400">(₦ / month)</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">₦</span>
+                        <input type="number" name="declared_salary" min="0" step="1000"
+                            value="{{ old('declared_salary', $profile->declared_salary) }}"
+                            placeholder="0"
+                            @disabled(!$canEdit)
+                            class="w-full rounded-xl border border-slate-300 pl-8 pr-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none disabled:bg-slate-50">
+                    </div>
+                </div>
                 <div class="sm:col-span-2">
                     <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Emergency Contact Notes</label>
                     <textarea name="emergency_contact_notes" rows="2" @disabled(!$canEdit) class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none disabled:bg-slate-50">{{ old('emergency_contact_notes', $profile->emergency_contact_notes) }}</textarea>
@@ -272,17 +345,28 @@
             </div>
 
             @if ($canEdit)
-                <div class="mt-6 flex items-center gap-4">
+                <div class="mt-6 flex flex-wrap items-center gap-3">
                     <button type="submit" class="rounded-xl bg-slate-900 px-6 py-3 text-sm font-black text-white hover:bg-slate-700">Save Bio-Data</button>
-                    @if (! $profile->isComplete())
+                    @if ($isSelf && !$kycApproved && $profile->completionPercentage() >= 80)
+                        <p class="text-xs text-slate-500">Save your changes — HR will be notified to review your KYC.</p>
+                    @endif
+                    @if ($canManageKyc && !$profile->isComplete())
                         <label class="flex items-center gap-2 text-sm font-semibold text-slate-700">
                             <input type="checkbox" name="mark_kyc_complete" value="1" class="rounded">
                             Mark as KYC Complete
                         </label>
                     @endif
                 </div>
+            @elseif ($kycLocked)
+                <div class="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 flex items-center gap-3">
+                    <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                    <p class="text-sm font-semibold text-emerald-800">KYC is approved and locked. Contact HR to request any changes.</p>
+                </div>
             @endif
         </form>
+        </div>{{-- close .p-6 --}}
     </div>
 
     {{-- Queries Summary --}}
