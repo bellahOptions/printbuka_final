@@ -7,9 +7,9 @@ return [
         'it' => ['*'],
         'management' => ['*'],
         'managing_director' => ['*'],
-        'hr' => ['admin.view', 'orders.view', 'staff.view', 'training.manage', 'announcements.view', 'blog.view', 'evaluations.view', 'customers.manage'],
+        'hr' => ['admin.view', 'orders.view', 'staff.view', 'staff.kyc', 'staff.queries', 'staff.evaluations', 'training.manage', 'announcements.view', 'blog.view', 'evaluations.view', 'customers.manage', 'payroll.manage', 'payroll.view'],
         'operations' => ['admin.view', 'orders.view', 'orders.verify', 'orders.phase_comment', 'workflow.approve', 'sop.verify', 'invoices.manage'],
-        'operations_manager' => ['admin.view', 'orders.view', 'orders.verify', 'orders.phase_comment', 'workflow.approve', 'sop.verify', 'invoices.manage', 'shop-products.manage', 'shop-orders.view'],
+        'operations_manager' => ['admin.view', 'orders.view', 'orders.verify', 'orders.phase_comment', 'workflow.approve', 'sop.verify', 'invoices.manage', 'production.update', 'qc.update', 'delivery.update', 'payroll.view', 'shop-products.manage', 'shop-orders.view'],
         'supervisor' => ['admin.view', 'orders.view', 'orders.verify', 'orders.phase_comment', 'workflow.approve', 'staff.view', 'sop.verify'],
         'customer_service' => ['admin.view', 'orders.view', 'orders.create', 'orders.intake', 'invoices.manage', 'delivery.update', 'client_review.update', 'sop.update', 'newsletters.manage', 'customers.manage', 'finance.view', 'finance.create', 'finance.update', 'finance.delete', 'finance.view_amounts', 'shop-orders.view'],
         'marketing' => ['admin.view', 'newsletters.manage'],
@@ -144,13 +144,13 @@ return [
     ],
 
     'staff_dashboard_menus' => [
-        'hr' => ['Staff Information', 'Announcements', 'Monthly Evaluations', 'Job Information'],
+        'hr' => ['Staff Directory', 'Bio-Data KYC', 'Staff Queries', 'Monthly Evaluations', 'Payroll', 'Training Applications', 'Announcements'],
         'it' => ['All Data', 'Staff Approvals', 'Jobs', 'Invoices', 'Finance', 'Settings'],
         'super_admin' => ['All Data', 'Staff Approvals', 'Jobs', 'Invoices', 'Finance', 'Settings'],
         'admin' => ['All Data', 'Staff Approvals', 'Jobs', 'Invoices', 'Finance', 'Settings'],
         'managing_director' => ['Jobs'],
         'operations' => ['Job Process', 'Phase Approvals', 'Production Comments', "Today's Tasks"],
-        'operations_manager' => ['Job Process', 'Phase Approvals', 'Production Comments', "Today's Tasks"],
+        'operations_manager' => ['Job Process', 'Phase Approvals', 'Invoices', 'Production & QC', 'Payroll View', "Today's Tasks"],
         'customer_service' => ['Customer Data', 'Job Information', 'Finance', 'Invoices', 'Job Cards', "Today's Tasks"],
         'marketing' => ['Newsletter Campaigns', 'Client Reach', 'Campaign Reports', "Today's Tasks"],
         'designer' => ['Job Briefs', 'Design Feedback', 'Uploads', "Today's Tasks"],
@@ -247,6 +247,21 @@ return [
         'Part Payment',
         'Invoice Settled (70%)',
         'Invoice Settled (100%)',
+        'Credit Terms',
+    ],
+
+    'payment_methods' => [
+        'Bank Transfer',
+        'Cash',
+        'POS',
+        'Cheque',
+        'Online (Paystack)',
+        'Other',
+    ],
+
+    'payment_terms' => [
+        'standard' => 'Standard (70% before production)',
+        'credit'   => 'Credit Terms (deliver before payment)',
     ],
 
     'priorities' => [
@@ -303,20 +318,20 @@ return [
         [
             'phase' => '3 — Production',
             'status' => 'In Production',
-            'responsible' => 'Production / Management',
+            'responsible' => 'Operations Manager',
             'permission' => 'production.update',
             'fields' => ['status', 'production_officer_id', 'production_started_at', 'material_substrate', 'finish_lamination', 'internal_notes'],
             'gates' => [
                 'Receive approved artwork from Design and confirm print readiness.',
                 'Confirm material/substrate is available or raise a purchase order.',
-                'Confirm 70% payment before starting production.',
+                'Confirm 70% payment received (or credit terms agreed) before starting production.',
                 'Run a test print, complete production, and verify output quantity.',
             ],
         ],
         [
             'phase' => '4 — QC & Packaging',
             'status' => 'Quality Check & Packaging',
-            'responsible' => 'QC Officer / Production',
+            'responsible' => 'Operations Manager',
             'permission' => 'qc.update',
             'fields' => ['status', 'qc_checked_by_id', 'qc_checked_at', 'qc_result', 'internal_notes'],
             'gates' => [
@@ -328,11 +343,11 @@ return [
         [
             'phase' => '5 — Delivery',
             'status' => 'Delivery In Progress',
-            'responsible' => 'Customer Service / Logistics',
+            'responsible' => 'Customer Service',
             'permission' => 'delivery.update',
             'fields' => ['status', 'estimated_delivery_at', 'actual_delivery_at', 'delivery_method', 'dispatched_by_id', 'internal_notes'],
             'gates' => [
-                'Confirm 100% payment or agreed terms before dispatch.',
+                'Confirm 100% payment received; for credit-terms clients, confirm balance is invoiced and due.',
                 'Notify client that the job is ready or on its way.',
                 'Log delivery method, dispatcher, actual delivery date, and delivered status.',
             ],
@@ -340,7 +355,7 @@ return [
         [
             'phase' => '6 — Client Review',
             'status' => 'Client Review — Satisfactory',
-            'responsible' => 'Customer Service / Management',
+            'responsible' => 'Customer Service',
             'permission' => 'client_review.update',
             'fields' => ['status', 'client_review_status', 'after_sales_action', 'after_sales_resolved_at', 'internal_notes'],
             'gates' => [

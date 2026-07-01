@@ -10,6 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends Model
 {
+    public function getRouteKeyName(): string
+    {
+        return 'job_order_number';
+    }
+
     protected $fillable = [
         'product_id',
         'user_id',
@@ -64,6 +69,7 @@ class Order extends Model
         'after_sales_resolved_at',
         'amount_paid',
         'payment_status',
+        'payment_terms',
         'internal_notes',
         'verified_by_id',
         'verified_at',

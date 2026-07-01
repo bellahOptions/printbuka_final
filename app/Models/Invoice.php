@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Invoice extends Model
 {
@@ -50,6 +51,32 @@ class Invoice extends Model
     public function importedCustomer(): BelongsTo
     {
         return $this->belongsTo(ImportedCustomer::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(InvoicePayment::class);
+    }
+
+    public function amountPaid(): float
+    {
+        return (float) $this->payments()->sum('amount');
+    }
+
+    public function balance(): float
+    {
+        return max(0, (float) $this->total_amount - $this->amountPaid());
+    }
+
+    public function paymentPercentage(): float
+    {
+        $total = (float) $this->total_amount;
+
+        if ($total <= 0) {
+            return 0;
+        }
+
+        return min(100, round(($this->amountPaid() / $total) * 100, 2));
     }
 
     public function isQuotation(): bool

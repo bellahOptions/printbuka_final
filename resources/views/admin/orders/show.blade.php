@@ -281,10 +281,10 @@
 
                 @if ($canEditProduction)
                     <label class="text-sm font-black">
-                        Production Officer
+                        Operations Manager (Production)
                         <select name="production_officer_id" class="mt-2 min-h-12 w-full rounded-xl border border-slate-300 px-4 py-3">
-                            <option value="">Select staff</option>
-                            @foreach ($staff as $person)
+                            <option value="">Select Operations Manager</option>
+                            @foreach ($operationsStaff->isEmpty() ? $staff : $operationsStaff as $person)
                                 <option value="{{ $person->id }}" @selected((int) old('production_officer_id', $order->production_officer_id) === $person->id)>{{ $person->displayName() }} · {{ $person->department }}</option>
                             @endforeach
                         </select>
@@ -318,10 +318,10 @@
 
                 @if ($canEditQc)
                     <label class="text-sm font-black">
-                        QC Checked By
+                        QC Checked By (Operations Manager)
                         <select name="qc_checked_by_id" class="mt-2 min-h-12 w-full rounded-xl border border-slate-300 px-4 py-3">
-                            <option value="">Select staff</option>
-                            @foreach ($staff as $person)
+                            <option value="">Select Operations Manager</option>
+                            @foreach ($operationsStaff->isEmpty() ? $staff : $operationsStaff as $person)
                                 <option value="{{ $person->id }}" @selected((int) old('qc_checked_by_id', $order->qc_checked_by_id) === $person->id)>{{ $person->displayName() }} · {{ $person->department }}</option>
                             @endforeach
                         </select>
@@ -363,7 +363,7 @@
                         Dispatched By
                         <select name="dispatched_by_id" class="mt-2 min-h-12 w-full rounded-xl border border-slate-300 px-4 py-3">
                             <option value="">Select staff</option>
-                            @foreach ($staff as $person)
+                            @foreach ($customerServiceStaff->isEmpty() ? $staff : $customerServiceStaff as $person)
                                 <option value="{{ $person->id }}" @selected((int) old('dispatched_by_id', $order->dispatched_by_id) === $person->id)>{{ $person->displayName() }} · {{ $person->department }}</option>
                             @endforeach
                         </select>

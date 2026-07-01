@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\StaffEmploymentStatusMail;
+use App\Mail\StaffKycReminderMail;
+use App\Models\StaffProfile;
 use App\Models\User;
 use App\Services\CloudinaryUploadService;
 use App\Support\CloudinaryUrl;
@@ -142,12 +144,22 @@ class AdminStaffController extends Controller
 
         $user->update($updates);
 
-        if (! $wasActive || $previousEmploymentStatus !== 'active') {
-            $this->notifyStaffEmploymentStatus($user->fresh(), 'active', null);
+        $isBeingActivated = ! $wasActive || $previousEmploymentStatus !== 'active';
+
+        if ($isBeingActivated) {
+            $fresh = $user->fresh();
+            $this->notifyStaffEmploymentStatus($fresh, 'active', null);
             app(ImportantActionNotifier::class)->notify(
                 'Staff onboarding',
-                $user->displayName().' was onboarded or updated by '.$request->user()->displayName().'.'
+                $fresh->displayName().' was onboarded or updated by '.$request->user()->displayName().'.'
             );
+            // Create StaffProfile record (KYC placeholder) and send KYC reminder email
+            StaffProfile::firstOrCreate(['user_id' => $fresh->id]);
+            try {
+                Mail::to($fresh->email)->queue(new StaffKycReminderMail($fresh));
+            } catch (\Throwable) {
+                // Non-blocking — profile creation already succeeded
+            }
         }
 
         return back()->with('status', 'Staff access updated.');

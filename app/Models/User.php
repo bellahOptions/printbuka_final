@@ -112,6 +112,43 @@ class User extends Authenticatable implements MustVerifyEmailContract
         return $this->hasMany(StaffPushSubscription::class);
     }
 
+    public function staffProfile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(StaffProfile::class);
+    }
+
+    public function salaryStructures(): HasMany
+    {
+        return $this->hasMany(SalaryStructure::class, 'staff_id');
+    }
+
+    public function activeSalaryStructure(): ?\Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(SalaryStructure::class, 'staff_id')
+            ->where('is_active', true)
+            ->latestOfMany('effective_date');
+    }
+
+    public function staffQueries(): HasMany
+    {
+        return $this->hasMany(StaffQuery::class, 'staff_id');
+    }
+
+    public function staffEvaluations(): HasMany
+    {
+        return $this->hasMany(StaffEvaluation::class, 'staff_id');
+    }
+
+    public function payrollEntries(): HasMany
+    {
+        return $this->hasMany(PayrollEntry::class, 'staff_id');
+    }
+
+    public function kycCompleted(): bool
+    {
+        return $this->staffProfile?->kyc_completed_at !== null;
+    }
+
     /**
      * FCM channel resolves all registered device tokens for this user.
      * Returns an array so the package fans out to every device the staff member owns.

@@ -82,14 +82,14 @@ class AdminOrderController extends Controller
         $canApproveWorkflow = $user->canAdmin('*') || $user->canAdmin('workflow.approve');
         $canRequestMoveForward = $canApproveWorkflow || ($currentPhasePermission !== '' && $user->canAdmin($currentPhasePermission));
 
+        $activeStaff = User::query()->where('role', '!=', 'customer')->where('is_active', true)->orderBy('first_name')->orderBy('last_name');
+
         return view('admin.orders.show', [
             'order' => $loadedOrder,
-            'staff' => User::query()
-                ->where('role', '!=', 'customer')
-                ->where('is_active', true)
-                ->orderBy('first_name')
-                ->orderBy('last_name')
-                ->get(),
+            'staff' => (clone $activeStaff)->get(),
+            'operationsStaff'   => (clone $activeStaff)->where('role', 'operations_manager')->get(),
+            'designerStaff'     => (clone $activeStaff)->where('role', 'designer')->get(),
+            'customerServiceStaff' => (clone $activeStaff)->whereIn('role', ['customer_service', 'operations_manager'])->get(),
             'workflowPhases' => config('printbuka_admin.workflow_phases'),
             'jobTypes' => config('printbuka_admin.job_types'),
             'sizes' => config('printbuka_admin.sizes'),
@@ -494,6 +494,11 @@ class AdminOrderController extends Controller
             $this->ensurePhaseOnePaymentSettled($order);
         }
 
+        // Block delivery if payment hasn't reached 70%
+        if ($nextStatus === (string) (config('printbuka_admin.workflow_phases.4.status') ?? 'Delivery In Progress')) {
+            $this->ensureDeliveryPaymentSettled($order);
+        }
+
         $phase = collect(config('printbuka_admin.workflow_phases', []))
             ->first(fn (array $item): bool => (string) ($item['status'] ?? '') === (string) $order->status);
 
@@ -564,6 +569,10 @@ class AdminOrderController extends Controller
 
         if ($order->status === (string) (config('printbuka_admin.workflow_phases.0.status') ?? 'Analyzing Job Brief')) {
             $this->ensurePhaseOnePaymentSettled($order);
+        }
+
+        if ($requestedStatus === (string) (config('printbuka_admin.workflow_phases.4.status') ?? 'Delivery In Progress')) {
+            $this->ensureDeliveryPaymentSettled($order);
         }
 
         $original = $order->getOriginal();
@@ -711,12 +720,36 @@ class AdminOrderController extends Controller
             return;
         }
 
+        if ((string) $order->payment_terms === 'credit') {
+            return;
+        }
+
+        // Any recorded part-payment (or better) is enough to leave phase 1
+        if (in_array((string) $order->payment_status, ['Part Payment', 'Invoice Settled (70%)', 'Invoice Settled (100%)'], true)) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'status' => 'A job cannot leave Phase 1 until at least a part-payment has been received. To bypass for trusted clients, set payment terms to Credit Terms.',
+        ]);
+    }
+
+    private function ensureDeliveryPaymentSettled(Order $order): void
+    {
+        if ($order->is_manual_order) {
+            return;
+        }
+
+        if ((string) $order->payment_terms === 'credit') {
+            return; // Credit clients can receive delivery before full payment
+        }
+
         if (in_array((string) $order->payment_status, ['Invoice Settled (70%)', 'Invoice Settled (100%)'], true)) {
             return;
         }
 
         throw ValidationException::withMessages([
-            'status' => 'A job cannot leave Phase 1 until payment is settled at 70% or 100%.',
+            'status' => 'Delivery cannot begin until at least 70% payment has been received. For credit clients, set payment terms to Credit Terms.',
         ]);
     }
 
@@ -730,18 +763,31 @@ class AdminOrderController extends Controller
             return;
         }
 
-        $phaseOneStatus = (string) (config('printbuka_admin.workflow_phases.0.status') ?? 'Analyzing Job Brief');
+        $phaseOneStatus      = (string) (config('printbuka_admin.workflow_phases.0.status') ?? 'Analyzing Job Brief');
+        $deliveryStatus      = (string) (config('printbuka_admin.workflow_phases.4.status') ?? 'Delivery In Progress');
+        $isCreditOrder       = (string) $order->payment_terms === 'credit';
+        $effectivePayStatus  = (string) $order->payment_status;
 
+        if (filled($incomingPaymentStatus) && ($user->canAdmin('invoices.manage') || $user->canAdmin('*'))) {
+            $effectivePayStatus = $incomingPaymentStatus;
+        }
+
+        // Phase 1 exit: any payment recorded is sufficient (part-payment unlocks production)
         if ($order->status === $phaseOneStatus && $requestedStatus !== $phaseOneStatus) {
-            $effectivePaymentStatus = (string) $order->payment_status;
-
-            if (filled($incomingPaymentStatus) && ($user->canAdmin('invoices.manage') || $user->canAdmin('*'))) {
-                $effectivePaymentStatus = $incomingPaymentStatus;
-            }
-
-            if (! $order->is_manual_order && ! in_array($effectivePaymentStatus, ['Invoice Settled (70%)', 'Invoice Settled (100%)'], true)) {
+            if (! $order->is_manual_order && ! $isCreditOrder
+                && ! in_array($effectivePayStatus, ['Part Payment', 'Invoice Settled (70%)', 'Invoice Settled (100%)'], true)
+            ) {
                 throw ValidationException::withMessages([
-                    'status' => 'A job cannot leave Phase 1 until payment is settled at 70% or 100%.',
+                    'status' => 'A job cannot leave Phase 1 until at least a part-payment has been received. To bypass for trusted clients, set payment terms to Credit Terms.',
+                ]);
+            }
+        }
+
+        // Delivery gate: requires 70%+ (not applicable to credit orders)
+        if ($requestedStatus === $deliveryStatus && ! $isCreditOrder && ! $order->is_manual_order) {
+            if (! in_array($effectivePayStatus, ['Invoice Settled (70%)', 'Invoice Settled (100%)'], true)) {
+                throw ValidationException::withMessages([
+                    'status' => 'Delivery cannot begin until at least 70% payment has been received. For credit clients, set payment terms to Credit Terms.',
                 ]);
             }
         }

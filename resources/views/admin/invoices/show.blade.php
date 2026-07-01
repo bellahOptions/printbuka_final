@@ -241,6 +241,247 @@
             </div>
         </div>
 
+        {{-- Payment Terms --}}
+        @if(auth()->user()->canAdmin('invoices.manage'))
+        <div class="fade-in-up section-delay-3 rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="rounded-xl border border-amber-200 bg-gradient-to-br from-amber-100 to-amber-50 p-2">
+                    <svg class="h-5 w-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <h2 class="text-lg font-black text-slate-950">Payment Terms</h2>
+                @if ($invoice->order?->payment_terms === 'credit')
+                    <span class="ml-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-800">Credit Terms Active</span>
+                @endif
+            </div>
+            <p class="mb-4 text-sm text-slate-600">
+                <strong>Standard</strong> — client must settle 70% deposit before production begins.<br>
+                <strong>Credit Terms</strong> — trusted client; job can proceed and be delivered before full payment.
+            </p>
+            <form method="POST" action="{{ route('admin.invoices.payment-terms', $invoice) }}" class="flex flex-wrap items-end gap-4">
+                @csrf @method('PATCH')
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Terms</label>
+                    <select name="payment_terms" class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-800 focus:border-pink-400 focus:outline-none focus:ring-2 focus:ring-pink-200">
+                        <option value="standard" @selected(($invoice->order?->payment_terms ?? 'standard') === 'standard')>Standard (70% before production)</option>
+                        <option value="credit" @selected(($invoice->order?->payment_terms ?? 'standard') === 'credit')>Credit Terms (deliver before payment)</option>
+                    </select>
+                </div>
+                <button type="submit" class="rounded-xl bg-amber-600 px-5 py-2.5 text-sm font-black text-white transition hover:bg-amber-700">
+                    Update Terms
+                </button>
+            </form>
+        </div>
+        @endif
+
+        {{-- Record Payment --}}
+        @if ($invoice->status !== 'paid' && auth()->user()->canAdmin('invoices.manage'))
+        @php
+            $paidSoFar   = $invoice->amountPaid();
+            $balance     = $invoice->balance();
+            $pct         = $invoice->paymentPercentage();
+            $invoiceTotal = (float) $invoice->total_amount;
+            $amt60       = round($invoiceTotal * 0.60, 2);
+            $amt70       = round($invoiceTotal * 0.70, 2);
+            $defaultAmt  = old('amount', ($paidSoFar == 0
+                ? number_format($amt70, 2, '.', '')   // default to 70% deposit on first payment
+                : number_format($balance, 2, '.', '') // default to remaining balance on subsequent payments
+            ));
+        @endphp
+        <div class="fade-in-up section-delay-3 rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 to-white p-6 shadow-sm">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-100 to-emerald-50 p-2">
+                    <svg class="h-5 w-5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <h2 class="text-lg font-black text-slate-950">Record Payment</h2>
+                <span class="ml-auto text-sm font-black text-slate-600">
+                    Paid: <span class="text-emerald-700">₦{{ number_format($paidSoFar, 2) }}</span>
+                    &nbsp;·&nbsp; Balance: <span class="text-pink-700">₦{{ number_format($balance, 2) }}</span>
+                    &nbsp;·&nbsp; <span class="{{ $pct >= 70 ? 'text-emerald-700' : 'text-amber-700' }}">{{ number_format($pct, 1) }}% paid</span>
+                </span>
+            </div>
+
+            {{-- Overall progress bar --}}
+            <div class="mb-5 h-2.5 w-full overflow-hidden rounded-full bg-slate-200">
+                <div class="h-2.5 rounded-full transition-all duration-500
+                    {{ $pct >= 100 ? 'bg-emerald-500' : ($pct >= 70 ? 'bg-amber-400' : 'bg-pink-500') }}"
+                    style="width: {{ min(100, $pct) }}%"></div>
+            </div>
+
+            {{-- Quick-select buttons --}}
+            <div class="mb-5">
+                <p class="text-xs font-black uppercase tracking-wide text-slate-400 mb-2">Quick-set amount</p>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" onclick="setPaymentAmount({{ $amt60 }})"
+                        class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-black text-slate-700 hover:border-emerald-400 hover:bg-emerald-50 transition">
+                        60% &nbsp;— ₦{{ number_format($amt60, 2) }}
+                    </button>
+                    <button type="button" onclick="setPaymentAmount({{ $amt70 }})"
+                        class="rounded-xl border border-emerald-400 bg-emerald-50 px-4 py-2 text-xs font-black text-emerald-800 hover:bg-emerald-100 transition">
+                        70% (deposit) &nbsp;— ₦{{ number_format($amt70, 2) }}
+                    </button>
+                    <button type="button" onclick="setPaymentAmount({{ $balance }})"
+                        class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-black text-slate-700 hover:border-emerald-400 hover:bg-emerald-50 transition">
+                        Balance &nbsp;— ₦{{ number_format($balance, 2) }}
+                    </button>
+                    <button type="button" onclick="setPaymentAmount({{ $invoiceTotal }})"
+                        class="rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-black text-slate-700 hover:border-emerald-400 hover:bg-emerald-50 transition">
+                        Full &nbsp;— ₦{{ number_format($invoiceTotal, 2) }}
+                    </button>
+                </div>
+            </div>
+
+            {{-- Payment form — standalone, no nested forms --}}
+            <form id="recordPaymentForm" method="POST" action="{{ route('admin.invoices.record-payment', $invoice) }}" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                @csrf
+                <div class="sm:col-span-2 lg:col-span-1">
+                    <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">
+                        Amount (₦) <span class="text-pink-600">*</span>
+                    </label>
+                    <input type="number" id="paymentAmountInput" name="amount" step="0.01" min="0.01"
+                        value="{{ $defaultAmt }}"
+                        oninput="updatePaymentPct(this.value)"
+                        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                        placeholder="0.00" required>
+                    <p id="paymentPctLabel" class="mt-1.5 text-xs font-black text-slate-500"></p>
+                    @error('amount')<p class="mt-1 text-xs text-pink-600">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Payment Method <span class="text-pink-600">*</span></label>
+                    <select name="payment_method" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200" required>
+                        @foreach (config('printbuka_admin.payment_methods', ['Bank Transfer','Cash','POS','Cheque','Online (Paystack)','Other']) as $pm)
+                            <option value="{{ $pm }}" @selected(old('payment_method', 'Bank Transfer') === $pm)>{{ $pm }}</option>
+                        @endforeach
+                    </select>
+                    @error('payment_method')<p class="mt-1 text-xs text-pink-600">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Date Paid <span class="text-pink-600">*</span></label>
+                    <input type="date" name="paid_at" value="{{ old('paid_at', now()->toDateString()) }}"
+                        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200" required>
+                    @error('paid_at')<p class="mt-1 text-xs text-pink-600">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Reference / Transaction ID</label>
+                    <input type="text" name="payment_reference" value="{{ old('payment_reference') }}"
+                        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                        placeholder="e.g. TRF-00123456">
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Notes</label>
+                    <input type="text" name="notes" value="{{ old('notes') }}"
+                        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                        placeholder="Optional note about this payment">
+                </div>
+                <div class="flex items-center gap-3 sm:col-span-2 lg:col-span-3">
+                    <button type="submit" class="rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-black text-white transition hover:bg-emerald-700">
+                        Record Payment
+                    </button>
+                </div>
+            </form>
+
+            {{-- Mark Fully Paid — separate standalone form, NOT nested --}}
+            <div class="mt-4 border-t border-emerald-200/60 pt-4">
+                <form method="POST" action="{{ route('admin.invoices.mark-paid', $invoice) }}">
+                    @csrf @method('PATCH')
+                    <button type="submit"
+                        onclick="return confirm('Mark this invoice as fully paid without recording individual payments?')"
+                        class="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-black text-slate-700 transition hover:bg-slate-50">
+                        Mark Fully Paid (skip breakdown)
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <script>
+        (function () {
+            var invoiceTotal = {{ $invoiceTotal }};
+            var alreadyPaid  = {{ $paidSoFar }};
+
+            function milestone(totalPct) {
+                if (totalPct >= 100) return { label: 'Invoice Settled (100%)', color: '#059669' };
+                if (totalPct >= 70)  return { label: 'Invoice Settled (70%)', color: '#d97706' };
+                if (totalPct > 0)    return { label: 'Part Payment', color: '#e11d48' };
+                return { label: '', color: '#64748b' };
+            }
+
+            window.setPaymentAmount = function (val) {
+                var input = document.getElementById('paymentAmountInput');
+                if (input) { input.value = parseFloat(val).toFixed(2); window.updatePaymentPct(input.value); }
+            };
+
+            window.updatePaymentPct = function (val) {
+                var lbl = document.getElementById('paymentPctLabel');
+                if (!lbl || !invoiceTotal) return;
+                var amt = parseFloat(val) || 0;
+                var thisPct   = (amt / invoiceTotal) * 100;
+                var totalPct  = ((alreadyPaid + amt) / invoiceTotal) * 100;
+                var m = milestone(totalPct);
+                lbl.innerHTML = 'This payment: <strong>' + thisPct.toFixed(1) + '%</strong>'
+                    + ' &nbsp;·&nbsp; Total after: <strong style="color:' + m.color + '">'
+                    + totalPct.toFixed(1) + '%</strong>'
+                    + (m.label ? ' &nbsp;<span style="color:' + m.color + '">(' + m.label + ')</span>' : '');
+            };
+
+            // Run on page load to show label for default value
+            var initInput = document.getElementById('paymentAmountInput');
+            if (initInput) window.updatePaymentPct(initInput.value);
+        })();
+        </script>
+        @endif
+
+        {{-- Payment History --}}
+        @php $payments = $invoice->payments()->with('recorder')->latest()->get(); @endphp
+        @if ($payments->isNotEmpty())
+        <div class="fade-in-up section-delay-3 rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="rounded-xl border border-slate-200 bg-gradient-to-br from-slate-100 to-slate-50 p-2">
+                    <svg class="h-5 w-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                    </svg>
+                </div>
+                <h2 class="text-lg font-black text-slate-950">Payment History</h2>
+                <span class="ml-auto text-sm font-semibold text-slate-500">{{ $payments->count() }} {{ Str::plural('payment', $payments->count()) }}</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full min-w-[560px] text-left text-sm">
+                    <thead class="border-b border-slate-200 text-xs font-black uppercase tracking-wide text-slate-500">
+                        <tr>
+                            <th class="px-3 py-3">Date</th>
+                            <th class="px-3 py-3 text-right">Amount</th>
+                            <th class="px-3 py-3">Method</th>
+                            <th class="px-3 py-3">Reference</th>
+                            <th class="px-3 py-3">Recorded By</th>
+                            <th class="px-3 py-3">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @foreach ($payments as $payment)
+                        <tr class="hover:bg-slate-50/60">
+                            <td class="px-3 py-3 font-semibold text-slate-700">{{ $payment->paid_at->format('M j, Y') }}</td>
+                            <td class="px-3 py-3 text-right font-black text-emerald-700">₦{{ number_format($payment->amount, 2) }}</td>
+                            <td class="px-3 py-3 text-slate-600">{{ $payment->payment_method }}</td>
+                            <td class="px-3 py-3 text-slate-500 font-mono text-xs">{{ $payment->payment_reference ?: '—' }}</td>
+                            <td class="px-3 py-3 text-slate-600">{{ $payment->recorder?->displayName() ?? 'System' }}</td>
+                            <td class="px-3 py-3 text-slate-500 text-xs">{{ $payment->notes ?: '—' }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                    <tfoot class="border-t-2 border-slate-200">
+                        <tr>
+                            <td class="px-3 py-3 font-black text-slate-700">Total Recorded</td>
+                            <td class="px-3 py-3 text-right font-black text-emerald-700">₦{{ number_format($payments->sum('amount'), 2) }}</td>
+                            <td colspan="4"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        @endif
+
         {{-- Notes Section --}}
         <div class="fade-in-up section-delay-4 rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
             <div class="flex items-center gap-3 mb-6">

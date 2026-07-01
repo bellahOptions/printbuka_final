@@ -29,10 +29,13 @@ class InvoiceLifecycleService
 
         if ($order) {
             $total = (float) $invoice->total_amount;
+            $recordedPaid = (float) $invoice->payments()->sum('amount');
             $currentPaid = (float) $order->amount_paid;
+            // Use recorded payment total if available, otherwise fall back to invoice total
+            $finalPaid = $recordedPaid > 0 ? max($currentPaid, $recordedPaid) : max($currentPaid, $total);
 
             $order->forceFill([
-                'amount_paid' => max($currentPaid, $total),
+                'amount_paid' => $finalPaid,
                 'payment_status' => 'Invoice Settled (100%)',
                 'estimated_delivery_at' => $order->is_express
                     ? app(OrderFulfillmentService::class)->estimateExpressDelivery($invoice->paid_at ?? now())
@@ -80,8 +83,8 @@ class InvoiceLifecycleService
                 'entry_date' => ($invoice->paid_at ?? now())->toDateString(),
                 'entry_type' => 'auto_income',
                 'payee' => $order->customer_name,
-                'amount' => (float) $invoice->total_amount,
-                'payment_method' => $invoice->payment_gateway ?: 'Online',
+                'amount' => (float) ($invoice->payments()->sum('amount') ?: $invoice->total_amount),
+                'payment_method' => $invoice->payment_gateway ?: 'Cash / Bank Transfer',
                 'notes' => trim('Auto-generated from paid '.$invoice->documentTypeLabel().'. Reference: '.($invoice->payment_reference ?: 'N/A')),
             ]
         );

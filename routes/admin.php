@@ -16,6 +16,10 @@ use App\Http\Controllers\Admin\AdminShopOrderController;
 use App\Http\Controllers\Admin\AdminShopProductController;
 use App\Http\Controllers\Admin\AdminSiteSettingController;
 use App\Http\Controllers\Admin\AdminStaffController;
+use App\Http\Controllers\Admin\AdminStaffProfileController;
+use App\Http\Controllers\Admin\AdminStaffQueryController;
+use App\Http\Controllers\Admin\AdminStaffEvaluationController;
+use App\Http\Controllers\Admin\AdminPayrollController;
 use App\Http\Controllers\Admin\AdminSupportTicketController;
 use App\Http\Controllers\Admin\AdminTrainingApplicationController;
 use App\Http\Controllers\Admin\DailyTodoController;
@@ -63,6 +67,14 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
             ->middleware('admin.permission:invoices.manage')
             ->whereNumber('invoice')
             ->name('invoices.send');
+        Route::post('/invoices/{invoice}/record-payment', [AdminInvoiceController::class, 'recordPayment'])
+            ->middleware('admin.permission:invoices.manage')
+            ->whereNumber('invoice')
+            ->name('invoices.record-payment');
+        Route::patch('/invoices/{invoice}/payment-terms', [AdminInvoiceController::class, 'updatePaymentTerms'])
+            ->middleware('admin.permission:invoices.manage')
+            ->whereNumber('invoice')
+            ->name('invoices.payment-terms');
         Route::get('/invoices/quotations/create', [AdminInvoiceController::class, 'createQuotation'])
             ->middleware('admin.permission:invoices.manage')
             ->name('invoices.quotations.create');
@@ -132,6 +144,90 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::patch('/staff/{user}/employment-status', [AdminStaffController::class, 'updateEmploymentStatus'])
             ->middleware('admin.permission:staff.view')
             ->name('staff.employment-status');
+
+        // ===== STAFF PROFILE / KYC =====
+        Route::get('/staff/{user}/profile', [AdminStaffProfileController::class, 'show'])
+            ->name('staff.profile.show');
+        Route::put('/staff/{user}/profile', [AdminStaffProfileController::class, 'update'])
+            ->name('staff.profile.update');
+        Route::post('/staff/{user}/kyc-complete', [AdminStaffProfileController::class, 'markKycComplete'])
+            ->middleware('admin.permission:staff.kyc')
+            ->name('staff.kyc-complete');
+
+        // ===== STAFF QUERIES =====
+        Route::get('/staff-queries', [AdminStaffQueryController::class, 'index'])
+            ->middleware('admin.permission:staff.queries')
+            ->name('staff-queries.index');
+        Route::get('/staff-queries/create', [AdminStaffQueryController::class, 'create'])
+            ->middleware('admin.permission:staff.queries')
+            ->name('staff-queries.create');
+        Route::post('/staff-queries', [AdminStaffQueryController::class, 'store'])
+            ->middleware('admin.permission:staff.queries')
+            ->name('staff-queries.store');
+        Route::get('/staff-queries/{query}', [AdminStaffQueryController::class, 'show'])
+            ->name('staff-queries.show');
+        Route::post('/staff-queries/{query}/respond', [AdminStaffQueryController::class, 'respond'])
+            ->name('staff-queries.respond');
+        Route::post('/staff-queries/{query}/close', [AdminStaffQueryController::class, 'close'])
+            ->middleware('admin.permission:staff.queries')
+            ->name('staff-queries.close');
+
+        // ===== STAFF EVALUATIONS =====
+        Route::get('/evaluations', [AdminStaffEvaluationController::class, 'index'])
+            ->middleware('admin.permission:staff.evaluations')
+            ->name('evaluations.index');
+        Route::get('/evaluations/create', [AdminStaffEvaluationController::class, 'create'])
+            ->middleware('admin.permission:staff.evaluations')
+            ->name('evaluations.create');
+        Route::post('/evaluations', [AdminStaffEvaluationController::class, 'store'])
+            ->middleware('admin.permission:staff.evaluations')
+            ->name('evaluations.store');
+        Route::get('/evaluations/{evaluation}', [AdminStaffEvaluationController::class, 'show'])
+            ->name('evaluations.show');
+        Route::put('/evaluations/{evaluation}', [AdminStaffEvaluationController::class, 'store'])
+            ->middleware('admin.permission:staff.evaluations')
+            ->name('evaluations.update');
+        Route::post('/evaluations/{evaluation}/acknowledge', [AdminStaffEvaluationController::class, 'acknowledge'])
+            ->name('evaluations.acknowledge');
+
+        // ===== PAYROLL =====
+        Route::get('/payroll', [AdminPayrollController::class, 'index'])
+            ->middleware('admin.permission:payroll.view')
+            ->name('payroll.index');
+        Route::get('/payroll/salary-structures', [AdminPayrollController::class, 'salaryIndex'])
+            ->middleware('admin.permission:payroll.view')
+            ->name('payroll.salary-structures');
+        Route::post('/payroll/salary-structures', [AdminPayrollController::class, 'salaryStore'])
+            ->middleware('admin.permission:payroll.manage')
+            ->name('payroll.salary-store');
+        Route::get('/payroll/create', [AdminPayrollController::class, 'createRun'])
+            ->middleware('admin.permission:payroll.manage')
+            ->name('payroll.create-run');
+        Route::post('/payroll', [AdminPayrollController::class, 'storeRun'])
+            ->middleware('admin.permission:payroll.manage')
+            ->name('payroll.store-run');
+        Route::get('/payroll/{run}', [AdminPayrollController::class, 'showRun'])
+            ->middleware('admin.permission:payroll.view')
+            ->name('payroll.run');
+        Route::patch('/payroll/entries/{entry}', [AdminPayrollController::class, 'updateEntry'])
+            ->middleware('admin.permission:payroll.manage')
+            ->name('payroll.update-entry');
+        Route::post('/payroll/{run}/finalize', [AdminPayrollController::class, 'finalizeRun'])
+            ->middleware('admin.permission:payroll.manage')
+            ->name('payroll.finalize');
+        Route::post('/payroll/{run}/send-payslips', [AdminPayrollController::class, 'sendPayslips'])
+            ->middleware('admin.permission:payroll.manage')
+            ->name('payroll.send-payslips');
+        Route::get('/payroll/payslip/{entry}/download', [AdminPayrollController::class, 'downloadPayslip'])
+            ->middleware('admin.permission:payroll.view')
+            ->name('payroll.payslip.download');
+        Route::get('/payroll/{run}/download', [AdminPayrollController::class, 'downloadRunPdf'])
+            ->middleware('admin.permission:payroll.view')
+            ->name('payroll.run.download');
+        Route::post('/payroll/{run}/email-ceo', [AdminPayrollController::class, 'emailToCeo'])
+            ->middleware('admin.permission:payroll.manage')
+            ->name('payroll.run.email-ceo');
+
         Route::get('/customers', [AdminCustomerController::class, 'index'])
             ->middleware('admin.permission:customers.manage')
             ->name('customers.index');

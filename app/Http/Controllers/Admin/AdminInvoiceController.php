@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\FinanceEntry;
 use App\Models\Invoice;
+use App\Models\InvoicePayment;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -801,6 +803,115 @@ class AdminInvoiceController extends Controller
         }
 
         return back()->with('status', 'Invoice and associated order deleted.');
+    }
+
+    public function recordPayment(Request $request, Invoice $invoice, InvoiceLifecycleService $invoiceLifecycleService): RedirectResponse
+    {
+        if ((string) $invoice->status === 'paid') {
+            return back()->with('warning', $invoice->documentTypeLabel().' is already fully paid.');
+        }
+
+        $validated = $request->validate([
+            'amount'             => ['required', 'numeric', 'min:0.01'],
+            'payment_method'     => ['required', 'string', 'max:100'],
+            'payment_reference'  => ['nullable', 'string', 'max:255'],
+            'paid_at'            => ['required', 'date'],
+            'notes'              => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $order = $invoice->order;
+        $thisAmount = (float) $validated['amount'];
+
+        InvoicePayment::query()->create([
+            'invoice_id'        => $invoice->id,
+            'order_id'          => $order?->id,
+            'recorded_by_id'    => $request->user()?->id,
+            'amount'            => $thisAmount,
+            'payment_method'    => $validated['payment_method'],
+            'payment_reference' => $validated['payment_reference'] ?? null,
+            'notes'             => $validated['notes'] ?? null,
+            'paid_at'           => $validated['paid_at'],
+        ]);
+
+        // Recalculate cumulative totals
+        $totalPaid    = (float) $invoice->payments()->sum('amount');
+        $invoiceTotal = (float) $invoice->total_amount;
+        $pctPaid      = $invoiceTotal > 0 ? ($totalPaid / $invoiceTotal) * 100 : 0;
+
+        $paymentStatus = match (true) {
+            $pctPaid >= 100 => 'Invoice Settled (100%)',
+            $pctPaid >= 70  => 'Invoice Settled (70%)',
+            $totalPaid > 0  => 'Part Payment',
+            default         => 'Pending Payment',
+        };
+
+        if ($order) {
+            $order->forceFill([
+                'amount_paid'    => $totalPaid,
+                'payment_status' => $paymentStatus,
+            ])->save();
+        }
+
+        // --- Finance ledger entry for this instalment ---
+        if ($order) {
+            $instalment = (int) ($invoice->payments()->count());
+            $label = $pctPaid >= 100
+                ? 'Full Payment'
+                : ($instalment === 1 ? 'Deposit / Part Payment' : "Instalment #{$instalment}");
+
+            FinanceEntry::query()->create([
+                'order_id'       => $order->id,
+                'type'           => 'income',
+                'entry_type'     => 'auto_income',
+                'category'       => 'Invoice Payment',
+                'description'    => $label.' — '.$invoice->documentTypeLabel().' '.$invoice->invoice_number,
+                'entry_date'     => $validated['paid_at'],
+                'payee'          => $order->customer_name,
+                'amount'         => $thisAmount,
+                'payment_method' => $validated['payment_method'],
+                'notes'          => trim(
+                    'Ref: '.($validated['payment_reference'] ?? 'N/A').
+                    '. Running total: ₦'.number_format($totalPaid, 2).
+                    ' ('.number_format($pctPaid, 1).'% of invoice).'.
+                    ($validated['notes'] ? ' '.$validated['notes'] : '')
+                ),
+            ]);
+        }
+
+        // Full payment: mark invoice paid → lifecycle service reconciles the finance entry
+        if ($pctPaid >= 100 && (string) $invoice->status !== 'paid') {
+            $previousStatus = (string) $invoice->status;
+            $invoice->forceFill([
+                'status'  => 'paid',
+                'paid_at' => now(),
+            ])->save();
+            $invoiceLifecycleService->handleStatusChange($invoice->fresh(['order.product']), $previousStatus);
+        }
+
+        return back()->with('status', 'Payment of ₦'.number_format($thisAmount, 2).' recorded ('
+            .number_format($pctPaid, 1).'% of invoice). Status: '.$paymentStatus.'.');
+    }
+
+    public function updatePaymentTerms(Request $request, Invoice $invoice): RedirectResponse
+    {
+        $validated = $request->validate([
+            'payment_terms' => ['required', 'string', 'in:standard,credit'],
+        ]);
+
+        $order = $invoice->order;
+
+        if (! $order) {
+            return back()->with('warning', 'No order linked to this invoice.');
+        }
+
+        $order->forceFill([
+            'payment_terms'  => $validated['payment_terms'],
+            'payment_status' => $validated['payment_terms'] === 'credit' ? 'Credit Terms' : $order->payment_status,
+        ])->save();
+
+        $label = $validated['payment_terms'] === 'credit' ? 'Credit Terms (deliver before payment)' : 'Standard (70% deposit required)';
+
+        return back()->with('status', 'Payment terms updated to: '.$label.'.');
     }
 
     public function markAsPaid(Invoice $invoice, InvoiceLifecycleService $invoiceLifecycleService): RedirectResponse
