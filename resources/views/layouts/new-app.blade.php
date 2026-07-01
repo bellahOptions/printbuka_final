@@ -71,7 +71,7 @@
 
                 {{-- Logo --}}
                 <a href="{{ route('home') }}" class="flex-shrink-0">
-                    <img src="{{ asset('logo-04.svg') }}" alt="{{ $siteName }}" class="h-9">
+                    <img src="{{ asset('prn-old-logo.svg') }}" alt="{{ $siteName }}" class="h-9">
                 </a>
 
                 {{-- Desktop nav links --}}

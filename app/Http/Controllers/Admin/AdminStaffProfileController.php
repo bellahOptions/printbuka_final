@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\StaffKycReviewMail;
 use App\Models\StaffProfile;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class AdminStaffProfileController extends Controller
@@ -94,5 +97,44 @@ class AdminStaffProfileController extends Controller
         $profile->forceFill(['kyc_completed_at' => now()])->save();
 
         return back()->with('status', 'KYC marked as complete for '.$user->displayName().'.');
+    }
+
+    public function reviewKyc(Request $request, User $user): RedirectResponse
+    {
+        abort_unless($request->user()?->canAdmin('staff.kyc') || $request->user()?->canAdmin('*'), 403);
+        abort_if($user->role === 'customer', 404);
+
+        $validated = $request->validate([
+            'kyc_action' => ['required', 'in:approve,request_correction'],
+            'kyc_notes'  => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $status = $validated['kyc_action'] === 'approve' ? 'approved' : 'correction_requested';
+
+        $profile = StaffProfile::firstOrCreate(['user_id' => $user->id]);
+        $profile->forceFill([
+            'kyc_status'         => $status,
+            'kyc_review_notes'   => $validated['kyc_notes'] ?? null,
+            'kyc_reviewed_by_id' => $request->user()->id,
+            'kyc_reviewed_at'    => now(),
+            'kyc_completed_at'   => $status === 'approved'
+                ? ($profile->kyc_completed_at ?? now())
+                : null,
+        ])->save();
+
+        try {
+            Mail::to($user->email)->send(new StaffKycReviewMail(
+                staff:        $user,
+                status:       $status,
+                notes:        $validated['kyc_notes'] ?? null,
+                reviewerName: $request->user()->displayName(),
+            ));
+        } catch (\Throwable $e) {
+            Log::error('KYC review mail failed.', ['user_id' => $user->id, 'error' => $e->getMessage()]);
+        }
+
+        $label = $status === 'approved' ? 'approved' : 'returned for correction';
+
+        return back()->with('status', "KYC for {$user->displayName()} has been {$label}. Staff has been notified by email.");
     }
 }

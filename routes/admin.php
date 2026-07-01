@@ -27,7 +27,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
-    Route::prefix('admin')->name('admin.')->middleware(['admin.permission:admin.view'])->group(function (): void {
+    Route::prefix('admin')->name('admin.')->middleware(['admin.permission:admin.view', 'staff.2fa'])->group(function (): void {
         Route::get('/dashboard', AdminDashboardController::class)->name('dashboard');
         Route::get('/profile', [ProfileController::class, 'editAdmin'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'updateAdmin'])->name('profile.update');
@@ -153,6 +153,9 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::post('/staff/{user}/kyc-complete', [AdminStaffProfileController::class, 'markKycComplete'])
             ->middleware('admin.permission:staff.kyc')
             ->name('staff.kyc-complete');
+        Route::post('/staff/{user}/kyc-review', [AdminStaffProfileController::class, 'reviewKyc'])
+            ->middleware('admin.permission:staff.kyc')
+            ->name('staff.kyc-review');
 
         // ===== STAFF QUERIES =====
         Route::get('/staff-queries', [AdminStaffQueryController::class, 'index'])

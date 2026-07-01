@@ -16,6 +16,7 @@ class StaffProfile extends Model
         'post_held', 'post_telephone', 'post_email',
         'bank_name', 'bank_account_number', 'pension_pin', 'tax_id',
         'emergency_contact_notes', 'kyc_completed_at',
+        'kyc_status', 'kyc_review_notes', 'kyc_reviewed_by_id', 'kyc_reviewed_at',
     ];
 
     protected function casts(): array
@@ -23,6 +24,7 @@ class StaffProfile extends Model
         return [
             'date_of_employment' => 'date',
             'kyc_completed_at'   => 'datetime',
+            'kyc_reviewed_at'    => 'datetime',
         ];
     }
 
@@ -31,9 +33,32 @@ class StaffProfile extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function reviewedBy(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\User::class, 'kyc_reviewed_by_id');
+    }
+
     public function isComplete(): bool
     {
-        return $this->kyc_completed_at !== null;
+        return $this->kyc_status === 'approved' || $this->kyc_completed_at !== null;
+    }
+
+    public function kycStatusLabel(): string
+    {
+        return match ($this->kyc_status ?? 'pending') {
+            'approved'             => 'Approved',
+            'correction_requested' => 'Correction Requested',
+            default                => 'Pending Review',
+        };
+    }
+
+    public function kycStatusBadgeClass(): string
+    {
+        return match ($this->kyc_status ?? 'pending') {
+            'approved'             => 'bg-emerald-100 text-emerald-800',
+            'correction_requested' => 'bg-amber-100 text-amber-800',
+            default                => 'bg-slate-100 text-slate-700',
+        };
     }
 
     public function completionPercentage(): int

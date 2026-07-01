@@ -46,6 +46,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.permission' => EnsureAdminPermission::class,
             'super.admin'      => EnsureSuperAdmin::class,
             'admin.activity'   => LogStaffActivity::class,
+            'staff.2fa'        => \App\Http\Middleware\EnsureTwoFactorAuthenticated::class,
             // Mobile API
             'abilities'        => CheckAbilities::class,
             'ability'          => CheckForAnyAbility::class,

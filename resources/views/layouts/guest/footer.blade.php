@@ -24,7 +24,7 @@
             <div>
                 <div class="mb-6">
                     <a href="{{ route('home') }}">
-                        <img src="{{ asset('logo-05.svg') }}"
+                        <img src="{{ asset('prn-old-logo-drk.svg') }}"
                              class="h-10 w-auto"
                              alt="{{ $siteName }}"
                              onerror="this.onerror=null;this.src='{{ asset('logo.png') }}';" />

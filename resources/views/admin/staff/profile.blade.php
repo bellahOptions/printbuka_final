@@ -18,10 +18,12 @@
                 <h1 class="text-3xl font-black">{{ $staffMember->displayName() }}</h1>
                 <p class="mt-1 text-sm text-slate-300">{{ $staffMember->email }} · {{ ucwords(str_replace('_', ' ', $staffMember->role)) }}</p>
                 <div class="mt-2 flex flex-wrap gap-2">
-                    @if ($profile->isComplete())
-                        <span class="rounded-full bg-emerald-600 px-3 py-1 text-xs font-black">KYC Complete ✓</span>
+                    @if (($profile->kyc_status ?? 'pending') === 'approved')
+                        <span class="rounded-full bg-emerald-600 px-3 py-1 text-xs font-black">KYC Approved ✓</span>
+                    @elseif (($profile->kyc_status ?? 'pending') === 'correction_requested')
+                        <span class="rounded-full bg-amber-500 px-3 py-1 text-xs font-black">Correction Requested</span>
                     @else
-                        <span class="rounded-full bg-amber-500 px-3 py-1 text-xs font-black">KYC Incomplete — {{ $profile->completionPercentage() }}%</span>
+                        <span class="rounded-full bg-slate-500 px-3 py-1 text-xs font-black">KYC Pending — {{ $profile->completionPercentage() }}%</span>
                     @endif
                     <span class="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold">{{ $staffMember->department ?? 'No Department' }}</span>
                     <span class="rounded-full {{ $staffMember->employment_status === 'active' ? 'bg-emerald-600' : 'bg-pink-700' }} px-3 py-1 text-xs font-black">{{ $staffMember->employmentStatusLabel() }}</span>
@@ -61,6 +63,69 @@
         </div>
     </div>
 
+    {{-- KYC Review Panel (HR / Super Admin only) --}}
+    @if ($canManageKyc)
+    <div class="rounded-2xl border {{ ($profile->kyc_status ?? 'pending') === 'approved' ? 'border-emerald-200 bg-emerald-50' : (($profile->kyc_status ?? 'pending') === 'correction_requested' ? 'border-amber-200 bg-amber-50' : 'border-slate-200 bg-white') }} p-6 shadow-sm">
+        <div class="flex flex-wrap items-start justify-between gap-4 mb-5">
+            <div>
+                <h2 class="text-lg font-black text-slate-950">KYC Review</h2>
+                <p class="text-xs font-semibold text-slate-500 mt-1">Approve the bio-data or request corrections — staff is notified either way</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="rounded-full px-3 py-1 text-xs font-black {{ $profile->kycStatusBadgeClass() }}">
+                    {{ $profile->kycStatusLabel() }}
+                </span>
+                @if ($profile->kyc_reviewed_at)
+                    <span class="text-xs text-slate-400">
+                        Reviewed {{ $profile->kyc_reviewed_at->diffForHumans() }}
+                        @if ($profile->reviewedBy) by {{ $profile->reviewedBy->displayName() }} @endif
+                    </span>
+                @endif
+            </div>
+        </div>
+
+        @if (($profile->kyc_status ?? 'pending') === 'correction_requested' && $profile->kyc_review_notes)
+            <div class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                <p class="text-xs font-black uppercase tracking-wide text-amber-700 mb-1">Previous Correction Notes</p>
+                <p class="text-sm text-amber-900">{{ $profile->kyc_review_notes }}</p>
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('admin.staff.kyc-review', $staffMember) }}" id="kyc-review-form">
+            @csrf
+            <input type="hidden" name="kyc_action" id="kyc_action_input" value="">
+
+            <div class="mb-4">
+                <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">
+                    Notes / Correction Instructions <span class="text-slate-400 normal-case font-normal">(optional for approval, recommended for corrections)</span>
+                </label>
+                <textarea name="kyc_notes" rows="3"
+                    placeholder="E.g. Please update your bank account number and next-of-kin address."
+                    class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:ring-2 focus:ring-pink-100 focus:outline-none">{{ old('kyc_notes', ($profile->kyc_status ?? 'pending') === 'correction_requested' ? $profile->kyc_review_notes : '') }}</textarea>
+            </div>
+
+            <div class="flex flex-wrap gap-3">
+                <button type="button"
+                    onclick="document.getElementById('kyc_action_input').value='approve'; if(confirm('Approve KYC for {{ $staffMember->displayName() }}? Staff will be notified.')) document.getElementById('kyc-review-form').submit();"
+                    class="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-black text-white hover:bg-emerald-700 flex items-center gap-2">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Approve KYC
+                </button>
+                <button type="button"
+                    onclick="document.getElementById('kyc_action_input').value='request_correction'; if(confirm('Request corrections from {{ $staffMember->displayName() }}? Staff will be notified by email.')) document.getElementById('kyc-review-form').submit();"
+                    class="rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-black text-white hover:bg-amber-600 flex items-center gap-2">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    Request Correction
+                </button>
+            </div>
+        </form>
+    </div>
+    @endif
+
     {{-- Bio-Data Form --}}
     <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div class="flex items-center justify-between mb-6">
@@ -68,12 +133,6 @@
                 <h2 class="text-lg font-black text-slate-950">Staff Employment Bio-Data</h2>
                 <p class="text-xs font-semibold text-slate-500 mt-1">Compulsory KYC — all fields should be completed</p>
             </div>
-            @if ($canManageKyc && ! $profile->isComplete())
-                <form method="POST" action="{{ route('admin.staff.kyc-complete', $staffMember) }}">
-                    @csrf
-                    <button type="submit" class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-black text-white hover:bg-emerald-700">Mark KYC Complete</button>
-                </form>
-            @endif
         </div>
 
         <form method="POST" action="{{ route('admin.staff.profile.update', $staffMember) }}">
