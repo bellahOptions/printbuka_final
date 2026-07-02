@@ -9,7 +9,6 @@
     @php($canEditProduction = $admin->canAdmin('production.update') || $admin->canAdmin('packaging.update') || $admin->canAdmin('*'))
     @php($canEditQc = $admin->canAdmin('qc.update') || $admin->canAdmin('*'))
     @php($canEditDelivery = $admin->canAdmin('delivery.update') || $admin->canAdmin('*'))
-    @php($canEditClientReview = $admin->canAdmin('client_review.update') || $admin->canAdmin('*'))
     @php($invoicePaid = $order->invoice && (string) $order->invoice->status === 'paid')
 
     <div class="mx-auto max-w-7xl space-y-6">
@@ -355,9 +354,21 @@
                         </select>
                     </label>
 
+                    @php
+                        // Auto-calculate estimated delivery: 48 hrs from production start (24 if express)
+                        // Staff can still override the value
+                        $deliveryHours = $order->is_express ? 24 : 48;
+                        $autoEstimated = $order->estimated_delivery_at
+                            ?? ($order->production_started_at
+                                ? $order->production_started_at->copy()->addHours($deliveryHours)
+                                : now()->addHours($deliveryHours));
+                    @endphp
                     <label class="text-sm font-black">
                         Estimated Delivery
-                        <input type="datetime-local" name="estimated_delivery_at" value="{{ old('estimated_delivery_at', $order->estimated_delivery_at?->format('Y-m-d\\TH:i')) }}" class="mt-2 min-h-12 w-full rounded-xl border border-slate-300 px-4 py-3">
+                        <span class="ml-1 font-normal text-slate-400 normal-case text-xs">(auto: {{ $deliveryHours }}h{{ $order->is_express ? ' · express' : '' }})</span>
+                        <input type="datetime-local" name="estimated_delivery_at"
+                               value="{{ old('estimated_delivery_at', $autoEstimated->format('Y-m-d\\TH:i')) }}"
+                               class="mt-2 min-h-12 w-full rounded-xl border {{ $order->estimated_delivery_at ? 'border-slate-300' : 'border-amber-300 bg-amber-50' }} px-4 py-3">
                     </label>
 
                     <label class="text-sm font-black">
@@ -376,27 +387,6 @@
                     </label>
                 @endif
 
-                @if ($canEditClientReview)
-                    <label class="text-sm font-black">
-                        Client Review
-                        <select name="client_review_status" class="mt-2 min-h-12 w-full rounded-xl border border-slate-300 px-4 py-3">
-                            <option value="">Select status</option>
-                            @foreach ($reviewStatuses as $status)
-                                <option @selected(old('client_review_status', $order->client_review_status) === $status)>{{ $status }}</option>
-                            @endforeach
-                        </select>
-                    </label>
-
-                    <label class="text-sm font-black">
-                        After-Sales Resolved
-                        <input type="datetime-local" name="after_sales_resolved_at" value="{{ old('after_sales_resolved_at', $order->after_sales_resolved_at?->format('Y-m-d\\TH:i')) }}" class="mt-2 min-h-12 w-full rounded-xl border border-slate-300 px-4 py-3">
-                    </label>
-
-                    <label class="text-sm font-black sm:col-span-2">
-                        After-Sales Action
-                        <textarea name="after_sales_action" rows="3" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3">{{ old('after_sales_action', $order->after_sales_action) }}</textarea>
-                    </label>
-                @endif
 
                 <label class="text-sm font-black sm:col-span-2">
                     Internal Notes
