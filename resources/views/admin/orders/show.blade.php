@@ -3,13 +3,15 @@
 @section('title', 'Manage '.$order->displayNumber().' | Printbuka')
 
 @section('content')
-    @php($admin = auth()->user())
-    @php($canEditDesign = $admin->canAdmin('design.update') || $admin->canAdmin('*'))
-    @php($canUploadDesign = $admin->canAdmin('design.upload') || $admin->canAdmin('*'))
-    @php($canEditProduction = $admin->canAdmin('production.update') || $admin->canAdmin('packaging.update') || $admin->canAdmin('*'))
-    @php($canEditQc = $admin->canAdmin('qc.update') || $admin->canAdmin('*'))
-    @php($canEditDelivery = $admin->canAdmin('delivery.update') || $admin->canAdmin('*'))
-    @php($invoicePaid = $order->invoice && (string) $order->invoice->status === 'paid')
+    @php
+        $admin = auth()->user();
+        $canEditDesign = $admin->canAdmin('design.update') || $admin->canAdmin('*');
+        $canUploadDesign = $admin->canAdmin('design.upload') || $admin->canAdmin('*');
+        $canEditProduction = $admin->canAdmin('production.update') || $admin->canAdmin('packaging.update') || $admin->canAdmin('*');
+        $canEditQc = $admin->canAdmin('qc.update') || $admin->canAdmin('*');
+        $canEditDelivery = $admin->canAdmin('delivery.update') || $admin->canAdmin('*');
+        $invoicePaid = $order->invoice && (string) $order->invoice->status === 'paid';
+    @endphp
 
     <div class="mx-auto max-w-7xl space-y-6">
         <div class="rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-8 text-white shadow-xl">
@@ -99,7 +101,13 @@
                         @else
                             <p class="mt-1 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700">No active designer available — assign manually below</p>
                             @if (! $order->is_concluded && ($admin->canAdmin('*') || $admin->canAdmin('workflow.approve')))
-                                @php($availableDesigners = \App\Models\User::query()->whereIn('role', ['designer','graphic_designer','creative_designer'])->where('is_active', true)->orderBy('first_name')->get())
+                                @php
+                                    $availableDesigners = \App\Models\User::query()
+                                        ->whereIn('role', ['designer','graphic_designer','creative_designer'])
+                                        ->where('is_active', true)
+                                        ->orderBy('first_name')
+                                        ->get();
+                                @endphp
                                 @if ($availableDesigners->isNotEmpty())
                                     <form action="{{ route('admin.orders.receive-brief', $order) }}" method="POST" class="mt-2 flex gap-2">
                                         @csrf
@@ -134,7 +142,9 @@
 
                 <div class="mt-4 space-y-4">
                     @foreach ($visibleWorkflowPhases as $phase)
-                        @php($isCurrentPhase = (string) $phase['status'] === (string) $order->status)
+                        @php
+                            $isCurrentPhase = (string) $phase['status'] === (string) $order->status;
+                        @endphp
                         <article class="rounded-xl border {{ $isCurrentPhase ? 'border-pink-300 bg-pink-50/40' : 'border-slate-200 bg-white' }} p-4">
                             <p class="font-black text-slate-900">{{ $phase['phase'] }}</p>
                             <p class="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-500">{{ $phase['responsible'] }} · {{ $phase['status'] }}</p>
@@ -178,7 +188,9 @@
         </section>
 
         <!-- Order Items -->
-        @php($lineItems = $order->pricing_breakdown['line_items'] ?? [])
+        @php
+            $lineItems = $order->pricing_breakdown['line_items'] ?? [];
+        @endphp
         @if (!empty($lineItems))
             <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <h2 class="text-lg font-black text-slate-950">Order Items</h2>
@@ -215,7 +227,9 @@
                 </div>
             @endif
 
-            @php($singleOpsManager = ($operationsStaff->count() === 1) ? $operationsStaff->first() : null)
+            @php
+                $singleOpsManager = ($operationsStaff->count() === 1) ? $operationsStaff->first() : null;
+            @endphp
 
             <div class="grid gap-5 sm:grid-cols-2">
                 <label class="text-sm font-black">
