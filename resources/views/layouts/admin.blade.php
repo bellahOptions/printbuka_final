@@ -76,7 +76,7 @@
 
         @php
             $admin = auth()->user();
-            $canSeeStaffMenu = in_array($admin?->role, ['hr', 'super_admin'], true);
+            $canSeeStaffMenu = in_array($admin?->role, ['hr', 'super_admin', 'managing_director'], true);
             $navLink = function (string|array $patterns) use ($admin): string {
                 $active = request()->routeIs(...(array)$patterns);
                 return 'pb-nav-item relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-150' . ($active ? ' active' : '');

@@ -182,6 +182,14 @@
                                 <input name="task" required type="text" maxlength="500" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-100" />
                             </div>
                             <div>
+                                <label class="block text-sm font-black text-slate-800">Priority</label>
+                                <select name="priority" required class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+                                    <option value="medium" selected>Normal</option>
+                                    <option value="high">Urgent</option>
+                                    <option value="low">Low</option>
+                                </select>
+                            </div>
+                            <div>
                                 <label class="block text-sm font-black text-slate-800">Due date</label>
                                 <input name="due_date" type="date" value="{{ today()->toDateString() }}" required class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-100" />
                             </div>
@@ -199,5 +207,80 @@
                 @endif
             </aside>
         </section>
+
+        @if ($canAssign && $assignedTasks->isNotEmpty())
+            <section class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <p class="text-sm font-black uppercase tracking-wide text-gray-700">Assigned by you</p>
+                        <h2 class="mt-2 text-2xl font-black text-slate-950">Tasks you've assigned</h2>
+                    </div>
+                    <span class="rounded-full bg-slate-100 px-4 py-2 text-sm font-black text-slate-700">{{ number_format($assignedTasks->count()) }} total</span>
+                </div>
+                <div class="mt-6 overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-slate-100 text-left text-xs font-black uppercase tracking-wide text-slate-500">
+                                <th class="pb-3 pr-4">Task</th>
+                                <th class="pb-3 pr-4">Assigned to</th>
+                                <th class="pb-3 pr-4">Due</th>
+                                <th class="pb-3 pr-4">Status</th>
+                                <th class="pb-3">Order</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @foreach ($assignedTasks as $todo)
+                                @php
+                                    $statusColor = match ($todo->status) {
+                                        'pending'         => 'bg-slate-100 text-slate-700',
+                                        'working_on_it'   => 'bg-blue-100 text-blue-700',
+                                        'completed', 'review_requested' => 'bg-amber-100 text-amber-700',
+                                        'reviewed'        => 'bg-emerald-100 text-emerald-700',
+                                        default           => 'bg-slate-100 text-slate-600',
+                                    };
+                                    $statusLabel = match ($todo->status) {
+                                        'pending'         => 'Pending',
+                                        'working_on_it'   => 'Working on it',
+                                        'completed', 'review_requested' => 'Awaiting review',
+                                        'reviewed'        => 'Reviewed'.($todo->review_rating ? ' ('.$todo->review_rating.'/5)' : ''),
+                                        default           => ucfirst(str_replace('_', ' ', (string) $todo->status)),
+                                    };
+                                    $isOverdue = $todo->due_date?->isPast() && ! in_array($todo->status, ['reviewed'], true);
+                                @endphp
+                                <tr class="group">
+                                    <td class="py-3 pr-4 font-semibold text-slate-900 max-w-xs">
+                                        <span class="line-clamp-2">{{ $todo->task }}</span>
+                                        @if ($todo->notes)
+                                            <span class="block text-xs text-slate-400 mt-0.5 line-clamp-1">{{ $todo->notes }}</span>
+                                        @endif
+                                    </td>
+                                    <td class="py-3 pr-4 text-slate-700 whitespace-nowrap">
+                                        {{ $todo->assignee?->displayName() ?? '—' }}
+                                    </td>
+                                    <td class="py-3 pr-4 whitespace-nowrap {{ $isOverdue ? 'text-red-600 font-semibold' : 'text-slate-600' }}">
+                                        {{ $todo->due_date?->format('M j, Y') ?? '—' }}
+                                        @if ($isOverdue)
+                                            <span class="ml-1 text-xs">overdue</span>
+                                        @endif
+                                    </td>
+                                    <td class="py-3 pr-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-black {{ $statusColor }}">{{ $statusLabel }}</span>
+                                    </td>
+                                    <td class="py-3 text-slate-500">
+                                        @if ($todo->order)
+                                            <a href="{{ route('admin.orders.show', $todo->order) }}" class="font-semibold text-pink-700 hover:underline">
+                                                {{ $todo->order->job_order_number ?? $todo->order->displayNumber() }}
+                                            </a>
+                                        @else
+                                            —
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        @endif
     </div>
 @endsection

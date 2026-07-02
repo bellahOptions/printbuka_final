@@ -105,7 +105,8 @@ class AdminOrderController extends Controller
             'statusOptions' => $this->statusOptionsForUser($user, $order),
             'visibleWorkflowPhases' => $this->visibleWorkflowPhasesForUser($user),
             'nextWorkflowStatus' => $this->nextWorkflowStatus((string) $loadedOrder->status),
-            'canReceiveBrief' => $user->canAdmin('*') || $user->canAdmin('workflow.approve') || $user->canAdmin('orders.intake'),
+            'canReceiveBrief' => ! $order->brief_received_at
+                && ($user->canAdmin('*') || $user->canAdmin('workflow.approve') || $user->canAdmin('orders.intake')),
             'canApproveWorkflow' => $canApproveWorkflow,
             'canRequestMoveForward' => $canRequestMoveForward,
             'canConcludeJob' => $this->canConcludeJob($user),
@@ -438,6 +439,15 @@ class AdminOrderController extends Controller
             $validated['job_image_assets'] = JobAssetUpload::fromRequest($request, $order->job_image_assets ?? []);
         }
 
+        // Auto-stamp approval date when checkbox is ticked for the first time
+        if (! empty($validated['design_approved_by_client']) && ! $order->design_approved_at) {
+            $validated['design_approved_at'] = now();
+        }
+        // Clear approval date if checkbox is unticked
+        if (isset($validated['design_approved_by_client']) && ! $validated['design_approved_by_client']) {
+            $validated['design_approved_at'] = null;
+        }
+
         $order->fill($this->allowedChanges($request, $validated));
         $order->save();
         $jobWorkflowNotificationService->handleOrderUpdated(
@@ -460,18 +470,29 @@ class AdminOrderController extends Controller
             abort(403);
         }
 
-        $updates = [
-            'brief_received_by_id' => $user->id,
-            'brief_received_at' => now(),
-        ];
+        $forceDesignerAssign = $request->boolean('force_designer_assign');
 
-        if (! $order->assigned_designer_id) {
+        $updates = [];
+
+        // Only stamp brief receipt fields if not already received
+        if (! $order->brief_received_at) {
+            $updates['brief_received_by_id'] = $user->id;
+            $updates['brief_received_at']    = now();
+        }
+
+        if (! $order->assigned_designer_id || $forceDesignerAssign) {
             $updates['assigned_designer_id'] = Order::autoAssignableDesignerId();
         }
 
-        $order->forceFill($updates)->save();
+        if (! empty($updates)) {
+            $order->forceFill($updates)->save();
+        }
 
-        return back()->with('status', 'Job brief received successfully. Intake owner and timestamp were logged automatically.');
+        $message = $forceDesignerAssign
+            ? ($order->fresh()->designer ? 'Designer assigned to '.$order->fresh()->designer->displayName().'.' : 'No active designer found. Add a designer account first.')
+            : 'Job brief received successfully. Intake owner and timestamp were logged automatically.';
+
+        return back()->with('status', $message);
     }
 
     public function moveForward(

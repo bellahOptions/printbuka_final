@@ -93,7 +93,25 @@
                     </div>
                     <div class="sm:col-span-2">
                         <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Assigned Designer</p>
-                        <p class="mt-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 font-semibold text-slate-800">{{ $order->designer?->displayName() ?? 'Awaiting automatic assignment' }}</p>
+                        @if ($order->designer)
+                            <p class="mt-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 font-semibold text-slate-800">{{ $order->designer->displayName() }}</p>
+                        @elseif (! $order->brief_received_at)
+                            <p class="mt-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-400">Will be assigned automatically on brief receipt</p>
+                        @else
+                            <p class="mt-1 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700">No active designer available — assign manually below</p>
+                            @if (! $order->is_concluded && ($admin->canAdmin('*') || $admin->canAdmin('workflow.approve')))
+                                @php($availableDesigners = \App\Models\User::query()->whereIn('role', ['designer','graphic_designer','creative_designer'])->where('is_active', true)->orderBy('first_name')->get())
+                                @if ($availableDesigners->isNotEmpty())
+                                    <form action="{{ route('admin.orders.receive-brief', $order) }}" method="POST" class="mt-2 flex gap-2">
+                                        @csrf
+                                        <input type="hidden" name="force_designer_assign" value="1">
+                                        <button type="submit" class="rounded-xl bg-amber-600 px-3 py-2 text-xs font-black text-white hover:bg-amber-700">
+                                            Auto-assign Now
+                                        </button>
+                                    </form>
+                                @endif
+                            @endif
+                        @endif
                     </div>
                     <div class="sm:col-span-2">
                         <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Artwork Notes</p>
@@ -198,27 +216,9 @@
                 </div>
             @endif
 
+            @php($singleOpsManager = ($operationsStaff->count() === 1) ? $operationsStaff->first() : null)
+
             <div class="grid gap-5 sm:grid-cols-2">
-                <label class="text-sm font-black">
-                    Job Type
-                    <select name="job_type" class="mt-2 min-h-12 w-full rounded-xl border border-slate-300 px-4 py-3">
-                        <option value="">Select job type</option>
-                        @foreach ($jobTypes as $jobType)
-                            <option @selected(old('job_type', $order->job_type ?? $order->product?->name) === $jobType)>{{ $jobType }}</option>
-                        @endforeach
-                    </select>
-                </label>
-
-                <label class="text-sm font-black">
-                    Size / Format
-                    <select name="size_format" class="mt-2 min-h-12 w-full rounded-xl border border-slate-300 px-4 py-3">
-                        <option value="">Select size</option>
-                        @foreach ($sizes as $size)
-                            <option @selected(old('size_format', $order->size_format) === $size)>{{ $size }}</option>
-                        @endforeach
-                    </select>
-                </label>
-
                 <label class="text-sm font-black">
                     Priority
                     <select name="priority" class="mt-2 min-h-12 w-full rounded-xl border border-slate-300 px-4 py-3">
@@ -250,15 +250,15 @@
                         <input type="datetime-local" name="design_started_at" value="{{ old('design_started_at', $order->design_started_at?->format('Y-m-d\\TH:i')) }}" class="mt-2 min-h-12 w-full rounded-xl border border-slate-300 px-4 py-3">
                     </label>
 
-                    <label class="text-sm font-black">
-                        Client Approval Date
-                        <input type="datetime-local" name="design_approved_at" value="{{ old('design_approved_at', $order->design_approved_at?->format('Y-m-d\\TH:i')) }}" class="mt-2 min-h-12 w-full rounded-xl border border-slate-300 px-4 py-3">
-                    </label>
-
-                    <label class="sm:col-span-2 inline-flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 text-sm font-black">
+                    <label class="sm:col-span-2 inline-flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 text-sm font-black cursor-pointer hover:bg-slate-50">
                         <input type="hidden" name="design_approved_by_client" value="0">
-                        <input type="checkbox" name="design_approved_by_client" value="1" @checked((bool) old('design_approved_by_client', $order->design_approved_by_client))>
-                        Design approved by client
+                        <input type="checkbox" name="design_approved_by_client" value="1" class="rounded" @checked((bool) old('design_approved_by_client', $order->design_approved_by_client))>
+                        <span>Design approved by client</span>
+                        @if ($order->design_approved_at)
+                            <span class="ml-auto text-xs font-semibold text-slate-400">Approved {{ $order->design_approved_at->format('M j, Y g:i A') }}</span>
+                        @else
+                            <span class="ml-auto text-xs font-semibold text-slate-400">Approval date auto-stamped on save</span>
+                        @endif
                     </label>
                 @endif
 
@@ -267,28 +267,26 @@
                         Upload Final Design File
                         <input type="file" name="design_file" accept=".pdf,.svg,.zip" class="mt-2 min-h-12 w-full rounded-xl border border-slate-300 px-4 py-3">
                     </label>
-                    <div class="sm:col-span-2">
-                        <label class="text-sm font-black text-slate-700">Upload Final Design Image</label>
-                        <livewire:uploads.secure-image-upload
-                            input-name="design_image_path"
-                            directory="designs/images"
-                            :max-size-kb="10240"
-                            :max-files="1"
-                            :initial-path="old('design_image_path')"
-                        />
-                    </div>
                 @endif
 
                 @if ($canEditProduction)
-                    <label class="text-sm font-black">
+                    <div class="text-sm font-black">
                         Operations Manager (Production)
-                        <select name="production_officer_id" class="mt-2 min-h-12 w-full rounded-xl border border-slate-300 px-4 py-3">
-                            <option value="">Select Operations Manager</option>
-                            @foreach ($operationsStaff->isEmpty() ? $staff : $operationsStaff as $person)
-                                <option value="{{ $person->id }}" @selected((int) old('production_officer_id', $order->production_officer_id) === $person->id)>{{ $person->displayName() }} · {{ $person->department }}</option>
-                            @endforeach
-                        </select>
-                    </label>
+                        @if ($singleOpsManager)
+                            <input type="hidden" name="production_officer_id" value="{{ $singleOpsManager->id }}">
+                            <div class="mt-2 min-h-12 flex items-center rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-semibold text-slate-700">
+                                {{ $singleOpsManager->displayName() }}
+                                <span class="ml-2 text-xs font-normal text-slate-400">· auto-selected</span>
+                            </div>
+                        @else
+                            <select name="production_officer_id" class="mt-2 min-h-12 w-full rounded-xl border border-slate-300 px-4 py-3">
+                                <option value="">Select Operations Manager</option>
+                                @foreach ($operationsStaff->isEmpty() ? $staff : $operationsStaff as $person)
+                                    <option value="{{ $person->id }}" @selected((int) old('production_officer_id', $order->production_officer_id) === $person->id)>{{ $person->displayName() }}</option>
+                                @endforeach
+                            </select>
+                        @endif
+                    </div>
 
                     <label class="text-sm font-black">
                         Production Start
@@ -317,15 +315,23 @@
                 @endif
 
                 @if ($canEditQc)
-                    <label class="text-sm font-black">
-                        QC Checked By (Operations Manager)
-                        <select name="qc_checked_by_id" class="mt-2 min-h-12 w-full rounded-xl border border-slate-300 px-4 py-3">
-                            <option value="">Select Operations Manager</option>
-                            @foreach ($operationsStaff->isEmpty() ? $staff : $operationsStaff as $person)
-                                <option value="{{ $person->id }}" @selected((int) old('qc_checked_by_id', $order->qc_checked_by_id) === $person->id)>{{ $person->displayName() }} · {{ $person->department }}</option>
-                            @endforeach
-                        </select>
-                    </label>
+                    <div class="text-sm font-black">
+                        QC Checked By
+                        @if ($singleOpsManager)
+                            <input type="hidden" name="qc_checked_by_id" value="{{ $singleOpsManager->id }}">
+                            <div class="mt-2 min-h-12 flex items-center rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-semibold text-slate-700">
+                                {{ $singleOpsManager->displayName() }}
+                                <span class="ml-2 text-xs font-normal text-slate-400">· auto-selected</span>
+                            </div>
+                        @else
+                            <select name="qc_checked_by_id" class="mt-2 min-h-12 w-full rounded-xl border border-slate-300 px-4 py-3">
+                                <option value="">Select Operations Manager</option>
+                                @foreach ($operationsStaff->isEmpty() ? $staff : $operationsStaff as $person)
+                                    <option value="{{ $person->id }}" @selected((int) old('qc_checked_by_id', $order->qc_checked_by_id) === $person->id)>{{ $person->displayName() }}</option>
+                                @endforeach
+                            </select>
+                        @endif
+                    </div>
 
                     <label class="text-sm font-black">
                         QC Date

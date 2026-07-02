@@ -48,10 +48,22 @@ class DailyTodoController extends Controller
             ->orderBy('last_name')
             ->get();
 
+        $assignedTasks = collect();
+        if ($this->canAssign($user)) {
+            $assignedTasks = DailyTodo::query()
+                ->where('assigned_by_id', $user->id)
+                ->with(['assignee', 'order'])
+                ->orderByDesc('due_date')
+                ->orderByDesc('created_at')
+                ->limit(50)
+                ->get();
+        }
+
         return view('admin.tasks.index', [
             'todayTasks' => $todayTasks,
             'reviewTasks' => $reviewTasks,
             'assignableStaff' => $assignableStaff,
+            'assignedTasks' => $assignedTasks,
             'canReview' => $this->canReview($user),
             'canAssign' => $this->canAssign($user),
             'workingOnCount' => $this->canReview($user)
@@ -180,7 +192,7 @@ $validated = $request->validate([
 
     private function canAssign(?User $user): bool
     {
-        return $user !== null && in_array($user->role, ['operations_manager', 'super_admin'], true);
+        return $user !== null && in_array($user->role, ['operations_manager', 'super_admin', 'managing_director'], true);
     }
 
     private function notifyAssignee(User $assignee, DailyTodo $todo, User $assigner): void

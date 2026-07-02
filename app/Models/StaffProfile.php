@@ -13,9 +13,8 @@ class StaffProfile extends Model
         'present_address', 'home_telephone',
         'next_of_kin_name', 'next_of_kin_relationship',
         'next_of_kin_home_address', 'next_of_kin_office_address',
-        'post_held', 'post_telephone', 'post_email',
-        'bank_name', 'bank_account_number', 'pension_pin', 'tax_id',
-        'declared_salary', 'emergency_contact_notes', 'kyc_completed_at',
+        'bank_name', 'bank_account_number',
+        'emergency_contact_notes', 'kyc_completed_at',
         'kyc_status', 'kyc_review_notes', 'kyc_reviewed_by_id', 'kyc_reviewed_at',
     ];
 
@@ -68,11 +67,20 @@ class StaffProfile extends Model
             'marital_status', 'state_of_origin', 'local_govt_area', 'present_address',
             'home_telephone', 'next_of_kin_name', 'next_of_kin_relationship',
             'next_of_kin_home_address', 'bank_name', 'bank_account_number',
-            'declared_salary',
         ];
 
         $filled = collect($fields)->filter(fn ($f) => filled($this->{$f}))->count();
 
-        return (int) round(($filled / count($fields)) * 100);
+        // Fields on the users table
+        if (filled($this->user?->date_of_birth)) {
+            $filled++;
+        }
+        if (filled($this->user?->photo)) {
+            $filled++;
+        }
+
+        $total = \count($fields) + 2;
+
+        return (int) round(($filled / $total) * 100);
     }
 }

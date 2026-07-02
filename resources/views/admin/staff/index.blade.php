@@ -202,13 +202,6 @@
                         </select>
                     </div>
 
-                    {{-- Department info --}}
-                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm">
-                        <p class="font-semibold text-slate-800 mb-1">Department</p>
-                        <p class="text-xs text-slate-500">Auto-derived from role selection.</p>
-                        <p class="mt-2 text-sm font-medium text-slate-700">{{ $person->department ?? 'Unassigned' }}</p>
-                    </div>
-
                     {{-- Actions --}}
                     <div class="flex flex-wrap gap-2">
                         @if($canAssignRoles)
@@ -305,6 +298,9 @@
                                 <span class="pb-badge {{ $person->is_active ? 'pb-badge-success' : 'pb-badge-danger' }} text-[10px]">
                                     {{ $person->is_active ? 'Active' : 'Inactive' }}
                                 </span>
+                                @if ($person->access_restricted)
+                                    <span class="pb-badge pb-badge-danger text-[10px] mt-1 block">Access Restricted</span>
+                                @endif
                             </td>
                             <td>
                                 <span class="pb-badge {{ match($person->employment_status ?? 'active') { 'active'=>'pb-badge-success','suspended'=>'pb-badge-warning','terminated'=>'pb-badge-danger', default=>'pb-badge-secondary' } }} text-[10px]">{{ $person->employmentStatusLabel() }}</span>
@@ -342,22 +338,43 @@
                                 @endif
                             </td>
                             <td>
-                                @if($canManageEmployment)
-                                    <form action="{{ route('admin.staff.employment-status', $person) }}" method="POST"
-                                          class="space-y-2 min-w-[200px]">
-                                        @csrf @method('PATCH')
-                                        <select name="employment_status" class="pb-select text-xs h-9 py-0">
-                                            <option value="active"     @selected(($person->employment_status ?? 'active') === 'active')>Onboard / Active</option>
-                                            <option value="suspended"  @selected(($person->employment_status ?? '') === 'suspended')>Suspend</option>
-                                            <option value="terminated" @selected(($person->employment_status ?? '') === 'terminated')>Terminate</option>
-                                        </select>
-                                        <input name="employment_status_reason" value="{{ $person->employment_status_reason }}"
-                                               class="pb-input text-xs h-9 py-0" placeholder="Reason (optional)">
-                                        <button type="submit" class="pb-btn pb-btn-sm pb-btn-ink text-xs w-full">Apply</button>
-                                    </form>
-                                @else
-                                    <span class="pb-badge pb-badge-secondary text-[10px]">HR / Super Admin</span>
-                                @endif
+                                <div class="space-y-2 min-w-[200px]">
+                                    @if($canManageEmployment)
+                                        <form action="{{ route('admin.staff.employment-status', $person) }}" method="POST"
+                                              class="space-y-2">
+                                            @csrf @method('PATCH')
+                                            <select name="employment_status" class="pb-select text-xs h-9 py-0">
+                                                <option value="active"     @selected(($person->employment_status ?? 'active') === 'active')>Onboard / Active</option>
+                                                <option value="suspended"  @selected(($person->employment_status ?? '') === 'suspended')>Suspend</option>
+                                                <option value="terminated" @selected(($person->employment_status ?? '') === 'terminated')>Terminate</option>
+                                            </select>
+                                            <input name="employment_status_reason" value="{{ $person->employment_status_reason }}"
+                                                   class="pb-input text-xs h-9 py-0" placeholder="Reason (optional)">
+                                            <button type="submit" class="pb-btn pb-btn-sm pb-btn-ink text-xs w-full">Apply</button>
+                                        </form>
+                                    @else
+                                        <span class="pb-badge pb-badge-secondary text-[10px]">HR / Super Admin</span>
+                                    @endif
+
+                                    @if(auth()->user()?->role === 'super_admin' && $person->role !== 'super_admin')
+                                        <form action="{{ route('admin.staff.access-restriction', $person) }}" method="POST"
+                                              onsubmit="return confirm('{{ $person->access_restricted ? 'Restore access for '.$person->displayName().'?' : 'Restrict access for '.$person->displayName().'? They will be logged out immediately.' }}')">
+                                            @csrf @method('PATCH')
+                                            @if (!$person->access_restricted)
+                                                <input name="reason" class="pb-input text-xs h-9 py-0 w-full" placeholder="Reason (optional)">
+                                            @endif
+                                            <button type="submit"
+                                                class="pb-btn pb-btn-sm text-xs w-full mt-1 {{ $person->access_restricted ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-red-600 text-white hover:bg-red-700' }}">
+                                                {{ $person->access_restricted ? '✓ Restore Access' : '⊘ Restrict Access' }}
+                                            </button>
+                                        </form>
+                                        @if ($person->access_restricted)
+                                            <p class="text-[10px] text-red-600 font-semibold">
+                                                Restricted {{ $person->access_restricted_at?->diffForHumans() }}
+                                            </p>
+                                        @endif
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @empty

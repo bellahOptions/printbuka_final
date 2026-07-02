@@ -142,7 +142,7 @@ class AdminSupportTicketController extends Controller
 
     private function isResolver(?User $user): bool
     {
-        return in_array((string) ($user?->role ?? ''), ['super_admin', 'it'], true);
+        return in_array((string) ($user?->role ?? ''), ['super_admin', 'managing_director'], true);
     }
 
     private function canViewTicket(?User $user, Ticket $ticket): bool
@@ -163,7 +163,7 @@ class AdminSupportTicketController extends Controller
     {
         return User::query()
             ->where('is_active', true)
-            ->whereIn('role', ['super_admin', 'it'])
+            ->whereIn('role', ['super_admin', 'managing_director'])
             ->whereKeyNot($creator->id)
             ->orderByRaw("CASE WHEN role = 'super_admin' THEN 0 ELSE 1 END")
             ->value('id');

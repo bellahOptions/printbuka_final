@@ -151,6 +151,47 @@
     </div>
     @endif
 
+    {{-- Access Restriction Panel (Super Admin only) --}}
+    @if(auth()->user()?->role === 'super_admin' && $staffMember->role !== 'super_admin' && !$isSelf)
+        <div class="rounded-2xl border {{ $staffMember->access_restricted ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white' }} p-6 shadow-sm">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-black {{ $staffMember->access_restricted ? 'text-red-900' : 'text-slate-950' }}">
+                        {{ $staffMember->access_restricted ? '⊘ Access Restricted' : 'Access Control' }}
+                    </h2>
+                    @if ($staffMember->access_restricted)
+                        <p class="text-xs text-red-700 mt-1">
+                            Restricted {{ $staffMember->access_restricted_at?->format('M j, Y \a\t g:ia') }}
+                            @if($staffMember->accessRestrictedBy)
+                                by {{ $staffMember->accessRestrictedBy->displayName() }}
+                            @endif
+                        </p>
+                        @if ($staffMember->access_restricted_reason)
+                            <p class="mt-2 rounded-lg bg-red-100 px-3 py-2 text-sm text-red-800">
+                                Reason: {{ $staffMember->access_restricted_reason }}
+                            </p>
+                        @endif
+                    @else
+                        <p class="text-xs text-slate-500 mt-1">Instantly revoke this staff member's portal access. They will be logged out immediately.</p>
+                    @endif
+                </div>
+                <form action="{{ route('admin.staff.access-restriction', $staffMember) }}" method="POST"
+                      class="flex flex-col gap-2 min-w-[220px]"
+                      onsubmit="return confirm('{{ $staffMember->access_restricted ? 'Restore portal access for '.$staffMember->displayName().'?' : 'Restrict access for '.$staffMember->displayName().'? They will be logged out immediately.' }}')">
+                    @csrf @method('PATCH')
+                    @if (!$staffMember->access_restricted)
+                        <input name="reason" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm focus:border-red-400 focus:outline-none" placeholder="Reason (optional)">
+                    @endif
+                    <button type="submit"
+                        class="rounded-xl px-5 py-2.5 text-sm font-black text-white transition
+                               {{ $staffMember->access_restricted ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700' }}">
+                        {{ $staffMember->access_restricted ? '✓ Restore Access' : '⊘ Restrict Access' }}
+                    </button>
+                </form>
+            </div>
+        </div>
+    @endif
+
     {{-- Bio-Data Form --}}
     <div class="rounded-2xl border {{ $kycApproved ? 'border-emerald-200' : ($kycStatus === 'correction_requested' ? 'border-amber-300' : 'border-slate-200') }} bg-white shadow-sm overflow-hidden">
 
@@ -197,8 +238,37 @@
         <form method="POST" action="{{ route('admin.staff.profile.update', $staffMember) }}">
             @csrf @method('PUT')
 
+            {{-- Profile Photo / Selfie --}}
+            <p class="text-xs font-black uppercase tracking-wide text-pink-600 mb-4 mt-2">Profile Photo / Selfie</p>
+            <div class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-start">
+                <div class="shrink-0 text-center">
+                    <img src="{{ $staffMember->profilePhotoUrl() }}"
+                         alt="{{ $staffMember->displayName() }}"
+                         class="h-28 w-28 rounded-2xl object-cover border-2 {{ $staffMember->photo ? 'border-emerald-300' : 'border-pink-300 border-dashed' }}">
+                    @if ($staffMember->photo)
+                        <p class="mt-1.5 text-xs font-black text-emerald-600">✓ Photo on file</p>
+                    @else
+                        <p class="mt-1.5 text-xs font-black text-pink-600">Required</p>
+                    @endif
+                </div>
+                @if ($canEdit)
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm text-slate-600 mb-3">Upload a clear, recent passport-style photo or selfie. JPG/PNG/WebP, max 2 MB.</p>
+                        <livewire:uploads.secure-image-upload
+                            :key="'kyc-photo-'.$staffMember->id"
+                            input-name="photo_upload_path"
+                            directory="staff-photos"
+                            :max-size-kb="2048"
+                            :multiple="false"
+                        />
+                    </div>
+                @elseif (!$staffMember->photo)
+                    <p class="text-sm text-slate-500">No photo uploaded. Contact HR if the form is locked and you still need to submit a photo.</p>
+                @endif
+            </div>
+
             {{-- Personal Information --}}
-            <p class="text-xs font-black uppercase tracking-wide text-pink-600 mb-4 mt-2">Personal Information</p>
+            <p class="text-xs font-black uppercase tracking-wide text-pink-600 mb-4">Personal Information</p>
             <div class="grid gap-4 sm:grid-cols-2">
                 <div>
                     <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Last Name</label>
@@ -222,7 +292,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Date of Birth</label>
-                    <input value="{{ $staffMember->date_of_birth?->format('Y-m-d') }}" disabled class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-500">
+                    <input type="date" name="date_of_birth" value="{{ old('date_of_birth', $staffMember->date_of_birth?->format('Y-m-d')) }}" @disabled(!$canEdit) class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:ring-2 focus:ring-pink-100 focus:outline-none disabled:bg-slate-50">
                 </div>
                 <div>
                     <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Sex</label>
@@ -288,23 +358,6 @@
                 </div>
             </div>
 
-            {{-- Post Held --}}
-            <p class="text-xs font-black uppercase tracking-wide text-pink-600 mt-8 mb-4">Post / Position</p>
-            <div class="grid gap-4 sm:grid-cols-3">
-                <div>
-                    <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Post Held</label>
-                    <input type="text" name="post_held" value="{{ old('post_held', $profile->post_held) }}" @disabled(!$canEdit) class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none disabled:bg-slate-50">
-                </div>
-                <div>
-                    <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Post Telephone</label>
-                    <input type="text" name="post_telephone" value="{{ old('post_telephone', $profile->post_telephone) }}" @disabled(!$canEdit) class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none disabled:bg-slate-50">
-                </div>
-                <div>
-                    <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Post E-mail</label>
-                    <input type="email" name="post_email" value="{{ old('post_email', $profile->post_email) }}" @disabled(!$canEdit) class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none disabled:bg-slate-50">
-                </div>
-            </div>
-
             {{-- Banking / Financial --}}
             <p class="text-xs font-black uppercase tracking-wide text-pink-600 mt-8 mb-4">Banking & Financial Details</p>
             <div class="grid gap-4 sm:grid-cols-2">
@@ -315,28 +368,6 @@
                 <div>
                     <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Account Number</label>
                     <input type="text" name="bank_account_number" value="{{ old('bank_account_number', $profile->bank_account_number) }}" @disabled(!$canEdit) class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none disabled:bg-slate-50">
-                </div>
-                <div>
-                    <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Pension PIN (PFA)</label>
-                    <input type="text" name="pension_pin" value="{{ old('pension_pin', $profile->pension_pin) }}" @disabled(!$canEdit) class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none disabled:bg-slate-50">
-                </div>
-                <div>
-                    <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Tax ID (TIN)</label>
-                    <input type="text" name="tax_id" value="{{ old('tax_id', $profile->tax_id) }}" @disabled(!$canEdit) class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none disabled:bg-slate-50">
-                </div>
-                <div>
-                    <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">
-                        Declared Gross Monthly Salary
-                        <span class="normal-case font-normal text-slate-400">(₦ / month)</span>
-                    </label>
-                    <div class="relative">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">₦</span>
-                        <input type="number" name="declared_salary" min="0" step="1000"
-                            value="{{ old('declared_salary', $profile->declared_salary) }}"
-                            placeholder="0"
-                            @disabled(!$canEdit)
-                            class="w-full rounded-xl border border-slate-300 pl-8 pr-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none disabled:bg-slate-50">
-                    </div>
                 </div>
                 <div class="sm:col-span-2">
                     <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Emergency Contact Notes</label>

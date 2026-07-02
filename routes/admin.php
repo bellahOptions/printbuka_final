@@ -27,7 +27,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
-    Route::prefix('admin')->name('admin.')->middleware(['admin.permission:admin.view', 'staff.2fa'])->group(function (): void {
+    Route::prefix('admin')->name('admin.')->middleware(['admin.permission:admin.view', 'staff.2fa', 'staff.kyc'])->group(function (): void {
         Route::get('/dashboard', AdminDashboardController::class)->name('dashboard');
         Route::get('/profile', [ProfileController::class, 'editAdmin'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'updateAdmin'])->name('profile.update');
@@ -144,6 +144,9 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::patch('/staff/{user}/employment-status', [AdminStaffController::class, 'updateEmploymentStatus'])
             ->middleware('admin.permission:staff.view')
             ->name('staff.employment-status');
+
+        Route::patch('/staff/{user}/access-restriction', [AdminStaffController::class, 'toggleAccessRestriction'])
+            ->name('staff.access-restriction');
 
         // ===== STAFF PROFILE / KYC =====
         Route::get('/staff/{user}/profile', [AdminStaffProfileController::class, 'show'])

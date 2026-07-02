@@ -58,7 +58,6 @@ class AdminStaffController extends Controller
                 ->orderByDesc('total')
                 ->get(),
             'roles' => config('printbuka_admin.role_labels'),
-            'departments' => config('printbuka_admin.departments'),
             'canAssignRoles' => request()->user()?->role === 'super_admin',
             'canManageEmployment' => in_array(request()->user()?->role, ['super_admin', 'hr'], true),
         ]);
@@ -87,11 +86,9 @@ class AdminStaffController extends Controller
         ]);
 
         $role = $validated['role'] ?? $user->role;
-        $department = $this->departmentForRole($role) ?? $user->department;
 
         $updates = [
             'role' => $role,
-            'department' => $department,
             'is_active' => $request->boolean('is_active', $user->is_active),
             'employment_status' => $request->boolean('is_active', $user->is_active) ? 'active' : ($user->employment_status ?? 'pending'),
             'approved_by_id' => $request->user()->id,
@@ -200,11 +197,38 @@ class AdminStaffController extends Controller
         return back()->with('status', 'Staff employment status updated.');
     }
 
-    private function departmentForRole(?string $role): ?string
+    public function toggleAccessRestriction(Request $request, User $user): RedirectResponse
     {
-        return is_string($role)
-            ? config('printbuka_admin.role_department_map.'.$role)
-            : null;
+        abort_unless($request->user()?->role === 'super_admin', 403);
+        abort_if($user->id === $request->user()?->id, 422, 'You cannot restrict your own access.');
+        abort_if($user->role === 'customer', 404);
+
+        $validated = $request->validate([
+            'reason' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $isCurrentlyRestricted = $user->access_restricted;
+
+        $user->forceFill([
+            'access_restricted'         => ! $isCurrentlyRestricted,
+            'access_restricted_reason'  => $isCurrentlyRestricted ? null : ($validated['reason'] ?? null),
+            'access_restricted_by_id'   => $isCurrentlyRestricted ? null : $request->user()->id,
+            'access_restricted_at'      => $isCurrentlyRestricted ? null : now(),
+        ])->save();
+
+        // Immediately kill all active web sessions for restricted staff
+        if (! $isCurrentlyRestricted) {
+            DB::table('sessions')->where('user_id', $user->id)->delete();
+        }
+
+        $action = $isCurrentlyRestricted ? 'restored' : 'restricted';
+
+        app(ImportantActionNotifier::class)->notify(
+            'Staff access '.$action,
+            $user->displayName().'\'s access was '.$action.' by '.$request->user()->displayName().'.'
+        );
+
+        return back()->with('status', $user->displayName().'\'s access has been '.$action.'.');
     }
 
     private function notifyStaffEmploymentStatus(User $staff, string $status, ?string $reason): void

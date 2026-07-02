@@ -105,6 +105,15 @@
                     </div>
                 @endif
 
+                @if (session('status_error'))
+                    <div class="mb-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-800">
+                        <svg class="mt-0.5 h-4 w-4 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        {{ session('status_error') }}
+                    </div>
+                @endif
+
                 <form action="{{ $storeRoute ?? route('login.store') }}" method="POST" class="space-y-5">
                     @csrf
 

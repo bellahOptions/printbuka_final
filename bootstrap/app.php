@@ -4,6 +4,7 @@ use App\Http\Middleware\AddSecurityHeaders;
 use App\Http\Middleware\EnforceSiteMaintenance;
 use App\Http\Middleware\EnsureAdminPermission;
 use App\Http\Middleware\EnsureCustomerPortalAccess;
+use App\Http\Middleware\EnsureKycApproved;
 use App\Http\Middleware\EnsureStaffIsActive;
 use App\Http\Middleware\EnsureSuperAdmin;
 use App\Http\Middleware\EnsureUserEmailIsVerified;
@@ -47,6 +48,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'super.admin'      => EnsureSuperAdmin::class,
             'admin.activity'   => LogStaffActivity::class,
             'staff.2fa'        => \App\Http\Middleware\EnsureTwoFactorAuthenticated::class,
+            'staff.kyc'        => EnsureKycApproved::class,
             // Mobile API
             'abilities'        => CheckAbilities::class,
             'ability'          => CheckForAnyAbility::class,

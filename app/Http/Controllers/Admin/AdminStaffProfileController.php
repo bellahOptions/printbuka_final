@@ -6,10 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Mail\StaffKycReviewMail;
 use App\Models\StaffProfile;
 use App\Models\User;
+use App\Services\CloudinaryUploadService;
+use App\Support\CloudinaryUrl;
+use App\Support\LivewireSecureUploads;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class AdminStaffProfileController extends Controller
@@ -53,6 +58,8 @@ class AdminStaffProfileController extends Controller
         }
 
         $validated = $request->validate([
+            'date_of_birth'             => ['nullable', 'date', 'before:today'],
+            'photo_upload_path'         => ['nullable', 'string', 'max:500'],
             'other_names'               => ['nullable', 'string', 'max:255'],
             'designation'               => ['nullable', 'string', 'max:255'],
             'date_of_employment'        => ['nullable', 'date'],
@@ -66,17 +73,41 @@ class AdminStaffProfileController extends Controller
             'next_of_kin_relationship'  => ['nullable', 'string', 'max:100'],
             'next_of_kin_home_address'  => ['nullable', 'string', 'max:500'],
             'next_of_kin_office_address'=> ['nullable', 'string', 'max:500'],
-            'post_held'                 => ['nullable', 'string', 'max:255'],
-            'post_telephone'            => ['nullable', 'string', 'max:30'],
-            'post_email'                => ['nullable', 'email', 'max:255'],
             'bank_name'                 => ['nullable', 'string', 'max:255'],
             'bank_account_number'       => ['nullable', 'string', 'max:30'],
-            'pension_pin'               => ['nullable', 'string', 'max:50'],
-            'tax_id'                    => ['nullable', 'string', 'max:50'],
-            'declared_salary'           => ['nullable', 'integer', 'min:0'],
             'emergency_contact_notes'   => ['nullable', 'string', 'max:1000'],
             'mark_kyc_complete'         => ['nullable', 'boolean'],
         ]);
+
+        // Save date_of_birth to users table
+        $dateOfBirth = $validated['date_of_birth'] ?? null;
+        unset($validated['date_of_birth']);
+        if ($dateOfBirth !== null || $request->has('date_of_birth')) {
+            $user->forceFill(['date_of_birth' => $dateOfBirth])->save();
+        }
+
+        // Handle photo/selfie upload
+        $photoUploadPath = $validated['photo_upload_path'] ?? null;
+        unset($validated['photo_upload_path']);
+        if (filled($photoUploadPath)) {
+            $livewirePhotoPath = LivewireSecureUploads::consumePath($request, $photoUploadPath, ['staff-photos']);
+
+            if (! $livewirePhotoPath) {
+                throw ValidationException::withMessages([
+                    'photo_upload_path' => 'The uploaded photo is invalid or has expired. Please upload it again.',
+                ]);
+            }
+
+            $this->deleteStoredPhoto($user->photo);
+
+            if (CloudinaryUrl::isConfigured()) {
+                $fullPath = Storage::disk('public')->path($livewirePhotoPath);
+                $result = app(CloudinaryUploadService::class)->upload($fullPath, ['folder' => 'staff-photos']);
+                $user->forceFill(['photo' => $result['public_id'] ?? $livewirePhotoPath])->save();
+            } else {
+                $user->forceFill(['photo' => $livewirePhotoPath])->save();
+            }
+        }
 
         $profile = StaffProfile::updateOrCreate(
             ['user_id' => $user->id],
@@ -143,5 +174,22 @@ class AdminStaffProfileController extends Controller
         $label = $status === 'approved' ? 'approved' : 'returned for correction';
 
         return back()->with('status', "KYC for {$user->displayName()} has been {$label}. Staff has been notified by email.");
+    }
+
+    private function deleteStoredPhoto(?string $path): void
+    {
+        if (! filled($path)) {
+            return;
+        }
+
+        if (CloudinaryUrl::isCloudinaryResource($path)) {
+            try {
+                app(CloudinaryUploadService::class)->delete($path);
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        Storage::disk('public')->delete($path);
     }
 }

@@ -186,7 +186,7 @@ class Order extends Model
     public static function autoAssignableDesignerId(): ?int
     {
         $designers = User::query()
-            ->where('role', 'designer')
+            ->whereIn('role', ['personal_assistant', 'designer', 'graphic_designer', 'creative_designer'])
             ->where('is_active', true)
             ->orderBy('id')
             ->get(['id']);

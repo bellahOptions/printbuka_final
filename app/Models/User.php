@@ -16,7 +16,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['first_name', 'last_name', 'phone', 'companyName', 'email', 'password', 'google_id', 'avatar', 'email_verified_at', 'role', 'department', 'requested_role', 'other_role', 'address', 'date_of_birth', 'photo', 'approved_by_id', 'approved_at', 'is_active', 'employment_status', 'employment_status_reason', 'employment_status_changed_at', 'employment_status_changed_by_id', 'two_factor_secret', 'two_factor_recovery_codes', 'two_factor_confirmed_at'])]
+#[Fillable(['first_name', 'last_name', 'phone', 'companyName', 'email', 'password', 'google_id', 'avatar', 'email_verified_at', 'role', 'department', 'requested_role', 'other_role', 'address', 'date_of_birth', 'photo', 'approved_by_id', 'approved_at', 'is_active', 'employment_status', 'employment_status_reason', 'employment_status_changed_at', 'employment_status_changed_by_id', 'two_factor_secret', 'two_factor_recovery_codes', 'two_factor_confirmed_at', 'access_restricted', 'access_restricted_reason', 'access_restricted_by_id', 'access_restricted_at'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmailContract
 {
@@ -34,6 +34,8 @@ class User extends Authenticatable implements MustVerifyEmailContract
             'email_verified_at'              => 'datetime',
             'password'                       => 'hashed',
             'is_active'                      => 'boolean',
+            'access_restricted'              => 'boolean',
+            'access_restricted_at'           => 'datetime',
             'date_of_birth'                  => 'date',
             'approved_at'                    => 'datetime',
             'employment_status_changed_at'   => 'datetime',
@@ -58,7 +60,16 @@ class User extends Authenticatable implements MustVerifyEmailContract
 
     public function hasAdminAccess(): bool
     {
-        return $this->is_active && $this->hasVerifiedEmail() && $this->role !== 'customer' && $this->canAdmin('admin.view');
+        return $this->is_active
+            && ! $this->access_restricted
+            && $this->hasVerifiedEmail()
+            && $this->role !== 'customer'
+            && $this->canAdmin('admin.view');
+    }
+
+    public function isAccessRestricted(): bool
+    {
+        return (bool) $this->access_restricted;
     }
 
     public function canAdmin(string $permission): bool
@@ -121,6 +132,11 @@ class User extends Authenticatable implements MustVerifyEmailContract
     public function staffProfile(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(StaffProfile::class);
+    }
+
+    public function accessRestrictedBy(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'access_restricted_by_id');
     }
 
     public function salaryStructures(): HasMany
