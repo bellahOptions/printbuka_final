@@ -152,17 +152,15 @@
                         <span>Dashboard</span>
                     </a>
 
-                    {{-- My KYC — all non-customer staff (not shown to HR/admin who manage others' KYC) --}}
-                    @if($admin && $admin->role !== 'customer')
-                        @php($myKycStatus = $admin->staffProfile?->kyc_status ?? 'pending')
+                    {{-- My KYC — all non-customer staff, hidden once approved (not shown to HR/admin who manage others' KYC) --}}
+                    @php($myKycStatus = $admin?->staffProfile?->kyc_status ?? 'pending')
+                    @if($admin && $admin->role !== 'customer' && $myKycStatus !== 'approved')
                         <a href="{{ route('admin.staff.profile.show', $admin) }}" class="{{ $navLink('') }} {{ request()->routeIs('admin.staff.profile.*') && request()->route('user')?->id === $admin->id ? 'active' : '' }}">
                             <svg class="pb-nav-icon h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2"/>
                             </svg>
                             <span>My KYC</span>
-                            @if($myKycStatus === 'approved')
-                                <span class="ml-auto flex h-4 w-4 items-center justify-center rounded-full bg-emerald-100 text-[9px] font-black text-emerald-700">✓</span>
-                            @elseif($myKycStatus === 'correction_requested')
+                            @if($myKycStatus === 'correction_requested')
                                 <span class="ml-auto pb-badge pb-badge-warning text-[10px] px-1.5 py-0">!</span>
                             @else
                                 <span class="ml-auto pb-badge pb-badge-danger text-[10px] px-1.5 py-0">KYC</span>

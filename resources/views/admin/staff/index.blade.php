@@ -263,6 +263,7 @@
                         <th>Department</th>
                         <th>Status</th>
                         <th>Employment</th>
+                        <th>KYC</th>
                         <th>Approved</th>
                         <th>Profile Photo</th>
                         <th>Actions</th>
@@ -306,6 +307,17 @@
                                 <span class="pb-badge {{ match($person->employment_status ?? 'active') { 'active'=>'pb-badge-success','suspended'=>'pb-badge-warning','terminated'=>'pb-badge-danger', default=>'pb-badge-secondary' } }} text-[10px]">{{ $person->employmentStatusLabel() }}</span>
                                 @if($person->employment_status_changed_at)
                                     <p class="text-[10px] text-slate-400 mt-1">{{ $person->employment_status_changed_at->format('M j, Y') }}</p>
+                                @endif
+                            </td>
+                            <td>
+                                @php($personKycStatus = $person->staffProfile?->kyc_status ?? 'pending')
+                                <span class="pb-badge text-[10px] {{ match($personKycStatus) { 'approved' => 'pb-badge-success', 'correction_requested' => 'pb-badge-warning', default => 'pb-badge-danger' } }}">
+                                    {{ $person->staffProfile?->kycStatusLabel() ?? 'Pending Review' }}
+                                </span>
+                                @if($canManageKyc)
+                                    <a href="{{ route('admin.staff.profile.show', $person) }}" class="block text-[10px] font-semibold text-violet-700 hover:text-violet-900 mt-1">
+                                        Review KYC →
+                                    </a>
                                 @endif
                             </td>
                             <td>
@@ -379,7 +391,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="py-12 text-center">
+                            <td colspan="9" class="py-12 text-center">
                                 <div class="pb-empty border-0 bg-transparent">
                                     <p class="pb-empty-title">No approved staff yet</p>
                                 </div>

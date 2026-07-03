@@ -37,6 +37,7 @@ class AdminStaffController extends Controller
             'staff' => User::query()
                 ->where('role', '!=', 'customer')
                 ->where('role', '!=', 'staff_pending')
+                ->with('staffProfile')
                 ->latest()
                 ->paginate(12, ['*'], 'staff_page'),
             'staffStats' => [
@@ -60,6 +61,7 @@ class AdminStaffController extends Controller
             'roles' => config('printbuka_admin.role_labels'),
             'canAssignRoles' => request()->user()?->role === 'super_admin',
             'canManageEmployment' => in_array(request()->user()?->role, ['super_admin', 'hr'], true),
+            'canManageKyc' => request()->user()?->canAdmin('staff.kyc') || request()->user()?->canAdmin('*'),
         ]);
     }
 
