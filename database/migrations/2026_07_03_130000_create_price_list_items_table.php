@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('price_list_items', function (Blueprint $table) {
             $table->id();
-            $table->string('category');
+            $table->string('category', 20);
             $table->foreignId('product_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->string('service_slug')->nullable();
-            $table->string('component_group')->nullable();
-            $table->string('component_key')->nullable();
+            $table->string('service_slug', 60)->nullable();
+            $table->string('component_group', 30)->nullable();
+            $table->string('component_key', 60)->nullable();
             $table->string('label');
             $table->decimal('price', 12, 2)->default(0);
             $table->integer('sort_order')->default(0);
