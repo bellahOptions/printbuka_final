@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Livewire\Services\DirectImageOrderForm;
-use App\Models\SiteSetting;
+use App\Models\PriceListItem;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -41,13 +41,13 @@ class DirectImageOrderFormTest extends TestCase
             ], 200),
         ]);
 
-        SiteSetting::query()->insert([
-            ['key' => 'service_price_direct_image_printing', 'value' => '2000', 'group' => 'service_pricing'],
-            ['key' => 'service_price_direct_image_printing_design', 'value' => '1500', 'group' => 'service_pricing'],
-            ['key' => 'service_price_direct_image_printing_delivery', 'value' => '1000', 'group' => 'service_pricing'],
-            ['key' => 'default_material_price_options', 'value' => "Matte|500\nGloss|700", 'group' => 'pricing'],
-            ['key' => 'default_size_price_options', 'value' => "A4|300\nA3|450", 'group' => 'pricing'],
-        ]);
+        PriceListItem::query()->create(['category' => 'service', 'service_slug' => 'direct-image-printing', 'label' => 'Direct Image Printing', 'price' => 2000]);
+        PriceListItem::query()->create(['category' => 'service', 'service_slug' => 'direct-image-printing', 'component_group' => 'fee', 'component_key' => 'design_fee', 'label' => 'Design Fee', 'price' => 1500]);
+        PriceListItem::query()->create(['category' => 'service', 'service_slug' => 'direct-image-printing', 'component_group' => 'fee', 'component_key' => 'delivery_fee', 'label' => 'Delivery Fee', 'price' => 1000]);
+        PriceListItem::query()->create(['category' => 'product', 'component_group' => 'material', 'label' => 'Matte', 'price' => 500]);
+        PriceListItem::query()->create(['category' => 'product', 'component_group' => 'material', 'label' => 'Gloss', 'price' => 700]);
+        PriceListItem::query()->create(['category' => 'product', 'component_group' => 'size', 'label' => 'A4', 'price' => 300]);
+        PriceListItem::query()->create(['category' => 'product', 'component_group' => 'size', 'label' => 'A3', 'price' => 450]);
 
         $user = User::factory()->create([
             'role' => 'customer',
@@ -85,12 +85,12 @@ class DirectImageOrderFormTest extends TestCase
             'size_format' => 'A4',
             'delivery_method' => 'Delivery Address',
             'delivery_city' => 'Lagos',
-            'total_price' => 4100,
+            'total_price' => 8100,
         ]);
 
         $this->assertDatabaseHas('invoices', [
             'payment_gateway' => 'paystack',
-            'total_amount' => 4100,
+            'total_amount' => 8100,
         ]);
     }
 

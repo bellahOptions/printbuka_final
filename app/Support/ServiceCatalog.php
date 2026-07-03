@@ -33,20 +33,22 @@ class ServiceCatalog
     public static function priceForSlug(string $slug): float
     {
         $service = (array) (self::all()[$slug] ?? []);
-        $key = (string) ($service['setting_key'] ?? '');
         $fallback = (float) ($service['default_price'] ?? 0);
 
-        if ($key === '') {
-            return $fallback;
-        }
+        return PriceList::serviceBase($slug) ?? $fallback;
+    }
 
-        $raw = SiteSettings::get($key, (string) $fallback);
+    public static function feeForSlug(string $slug, string $feeKey): float
+    {
+        return PriceList::serviceFee($slug, $feeKey);
+    }
 
-        if (! is_numeric($raw)) {
-            return $fallback;
-        }
-
-        return max(0, (float) $raw);
+    /**
+     * @return array<int, array{label: string, price: float}>
+     */
+    public static function optionsForSlug(string $slug, string $componentGroup): array
+    {
+        return PriceList::serviceOptions($slug, $componentGroup);
     }
 
     public static function serviceTypeForSlug(string $slug): string

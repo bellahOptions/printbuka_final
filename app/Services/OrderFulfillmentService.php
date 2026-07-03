@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\Support\PriceList;
 use App\Support\SiteSettings;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
@@ -42,12 +43,12 @@ class OrderFulfillmentService
 
     public function expressSurcharge(): float
     {
-        return max(0, (float) SiteSettings::get('express_order_surcharge', self::DEFAULT_EXPRESS_SURCHARGE));
+        return max(0, PriceList::surcharge('express_order_surcharge') ?? self::DEFAULT_EXPRESS_SURCHARGE);
     }
 
     public function sampleSurcharge(): float
     {
-        return max(0, (float) SiteSettings::get('sample_order_surcharge', self::DEFAULT_SAMPLE_SURCHARGE));
+        return max(0, PriceList::surcharge('sample_order_surcharge') ?? self::DEFAULT_SAMPLE_SURCHARGE);
     }
 
     public function estimateForNewOrder(

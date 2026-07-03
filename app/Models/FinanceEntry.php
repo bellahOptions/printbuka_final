@@ -10,6 +10,8 @@ class FinanceEntry extends Model
     protected $fillable = [
         'order_id',
         'user_id',
+        'last_edited_by',
+        'last_edited_at',
         'entry_date',
         'type',
         'entry_type',
@@ -26,6 +28,7 @@ class FinanceEntry extends Model
         return [
             'entry_date' => 'date',
             'amount' => 'decimal:2',
+            'last_edited_at' => 'datetime',
         ];
     }
 
@@ -49,5 +52,10 @@ class FinanceEntry extends Model
     public function recorder(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function lastEditor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'last_edited_by');
     }
 }

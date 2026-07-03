@@ -49,7 +49,7 @@ class AdminFinanceController extends Controller
     public function show(FinanceEntry $finance): View
     {
         return view('admin.finance.show', [
-            'entry' => $finance->load('order', 'recorder'),
+            'entry' => $finance->load('order', 'recorder', 'lastEditor'),
         ]);
     }
 
@@ -224,8 +224,10 @@ class AdminFinanceController extends Controller
         return $pdf->download('finance-entry-'.$entry->id.'.pdf');
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
+        abort_unless(($request->user()?->role ?? null) === 'super_admin', 403);
+
         return view('admin.finance.form', [
             'entry' => new FinanceEntry(['entry_date' => now(), 'type' => 'expense']),
             'orders' => Order::query()->latest()->get(),
@@ -235,6 +237,8 @@ class AdminFinanceController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        abort_unless(($request->user()?->role ?? null) === 'super_admin', 403);
+
         FinanceEntry::query()->create([
             ...$this->validatedManualExpense($request),
             'user_id' => $request->user()->id,
@@ -246,8 +250,10 @@ class AdminFinanceController extends Controller
         return redirect()->route('admin.finance.index')->with('status', 'Expense entry created.');
     }
 
-    public function edit(FinanceEntry $finance): View
+    public function edit(Request $request, FinanceEntry $finance): View
     {
+        abort_unless(($request->user()?->role ?? null) === 'super_admin', 403);
+
         return view('admin.finance.form', [
             'entry' => $finance,
             'orders' => Order::query()->latest()->get(),
@@ -257,6 +263,8 @@ class AdminFinanceController extends Controller
 
     public function update(Request $request, FinanceEntry $finance): RedirectResponse
     {
+        abort_unless(($request->user()?->role ?? null) === 'super_admin', 403);
+
         if ($finance->type === 'income') {
             return redirect()->route('admin.finance.index')
                 ->with('warning', 'Income entries are generated automatically from paid invoices and cannot be edited manually.');
@@ -265,13 +273,17 @@ class AdminFinanceController extends Controller
         $finance->update([
             ...$this->validatedManualExpense($request),
             'type' => 'expense',
+            'last_edited_by' => $request->user()->id,
+            'last_edited_at' => now(),
         ]);
 
         return redirect()->route('admin.finance.index')->with('status', 'Expense entry updated.');
     }
 
-    public function destroy(FinanceEntry $finance): RedirectResponse
+    public function destroy(Request $request, FinanceEntry $finance): RedirectResponse
     {
+        abort_unless(($request->user()?->role ?? null) === 'super_admin', 403);
+
         if ($finance->type === 'income') {
             return back()->with('warning', 'Income entries are generated automatically from paid invoices and cannot be deleted manually.');
         }

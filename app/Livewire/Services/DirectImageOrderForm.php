@@ -7,6 +7,7 @@ use App\Services\InvoiceService;
 use App\Services\OrderFulfillmentService;
 use App\Services\PaystackService;
 use App\Support\ExternalAssetLinks;
+use App\Support\PriceList;
 use App\Support\ProductOptionPricing;
 use App\Support\ReferenceCode;
 use App\Support\ServiceCatalog;
@@ -62,8 +63,8 @@ class DirectImageOrderForm extends Component
 
         $this->service = $service;
 
-        $paperTypeOptions = ProductOptionPricing::parseLines((string) SiteSettings::get('default_material_price_options', ''));
-        $paperSizeOptions = ProductOptionPricing::parseLines((string) SiteSettings::get('default_size_price_options', ''));
+        $paperTypeOptions = PriceList::productDefaultOptions('material');
+        $paperSizeOptions = PriceList::productDefaultOptions('size');
 
         $this->paperTypeOptions = $paperTypeOptions !== []
             ? $paperTypeOptions
@@ -171,7 +172,7 @@ class DirectImageOrderForm extends Component
             return 0;
         }
 
-        return max(0, (float) SiteSettings::get('service_price_direct_image_printing_design', 0));
+        return max(0, ServiceCatalog::feeForSlug('direct-image-printing', 'design_fee'));
     }
 
     public function getDeliveryPriceProperty(): float
@@ -180,7 +181,7 @@ class DirectImageOrderForm extends Component
             return 0;
         }
 
-        return max(0, (float) SiteSettings::get('service_price_direct_image_printing_delivery', 0));
+        return max(0, ServiceCatalog::feeForSlug('direct-image-printing', 'delivery_fee'));
     }
 
     public function getUnitPriceProperty(): float

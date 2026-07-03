@@ -119,17 +119,16 @@
                         {{-- Price --}}
                         <div class="form-control w-full">
                             <label class="label">
-                                <span class="label-text font-semibold text-slate-700">Base Price (₦) *</span>
+                                <span class="label-text font-semibold text-slate-700">Base Price (₦)</span>
                             </label>
-                            <div class="relative">
-                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold">₦</span>
-                                <input type="number" min="0" step="0.01" name="price" value="{{ old('price', $product->price) }}" 
-                                    id="product-price-input"
-                                    data-naira-input data-naira-preview-id="product-price-preview"
-                                    class="input input-bordered w-full pl-10 focus:input-primary @error('price') input-error @enderror"
-                                    placeholder="0.00" required />
-                            </div>
-                            <span id="product-price-preview" class="mt-2 text-xs font-semibold text-slate-500">₦0.00</span>
+                            @if ($product->exists)
+                                <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                                    <p class="text-lg font-black text-slate-900">₦{{ number_format((float) $product->price, 2) }}</p>
+                                    <a href="{{ route('admin.pricelist.products.edit', $product) }}" class="mt-1 inline-block text-xs font-black text-pink-600 hover:text-pink-700">Manage pricing in the Pricelist →</a>
+                                </div>
+                            @else
+                                <p class="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-semibold text-slate-500">Pricing can be set from the Pricelist once this product is created.</p>
+                            @endif
                             <label class="mt-3 flex cursor-pointer items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3">
                                 <input type="checkbox" name="price_unavailable" value="1" @checked(old('price_unavailable', $product->price_unavailable)) class="mt-0.5 h-5 w-5 rounded border-amber-300 text-pink-600 focus:ring-pink-500">
                                 <span>
@@ -137,7 +136,6 @@
                                     <span class="mt-0.5 block text-xs font-semibold text-amber-800">Customers will be sent to the quotation form instead of direct ordering.</span>
                                 </span>
                             </label>
-                            @error('price') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
                         </div>
 
                         {{-- Short Description --}}
@@ -325,77 +323,6 @@
                                 @endforeach
                             </select>
                             @error('paper_density') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Option Pricing Section --}}
-                <div class="mb-8 pb-6 border-b border-slate-100">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center">
-                            <svg class="h-4 w-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                        <h2 class="text-lg font-bold text-slate-900">Option Pricing</h2>
-                    </div>
-                    
-                    <div class="alert bg-blue-50 border-blue-200 mb-5">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <span class="text-blue-800 text-sm">Use one option per line: <strong>Label|Extra price</strong>. Example: A3|5000</span>
-                    </div>
-
-                    <div class="grid gap-5 sm:grid-cols-2">
-                        {{-- Size Options --}}
-                        <div class="form-control">
-                            <label class="label">
-                                <span class="label-text font-semibold text-slate-700">Size / Format Options</span>
-                            </label>
-                            <textarea name="size_price_options" rows="6" 
-                                class="textarea textarea-bordered w-full font-mono text-sm"
-                                placeholder="A4|0&#10;A3|5000&#10;A2|10000">{{ old('size_price_options', $optionLines['size_price_options'] ?? '') }}</textarea>
-                        </div>
-
-                        {{-- Material Options --}}
-                        <div class="form-control">
-                            <label class="label">
-                                <span class="label-text font-semibold text-slate-700">Material Type Options</span>
-                            </label>
-                            <textarea name="material_price_options" rows="6" 
-                                class="textarea textarea-bordered w-full font-mono text-sm"
-                                placeholder="Art Card 300gsm|0&#10;PVC|2500&#10;Foil Paper|5000">{{ old('material_price_options', $optionLines['material_price_options'] ?? '') }}</textarea>
-                        </div>
-
-                        {{-- Finish Options --}}
-                        <div class="form-control">
-                            <label class="label">
-                                <span class="label-text font-semibold text-slate-700">Finish / Lamination Options</span>
-                            </label>
-                            <textarea name="finish_price_options" rows="6" 
-                                class="textarea textarea-bordered w-full font-mono text-sm"
-                                placeholder="No Finish|0&#10;Gloss Lamination|1500&#10;Matte Lamination|1500">{{ old('finish_price_options', $optionLines['finish_price_options'] ?? '') }}</textarea>
-                        </div>
-
-                        {{-- Density Options --}}
-                        <div class="form-control">
-                            <label class="label">
-                                <span class="label-text font-semibold text-slate-700">Paper Density Options</span>
-                            </label>
-                            <textarea name="density_price_options" rows="6" 
-                                class="textarea textarea-bordered w-full font-mono text-sm"
-                                placeholder="300gsm|0&#10;350gsm|1200&#10;400gsm|2500">{{ old('density_price_options', $optionLines['density_price_options'] ?? '') }}</textarea>
-                        </div>
-
-                        {{-- Delivery Options (Full width on mobile, half on desktop) --}}
-                        <div class="form-control sm:col-span-2">
-                            <label class="label">
-                                <span class="label-text font-semibold text-slate-700">Delivery Options</span>
-                            </label>
-                            <textarea name="delivery_price_options" rows="4" 
-                                class="textarea textarea-bordered w-full font-mono text-sm"
-                                placeholder="Pickup|0&#10;Deliver to address|3000&#10;Express Delivery|5000">{{ old('delivery_price_options', $optionLines['delivery_price_options'] ?? '') }}</textarea>
                         </div>
                     </div>
                 </div>

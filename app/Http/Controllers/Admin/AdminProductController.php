@@ -8,7 +8,6 @@ use App\Models\ProductCategory;
 use App\Services\CloudinaryUploadService;
 use App\Support\CloudinaryUrl;
 use App\Support\LivewireSecureUploads;
-use App\Support\ProductOptionPricing;
 use App\Support\ServiceCatalog;
 use App\Support\SiteSettings;
 use Illuminate\Http\RedirectResponse;
@@ -34,7 +33,6 @@ class AdminProductController extends Controller
             'product' => new Product(['is_active' => true, 'moq' => 1, 'price' => 0, 'price_unavailable' => false, 'service_type' => 'print']),
             'categories' => ProductCategory::query()->with('parent')->orderBy('name')->get(),
             'serviceOptions' => $this->serviceOptions(),
-            'optionLines' => $this->optionLines(new Product),
             ...$this->paperAttributeOptions(),
         ]);
     }
@@ -52,7 +50,6 @@ class AdminProductController extends Controller
             'product' => $product,
             'categories' => ProductCategory::query()->with('parent')->orderBy('name')->get(),
             'serviceOptions' => $this->serviceOptions(),
-            'optionLines' => $this->optionLines($product),
             ...$this->paperAttributeOptions($product),
         ]);
     }
@@ -107,7 +104,6 @@ class AdminProductController extends Controller
             'service_type' => ['required', 'string', Rule::in(array_keys($this->serviceOptions()))],
             'name' => ['required', 'string', 'max:255'],
             'moq' => ['required', 'integer', 'min:1'],
-            'price' => ['required', 'numeric', 'min:0'],
             'price_unavailable' => ['nullable', 'boolean'],
             'short_description' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
@@ -115,11 +111,6 @@ class AdminProductController extends Controller
             'paper_size' => ['required', 'string', 'max:255'],
             'finishing' => ['required', 'string', 'max:255'],
             'paper_density' => ['required', 'string', 'max:255'],
-            'size_price_options' => ['nullable', 'string'],
-            'material_price_options' => ['nullable', 'string'],
-            'finish_price_options' => ['nullable', 'string'],
-            'density_price_options' => ['nullable', 'string'],
-            'delivery_price_options' => ['nullable', 'string'],
             'featured_image' => [
                 'nullable',
                 'file',
@@ -143,11 +134,7 @@ class AdminProductController extends Controller
         ]);
         $validated['is_active'] = $request->boolean('is_active');
         $validated['price_unavailable'] = $request->boolean('price_unavailable');
-        $validated['size_price_options'] = ProductOptionPricing::parseLines($request->input('size_price_options'));
-        $validated['material_price_options'] = ProductOptionPricing::parseLines($request->input('material_price_options'));
-        $validated['finish_price_options'] = ProductOptionPricing::parseLines($request->input('finish_price_options'));
-        $validated['density_price_options'] = ProductOptionPricing::parseLines($request->input('density_price_options'));
-        $validated['delivery_price_options'] = ProductOptionPricing::parseLines($request->input('delivery_price_options'));
+        $validated['price'] = $product?->price ?? 0;
         $imageUpdates = $this->syncProductImages($request, $product);
         unset(
             $validated['featured_image'],
@@ -314,23 +301,6 @@ class AdminProductController extends Controller
         foreach ((array) $product->additional_images as $imagePath) {
             $this->deleteStoredImage((string) $imagePath);
         }
-    }
-
-    private function optionLines(Product $product): array
-    {
-        $sizeDefault = ProductOptionPricing::parseLines((string) SiteSettings::get('default_size_price_options', ''));
-        $materialDefault = ProductOptionPricing::parseLines((string) SiteSettings::get('default_material_price_options', ''));
-        $finishDefault = ProductOptionPricing::parseLines((string) SiteSettings::get('default_finish_price_options', ''));
-        $densityDefault = ProductOptionPricing::parseLines((string) SiteSettings::get('default_density_price_options', ''));
-        $deliveryDefault = ProductOptionPricing::parseLines((string) SiteSettings::get('default_delivery_price_options', ''));
-
-        return [
-            'size_price_options' => ProductOptionPricing::toLines($product->size_price_options ?: $sizeDefault),
-            'material_price_options' => ProductOptionPricing::toLines($product->material_price_options ?: $materialDefault),
-            'finish_price_options' => ProductOptionPricing::toLines($product->finish_price_options ?: $finishDefault),
-            'density_price_options' => ProductOptionPricing::toLines($product->density_price_options ?: $densityDefault),
-            'delivery_price_options' => ProductOptionPricing::toLines($product->delivery_price_options ?: $deliveryDefault),
-        ];
     }
 
     private function paperAttributeOptions(?Product $product = null): array

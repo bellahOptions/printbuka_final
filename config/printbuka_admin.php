@@ -6,7 +6,7 @@ return [
         'managing_director'  => ['*'],
         'hr'                 => ['admin.view', 'orders.view', 'staff.view', 'staff.kyc', 'staff.queries', 'staff.evaluations', 'training.manage', 'announcements.view', 'blog.view', 'evaluations.view', 'customers.manage', 'payroll.manage', 'payroll.view'],
         'operations_manager' => ['admin.view', 'orders.view', 'orders.verify', 'orders.phase_comment', 'workflow.approve', 'sop.verify', 'invoices.manage', 'production.update', 'qc.update', 'delivery.update', 'payroll.view', 'shop-products.manage', 'shop-orders.view'],
-        'customer_service'   => ['admin.view', 'orders.view', 'orders.create', 'orders.intake', 'invoices.manage', 'delivery.update', 'client_review.update', 'sop.update', 'newsletters.manage', 'customers.manage', 'finance.view', 'finance.create', 'finance.update', 'finance.delete', 'finance.view_amounts', 'shop-orders.view'],
+        'customer_service'   => ['admin.view', 'orders.view', 'orders.create', 'orders.intake', 'invoices.manage', 'delivery.update', 'client_review.update', 'sop.update', 'newsletters.manage', 'customers.manage', 'finance.view', 'finance.view_amounts', 'shop-orders.view', 'pricelist.manage'],
         'personal_assistant' => ['admin.view', 'orders.view', 'orders.intake', 'design.update', 'design.upload', 'production.update', 'packaging.update', 'qc.update', 'delivery.update'],
         'office_assistant'   => ['admin.view', 'orders.view'],
         'machine_operator'   => ['admin.view', 'orders.view', 'production.update', 'packaging.update'],
@@ -78,6 +78,7 @@ return [
     'module_permissions' => [
         'products.manage' => 'Product Management',
         'product_categories.manage' => 'Product Category Management',
+        'pricelist.manage' => 'Pricelist Management',
         'blog.manage' => 'Blog Management',
         'invoices.manage' => 'Invoice Management',
         'newsletters.manage' => 'Newsletter Campaigns',

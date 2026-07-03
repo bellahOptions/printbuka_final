@@ -45,9 +45,23 @@
                 <p><span class="font-black">Payee:</span> {{ $entry->payee ?: 'N/A' }}</p>
                 <p><span class="font-black">Payment Method:</span> {{ $entry->payment_method ?: 'N/A' }}</p>
                 <p><span class="font-black">Order:</span> {{ $entry->order?->job_order_number ?? 'N/A' }}</p>
-                <p><span class="font-black">Recorded by:</span> {{ $entry->recorder?->displayName() ?? 'N/A' }}</p>
+                <p><span class="font-black">Recorded by:</span> {{ $entry->recorder?->displayName() ?? 'N/A' }} on {{ $entry->created_at->format('M j, Y \a\t h:i A') }}</p>
+                @if ($entry->last_edited_by)
+                    <p><span class="font-black">Last edited by:</span> {{ $entry->lastEditor?->displayName() ?? 'N/A' }} on {{ $entry->last_edited_at?->format('M j, Y \a\t h:i A') }}</p>
+                @endif
             </div>
         </div>
+
+        @if (auth()->user()?->role === 'super_admin' && $entry->type !== 'income')
+            <div class="flex flex-wrap gap-3">
+                <a href="{{ route('admin.finance.edit', $entry) }}" class="rounded-xl bg-pink-700 px-5 py-3 text-sm font-black text-white hover:bg-pink-800">Edit Entry</a>
+                <form action="{{ route('admin.finance.destroy', $entry) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this entry?')">
+                    @csrf
+                    @method('DELETE')
+                    <button class="rounded-xl border border-red-200 bg-white px-5 py-3 text-sm font-black text-red-700 hover:bg-red-50">Delete Entry</button>
+                </form>
+            </div>
+        @endif
 
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 class="text-lg font-black text-slate-950">Notes</h2>

@@ -82,10 +82,11 @@ class ProductOptionPricing
             return $productOptions;
         }
 
-        $settingOptions = self::parseLines((string) SiteSettings::get($settingKey, ''));
+        $componentGroup = str($productOptionSet)->before('_price_options')->toString();
+        $defaultOptions = PriceList::productDefaultOptions($componentGroup);
 
-        if ($settingOptions !== []) {
-            return $settingOptions;
+        if ($defaultOptions !== []) {
+            return $defaultOptions;
         }
 
         if (filled($fallbackLabel)) {

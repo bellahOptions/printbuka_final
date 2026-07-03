@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\PriceListItem;
 use App\Models\Product;
-use App\Models\SiteSetting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -11,12 +11,19 @@ class OrderRealtimePricingFromSettingsTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_order_page_uses_settings_default_option_prices_when_product_options_are_empty(): void
+    public function test_order_page_uses_pricelist_default_option_prices_when_product_options_are_empty(): void
     {
-        SiteSetting::query()->create([
-            'key' => 'default_size_price_options',
-            'value' => "A4|1200\nA3|2500",
-            'group' => 'pricing',
+        PriceListItem::query()->create([
+            'category' => 'product',
+            'component_group' => 'size',
+            'label' => 'A4',
+            'price' => 1200,
+        ]);
+        PriceListItem::query()->create([
+            'category' => 'product',
+            'component_group' => 'size',
+            'label' => 'A3',
+            'price' => 2500,
         ]);
 
         $product = Product::query()->create([

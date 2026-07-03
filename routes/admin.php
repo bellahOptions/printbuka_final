@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\AdminInvoiceController;
 use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminPolicyController;
+use App\Http\Controllers\Admin\AdminPriceListController;
 use App\Http\Controllers\Admin\AdminProductCategoryController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\AdminShopOrderController;
@@ -41,6 +42,17 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::resource('product-categories', AdminProductCategoryController::class)
             ->except('show')
             ->middleware('admin.permission:product_categories.manage');
+
+        Route::middleware('admin.permission:pricelist.manage')->prefix('pricelist')->name('pricelist.')->group(function (): void {
+            Route::get('/', [AdminPriceListController::class, 'index'])->name('index');
+            Route::get('/defaults', [AdminPriceListController::class, 'editDefaults'])->name('defaults.edit');
+            Route::put('/defaults', [AdminPriceListController::class, 'updateDefaults'])->name('defaults.update');
+            Route::put('/surcharges', [AdminPriceListController::class, 'updateSurcharges'])->name('surcharges.update');
+            Route::get('/products/{product}', [AdminPriceListController::class, 'editProduct'])->name('products.edit');
+            Route::put('/products/{product}', [AdminPriceListController::class, 'updateProduct'])->name('products.update');
+            Route::get('/services/{slug}', [AdminPriceListController::class, 'editService'])->name('services.edit');
+            Route::put('/services/{slug}', [AdminPriceListController::class, 'updateService'])->name('services.update');
+        });
         Route::resource('blog', AdminBlogPostController::class)
             ->except('show')
             ->middleware('admin.permission:blog.manage');

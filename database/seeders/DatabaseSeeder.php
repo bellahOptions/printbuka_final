@@ -21,6 +21,8 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             DefaultProductCategorySeeder::class,
             ProductSeeder::class,
+            GiftAndServiceProductSeeder::class,
+            PriceListSeeder::class,
         ]);
     }
 }

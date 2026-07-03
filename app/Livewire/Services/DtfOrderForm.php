@@ -10,7 +10,6 @@ use App\Support\ExternalAssetLinks;
 use App\Support\ProductOptionPricing;
 use App\Support\ReferenceCode;
 use App\Support\ServiceCatalog;
-use App\Support\SiteSettings;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
@@ -62,7 +61,7 @@ class DtfOrderForm extends Component
 
         $this->service = $service;
 
-        $configuredSizeOptions = ProductOptionPricing::parseLines((string) SiteSettings::get('service_dtf_size_price_options', ''));
+        $configuredSizeOptions = ServiceCatalog::optionsForSlug('dtf', 'size');
 
         $this->filmSizeOptions = collect($configuredSizeOptions)
             ->map(fn (array $option): array => [
@@ -161,7 +160,7 @@ class DtfOrderForm extends Component
             return 0;
         }
 
-        return max(0, (float) SiteSettings::get('service_price_dtf_design', 0));
+        return max(0, ServiceCatalog::feeForSlug('dtf', 'design_fee'));
     }
 
     public function getDeliveryPriceProperty(): float
@@ -170,7 +169,7 @@ class DtfOrderForm extends Component
             return 0;
         }
 
-        return max(0, (float) SiteSettings::get('service_price_dtf_delivery', 0));
+        return max(0, ServiceCatalog::feeForSlug('dtf', 'delivery_fee'));
     }
 
     public function getUnitPriceProperty(): float

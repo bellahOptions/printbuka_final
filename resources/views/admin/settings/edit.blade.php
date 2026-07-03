@@ -177,31 +177,11 @@
                             </svg>
                         </div>
                         <div>
-                            <h2 class="text-lg font-black text-slate-950">Default Print Option Prices</h2>
-                            <p class="text-sm text-slate-500">Used for real-time product estimate when product-level pricing is not set</p>
+                            <h2 class="text-lg font-black text-slate-950">Reminders</h2>
+                            <p class="text-sm text-slate-500">Pricing is now managed from the <a href="{{ route('admin.pricelist.index') }}" class="text-pink-600 underline">Pricelist</a> page.</p>
                         </div>
                     </div>
                     <div class="grid gap-5 sm:grid-cols-2">
-                        <div class="space-y-1">
-                            <label class="text-sm font-black text-slate-700">Paper Type Price List</label>
-                            <textarea name="default_material_price_options" rows="6" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="One per line: Label|Price">{{ old('default_material_price_options', $settings['default_material_price_options'] ?? '') }}</textarea>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-sm font-black text-slate-700">Paper Size Price List</label>
-                            <textarea name="default_size_price_options" rows="6" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="One per line: Label|Price">{{ old('default_size_price_options', $settings['default_size_price_options'] ?? '') }}</textarea>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-sm font-black text-slate-700">Finishing Price List</label>
-                            <textarea name="default_finish_price_options" rows="6" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="One per line: Label|Price">{{ old('default_finish_price_options', $settings['default_finish_price_options'] ?? '') }}</textarea>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-sm font-black text-slate-700">Paper Density Price List</label>
-                            <textarea name="default_density_price_options" rows="6" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="One per line: Label|Price">{{ old('default_density_price_options', $settings['default_density_price_options'] ?? '') }}</textarea>
-                        </div>
-                        <div class="space-y-1 sm:col-span-2">
-                            <label class="text-sm font-black text-slate-700">Delivery Method Price List</label>
-                            <textarea name="default_delivery_price_options" rows="6" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="One per line: Label|Price">{{ old('default_delivery_price_options', $settings['default_delivery_price_options'] ?? '') }}</textarea>
-                        </div>
                         <div class="space-y-1 sm:col-span-2">
                             <label class="text-sm font-black text-slate-700">Pending Job Reminder Hours</label>
                             <input type="number" min="1" max="240" name="pending_job_reminder_hours" value="{{ old('pending_job_reminder_hours', $settings['pending_job_reminder_hours'] ?? 24) }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" />
@@ -243,58 +223,6 @@
                         </div>
                     </div>
 
-                    <div>
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="p-2 rounded-xl bg-gradient-to-br from-cyan-100 to-cyan-50 border border-cyan-200">
-                                <svg class="w-5 h-5 text-cyan-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V7m0 1v8m0 0v1m0-1a4 4 0 01-3.464-2M12 8a4 4 0 013.464 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <h2 class="text-lg font-black text-slate-950">Service Pricing (Super Admin)</h2>
-                                <p class="text-sm text-slate-500">Set service pricing logic used on Direct Image and DTF forms, plus catalog-routed UV DTF and Laser pages.</p>
-                            </div>
-                        </div>
-                        <div class="grid gap-5 sm:grid-cols-2">
-                            <div class="space-y-1">
-                                <label class="text-sm font-black text-slate-700">Direct Image Printing Price (NGN)</label>
-                                <input type="number" step="0.01" min="0" name="service_price_direct_image_printing" value="{{ old('service_price_direct_image_printing', $settings['service_price_direct_image_printing'] ?? '2500') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" />
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-sm font-black text-slate-700">Direct Image Design Fee (NGN)</label>
-                                <input type="number" step="0.01" min="0" name="service_price_direct_image_printing_design" value="{{ old('service_price_direct_image_printing_design', $settings['service_price_direct_image_printing_design'] ?? '0') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" />
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-sm font-black text-slate-700">Direct Image Delivery Fee (NGN)</label>
-                                <input type="number" step="0.01" min="0" name="service_price_direct_image_printing_delivery" value="{{ old('service_price_direct_image_printing_delivery', $settings['service_price_direct_image_printing_delivery'] ?? '0') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" />
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-sm font-black text-slate-700">UV DTF Price (NGN)</label>
-                                <input type="number" step="0.01" min="0" name="service_price_uv_dtf" value="{{ old('service_price_uv_dtf', $settings['service_price_uv_dtf'] ?? '3500') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" />
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-sm font-black text-slate-700">DTF Price (NGN)</label>
-                                <input type="number" step="0.01" min="0" name="service_price_dtf" value="{{ old('service_price_dtf', $settings['service_price_dtf'] ?? '3000') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" />
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-sm font-black text-slate-700">DTF Design Fee (NGN)</label>
-                                <input type="number" step="0.01" min="0" name="service_price_dtf_design" value="{{ old('service_price_dtf_design', $settings['service_price_dtf_design'] ?? '0') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" />
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-sm font-black text-slate-700">DTF Delivery Fee (NGN)</label>
-                                <input type="number" step="0.01" min="0" name="service_price_dtf_delivery" value="{{ old('service_price_dtf_delivery', $settings['service_price_dtf_delivery'] ?? '0') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" />
-                            </div>
-                            <div class="space-y-1 sm:col-span-2">
-                                <label class="text-sm font-black text-slate-700">DTF Film Size Prices</label>
-                                <textarea name="service_dtf_size_price_options" rows="6" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="One per line: A2|Price">{{ old('service_dtf_size_price_options', $settings['service_dtf_size_price_options'] ?? "A2|0\nA3|0\nA4|0\nA5|0\nA6|0") }}</textarea>
-                                <p class="text-xs font-bold text-slate-500">Allowed labels: A2, A3, A4, A5, A6. DTF material is fixed to Film.</p>
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-sm font-black text-slate-700">Laser Engraving Price (NGN)</label>
-                                <input type="number" step="0.01" min="0" name="service_price_laser_engraving" value="{{ old('service_price_laser_engraving', $settings['service_price_laser_engraving'] ?? '5000') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" />
-                            </div>
-                        </div>
-                    </div>
                 @endif
 
                 <!-- Form Actions -->

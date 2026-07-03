@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Livewire\Services\DtfOrderForm;
-use App\Models\SiteSetting;
+use App\Models\PriceListItem;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -38,12 +38,12 @@ class DtfOrderFormTest extends TestCase
             ], 200),
         ]);
 
-        SiteSetting::query()->insert([
-            ['key' => 'service_price_dtf', 'value' => '3000', 'group' => 'service_pricing'],
-            ['key' => 'service_price_dtf_design', 'value' => '2000', 'group' => 'service_pricing'],
-            ['key' => 'service_price_dtf_delivery', 'value' => '800', 'group' => 'service_pricing'],
-            ['key' => 'service_dtf_size_price_options', 'value' => "A2|1600\nA3|900\nA4|500\nA5|250\nA6|100", 'group' => 'service_pricing'],
-        ]);
+        PriceListItem::query()->create(['category' => 'service', 'service_slug' => 'dtf', 'label' => 'DTF', 'price' => 3000]);
+        PriceListItem::query()->create(['category' => 'service', 'service_slug' => 'dtf', 'component_group' => 'fee', 'component_key' => 'design_fee', 'label' => 'Design Fee', 'price' => 2000]);
+        PriceListItem::query()->create(['category' => 'service', 'service_slug' => 'dtf', 'component_group' => 'fee', 'component_key' => 'delivery_fee', 'label' => 'Delivery Fee', 'price' => 800]);
+        foreach (['A2' => 1600, 'A3' => 900, 'A4' => 500, 'A5' => 250, 'A6' => 100] as $label => $price) {
+            PriceListItem::query()->create(['category' => 'service', 'service_slug' => 'dtf', 'component_group' => 'size', 'label' => $label, 'price' => $price]);
+        }
 
         $user = User::factory()->create([
             'role' => 'customer',
@@ -80,12 +80,12 @@ class DtfOrderFormTest extends TestCase
             'size_format' => 'A3',
             'delivery_method' => 'Delivery Address',
             'delivery_city' => 'Lagos',
-            'total_price' => 5500,
+            'total_price' => 14500,
         ]);
 
         $this->assertDatabaseHas('invoices', [
             'payment_gateway' => 'paystack',
-            'total_amount' => 5500,
+            'total_amount' => 14500,
         ]);
     }
 
