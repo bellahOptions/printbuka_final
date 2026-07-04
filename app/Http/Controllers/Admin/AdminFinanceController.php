@@ -226,7 +226,7 @@ class AdminFinanceController extends Controller
 
     public function create(Request $request): View
     {
-        abort_unless(($request->user()?->role ?? null) === 'super_admin', 403);
+        abort_unless($request->user()?->canAdmin('finance.view') ?? false, 403);
 
         return view('admin.finance.form', [
             'entry' => new FinanceEntry(['entry_date' => now(), 'type' => 'expense']),
@@ -237,7 +237,7 @@ class AdminFinanceController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        abort_unless(($request->user()?->role ?? null) === 'super_admin', 403);
+        abort_unless($request->user()?->canAdmin('finance.view') ?? false, 403);
 
         FinanceEntry::query()->create([
             ...$this->validatedManualExpense($request),
@@ -252,7 +252,7 @@ class AdminFinanceController extends Controller
 
     public function edit(Request $request, FinanceEntry $finance): View
     {
-        abort_unless(($request->user()?->role ?? null) === 'super_admin', 403);
+        abort_unless($request->user()?->canAdmin('finance.view') ?? false, 403);
 
         return view('admin.finance.form', [
             'entry' => $finance,
@@ -263,7 +263,7 @@ class AdminFinanceController extends Controller
 
     public function update(Request $request, FinanceEntry $finance): RedirectResponse
     {
-        abort_unless(($request->user()?->role ?? null) === 'super_admin', 403);
+        abort_unless($request->user()?->canAdmin('finance.view') ?? false, 403);
 
         if ($finance->type === 'income') {
             return redirect()->route('admin.finance.index')
@@ -282,7 +282,7 @@ class AdminFinanceController extends Controller
 
     public function destroy(Request $request, FinanceEntry $finance): RedirectResponse
     {
-        abort_unless(($request->user()?->role ?? null) === 'super_admin', 403);
+        abort_unless($request->user()?->canAdmin('finance.view') ?? false, 403);
 
         if ($finance->type === 'income') {
             return back()->with('warning', 'Income entries are generated automatically from paid invoices and cannot be deleted manually.');
