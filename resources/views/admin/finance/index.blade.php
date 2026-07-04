@@ -41,7 +41,7 @@
                     <h1 class="text-4xl font-black tracking-tight lg:text-5xl">Cash Flow Dashboard</h1>
                     <p class="mt-3 max-w-3xl text-base leading-relaxed text-slate-300">Track income, expenses, and financial performance with real-time insights.</p>
                 </div>
-                @if (auth()->user()?->role === 'super_admin')
+                @if (auth()->user()?->canAdmin('finance.view'))
                     <a href="{{ route('admin.finance.create') }}" class="btn-primary group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-pink-600 to-pink-700 px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-pink-600/20 transition-all duration-300 hover:shadow-xl hover:shadow-pink-600/30 hover:scale-105">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -265,7 +265,7 @@
                                             </a>
                                         @if($entry->type === 'income')
                                             <span class="rounded-lg bg-emerald-50 px-3 py-2 text-xs font-black uppercase tracking-wider text-emerald-700">Auto</span>
-                                        @elseif(auth()->user()?->role === 'super_admin')
+                                        @elseif(auth()->user()?->canAdmin('finance.view'))
                                             <a href="{{ route('admin.finance.edit', $entry) }}" class="rounded-lg p-2 text-pink-700 transition-all duration-200 hover:bg-pink-50">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -294,7 +294,7 @@
                                             </svg>
                                         </div>
                                         <p class="text-sm font-semibold text-slate-500">No finance entries yet.</p>
-                                        @if (auth()->user()?->role === 'super_admin')
+                                        @if (auth()->user()?->canAdmin('finance.view'))
                                             <a href="{{ route('admin.finance.create') }}" class="text-sm font-bold text-pink-700 hover:text-pink-800">Add your first entry →</a>
                                         @endif
                                     </div>

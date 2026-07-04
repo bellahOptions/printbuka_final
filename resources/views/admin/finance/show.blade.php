@@ -52,7 +52,7 @@
             </div>
         </div>
 
-        @if (auth()->user()?->role === 'super_admin' && $entry->type !== 'income')
+        @if (auth()->user()?->canAdmin('finance.view') && $entry->type !== 'income')
             <div class="flex flex-wrap gap-3">
                 <a href="{{ route('admin.finance.edit', $entry) }}" class="rounded-xl bg-pink-700 px-5 py-3 text-sm font-black text-white hover:bg-pink-800">Edit Entry</a>
                 <form action="{{ route('admin.finance.destroy', $entry) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this entry?')">
