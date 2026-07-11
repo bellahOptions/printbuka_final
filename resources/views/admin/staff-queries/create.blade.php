@@ -25,7 +25,7 @@
                     <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1.5">Staff Member <span class="text-pink-600">*</span></label>
                     <select name="staff_id" required class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:ring-2 focus:ring-pink-100 focus:outline-none">
                         <option value="">Select staff member...</option>
-                        @foreach ($staffMembers as $s)
+                        @foreach ($staffList as $s) 
                             <option value="{{ $s->id }}" @selected(old('staff_id', request('staff_id')) == $s->id)>{{ $s->displayName() }} ({{ ucwords(str_replace('_', ' ', $s->role)) }})</option>
                         @endforeach
                     </select>

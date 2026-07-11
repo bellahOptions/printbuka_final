@@ -28,7 +28,7 @@
 
             {{-- Content — sits above slides --}}
             <div class="relative z-10 flex items-center justify-center" style="min-height: 640px;">
-                <div class="w-[70%] mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-center text-center">
+                <div class="md:w-[70%] w-[90%] mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-center text-center">
                     <h1 class="text-4xl sm:text-5xl xl:text-6xl font-black text-white leading-[1.1] mb-5">
                         The Leader in<br>Quality <span class="text-pink-200">Custom</span><br>Print Design
                     </h1>

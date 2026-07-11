@@ -112,6 +112,7 @@ return [
         'A5',
         'A6',
         'DL',
+        'LEGAL',
         '85x55mm (Business Card)',
         'Custom — see notes',
     ],
