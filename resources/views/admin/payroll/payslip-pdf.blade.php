@@ -113,18 +113,18 @@
             <div class="section-title">Deductions</div>
             <table class="earnings">
                 @if ($entry->pension_deduction > 0)
-                <tr><td class="td-label">Pension</td><td class="td-deduction">-&#8358;{{ number_format($entry->pension_deduction, 2) }}</td></tr>
+                <tr><td class="td-label">Pension</td><td class="td-deduction">-₦{{ number_format($entry->pension_deduction, 2) }}</td></tr>
                 @endif
                 @if ($entry->tax_deduction > 0)
-                <tr><td class="td-label">Tax (PAYE)</td><td class="td-deduction">-&#8358;{{ number_format($entry->tax_deduction, 2) }}</td></tr>
+                <tr><td class="td-label">Tax (PAYE)</td><td class="td-deduction">-₦{{ number_format($entry->tax_deduction, 2) }}</td></tr>
                 @endif
                 @if ($entry->other_deductions > 0)
-                <tr><td class="td-label">Other Deductions</td><td class="td-deduction">-&#8358;{{ number_format($entry->other_deductions, 2) }}</td></tr>
+                <tr><td class="td-label">Other Deductions</td><td class="td-deduction">-₦{{ number_format($entry->other_deductions, 2) }}</td></tr>
                 @endif
                 @if ($entry->total_deductions == 0)
                 <tr><td class="td-label" style="color:#94a3b8">No deductions</td><td></td></tr>
                 @endif
-                <tr class="totals-row"><td class="td-label" style="font-weight:700">Total Deductions</td><td class="td-deduction" style="font-weight:700">-&#8358;{{ number_format($entry->total_deductions, 2) }}</td></tr>
+                <tr class="totals-row"><td class="td-label" style="font-weight:700">Total Deductions</td><td class="td-deduction" style="font-weight:700">-₦{{ number_format($entry->total_deductions, 2) }}</td></tr>
             </table>
         </div>
     </div>
@@ -133,7 +133,7 @@
     <table class="earnings" style="margin-top:0; border-radius:0 0 6px 6px; overflow:hidden; border: 1px solid #0f172a; border-top: none;">
         <tr class="net-row">
             <td class="td-label" style="color:#fff; font-size:14px;">NET PAY</td>
-            <td class="net-value">&#8358;{{ number_format($entry->net_salary, 2) }}</td>
+            <td class="net-value">₦{{ number_format($entry->net_salary, 2) }}</td>
         </tr>
     </table>
 
