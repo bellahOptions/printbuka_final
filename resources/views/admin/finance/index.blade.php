@@ -13,7 +13,7 @@
         });
         
         $chartLabels = $monthlyData->keys()->toArray();
-        $incomeData = $monthlyData->map(function($month) {
+        $incomeData = $monthlyData->map(function($month) { 
             return $month->where('type', 'income')->sum('amount');
         })->values()->toArray();
         $expenseData = $monthlyData->map(function($month) {

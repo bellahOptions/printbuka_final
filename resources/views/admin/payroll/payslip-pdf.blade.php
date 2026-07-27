@@ -3,9 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <title>Payslip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 11px; color: #1e293b; background: #fff; }
+    body { font-family: "Raleway", sans-serif; font-size: 11px; color: #1e293b; background: #fff; }
     .page { padding: 30px 35px; }
     .header { border-bottom: 3px solid #0f172a; padding-bottom: 18px; margin-bottom: 18px; display: table; width: 100%; }
     .header-left { display: table-cell; vertical-align: top; width: 60%; }
