@@ -130,11 +130,11 @@ class OrdersTable extends Component
         }
 
         if ($this->batchAction === 'priority_urgent') {
-            $affected = (int) Order::query()->whereKey($selectedIds)->update(['priority' => '🔴 Urgent']);
+            $affected = (int) Order::query()->whereKey($selectedIds)->update(['priority' => '🟥 Urgent']);
         }
 
         if ($this->batchAction === 'priority_normal') {
-            $affected = (int) Order::query()->whereKey($selectedIds)->update(['priority' => '🟡 Normal']);
+            $affected = (int) Order::query()->whereKey($selectedIds)->update(['priority' => '🟩 Normal']);
         }
 
         if ($this->batchAction === 'status') {
