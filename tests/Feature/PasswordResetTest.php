@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\Auth\ResetPasswordNotification as ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;

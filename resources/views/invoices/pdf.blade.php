@@ -137,6 +137,8 @@
                 font-size: 12px;
                 line-height: 1.45;
             }
+            /* ₦ pinned to DejaVu Sans — the embedded Open Sans glyph set lacks it */
+            .naira { font-family: 'DejaVu Sans', sans-serif; font-weight: inherit; font-size: inherit; }
 
             .wrap {
                 background: #ffffff;
@@ -312,32 +314,32 @@
                     @foreach ($lineItems as $i => $lineItem)
                         <tr style="background: {{ $i % 2 === 0 ? '#ffffff' : '#fdf2f8' }};">
                             <td class="col-desc">{{ $lineItem['description'] }}</td>
-                            <td>NGN {{ number_format((float) $lineItem['rate'], 2) }}</td>
+                            <td><span class="naira">₦</span>{{ number_format((float) $lineItem['rate'], 2) }}</td>
                             <td>{{ number_format((float) $lineItem['quantity'], 0) }}</td>
-                            <td>NGN {{ number_format((float) $lineItem['amount'], 2) }}</td>
+                            <td><span class="naira">₦</span>{{ number_format((float) $lineItem['amount'], 2) }}</td>
                         </tr>
                     @endforeach
 
                     <tr>
                         <td colspan="4" class="totals-cell" style="padding-top: 16px;">
-                            <span class="totals-lbl">Sub Total:</span>NGN {{ number_format((float) $invoice->subtotal, 2) }}
+                            <span class="totals-lbl">Sub Total:</span><span class="naira">₦</span>{{ number_format((float) $invoice->subtotal, 2) }}
                         </td>
                     </tr>
                     <tr>
                         <td colspan="4" class="totals-cell">
-                            <span class="totals-lbl">Tax:</span>NGN {{ number_format((float) $invoice->tax_amount, 2) }}
+                            <span class="totals-lbl">Tax:</span><span class="naira">₦</span>{{ number_format((float) $invoice->tax_amount, 2) }}
                         </td>
                     </tr>
                     @if ((float) $invoice->discount_amount > 0)
                         <tr>
                             <td colspan="4" class="totals-cell">
-                                <span class="totals-lbl">Discount:</span>- NGN {{ number_format((float) $invoice->discount_amount, 2) }}
+                                <span class="totals-lbl">Discount:</span>- <span class="naira">₦</span>{{ number_format((float) $invoice->discount_amount, 2) }}
                             </td>
                         </tr>
                     @endif
                     <tr>
                         <td colspan="4" class="totals-cell totals-grand" style="padding-bottom: 12px;">
-                            <span class="totals-lbl">Total:</span>NGN {{ number_format((float) $invoice->total_amount, 2) }}
+                            <span class="totals-lbl">Total:</span><span class="naira">₦</span>{{ number_format((float) $invoice->total_amount, 2) }}
                         </td>
                     </tr>
                 </tbody>

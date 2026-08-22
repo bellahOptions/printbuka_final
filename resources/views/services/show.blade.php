@@ -403,7 +403,14 @@
                         <div class="w-16 h-16 rounded-2xl bg-slate-200 flex items-center justify-center mx-auto mb-5">
                             <x-heroicon-o-lock-closed class="w-8 h-8 text-slate-500" />
                         </div>
-                        <h3 class="text-2xl font-black text-slate-950 mb-2">Sign In to Place Your Order</h3>
+                        @php
+                            $shortServiceLabel = match ($service['slug']) {
+                                'direct-image-printing' => 'Direct Image',
+                                'dtf' => 'DTF',
+                                default => $service['name'],
+                            };
+                        @endphp
+                        <h3 class="text-2xl font-black text-slate-950 mb-2">Sign in to place a {{ $shortServiceLabel }} order</h3>
                         <p class="text-slate-500 text-sm leading-relaxed max-w-md mx-auto mb-8">
                             A free account lets you track your order, access your invoice and communicate with our team.
                         </p>
@@ -521,7 +528,7 @@
 
                             <p class="text-center text-xs text-slate-400">
                                 By placing this order you agree to our
-                                <a href="{{ route('policies.show', 'terms') }}" class="underline hover:text-slate-600">Terms of Service</a>.
+                                <a href="{{ route('policies.terms') }}" class="underline hover:text-slate-600">Terms of Service</a>.
                                 Payments processed securely by Paystack.
                             </p>
                         </form>

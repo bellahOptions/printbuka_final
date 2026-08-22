@@ -87,12 +87,12 @@
                                     <span class="rounded-full bg-pink-50 px-4 py-2 text-sm font-black text-pink-700">MOQ {{ $product->moq }}</span>
                                 </div>
 
-                                <p class="text-sm leading-6 text-slate-600">{{ $product->hasAvailablePrice() ? 'Order now and our team will prepare your artwork and delivery plan.' : 'Contact us to discuss custom pricing and options.' }}</p>
+                                <p class="text-sm leading-6 text-slate-600">{{ $product->hasAvailablePrice() ? 'Order now and our team will prepare your artwork and delivery plan.' : 'Send us your brief and we will get back to you with a quotation.' }}</p>
 
                                 @if ($product->hasAvailablePrice())
                                     <a href="{{ route('orders.create', $product) }}" class="inline-flex w-full items-center justify-center rounded-3xl bg-pink-600 px-5 py-4 text-sm font-black text-white transition hover:bg-pink-700">Start order</a>
                                 @else
-                                    <a href="{{ route('services.index') }}" class="inline-flex w-full items-center justify-center rounded-3xl bg-pink-600 px-5 py-4 text-sm font-black text-white transition hover:bg-pink-700">View Services</a>
+                                    <a href="{{ $product->quoteRequestUrl() }}" class="inline-flex w-full items-center justify-center rounded-3xl bg-pink-600 px-5 py-4 text-sm font-black text-white transition hover:bg-pink-700">Request quotation</a>
                                 @endif
 
                                 <div class="rounded-3xl bg-slate-50 p-4 text-sm text-slate-600">

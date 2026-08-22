@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\HasEditableTemplate;
 use App\Models\Order;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
@@ -10,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 
 class JobFinanceSummaryMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use HasEditableTemplate, Queueable, SerializesModels;
 
     public function __construct(public Order $order)
     {
@@ -31,13 +32,28 @@ class JobFinanceSummaryMail extends Mailable
         ])->output();
 
         return $this
-            ->subject('Printbuka Job Finance Summary · '.$this->order->job_order_number)
+            ->subject($this->templateSubject('Printbuka Job Finance Summary · '.$this->order->job_order_number))
             ->view('mail.jobs.finance-summary', [
                 'order' => $this->order,
                 'expenseEntries' => $expenseEntries,
+                'introHtml' => $this->templateIntroHtml(),
+                'outroHtml' => $this->templateOutroHtml(),
             ])
             ->attachData($pdf, 'job-finance-summary-'.$this->order->job_order_number.'.pdf', [
                 'mime' => 'application/pdf',
             ]);
+    }
+
+    protected function templateKey(): string
+    {
+        return 'job.finance_summary';
+    }
+
+    protected function templateVariables(): array
+    {
+        return [
+            'customer_name' => (string) $this->order->customer_name,
+            'order_number' => (string) $this->order->job_order_number,
+        ];
     }
 }

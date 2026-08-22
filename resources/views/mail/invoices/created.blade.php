@@ -15,6 +15,7 @@
         $documentType = $invoice->documentTypeLabel();
         $documentTypeLower = strtolower($documentType);
         $lightLogoUrl = asset('logo-dark.svg');
+        $darkLogoUrl = asset('logo.svg');
         $settings = \App\Support\SiteSettings::all();
         $companyAccountName = trim((string) ($settings['company_account_name'] ?? ''));
         $companyAccountNumber = trim((string) ($settings['company_account_number'] ?? ''));
@@ -46,6 +47,7 @@
                         </tr>
                         <tr>
                             <td class="email-content" style="padding:26px;">
+                                {!! $introHtml ?? '' !!}
                                 <p style="margin:0 0 16px;">Hello {{ $invoice->order->customer_name }},</p>
                                 <p style="margin:0 0 20px;line-height:1.6;">Thank you for placing your {{ $invoice->order->service_type }} order with Printbuka. Your {{ $documentTypeLower }} is attached, and our team will follow up on the next production steps.</p>
 
@@ -95,6 +97,7 @@
                                 @endif
 
                                 <p style="margin:0;line-height:1.6;">You can track your order with order number <strong>{{ $invoice->order->job_order_number ?? $invoice->order->displayNumber() }}</strong> and this email address.</p>
+                                {!! $outroHtml ?? '' !!}
                             </td>
                         </tr>
                     </table>

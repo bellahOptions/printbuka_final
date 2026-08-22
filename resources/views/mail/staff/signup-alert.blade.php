@@ -17,6 +17,7 @@
         </tr>
         <tr>
             <td style="padding:24px;">
+                {!! $introHtml ?? '' !!}
                 <p style="margin:0 0 14px;font-size:14px;line-height:1.7;">Hello {{ $recipient->displayName() }},</p>
                 <p style="margin:0 0 14px;font-size:14px;line-height:1.7;">A new staff registration was submitted and requires Super Admin review.</p>
 
@@ -40,6 +41,7 @@
                 </table>
 
                 <p style="margin:0 0 14px;font-size:14px;line-height:1.7;">Please sign in to the admin dashboard and review the pending staff account.</p>
+                {!! $outroHtml ?? '' !!}
             </td>
         </tr>
     </table>

@@ -46,8 +46,10 @@ class StaffEvaluation extends Model
         return $values->isNotEmpty() ? round($values->avg(), 1) : (float) $this->overall_rating;
     }
 
-    public function ratingStars(int $rating): string
+    public function ratingStars(?int $rating): string
     {
+        $rating = $rating ?? 0;
+
         return str_repeat('★', $rating).str_repeat('☆', 5 - $rating);
     }
 }

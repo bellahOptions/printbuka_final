@@ -18,13 +18,16 @@ class AdminPolicyManagementTest extends TestCase
             'role' => 'super_admin',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
 
         $this->actingAs($superAdmin)
+            ->withSession(['staff_2fa_verified' => true])
             ->get(route('admin.policies.edit'))
             ->assertOk();
 
         $this->actingAs($superAdmin)
+            ->withSession(['staff_2fa_verified' => true])
             ->put(route('admin.policies.terms.update'), [
                 'title' => 'Terms & Conditions',
                 'content' => 'These are the official terms for Printbuka.',
@@ -73,6 +76,7 @@ class AdminPolicyManagementTest extends TestCase
             'role' => 'super_admin',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
 
         $customerA = User::factory()->create([
@@ -100,6 +104,7 @@ class AdminPolicyManagementTest extends TestCase
         ]);
 
         $this->actingAs($superAdmin)
+            ->withSession(['staff_2fa_verified' => true])
             ->put(route('admin.policies.terms.update'), [
                 'title' => 'Terms & Conditions',
                 'content' => 'Updated terms document for all customers.',

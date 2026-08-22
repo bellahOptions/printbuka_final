@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Product;
+use App\Models\StaffProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -28,6 +29,7 @@ class AdminSeededProductCleanupTest extends TestCase
         $admin = $this->admin('super_admin');
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->delete(route('admin.products.seeded.destroy'), [
                 'confirmation' => 'DELETE SEEDED PRODUCTS',
             ])
@@ -47,6 +49,7 @@ class AdminSeededProductCleanupTest extends TestCase
         $admin = $this->admin('super_admin');
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->delete(route('admin.products.seeded.destroy'), [
                 'confirmation' => 'DELETE SEEDED PRODUCTS',
                 'include_legacy_catalog' => '1',
@@ -61,8 +64,10 @@ class AdminSeededProductCleanupTest extends TestCase
     {
         $product = $this->product(['is_seeded' => true]);
         $admin = $this->admin('admin');
+        StaffProfile::query()->create(['user_id' => $admin->id, 'kyc_status' => 'approved']);
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->delete(route('admin.products.seeded.destroy'), [
                 'confirmation' => 'DELETE SEEDED PRODUCTS',
             ])
@@ -77,6 +82,7 @@ class AdminSeededProductCleanupTest extends TestCase
         $admin = $this->admin('super_admin');
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->from(route('admin.products.index'))
             ->delete(route('admin.products.seeded.destroy'), [
                 'confirmation' => 'DELETE PRODUCTS',
@@ -111,6 +117,7 @@ class AdminSeededProductCleanupTest extends TestCase
             'role' => $role,
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
     }
 }

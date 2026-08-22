@@ -9,6 +9,8 @@
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: "Raleway", sans-serif; font-size: 11px; color: #1e293b; background: #fff; }
+    /* ₦ pinned to DejaVu Sans — Raleway lacks this glyph */
+    .naira { font-family: 'DejaVu Sans', sans-serif; font-weight: inherit; }
     .page { padding: 30px 35px; }
     .header { border-bottom: 3px solid #0f172a; padding-bottom: 18px; margin-bottom: 18px; display: table; width: 100%; }
     .header-left { display: table-cell; vertical-align: top; width: 60%; }
@@ -93,38 +95,38 @@
         <div class="col-half">
             <div class="section-title">Earnings</div>
             <table class="earnings">
-                <tr><td class="td-label">Basic Salary</td><td class="td-value">&#8358;{{ number_format($entry->basic_salary, 2) }}</td></tr>
+                <tr><td class="td-label">Basic Salary</td><td class="td-value"><span class="naira">&#8358;</span>{{ number_format($entry->basic_salary, 2) }}</td></tr>
                 @if ($entry->housing_allowance > 0)
-                <tr><td class="td-label">Housing Allowance</td><td class="td-value">&#8358;{{ number_format($entry->housing_allowance, 2) }}</td></tr>
+                <tr><td class="td-label">Housing Allowance</td><td class="td-value"><span class="naira">&#8358;</span>{{ number_format($entry->housing_allowance, 2) }}</td></tr>
                 @endif
                 @if ($entry->transport_allowance > 0)
-                <tr><td class="td-label">Transport Allowance</td><td class="td-value">&#8358;{{ number_format($entry->transport_allowance, 2) }}</td></tr>
+                <tr><td class="td-label">Transport Allowance</td><td class="td-value"><span class="naira">&#8358;</span>{{ number_format($entry->transport_allowance, 2) }}</td></tr>
                 @endif
                 @if ($entry->medical_allowance > 0)
-                <tr><td class="td-label">Medical Allowance</td><td class="td-value">&#8358;{{ number_format($entry->medical_allowance, 2) }}</td></tr>
+                <tr><td class="td-label">Medical Allowance</td><td class="td-value"><span class="naira">&#8358;</span>{{ number_format($entry->medical_allowance, 2) }}</td></tr>
                 @endif
                 @if ($entry->other_allowances > 0)
-                <tr><td class="td-label">Other Allowances</td><td class="td-value">&#8358;{{ number_format($entry->other_allowances, 2) }}</td></tr>
+                <tr><td class="td-label">Other Allowances</td><td class="td-value"><span class="naira">&#8358;</span>{{ number_format($entry->other_allowances, 2) }}</td></tr>
                 @endif
-                <tr class="totals-row"><td class="td-label" style="font-weight:700">Gross Salary</td><td class="td-value" style="font-weight:700">&#8358;{{ number_format($entry->gross_salary, 2) }}</td></tr>
+                <tr class="totals-row"><td class="td-label" style="font-weight:700">Gross Salary</td><td class="td-value" style="font-weight:700"><span class="naira">&#8358;</span>{{ number_format($entry->gross_salary, 2) }}</td></tr>
             </table>
         </div>
         <div class="col-half" style="margin-left: 12px;">
             <div class="section-title">Deductions</div>
             <table class="earnings">
                 @if ($entry->pension_deduction > 0)
-                <tr><td class="td-label">Pension</td><td class="td-deduction">-&#8358;{{ number_format($entry->pension_deduction, 2) }}</td></tr>
+                <tr><td class="td-label">Pension</td><td class="td-deduction">-<span class="naira">&#8358;</span>{{ number_format($entry->pension_deduction, 2) }}</td></tr>
                 @endif
                 @if ($entry->tax_deduction > 0)
-                <tr><td class="td-label">Tax (PAYE)</td><td class="td-deduction">-&#8358;{{ number_format($entry->tax_deduction, 2) }}</td></tr>
+                <tr><td class="td-label">Tax (PAYE)</td><td class="td-deduction">-<span class="naira">&#8358;</span>{{ number_format($entry->tax_deduction, 2) }}</td></tr>
                 @endif
                 @if ($entry->other_deductions > 0)
-                <tr><td class="td-label">Other Deductions</td><td class="td-deduction">-&#8358;{{ number_format($entry->other_deductions, 2) }}</td></tr>
+                <tr><td class="td-label">Other Deductions</td><td class="td-deduction">-<span class="naira">&#8358;</span>{{ number_format($entry->other_deductions, 2) }}</td></tr>
                 @endif
                 @if ($entry->total_deductions == 0)
                 <tr><td class="td-label" style="color:#94a3b8">No deductions</td><td></td></tr>
                 @endif
-                <tr class="totals-row"><td class="td-label" style="font-weight:700">Total Deductions</td><td class="td-deduction" style="font-weight:700">-&#8358;{{ number_format($entry->total_deductions, 2) }}</td></tr>
+                <tr class="totals-row"><td class="td-label" style="font-weight:700">Total Deductions</td><td class="td-deduction" style="font-weight:700">-<span class="naira">&#8358;</span>{{ number_format($entry->total_deductions, 2) }}</td></tr>
             </table>
         </div>
     </div>
@@ -133,7 +135,7 @@
     <table class="earnings" style="margin-top:0; border-radius:0 0 6px 6px; overflow:hidden; border: 1px solid #0f172a; border-top: none;">
         <tr class="net-row">
             <td class="td-label" style="color:#fff; font-size:14px;">NET PAY</td>
-            <td class="net-value">&#8358;{{ number_format($entry->net_salary, 2) }}</td>
+            <td class="net-value"><span class="naira">&#8358;</span>{{ number_format($entry->net_salary, 2) }}</td>
         </tr>
     </table>
 

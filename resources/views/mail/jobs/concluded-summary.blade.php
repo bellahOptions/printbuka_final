@@ -15,6 +15,7 @@
         </tr>
         <tr>
             <td style="padding:24px;">
+                {!! $introHtml ?? '' !!}
                 <p style="margin:0 0 14px;font-size:14px;line-height:1.7;">Hello {{ $recipient->displayName() }},</p>
                 <p style="margin:0 0 14px;font-size:14px;line-height:1.7;">Job <strong>{{ $order->job_order_number }}</strong> has been concluded.</p>
 
@@ -42,6 +43,7 @@
                 </table>
 
                 <p style="margin:0;font-size:14px;line-height:1.7;">Attached: job log PDF and expense log PDF.</p>
+                {!! $outroHtml ?? '' !!}
             </td>
         </tr>
     </table>

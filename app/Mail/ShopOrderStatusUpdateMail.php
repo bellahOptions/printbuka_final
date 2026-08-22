@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\HasEditableTemplate;
 use App\Models\ShopOrder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -9,7 +10,7 @@ use Illuminate\Queue\SerializesModels;
 
 class ShopOrderStatusUpdateMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use HasEditableTemplate, Queueable, SerializesModels;
 
     public string $statusLabel;
 
@@ -51,7 +52,7 @@ class ShopOrderStatusUpdateMail extends Mailable
     public function build(): self
     {
         return $this
-            ->subject("Order {$this->statusLabel} — {$this->order->reference} | Printbuka")
+            ->subject($this->templateSubject("Order {$this->statusLabel} — {$this->order->reference} | Printbuka"))
             ->view('mail.shop.order-status-update')
             ->with([
                 'order' => $this->order,
@@ -59,6 +60,22 @@ class ShopOrderStatusUpdateMail extends Mailable
                 'statusLabel' => $this->statusLabel,
                 'statusMessage' => $this->statusMessage,
                 'statusColor' => $this->statusColor,
+                'introHtml' => $this->templateIntroHtml(),
+                'outroHtml' => $this->templateOutroHtml(),
             ]);
+    }
+
+    protected function templateKey(): string
+    {
+        return 'shop.order_status_update';
+    }
+
+    protected function templateVariables(): array
+    {
+        return [
+            'customer_name' => (string) $this->order->customer_name,
+            'order_reference' => (string) $this->order->reference,
+            'status_label' => $this->statusLabel,
+        ];
     }
 }

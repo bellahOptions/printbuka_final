@@ -2,8 +2,10 @@
 @section('title', $evaluation->periodLabel().' Evaluation | Printbuka')
 
 @section('content')
-@php($viewer = auth()->user())
-@php($isSelf = $viewer->id === $evaluation->staff_id)
+@php
+    $viewer = auth()->user();
+    $isSelf = $viewer->id === $evaluation->staff_id;
+@endphp
 
 <div class="mx-auto max-w-2xl space-y-6">
 
@@ -47,8 +49,12 @@
                 <div class="flex items-center justify-between">
                     <span class="text-sm font-semibold text-slate-700">{{ $cat }}</span>
                     <div class="flex items-center gap-2">
-                        <span class="text-base">{{ $evaluation->ratingStars($rating) }}</span>
-                        <span class="text-xs font-black text-slate-500">{{ $rating }}/5</span>
+                        @if ($rating !== null)
+                            <span class="text-base">{{ $evaluation->ratingStars($rating) }}</span>
+                            <span class="text-xs font-black text-slate-500">{{ $rating }}/5</span>
+                        @else
+                            <span class="text-xs font-semibold text-slate-400">Not rated</span>
+                        @endif
                     </div>
                 </div>
                 @endforeach

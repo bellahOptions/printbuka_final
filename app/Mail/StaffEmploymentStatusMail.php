@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\HasEditableTemplate;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -9,7 +10,7 @@ use Illuminate\Queue\SerializesModels;
 
 class StaffEmploymentStatusMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use HasEditableTemplate, Queueable, SerializesModels;
 
     public function __construct(
         public User $staff,
@@ -26,13 +27,29 @@ class StaffEmploymentStatusMail extends Mailable
         };
 
         return $this
-            ->subject('Printbuka '.$label)
+            ->subject($this->templateSubject('Printbuka '.$label))
             ->view('mail.staff.employment-status')
             ->with([
                 'staff' => $this->staff,
                 'status' => $this->status,
                 'statusLabel' => $label,
                 'reason' => $this->reason,
+                'introHtml' => $this->templateIntroHtml(),
+                'outroHtml' => $this->templateOutroHtml(),
             ]);
+    }
+
+    protected function templateKey(): string
+    {
+        return 'staff.employment_status';
+    }
+
+    protected function templateVariables(): array
+    {
+        return [
+            'staff_name' => $this->staff->displayName(),
+            'status' => $this->status,
+            'reason' => (string) ($this->reason ?? ''),
+        ];
     }
 }

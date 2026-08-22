@@ -9,6 +9,7 @@
 @section('content')
     <h1 style="margin:18px 0 0;font-size:28px;line-height:1.2;">{{ $applicantName }} applied for PGTP.</h1>
     <p style="margin:10px 0 0;color:#cbd5e1;font-size:14px;line-height:1.7;">Preferred track: <strong style="color:#ffffff;">{{ $application->desired_skill }}</strong></p>
+    {!! $introHtml ?? '' !!}
     <div style="margin:0 0 20px;padding:16px;border:1px solid #bae6fd;background:#f0f9ff;border-radius:10px;">
         <p style="margin:0;font-size:13px;line-height:1.7;color:#0c4a6e;">A new training application has been submitted through the public PGTP form. Review the details below and follow up with the applicant if they fit the cohort requirements.</p>
     </div>
@@ -43,4 +44,5 @@
         <p style="margin:0 0 8px;font-size:12px;font-weight:700;color:#be185d;text-transform:uppercase;letter-spacing:0.06em;">Motivation</p>
         <p style="margin:0;font-size:13px;line-height:1.7;color:#831843;">{{ $application->motivation }}</p>
     </div>
+    {!! $outroHtml ?? '' !!}
 @endsection

@@ -164,6 +164,93 @@
                 </div>
             </div>
 
+            <!-- Delivery Preference Section -->
+            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2 rounded-xl bg-gradient-to-br from-amber-100 to-amber-50 border border-amber-200">
+                        <svg class="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-black text-slate-950">Delivery Preference</h2>
+                        <p class="text-sm text-slate-500">Choose how the client will receive the job</p>
+                    </div>
+                </div>
+
+                <div class="grid gap-3 sm:grid-cols-2 mb-4">
+                    <label class="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-slate-200 px-5 py-4 text-sm font-black transition-all duration-300 hover:border-pink-200 hover:bg-pink-50/30">
+                        <input id="delivery-preference-pickup" type="radio" name="delivery_preference" value="pickup" @checked(old('delivery_preference') === 'pickup') class="h-5 w-5 border-slate-300 text-pink-600 focus:ring-pink-500">
+                        <div>
+                            <p class="font-black text-slate-900">Client Pickup</p>
+                            <p class="text-xs text-slate-500 mt-0.5">Client will collect from office</p>
+                        </div>
+                    </label>
+                    <label class="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-slate-200 px-5 py-4 text-sm font-black transition-all duration-300 hover:border-pink-200 hover:bg-pink-50/30">
+                        <input id="delivery-preference-delivery" type="radio" name="delivery_preference" value="delivery" @checked(old('delivery_preference', 'delivery') === 'delivery') class="h-5 w-5 border-slate-300 text-pink-600 focus:ring-pink-500">
+                        <div>
+                            <p class="font-black text-slate-900">Delivery</p>
+                            <p class="text-xs text-slate-500 mt-0.5">Deliver to client address</p>
+                        </div>
+                    </label>
+                </div>
+                @error('delivery_preference')
+                    <p class="mb-4 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                @enderror
+
+                <div id="delivery-fields" class="grid gap-5 sm:grid-cols-2">
+                    <div class="space-y-1">
+                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Delivery Method</label>
+                        <select id="delivery-method" name="delivery_method" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                            <option value="">— Select delivery method —</option>
+                            @foreach ($deliveryMethods as $method)@continue($method === 'Client Pickup')<option value="{{ $method }}" @selected(old('delivery_method') === $method)>{{ $method }}</option>@endforeach
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Delivery City</label>
+                        <input id="delivery-city" name="delivery_city" value="{{ old('delivery_city') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="e.g., Lagos">
+                        @error('delivery_city')
+                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="space-y-1 sm:col-span-2">
+                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Delivery Address</label>
+                        <input id="delivery-address" name="delivery_address" value="{{ old('delivery_address') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="Full delivery address">
+                        @error('delivery_address')
+                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const pickupRadio = document.getElementById('delivery-preference-pickup');
+                    const deliveryRadio = document.getElementById('delivery-preference-delivery');
+                    const deliveryFields = document.getElementById('delivery-fields');
+                    const deliveryMethod = document.getElementById('delivery-method');
+                    const deliveryCity = document.getElementById('delivery-city');
+                    const deliveryAddress = document.getElementById('delivery-address');
+
+                    function syncDeliveryState() {
+                        const isDelivery = deliveryRadio?.checked;
+                        if (!deliveryFields) return;
+                        deliveryFields.style.display = isDelivery ? 'grid' : 'none';
+                        if (deliveryMethod) deliveryMethod.required = false;
+                        if (deliveryCity) deliveryCity.required = Boolean(isDelivery);
+                        if (deliveryAddress) deliveryAddress.required = Boolean(isDelivery);
+                        if (!isDelivery) {
+                            if (deliveryMethod) deliveryMethod.value = '';
+                            if (deliveryCity) deliveryCity.value = '';
+                            if (deliveryAddress) deliveryAddress.value = '';
+                        }
+                    }
+
+                    pickupRadio?.addEventListener('change', syncDeliveryState);
+                    deliveryRadio?.addEventListener('change', syncDeliveryState);
+                    syncDeliveryState();
+                });
+            </script>
+
             <!-- Job Brief Section -->
             <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
                 <div class="flex items-center gap-3 mb-6">

@@ -7,6 +7,7 @@ use App\Livewire\Admin\CustomerQuickCreate;
 use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\StaffProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -19,19 +20,22 @@ class AdminQuotationCreationTest extends TestCase
 
     public function test_only_allowed_roles_can_access_quotation_creator(): void
     {
-        $operations = $this->adminUser('operations');
+        $operations = $this->adminUser('operations_manager');
         $customerCare = $this->adminUser('customer_service');
         $designer = $this->adminUser('designer');
 
         $this->actingAs($operations)
+            ->withSession(['staff_2fa_verified' => true])
             ->get(route('admin.invoices.quotations.create'))
             ->assertOk();
 
         $this->actingAs($customerCare)
+            ->withSession(['staff_2fa_verified' => true])
             ->get(route('admin.invoices.quotations.create'))
             ->assertOk();
 
         $this->actingAs($designer)
+            ->withSession(['staff_2fa_verified' => true])
             ->get(route('admin.invoices.quotations.create'))
             ->assertForbidden();
     }
@@ -51,6 +55,7 @@ class AdminQuotationCreationTest extends TestCase
         ]);
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.invoices.quotations.store'), [
                 'customer_id' => $customer->id,
                 'customer_name' => 'Ignored Name',
@@ -86,7 +91,7 @@ class AdminQuotationCreationTest extends TestCase
     {
         Mail::fake();
 
-        $admin = $this->adminUser('operations');
+        $admin = $this->adminUser('operations_manager');
         $customer = User::factory()->create([
             'role' => 'customer',
             'is_active' => true,
@@ -98,6 +103,7 @@ class AdminQuotationCreationTest extends TestCase
         ]);
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.invoices.quotations.store'), [
                 'customer_id' => $customer->id,
                 'customer_name' => 'Ignored Name',
@@ -166,6 +172,7 @@ class AdminQuotationCreationTest extends TestCase
         ]);
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.invoices.quotations.store'), [
                 'customer_name' => 'Catalog Quote Client',
                 'customer_email' => 'catalog.quote@example.com',
@@ -248,6 +255,7 @@ class AdminQuotationCreationTest extends TestCase
         ]);
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->patch(route('admin.invoices.mark-paid', $invoice))
             ->assertRedirect();
 
@@ -266,7 +274,7 @@ class AdminQuotationCreationTest extends TestCase
 
     public function test_staff_can_quick_create_customer_via_livewire_component(): void
     {
-        $admin = $this->adminUser('operations');
+        $admin = $this->adminUser('operations_manager');
         $this->actingAs($admin);
 
         Livewire::test(CustomerQuickCreate::class)
@@ -291,9 +299,10 @@ class AdminQuotationCreationTest extends TestCase
 
     public function test_admin_can_save_quotation_without_customer_email(): void
     {
-        $admin = $this->adminUser('operations');
+        $admin = $this->adminUser('operations_manager');
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.invoices.quotations.store'), [
                 'customer_name' => 'Walk-in Quote',
                 'customer_phone' => '08022223333',
@@ -317,9 +326,10 @@ class AdminQuotationCreationTest extends TestCase
 
     public function test_admin_cannot_save_and_send_quotation_without_customer_email(): void
     {
-        $admin = $this->adminUser('operations');
+        $admin = $this->adminUser('operations_manager');
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->from(route('admin.invoices.quotations.create'))
             ->post(route('admin.invoices.quotations.store'), [
                 'customer_name' => 'Walk-in Quote',
@@ -340,10 +350,20 @@ class AdminQuotationCreationTest extends TestCase
 
     private function adminUser(string $role): User
     {
-        return User::factory()->create([
+        $user = User::factory()->create([
             'role' => $role,
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
+
+        if (! in_array($role, ['super_admin', 'managing_director', 'hr'], true)) {
+            StaffProfile::query()->create([
+                'user_id' => $user->id,
+                'kyc_status' => 'approved',
+            ]);
+        }
+
+        return $user;
     }
 }

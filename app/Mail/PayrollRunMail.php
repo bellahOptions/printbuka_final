@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\HasEditableTemplate;
 use App\Models\PayrollRun;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
@@ -13,7 +14,7 @@ use Illuminate\Queue\SerializesModels;
 
 class PayrollRunMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use HasEditableTemplate, Queueable, SerializesModels;
 
     public function __construct(
         public readonly PayrollRun $run,
@@ -23,13 +24,16 @@ class PayrollRunMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Payroll Summary — '.$this->run->periodLabel().' — Printbuka',
+            subject: $this->templateSubject('Payroll Summary — '.$this->run->periodLabel().' — Printbuka'),
         );
     }
 
     public function content(): Content
     {
-        return new Content(view: 'emails.payroll.run');
+        return new Content(view: 'emails.payroll.run', with: [
+            'introHtml' => $this->templateIntroHtml(),
+            'outroHtml' => $this->templateOutroHtml(),
+        ]);
     }
 
     public function attachments(): array
@@ -52,6 +56,19 @@ class PayrollRunMail extends Mailable
         return [
             Attachment::fromData(fn () => $pdf->output(), $filename)
                 ->withMime('application/pdf'),
+        ];
+    }
+
+    protected function templateKey(): string
+    {
+        return 'payroll.run';
+    }
+
+    protected function templateVariables(): array
+    {
+        return [
+            'period_label' => $this->run->periodLabel(),
+            'sent_by_name' => $this->sentByName,
         ];
     }
 }

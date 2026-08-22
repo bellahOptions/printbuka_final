@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\PriceListItem;
+use App\Models\StaffProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -17,9 +18,15 @@ class ServicePricingSettingsAccessTest extends TestCase
             'role' => 'office_assistant',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
+        ]);
+        StaffProfile::query()->create([
+            'user_id' => $staff->id,
+            'kyc_status' => 'approved',
         ]);
 
         $this->actingAs($staff)
+            ->withSession(['staff_2fa_verified' => true])
             ->put(route('admin.pricelist.services.update', 'dtf'), [
                 'price' => 5000,
                 'design_fee' => 1000,
@@ -41,9 +48,15 @@ class ServicePricingSettingsAccessTest extends TestCase
             'role' => 'customer_service',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
+        ]);
+        StaffProfile::query()->create([
+            'user_id' => $customerService->id,
+            'kyc_status' => 'approved',
         ]);
 
         $this->actingAs($customerService)
+            ->withSession(['staff_2fa_verified' => true])
             ->put(route('admin.pricelist.services.update', 'dtf'), [
                 'price' => 3150,
                 'design_fee' => 1800,
@@ -83,9 +96,11 @@ class ServicePricingSettingsAccessTest extends TestCase
             'role' => 'super_admin',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
 
         $this->actingAs($superAdmin)
+            ->withSession(['staff_2fa_verified' => true])
             ->put(route('admin.pricelist.surcharges.update'), [
                 'express_order_surcharge' => 6000,
                 'sample_order_surcharge' => 4500,

@@ -10,6 +10,7 @@
         <p>{{ $run->periodLabel() }}</p>
     </div>
     <div class="body">
+        {!! $introHtml ?? '' !!}
         <p style="font-size:14px;color:#475569;margin-bottom:24px">
             Hello,<br><br>
             Please find attached the payroll summary for <strong>{{ $run->periodLabel() }}</strong>, sent by <strong>{{ $sentByName }}</strong>.
@@ -34,6 +35,7 @@
         @endif
 
         <p style="font-size:12px;color:#94a3b8;text-align:center;margin-top:24px">The full payroll report PDF is attached to this email.</p>
+        {!! $outroHtml ?? '' !!}
     </div>
     <div class="footer">&copy; {{ date('Y') }} Printbuka. This report is strictly confidential.</div>
 </div>

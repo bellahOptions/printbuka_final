@@ -10,6 +10,7 @@
         <p>Printbuka HR Department</p>
     </div>
     <div class="body">
+        {!! $introHtml ?? '' !!}
         <p style="font-size:15px;color:#0f172a;font-weight:600">Dear {{ $query->staff?->displayName() }},</p>
         <p style="font-size:14px;color:#475569;line-height:1.7">
             A formal query has been issued against you by the HR Department. Please review the details below and respond through the staff portal within the stipulated timeframe.
@@ -31,6 +32,7 @@
             Please log in to the staff portal and navigate to <strong>My Queries</strong> to submit your formal response.
             Failure to respond by the due date may result in further disciplinary action.
         </p>
+        {!! $outroHtml ?? '' !!}
     </div>
     <div class="footer">&copy; {{ date('Y') }} Printbuka. Strictly Confidential — HR Use Only.</div>
 </div>

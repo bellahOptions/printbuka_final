@@ -18,6 +18,7 @@ class AdminMarketingBroadcastTest extends TestCase
         $admin = $this->superAdmin();
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.advertisements.store'), [
                 'placement' => 'top_banner',
                 'title' => 'Weekend print deal',
@@ -52,6 +53,7 @@ class AdminMarketingBroadcastTest extends TestCase
         ]);
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.notifications.store'), [
                 'audience' => 'customers',
                 'title' => 'Production update',
@@ -74,6 +76,7 @@ class AdminMarketingBroadcastTest extends TestCase
             'role' => 'super_admin',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
     }
 }

@@ -31,6 +31,7 @@
                         </tr>
                         <tr>
                             <td style="padding:24px;">
+                                {!! $introHtml ?? '' !!}
                                 <p style="margin:0 0 14px;font-size:14px;line-height:1.6;">Hello {{ $recipient->displayName() }},</p>
                                 <p style="margin:0 0 16px;font-size:14px;line-height:1.6;">A new support ticket has been submitted. Please review and assign action quickly.</p>
 
@@ -62,6 +63,7 @@
                                 </div>
 
                                 <a href="{{ $ticketUrl }}" style="display:inline-block;background:#EC268F;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;padding:12px 18px;border-radius:8px;">Open Ticket</a>
+                                {!! $outroHtml ?? '' !!}
                             </td>
                         </tr>
                     </table>

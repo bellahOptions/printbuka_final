@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\HasEditableTemplate;
 use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Bus\Queueable;
@@ -10,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 
 class DailyStaffActivitySummaryMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use HasEditableTemplate, Queueable, SerializesModels;
 
     /**
      * @param  array{
@@ -29,12 +30,28 @@ class DailyStaffActivitySummaryMail extends Mailable
     public function build(): self
     {
         return $this
-            ->subject('Daily staff activity summary - '.$this->reportDate->format('M j, Y'))
+            ->subject($this->templateSubject('Daily staff activity summary - '.$this->reportDate->format('M j, Y')))
             ->view('mail.staff.daily-activity-summary')
             ->with([
                 'recipient' => $this->recipient,
                 'reportDate' => $this->reportDate,
                 'summary' => $this->summary,
+                'introHtml' => $this->templateIntroHtml(),
+                'outroHtml' => $this->templateOutroHtml(),
             ]);
+    }
+
+    protected function templateKey(): string
+    {
+        return 'staff.daily_activity_summary';
+    }
+
+    protected function templateVariables(): array
+    {
+        return [
+            'recipient_name' => $this->recipient->displayName(),
+            'report_date' => $this->reportDate->format('l, F j, Y'),
+            'total_actions' => number_format($this->summary['total'] ?? 0),
+        ];
     }
 }

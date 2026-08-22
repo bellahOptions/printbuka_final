@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\HasEditableTemplate;
 use App\Models\Training;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -9,7 +10,7 @@ use Illuminate\Queue\SerializesModels;
 
 class TrainingApplicationDecisionMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use HasEditableTemplate, Queueable, SerializesModels;
 
     public function __construct(public Training $application) {}
 
@@ -20,8 +21,26 @@ class TrainingApplicationDecisionMail extends Mailable
             : 'Update on your Printbuka PGTP application';
 
         return $this
-            ->subject($subject)
+            ->subject($this->templateSubject($subject))
             ->view('mail.training.application-decision')
-            ->with(['application' => $this->application]);
+            ->with([
+                'application' => $this->application,
+                'introHtml' => $this->templateIntroHtml(),
+                'outroHtml' => $this->templateOutroHtml(),
+            ]);
+    }
+
+    protected function templateKey(): string
+    {
+        return 'training.application_decision';
+    }
+
+    protected function templateVariables(): array
+    {
+        return [
+            'applicant_name' => $this->application->fullName(),
+            'track' => (string) $this->application->desired_skill,
+            'decision' => (string) $this->application->statusLabel(),
+        ];
     }
 }

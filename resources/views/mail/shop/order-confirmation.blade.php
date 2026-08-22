@@ -36,6 +36,7 @@
                     {{-- Body --}}
                     <tr>
                         <td style="padding:28px;">
+                            {!! $introHtml ?? '' !!}
                             <p style="margin:0 0 16px;">Hello {{ $order->customer_name }},</p>
                             <p style="margin:0 0 24px;line-height:1.6;color:#475569;">
                                 Your payment has been confirmed and your order is now being processed.
@@ -100,6 +101,7 @@
                                 We will update you as your order progresses. If you have any questions, please don't hesitate to contact us.
                             </p>
                             <p style="margin:0;line-height:1.6;">Thank you for choosing {{ $siteName }}!</p>
+                            {!! $outroHtml ?? '' !!}
                         </td>
                     </tr>
 

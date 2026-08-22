@@ -25,6 +25,7 @@ class AdminQuoteCsvImportTest extends TestCase
         ]));
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.invoices.import-csv'), ['csv_file' => $csv])
             ->assertRedirect()
             ->assertSessionHas('status');
@@ -59,6 +60,7 @@ class AdminQuoteCsvImportTest extends TestCase
         ]));
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.invoices.import-csv'), ['csv_file' => $csv])
             ->assertRedirect()
             ->assertSessionHas('status');
@@ -113,6 +115,7 @@ class AdminQuoteCsvImportTest extends TestCase
             'role' => $role,
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
     }
 }

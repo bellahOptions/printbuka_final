@@ -44,6 +44,7 @@ class ProductQuoteOnlyPricingTest extends TestCase
             'role' => 'super_admin',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
 
         $payload = [
@@ -62,6 +63,7 @@ class ProductQuoteOnlyPricingTest extends TestCase
         ];
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.products.store'), $payload)
             ->assertRedirect(route('admin.products.index'));
 

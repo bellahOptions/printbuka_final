@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Notifications\Auth\VerifyEmailNotification as VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;

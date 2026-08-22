@@ -5,8 +5,11 @@ use App\Http\Controllers\Admin\AdminAdvertisementController;
 use App\Http\Controllers\Admin\AdminBlogPostController;
 use App\Http\Controllers\Admin\AdminCustomerController;
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminEmailTemplateController;
 use App\Http\Controllers\Admin\AdminFinanceController;
 use App\Http\Controllers\Admin\AdminInvoiceController;
+use App\Http\Controllers\Admin\AdminMemoController;
+use App\Http\Controllers\Admin\AdminNewsletterController;
 use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminPolicyController;
@@ -102,6 +105,39 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::delete('/notifications/{notification}', [AdminNotificationController::class, 'destroy'])
             ->middleware('admin.permission:*')
             ->name('notifications.destroy');
+        Route::get('/newsletters', [AdminNewsletterController::class, 'index'])
+            ->middleware('admin.permission:newsletters.manage')
+            ->name('newsletters.index');
+        Route::post('/newsletters', [AdminNewsletterController::class, 'store'])
+            ->middleware('admin.permission:newsletters.manage')
+            ->name('newsletters.store');
+        Route::get('/email-templates', [AdminEmailTemplateController::class, 'index'])
+            ->middleware('super.admin')
+            ->name('email-templates.index');
+        Route::get('/email-templates/{key}/edit', [AdminEmailTemplateController::class, 'edit'])
+            ->middleware('super.admin')
+            ->name('email-templates.edit');
+        Route::put('/email-templates/{key}', [AdminEmailTemplateController::class, 'update'])
+            ->middleware('super.admin')
+            ->name('email-templates.update');
+        Route::post('/email-templates/{key}/reset', [AdminEmailTemplateController::class, 'reset'])
+            ->middleware('super.admin')
+            ->name('email-templates.reset');
+        Route::get('/email-templates/{key}/preview', [AdminEmailTemplateController::class, 'preview'])
+            ->middleware('super.admin')
+            ->name('email-templates.preview');
+        Route::get('/memos', [AdminMemoController::class, 'index'])
+            ->middleware('super.admin')
+            ->name('memos.index');
+        Route::get('/memos/create', [AdminMemoController::class, 'create'])
+            ->middleware('super.admin')
+            ->name('memos.create');
+        Route::post('/memos', [AdminMemoController::class, 'store'])
+            ->middleware('super.admin')
+            ->name('memos.store');
+        Route::get('/memos/{memo}', [AdminMemoController::class, 'show'])
+            ->middleware('super.admin')
+            ->name('memos.show');
         Route::get('/advertisements', [AdminAdvertisementController::class, 'index'])
             ->middleware('super.admin')
             ->name('advertisements.index');

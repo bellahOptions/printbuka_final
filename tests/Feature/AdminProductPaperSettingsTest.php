@@ -17,6 +17,7 @@ class AdminProductPaperSettingsTest extends TestCase
             'role' => 'super_admin',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
 
         SiteSetting::query()->create(['key' => 'paper_types', 'value' => "Ultra Matte Board\nKraft", 'group' => 'general']);
@@ -25,6 +26,7 @@ class AdminProductPaperSettingsTest extends TestCase
         SiteSetting::query()->create(['key' => 'paper_densities', 'value' => "180gsm\n320gsm", 'group' => 'general']);
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->get(route('admin.products.create'))
             ->assertOk()
             ->assertSee('Select paper type')

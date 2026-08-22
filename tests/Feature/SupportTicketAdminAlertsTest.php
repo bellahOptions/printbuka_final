@@ -29,8 +29,8 @@ class SupportTicketAdminAlertsTest extends TestCase
         ]);
 
         $customerCare = $this->adminUser('customer_service', 'care@example.com');
-        $management = $this->adminUser('management', 'management@example.com');
-        $it = $this->adminUser('it', 'it@example.com');
+        $management = $this->adminUser('operations_manager', 'management@example.com');
+        $it = $this->adminUser('hr', 'it@example.com');
 
         $this->actingAs($customer)
             ->post(route('support.store'), [
@@ -65,7 +65,7 @@ class SupportTicketAdminAlertsTest extends TestCase
         ]);
 
         $customerCare = $this->adminUser('customer_service', 'care-reminder@example.com');
-        $it = $this->adminUser('it', 'it-reminder@example.com');
+        $it = $this->adminUser('hr', 'it-reminder@example.com');
 
         $unansweredTicket = Ticket::query()->create([
             'user_id' => $customer->id,

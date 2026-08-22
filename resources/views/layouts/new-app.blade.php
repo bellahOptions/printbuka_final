@@ -18,6 +18,8 @@
     <meta name="robots" content="{{ $__env->yieldContent('meta_robots', 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1') }}">
     <meta name="author" content="{{ $siteName }}">
     <link rel="canonical" href="{{ $canonicalUrl }}">
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="{{ route('sitemap') }}">
+    <link rel="alternate" type="text/plain" title="LLMs" href="{{ route('llms') }}">
 
     <meta property="og:site_name" content="{{ $siteName }}">
     <meta property="og:title" content="{{ $pageTitle }}">

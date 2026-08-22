@@ -25,40 +25,64 @@ class OrderWorkflowEmailNotificationsTest extends TestCase
             'role' => 'super_admin',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
 
+        // Note: 'designer' role slug no longer exists in config/printbuka_admin.php
+        // (roles were consolidated); 'personal_assistant' is the current role that
+        // both (a) is eligible for Order::autoAssignableDesignerId()'s designer pool
+        // and (b) holds the 'design.update' permission needed to receive the
+        // JobPhaseRoleAlertMail for the Design phase. Also, assigned_designer_id is
+        // an immutable field on admin.orders.update (see
+        // AdminOrderController::rejectImmutableFieldEdits) — assignment only happens
+        // automatically via the receive-brief action, not by passing it to update().
         $designer = User::factory()->create([
-            'role' => 'designer',
+            'role' => 'personal_assistant',
             'is_active' => true,
             'email_verified_at' => now(),
             'email' => 'designer@example.com',
         ]);
 
-        $order = Order::query()->create([
-            'service_type' => 'print',
-            'quantity' => 20,
-            'unit_price' => 500,
-            'total_price' => 10000,
-            'customer_name' => 'Client Example',
-            'customer_email' => 'client@example.com',
-            'customer_phone' => '08022223333',
-            'status' => 'Analyzing Job Brief',
-            'job_order_number' => 'JOB-20260416-XYZ123',
-            'payment_status' => 'Invoice Settled (70%)',
-        ]);
+        // Designer assignment only happens automatically via Order creation
+        // (Order::autoAssignableDesignerId(), triggered from
+        // AdminOrderController::store()/handleOrderCreated()) — it's an immutable
+        // field on admin.orders.update, and receive-brief doesn't fire any
+        // notification. So we create the order through the real store endpoint to
+        // legitimately exercise the assignment-mail path.
+        $this->actingAs($workflowAdmin)
+            ->withSession(['staff_2fa_verified' => true])
+            ->post(route('admin.orders.store'), [
+                'channel' => 'Manual',
+                'job_type' => 'Business Cards',
+                'priority' => '🟡 Normal',
+                'delivery_preference' => 'pickup',
+                'customer_name' => 'Client Example',
+                'customer_email' => 'client@example.com',
+                'customer_phone' => '08022223333',
+            ])
+            ->assertSessionHasNoErrors()
+            ->assertRedirect();
+
+        $order = Order::query()->latest('id')->firstOrFail();
+        $this->assertSame($designer->id, $order->assigned_designer_id);
+
+        Mail::assertSent(JobAssignedDesignerMail::class, function (JobAssignedDesignerMail $mail): bool {
+            return $mail->hasTo('designer@example.com');
+        });
+
+        // Bump payment status so the phase-1 payment gate doesn't block the move to
+        // the Design phase, then advance status to trigger the customer + phase
+        // alert emails.
+        $order->forceFill(['payment_status' => 'Invoice Settled (70%)'])->save();
 
         $this->actingAs($workflowAdmin)
+            ->withSession(['staff_2fa_verified' => true])
             ->put(route('admin.orders.update', $order), [
-                'assigned_designer_id' => $designer->id,
                 'status' => 'Design / Artwork Preparation',
                 'internal_notes' => 'Please start immediately.',
             ])
             ->assertSessionHasNoErrors()
             ->assertRedirect();
-
-        Mail::assertSent(JobAssignedDesignerMail::class, function (JobAssignedDesignerMail $mail): bool {
-            return $mail->hasTo('designer@example.com');
-        });
 
         Mail::assertSent(JobStatusAdvancedCustomerMail::class, function (JobStatusAdvancedCustomerMail $mail): bool {
             return $mail->hasTo('client@example.com');
@@ -78,6 +102,7 @@ class OrderWorkflowEmailNotificationsTest extends TestCase
             'role' => 'super_admin',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
 
         $order = Order::query()->create([
@@ -97,7 +122,10 @@ class OrderWorkflowEmailNotificationsTest extends TestCase
         Storage::disk('public')->put($designImagePath, 'final-artwork');
 
         $this->actingAs($workflowAdmin)
-            ->withSession([LivewireSecureUploads::SESSION_KEY => [$designImagePath]])
+            ->withSession([
+                LivewireSecureUploads::SESSION_KEY => [$designImagePath],
+                'staff_2fa_verified' => true,
+            ])
             ->put(route('admin.orders.update', $order), [
                 'design_image_path' => $designImagePath,
             ])
@@ -116,6 +144,7 @@ class OrderWorkflowEmailNotificationsTest extends TestCase
             'role' => 'super_admin',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
 
         $order = Order::query()->create([
@@ -135,6 +164,7 @@ class OrderWorkflowEmailNotificationsTest extends TestCase
         Storage::disk('public')->put($tamperedPath, 'tampered-artwork');
 
         $this->actingAs($workflowAdmin)
+            ->withSession(['staff_2fa_verified' => true])
             ->from(route('admin.orders.show', $order))
             ->put(route('admin.orders.update', $order), [
                 'design_image_path' => $tamperedPath,

@@ -19,6 +19,7 @@
         </tr>
         <tr>
             <td style="padding:24px;">
+                {!! $introHtml ?? '' !!}
                 <p style="margin:0 0 14px;font-size:14px;line-height:1.7;">Hello {{ $recipient->displayName() }},</p>
 
                 @if ($rating === 1)
@@ -47,6 +48,7 @@
                         </tr>
                     @endif
                 </table>
+                {!! $outroHtml ?? '' !!}
             </td>
         </tr>
     </table>

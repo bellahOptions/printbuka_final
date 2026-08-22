@@ -186,6 +186,10 @@ class AdminOrderController extends Controller
         'customer_name' => ['required', 'string', 'max:255'],
         'customer_email' => ['required', 'email', 'max:255'],
         'customer_phone' => ['required', 'string', 'max:50'],
+        'delivery_preference' => ['required', Rule::in(['pickup', 'delivery'])],
+        'delivery_method' => ['nullable', Rule::in(config('printbuka_admin.delivery_methods'))],
+        'delivery_city' => ['nullable', 'required_if:delivery_preference,delivery', 'string', 'max:255'],
+        'delivery_address' => ['nullable', 'required_if:delivery_preference,delivery', 'string', 'max:500'],
         'priority' => ['required', 'string', 'max:255'],
         'internal_notes' => ['nullable', 'string', 'max:3000'],
         'order_items' => ['nullable', 'array'],
@@ -234,6 +238,18 @@ class AdminOrderController extends Controller
         $validated['customer_phone'] = $selectedCustomer->phone ?: $validated['customer_phone'];
     }
     unset($validated['customer_id']);
+
+    // Resolve delivery preference into the concrete delivery fields
+    $deliveryPreference = $validated['delivery_preference'] ?? 'delivery';
+    unset($validated['delivery_preference']);
+
+    if ($deliveryPreference === 'pickup') {
+        $validated['delivery_method'] = 'Client Pickup';
+        $validated['delivery_city'] = null;
+        $validated['delivery_address'] = null;
+    } else {
+        $validated['delivery_method'] = $validated['delivery_method'] ?: 'Dispatch Rider';
+    }
 
     // Process line items (images stored)
     $lineItemFiles = $request->file('order_items', []);

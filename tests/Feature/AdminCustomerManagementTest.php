@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Mail\AdminDirectCustomerMessageMail;
+use App\Models\StaffProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -20,10 +21,11 @@ class AdminCustomerManagementTest extends TestCase
             'email_verified_at' => now(),
         ]);
 
-        foreach (['customer_service', 'hr', 'management'] as $role) {
+        foreach (['customer_service', 'hr', 'managing_director'] as $role) {
             $admin = $this->adminUser($role);
 
             $this->actingAs($admin)
+                ->withSession(['staff_2fa_verified' => true])
                 ->get(route('admin.customers.index'))
                 ->assertOk();
         }
@@ -34,6 +36,7 @@ class AdminCustomerManagementTest extends TestCase
         $admin = $this->adminUser('designer');
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->get(route('admin.customers.index'))
             ->assertForbidden();
     }
@@ -51,6 +54,7 @@ class AdminCustomerManagementTest extends TestCase
         ]);
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.customers.send-message', $customer), [
                 'subject' => 'Order Clarification',
                 'message' => 'Hello, please confirm your preferred delivery slot.',
@@ -80,6 +84,7 @@ class AdminCustomerManagementTest extends TestCase
         ]);
 
         $this->actingAs($superAdmin)
+            ->withSession(['staff_2fa_verified' => true])
             ->delete(route('admin.customers.destroy', $customer))
             ->assertRedirect()
             ->assertSessionHas('status');
@@ -107,6 +112,7 @@ class AdminCustomerManagementTest extends TestCase
         ]);
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->delete(route('admin.customers.destroy', $customer))
             ->assertForbidden();
 
@@ -121,13 +127,17 @@ class AdminCustomerManagementTest extends TestCase
         $regularAdmin = $this->adminUser('customer_service');
 
         $this->actingAs($superAdmin)
+            ->withSession(['staff_2fa_verified' => true])
             ->get(route('admin.activity-logs.index'))
             ->assertOk();
 
         $this->actingAs($regularAdmin)
+            ->withSession(['staff_2fa_verified' => true])
             ->get(route('admin.activity-logs.index'))
             ->assertForbidden();
     }
+
+    private const KYC_EXEMPT_ROLES = ['super_admin', 'managing_director', 'hr'];
 
     private function adminUser(
         string $role,
@@ -135,13 +145,23 @@ class AdminCustomerManagementTest extends TestCase
         ?string $firstName = null,
         ?string $lastName = null
     ): User {
-        return User::factory()->create([
+        $user = User::factory()->create([
             'role' => $role,
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
             'email' => $email ?? fake()->unique()->safeEmail(),
             'first_name' => $firstName ?? fake()->firstName(),
             'last_name' => $lastName ?? fake()->lastName(),
         ]);
+
+        if (! in_array($role, self::KYC_EXEMPT_ROLES, true)) {
+            StaffProfile::query()->create([
+                'user_id' => $user->id,
+                'kyc_status' => 'approved',
+            ]);
+        }
+
+        return $user;
     }
 }

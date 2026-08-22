@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Mail\TaskAssignedMail;
 use App\Mail\TaskReviewOutcomeMail;
 use App\Models\DailyTodo;
+use App\Models\StaffProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -18,14 +19,19 @@ class DailyTodoWorkflowTest extends TestCase
     {
         Mail::fake();
 
+        // 'designer' and 'finance' role slugs no longer exist in
+        // config/printbuka_admin.php (roles were consolidated); 'personal_assistant'
+        // and 'customer_service' are current-config equivalents.
         $operationsManager = $this->staff('operations_manager', 'ops.manager@example.com');
-        $designer = $this->staff('designer', 'designer.staff@example.com');
-        $finance = $this->staff('finance', 'finance.staff@example.com');
+        $designer = $this->staff('personal_assistant', 'designer.staff@example.com');
+        $finance = $this->staff('customer_service', 'finance.staff@example.com');
 
         $this->actingAs($operationsManager)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.tasks.store'), [
                 'user_ids' => [$designer->id, $finance->id],
                 'task' => 'Reconcile order handoff notes',
+                'priority' => 'medium',
                 'due_date' => today()->toDateString(),
                 'notes' => 'Please complete before close of business.',
             ])
@@ -45,7 +51,7 @@ class DailyTodoWorkflowTest extends TestCase
 
     public function test_task_cannot_be_reopened_or_marked_done_again_after_completion(): void
     {
-        $assignee = $this->staff('designer', 'assignee@example.com');
+        $assignee = $this->staff('personal_assistant', 'assignee@example.com');
         $assigner = $this->staff('operations_manager', 'assigner@example.com');
 
         $todo = DailyTodo::query()->create([
@@ -57,6 +63,7 @@ class DailyTodoWorkflowTest extends TestCase
         ]);
 
         $this->actingAs($assignee)
+            ->withSession(['staff_2fa_verified' => true])
             ->patch(route('admin.tasks.mark-done', $todo))
             ->assertRedirect();
 
@@ -65,10 +72,12 @@ class DailyTodoWorkflowTest extends TestCase
         $this->assertNotNull($todo->completed_at);
 
         $this->actingAs($assignee)
+            ->withSession(['staff_2fa_verified' => true])
             ->patch(route('admin.tasks.mark-working', $todo))
             ->assertForbidden();
 
         $this->actingAs($assignee)
+            ->withSession(['staff_2fa_verified' => true])
             ->patch(route('admin.tasks.mark-done', $todo))
             ->assertForbidden();
     }
@@ -77,7 +86,7 @@ class DailyTodoWorkflowTest extends TestCase
     {
         Mail::fake();
 
-        $assignee = $this->staff('designer', 'assignee.review@example.com');
+        $assignee = $this->staff('personal_assistant', 'assignee.review@example.com');
         $assigner = $this->staff('operations_manager', 'assigner.review@example.com');
         $reviewer = $this->staff('super_admin', 'reviewer@example.com');
 
@@ -100,6 +109,7 @@ class DailyTodoWorkflowTest extends TestCase
         ]);
 
         $this->actingAs($reviewer)
+            ->withSession(['staff_2fa_verified' => true])
             ->patch(route('admin.tasks.approve', $highRatedTodo), [
                 'review_rating' => 5,
                 'review_comments' => 'Excellent execution and speed.',
@@ -112,6 +122,7 @@ class DailyTodoWorkflowTest extends TestCase
         $this->assertSame(5, $highRatedTodo->review_rating);
 
         $this->actingAs($reviewer)
+            ->withSession(['staff_2fa_verified' => true])
             ->patch(route('admin.tasks.approve', $warningTodo), [
                 'review_rating' => 1,
                 'review_comments' => 'Missed critical checklist items.',
@@ -131,6 +142,7 @@ class DailyTodoWorkflowTest extends TestCase
         });
 
         $this->actingAs($reviewer)
+            ->withSession(['staff_2fa_verified' => true])
             ->patch(route('admin.tasks.approve', $highRatedTodo), [
                 'review_rating' => 4,
             ])
@@ -139,12 +151,22 @@ class DailyTodoWorkflowTest extends TestCase
 
     private function staff(string $role, string $email): User
     {
-        return User::factory()->create([
+        $user = User::factory()->create([
             'role' => $role,
             'email' => $email,
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
+
+        if (! in_array($role, ['super_admin', 'managing_director', 'hr'], true)) {
+            StaffProfile::query()->create([
+                'user_id' => $user->id,
+                'kyc_status' => 'approved',
+            ]);
+        }
+
+        return $user;
     }
 }
 

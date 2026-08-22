@@ -84,6 +84,7 @@
                     {{-- Body --}}
                     <tr>
                         <td style="padding:24px 28px;">
+                            {!! $introHtml ?? '' !!}
                             <p style="margin:0 0 16px;font-size:15px;">Hello {{ $order->customer_name }},</p>
                             <p style="margin:0 0 24px;line-height:1.7;color:#475569;font-size:14px;">{{ $statusMessage }}</p>
 
@@ -141,6 +142,7 @@
                                 For questions, simply reply to this email or contact us. We're always happy to help!
                             </p>
                             <p style="margin:0;font-size:14px;font-weight:600;">Thank you for choosing {{ $siteName }}!</p>
+                            {!! $outroHtml ?? '' !!}
                         </td>
                     </tr>
 

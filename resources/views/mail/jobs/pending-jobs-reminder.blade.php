@@ -5,6 +5,7 @@
     <title>Pending Jobs Reminder</title>
 </head>
 <body style="font-family:Arial,sans-serif;color:#0f172a;line-height:1.6;">
+    {!! $introHtml ?? '' !!}
     <p>Hello {{ $recipient->displayName() }},</p>
     <p>You have paid pending jobs/tasks that need attention:</p>
     <ul>
@@ -24,5 +25,6 @@
         @endforeach
     </ul>
     <p>Please update these jobs in the admin dashboard.</p>
+    {!! $outroHtml ?? '' !!}
 </body>
 </html>

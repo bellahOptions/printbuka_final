@@ -5,9 +5,7 @@ namespace Tests\Feature;
 use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\User;
-use App\Services\PaystackService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Mockery\MockInterface;
 use Tests\TestCase;
 
 class PaymentProcessRouteTest extends TestCase
@@ -49,18 +47,13 @@ class PaymentProcessRouteTest extends TestCase
             'due_at' => now()->addDays(7),
         ]);
 
-        $this->mock(PaystackService::class, function (MockInterface $mock): void {
-            $mock->shouldReceive('initializeForInvoice')
-                ->once()
-                ->andReturn([
-                    'ok' => true,
-                    'authorization_url' => 'https://paystack.example/checkout/test',
-                ]);
-        });
-
+        // Invoice payment now surfaces bank transfer details on the invoice
+        // show page instead of redirecting to a Paystack checkout session
+        // (see app/Http/Controllers/PaymentController.php::process()).
         $this->actingAs($customer)
             ->get(route('payment.process', $invoice))
-            ->assertRedirect('https://paystack.example/checkout/test');
+            ->assertRedirect(route('user.invoices.show', $invoice))
+            ->assertSessionHas('status', 'Please use the bank transfer details below to complete your payment.');
     }
 
     public function test_customer_cannot_initiate_payment_for_another_users_invoice(): void

@@ -39,6 +39,7 @@
                         </tr>
                         <tr>
                             <td style="padding:24px;">
+                                {!! $introHtml ?? '' !!}
                                 <p style="margin:0 0 14px;font-size:14px;line-height:1.6;">Hello {{ $recipient->displayName() }},</p>
                                 <p style="margin:0 0 16px;font-size:14px;line-height:1.6;">A workflow transition requires action from your team. Please review and process this job promptly.</p>
 
@@ -73,6 +74,7 @@
                                 @endif
 
                                 <a href="{{ $adminOrderUrl }}" style="display:inline-block;background:#EC268F;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;padding:12px 18px;border-radius:8px;">Open Job in Admin Dashboard</a>
+                                {!! $outroHtml ?? '' !!}
                             </td>
                         </tr>
                     </table>

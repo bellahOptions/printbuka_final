@@ -10,6 +10,7 @@
         <p>{{ $entry->payrollRun?->periodLabel() }}</p>
     </div>
     <div class="body">
+        {!! $introHtml ?? '' !!}
         <p style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px">{{ $entry->staff?->displayName() }}</p>
         <p style="font-size:13px;color:#64748b;margin-bottom:24px">{{ $entry->staff?->role ? ucwords(str_replace('_', ' ', $entry->staff->role)) : '' }}</p>
 
@@ -28,6 +29,7 @@
         <div class="total-row"><span>Net Pay</span><span style="color:#059669">₦{{ number_format($entry->net_salary, 2) }}</span></div>
 
         <p style="font-size:12px;color:#94a3b8;text-align:center;margin-top:20px">Please find your detailed payslip PDF attached to this email.</p>
+        {!! $outroHtml ?? '' !!}
     </div>
     <div class="footer">&copy; {{ date('Y') }} Printbuka. This payslip is confidential.</div>
 </div>

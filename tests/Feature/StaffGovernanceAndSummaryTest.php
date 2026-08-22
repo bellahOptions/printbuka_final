@@ -7,7 +7,7 @@ use App\Mail\StaffSignupAlertMail;
 use App\Models\StaffActivity;
 use App\Models\User;
 use App\Services\StaffActivitySummaryService;
-use Illuminate\Auth\Notifications\VerifyEmail;
+use App\Notifications\Auth\VerifyEmailNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
@@ -51,7 +51,7 @@ class StaffGovernanceAndSummaryTest extends TestCase
         $this->assertNull($staff->other_role);
         $this->assertFalse((bool) $staff->is_active);
 
-        Notification::assertSentTo($staff, VerifyEmail::class);
+        Notification::assertSentTo($staff, VerifyEmailNotification::class);
         Mail::assertSent(StaffSignupAlertMail::class, function (StaffSignupAlertMail $mail) use ($superAdmin, $staff): bool {
             return $mail->hasTo($superAdmin->email)
                 && $mail->staff->is($staff);

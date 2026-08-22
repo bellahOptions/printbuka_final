@@ -14,6 +14,7 @@
         </div>
 
         <div style="padding: 28px 32px;">
+            {!! $introHtml ?? '' !!}
             <p style="margin: 0 0 20px; font-size: 14px; color: #374151; line-height: 1.6;">
                 Please find attached the <strong>{{ $periodLabel }} Finance Report</strong> as a PDF document.
                 It includes a full transaction ledger and summary KPIs for the selected period.
@@ -44,6 +45,7 @@
             <p style="margin: 0; font-size: 12px; color: #9ca3af;">
                 This report is confidential and intended solely for internal use at Printbuka.
             </p>
+            {!! $outroHtml ?? '' !!}
         </div>
 
         <div style="padding: 16px 32px; background: #f8fafc; border-top: 1px solid #e5e7eb;">

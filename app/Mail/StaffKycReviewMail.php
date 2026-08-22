@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\HasEditableTemplate;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -11,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 
 class StaffKycReviewMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use HasEditableTemplate, Queueable, SerializesModels;
 
     public function __construct(
         public readonly User $staff,
@@ -26,11 +27,29 @@ class StaffKycReviewMail extends Mailable
             ? 'Your KYC Has Been Approved — Printbuka'
             : 'Action Required: KYC Correction Requested — Printbuka';
 
-        return new Envelope(subject: $subject);
+        return new Envelope(subject: $this->templateSubject($subject));
     }
 
     public function content(): Content
     {
-        return new Content(view: 'emails.staff.kyc-review');
+        return new Content(view: 'emails.staff.kyc-review', with: [
+            'introHtml' => $this->templateIntroHtml(),
+            'outroHtml' => $this->templateOutroHtml(),
+        ]);
+    }
+
+    protected function templateKey(): string
+    {
+        return 'staff.kyc_review';
+    }
+
+    protected function templateVariables(): array
+    {
+        return [
+            'staff_name' => $this->staff->displayName(),
+            'status' => $this->status,
+            'reviewer_name' => $this->reviewerName,
+            'notes' => (string) ($this->notes ?? ''),
+        ];
     }
 }

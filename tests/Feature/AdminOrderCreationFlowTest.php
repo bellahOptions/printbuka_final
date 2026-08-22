@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Order;
+use App\Models\StaffProfile;
 use App\Models\User;
 use App\Support\LivewireSecureUploads;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -31,6 +32,7 @@ class AdminOrderCreationFlowTest extends TestCase
         ]);
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.orders.store'), [
                 'channel' => 'Manual',
                 'job_type' => 'Business Cards',
@@ -73,6 +75,7 @@ class AdminOrderCreationFlowTest extends TestCase
         $admin = $this->adminUser('customer_service');
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.orders.store'), [
                 'channel' => 'Manual',
                 'job_type' => 'Business Cards',
@@ -99,7 +102,10 @@ class AdminOrderCreationFlowTest extends TestCase
         Storage::disk('public')->put($imagePath, 'image-content');
 
         $this->actingAs($admin)
-            ->withSession([LivewireSecureUploads::SESSION_KEY => [$imagePath]])
+            ->withSession([
+                LivewireSecureUploads::SESSION_KEY => [$imagePath],
+                'staff_2fa_verified' => true,
+            ])
             ->post(route('admin.orders.store'), [
                 'channel' => 'Manual',
                 'job_type' => 'Business Cards',
@@ -131,6 +137,7 @@ class AdminOrderCreationFlowTest extends TestCase
         Storage::disk('public')->put($tamperedPath, 'image-content');
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->from(route('admin.orders.create'))
             ->post(route('admin.orders.store'), [
                 'channel' => 'Manual',
@@ -151,10 +158,20 @@ class AdminOrderCreationFlowTest extends TestCase
 
     private function adminUser(string $role): User
     {
-        return User::factory()->create([
+        $user = User::factory()->create([
             'role' => $role,
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
+
+        if (! in_array($role, ['super_admin', 'managing_director', 'hr'], true)) {
+            StaffProfile::query()->create([
+                'user_id' => $user->id,
+                'kyc_status' => 'approved',
+            ]);
+        }
+
+        return $user;
     }
 }

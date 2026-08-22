@@ -5,6 +5,7 @@
     <title>Daily Staff Activity Summary</title>
 </head>
 <body style="font-family: Arial, sans-serif; color: #0f172a; line-height: 1.6;">
+    {!! $introHtml ?? '' !!}
     <p>Hello {{ $recipient->displayName() }},</p>
     <p>
         Staff activity summary for <strong>{{ $reportDate->format('l, F j, Y') }}</strong>.
@@ -43,5 +44,6 @@
     @endif
 
     <p style="margin-top: 16px;">Regards,<br>Printbuka System</p>
+    {!! $outroHtml ?? '' !!}
 </body>
 </html>

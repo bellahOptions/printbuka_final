@@ -44,7 +44,10 @@ class NamedRouteReferenceIntegrityTest extends TestCase
                     continue;
                 }
 
-                if (! preg_match_all('/route\(\s*[\'"]([A-Za-z0-9_.-]+)[\'"]/', $content, $matches)) {
+                // Exclude `->route(...)` method calls (e.g. Illuminate\Http\Request::route()
+                // resolving a bound route parameter) — only the global route() helper for
+                // named routes is checked here.
+                if (! preg_match_all('/(?<!->)route\(\s*[\'"]([A-Za-z0-9_.-]+)[\'"]/', $content, $matches)) {
                     continue;
                 }
 

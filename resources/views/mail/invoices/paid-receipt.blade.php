@@ -45,6 +45,7 @@
                         </tr>
                         <tr>
                             <td class="email-content" style="padding:26px;">
+                                {!! $introHtml ?? '' !!}
                                 <p style="margin:0 0 16px;">Hello {{ $invoice->order->customer_name }},</p>
                                 <p style="margin:0 0 16px;line-height:1.6;">We have successfully confirmed your payment. Your receipt is attached as a PDF in this email.</p>
                                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:24px 0;">
@@ -87,6 +88,7 @@
                                     </table>
                                 @endif
                                 <p style="margin:0;line-height:1.6;">Thank you for choosing Printbuka.</p>
+                                {!! $outroHtml ?? '' !!}
                             </td>
                         </tr>
                     </table>

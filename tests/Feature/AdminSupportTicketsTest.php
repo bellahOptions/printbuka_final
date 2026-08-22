@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\StaffProfile;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -13,10 +14,11 @@ class AdminSupportTicketsTest extends TestCase
 
     public function test_staff_can_create_internal_support_ticket_and_auto_assign_to_super_admin(): void
     {
-        $staff = $this->adminUser('operations', 'ops@example.com');
+        $staff = $this->adminUser('operations_manager', 'ops@example.com');
         $superAdmin = $this->adminUser('super_admin', 'sa@example.com');
 
         $this->actingAs($staff)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.support.store'), [
                 'subject' => 'POS printer not responding',
                 'category' => 'technical',
@@ -49,6 +51,7 @@ class AdminSupportTicketsTest extends TestCase
         ]);
 
         $this->actingAs($superAdmin)
+            ->withSession(['staff_2fa_verified' => true])
             ->get(route('admin.support.show', $ticket))
             ->assertOk()
             ->assertSeeText('Catalog sync issue');
@@ -69,11 +72,21 @@ class AdminSupportTicketsTest extends TestCase
 
     private function adminUser(string $role, string $email): User
     {
-        return User::factory()->create([
+        $user = User::factory()->create([
             'role' => $role,
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
             'email' => $email,
         ]);
+
+        if (! in_array($role, ['super_admin', 'managing_director', 'hr'], true)) {
+            StaffProfile::query()->create([
+                'user_id' => $user->id,
+                'kyc_status' => 'approved',
+            ]);
+        }
+
+        return $user;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\HasEditableTemplate;
 use App\Models\ShopOrder;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
@@ -10,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 
 class ShopOrderConfirmationMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use HasEditableTemplate, Queueable, SerializesModels;
 
     public function __construct(public ShopOrder $order)
     {
@@ -22,11 +23,29 @@ class ShopOrderConfirmationMail extends Mailable
         $pdf = Pdf::loadView('shop.receipt-pdf', ['order' => $this->order])->output();
 
         return $this
-            ->subject('Order confirmed! ' . $this->order->reference . ' — Printbuka')
+            ->subject($this->templateSubject('Order confirmed! ' . $this->order->reference . ' — Printbuka'))
             ->view('mail.shop.order-confirmation')
-            ->with(['order' => $this->order])
+            ->with([
+                'order' => $this->order,
+                'introHtml' => $this->templateIntroHtml(),
+                'outroHtml' => $this->templateOutroHtml(),
+            ])
             ->attachData($pdf, 'receipt-' . $this->order->reference . '.pdf', [
                 'mime' => 'application/pdf',
             ]);
+    }
+
+    protected function templateKey(): string
+    {
+        return 'shop.order_confirmation';
+    }
+
+    protected function templateVariables(): array
+    {
+        return [
+            'customer_name' => (string) $this->order->customer_name,
+            'order_reference' => (string) $this->order->reference,
+            'total_amount' => number_format((float) $this->order->total, 2),
+        ];
     }
 }

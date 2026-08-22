@@ -16,6 +16,7 @@
         </tr>
         <tr>
             <td style="padding:24px;">
+                {!! $introHtml ?? '' !!}
                 <p style="margin:0 0 14px;font-size:14px;line-height:1.7;">Hello {{ $recipient->displayName() }},</p>
                 <p style="margin:0 0 14px;font-size:14px;line-height:1.7;">{{ $assigner->displayName() }} assigned a new task to you. Please review and complete it and report your progress to your HOD via email or in your staff dashboard.</p>
 
@@ -41,6 +42,7 @@
                         </tr>
                     @endif
                 </table>
+                {!! $outroHtml ?? '' !!}
             </td>
         </tr>
     </table>

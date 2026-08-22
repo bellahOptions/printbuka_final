@@ -316,14 +316,29 @@ class DirectImageOrderForm extends Component
         ]);
 
         $invoice = $invoiceService->createForOrder($order);
-        $invoiceService->sendInvoice($invoice);
+        $sent = $invoiceService->sendInvoice($invoice);
 
         session()->put('tracked_orders.'.$order->id, true);
 
-        return redirect()->route('services.orders.success', [
-            'service' => 'direct-image-printing',
-            'order' => $order,
-        ])->with('status', 'Order submitted successfully! Please check your email for invoice and bank transfer details.');
+        $paymentInit = $paystackService->initializeForInvoice($invoice);
+
+        if (($paymentInit['ok'] ?? false) && filled($paymentInit['authorization_url'] ?? null)) {
+            return redirect()->away((string) $paymentInit['authorization_url']);
+        }
+
+        return redirect()
+            ->route('services.orders.success', [
+                'service' => 'direct-image-printing',
+                'order' => $order,
+            ])
+            ->with(
+                ($sent && ! $paystackService->enabled()) ? 'status' : 'warning',
+                $paystackService->enabled()
+                    ? ($paymentInit['message'] ?? 'Order submitted. We could not redirect to Paystack right now.')
+                    : ($sent
+                        ? 'Your invoice has been emailed with a PDF attachment. Payment gateway is not yet configured.'
+                        : 'Your invoice was created, but the email could not be sent. Our team will follow up.')
+            );
     }
 
     public function render()

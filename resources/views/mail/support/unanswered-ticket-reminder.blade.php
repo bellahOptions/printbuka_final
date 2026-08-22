@@ -26,6 +26,7 @@
                         </tr>
                         <tr>
                             <td style="padding:24px;">
+                                {!! $introHtml ?? '' !!}
                                 <p style="margin:0 0 14px;font-size:14px;line-height:1.6;">Hello {{ $recipient->displayName() }},</p>
                                 <p style="margin:0 0 16px;font-size:14px;line-height:1.6;">Please review the unanswered support queue below and respond as soon as possible.</p>
 
@@ -51,6 +52,7 @@
 
                                 <p style="margin:16px 0 0;font-size:13px;line-height:1.6;color:#475569;">Open the admin support portal to respond and keep SLA compliance on track.</p>
                                 <a href="{{ route('admin.support.index') }}" style="display:inline-block;margin-top:14px;background:#EC268F;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;padding:12px 18px;border-radius:8px;">Open Support Queue</a>
+                                {!! $outroHtml ?? '' !!}
                             </td>
                         </tr>
                     </table>

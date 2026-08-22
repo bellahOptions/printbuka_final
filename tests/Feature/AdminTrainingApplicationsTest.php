@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Mail\TrainingApplicationDecisionMail;
+use App\Models\StaffProfile;
 use App\Models\Training;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -19,12 +20,14 @@ class AdminTrainingApplicationsTest extends TestCase
         $application = $this->application();
 
         $this->actingAs($hr)
+            ->withSession(['staff_2fa_verified' => true])
             ->get(route('admin.training.index'))
             ->assertOk()
             ->assertSeeText('Training submissions.')
             ->assertSeeText($application->fullName());
 
         $this->actingAs($hr)
+            ->withSession(['staff_2fa_verified' => true])
             ->get(route('admin.training.show', $application))
             ->assertOk()
             ->assertSeeText($application->email)
@@ -39,6 +42,7 @@ class AdminTrainingApplicationsTest extends TestCase
         $application = $this->application();
 
         $this->actingAs($hr)
+            ->withSession(['staff_2fa_verified' => true])
             ->patch(route('admin.training.decide', $application), [
                 'status' => Training::STATUS_ACCEPTED,
                 'decision_note' => 'Welcome to the cohort.',
@@ -67,6 +71,7 @@ class AdminTrainingApplicationsTest extends TestCase
         $application = $this->application();
 
         $this->actingAs($hr)
+            ->withSession(['staff_2fa_verified' => true])
             ->patch(route('admin.training.decide', $application), [
                 'status' => Training::STATUS_REJECTED,
                 'decision_note' => 'Please apply again in a future cohort.',
@@ -90,10 +95,12 @@ class AdminTrainingApplicationsTest extends TestCase
         $application = $this->application();
 
         $this->actingAs($designer)
+            ->withSession(['staff_2fa_verified' => true])
             ->get(route('admin.training.index'))
             ->assertForbidden();
 
         $this->actingAs($designer)
+            ->withSession(['staff_2fa_verified' => true])
             ->patch(route('admin.training.decide', $application), [
                 'status' => Training::STATUS_ACCEPTED,
             ])
@@ -113,6 +120,7 @@ class AdminTrainingApplicationsTest extends TestCase
         ]);
 
         $this->actingAs($hr)
+            ->withSession(['staff_2fa_verified' => true])
             ->get(route('admin.training.show', $application))
             ->assertOk()
             ->assertSeeText('Decision locked')
@@ -120,6 +128,7 @@ class AdminTrainingApplicationsTest extends TestCase
             ->assertDontSeeText('Reject Applicant');
 
         $this->actingAs($hr)
+            ->withSession(['staff_2fa_verified' => true])
             ->patch(route('admin.training.decide', $application), [
                 'status' => Training::STATUS_REJECTED,
                 'decision_note' => 'Changing decision.',
@@ -144,6 +153,7 @@ class AdminTrainingApplicationsTest extends TestCase
         $pending = $this->application(['first_name' => 'Pending', 'email' => 'pending@example.com', 'status' => Training::STATUS_PENDING]);
 
         $this->actingAs($hr)
+            ->withSession(['staff_2fa_verified' => true])
             ->get(route('admin.training.index'))
             ->assertOk()
             ->assertSeeInOrder([
@@ -155,10 +165,21 @@ class AdminTrainingApplicationsTest extends TestCase
 
     private function staff(string $role): User
     {
-        return User::factory()->create([
+        $user = User::factory()->create([
             'role' => $role,
             'is_active' => true,
+            'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
+
+        if (! in_array($role, ['super_admin', 'managing_director', 'hr'], true)) {
+            StaffProfile::query()->create([
+                'user_id' => $user->id,
+                'kyc_status' => 'approved',
+            ]);
+        }
+
+        return $user;
     }
 
     private function application(array $overrides = []): Training

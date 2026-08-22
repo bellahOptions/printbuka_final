@@ -38,6 +38,7 @@
                     {{-- Body --}}
                     <tr>
                         <td style="padding:28px;">
+                            {!! $introHtml ?? '' !!}
                             <p style="margin:0 0 16px;">Hello {{ $order->customer_name }},</p>
                             <p style="margin:0 0 24px;line-height:1.6;color:#475569;">
                                 We're sorry — the payment for your order was not completed successfully.
@@ -94,6 +95,7 @@
                                 If you need any assistance, please contact our support team.
                             </p>
                             @endif
+                            {!! $outroHtml ?? '' !!}
                         </td>
                     </tr>
 

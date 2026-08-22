@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Mail\JobCompletedAppreciationMail;
 use App\Mail\JobConclusionSummaryMail;
 use App\Models\Order;
+use App\Models\StaffProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -26,6 +27,7 @@ class OrderConclusionFlowTest extends TestCase
         ]);
 
         $this->actingAs($operationsManager)
+            ->withSession(['staff_2fa_verified' => true])
             ->patch(route('admin.orders.conclude', $order))
             ->assertRedirect()
             ->assertSessionHas('status', 'Job concluded successfully. Invoice auto-settled and job locked from further edits.');
@@ -54,6 +56,7 @@ class OrderConclusionFlowTest extends TestCase
         ]);
 
         $this->actingAs($superAdmin)
+            ->withSession(['staff_2fa_verified' => true])
             ->patch(route('admin.orders.conclude', $order))
             ->assertRedirect();
 
@@ -61,6 +64,7 @@ class OrderConclusionFlowTest extends TestCase
         $this->assertTrue((bool) $order->is_concluded);
 
         $this->actingAs($superAdmin)
+            ->withSession(['staff_2fa_verified' => true])
             ->put(route('admin.orders.update', $order), [
                 'internal_notes' => 'Attempted post-conclusion edit',
             ])
@@ -68,6 +72,7 @@ class OrderConclusionFlowTest extends TestCase
             ->assertSessionHas('warning', 'This job has been concluded and is locked from further edits.');
 
         $this->actingAs($superAdmin)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.orders.move-forward', $order))
             ->assertRedirect()
             ->assertSessionHas('warning', 'This job has been concluded and is locked from further edits.');
@@ -79,18 +84,29 @@ class OrderConclusionFlowTest extends TestCase
         $order = $this->order();
 
         $this->actingAs($designer)
+            ->withSession(['staff_2fa_verified' => true])
             ->patch(route('admin.orders.conclude', $order))
             ->assertForbidden();
     }
 
     private function staff(string $role, string $email): User
     {
-        return User::factory()->create([
+        $user = User::factory()->create([
             'role' => $role,
             'email' => $email,
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
+
+        if (! in_array($role, ['super_admin', 'managing_director', 'hr'], true)) {
+            StaffProfile::query()->create([
+                'user_id' => $user->id,
+                'kyc_status' => 'approved',
+            ]);
+        }
+
+        return $user;
     }
 
     private function order(array $attributes = []): Order

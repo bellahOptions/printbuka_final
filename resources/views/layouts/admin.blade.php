@@ -196,7 +196,7 @@
                     </a>
 
                     {{-- CRM --}}
-                    @if($admin?->canAdmin('customers.manage') || $admin?->canAdmin('invoices.manage') || $admin?->canAdmin('pricelist.manage'))
+                    @if($admin?->canAdmin('customers.manage') || $admin?->canAdmin('invoices.manage') || $admin?->canAdmin('pricelist.manage') || $admin?->canAdmin('newsletters.manage'))
                         <p class="pb-nav-group mt-3">CRM</p>
                     @endif
 
@@ -207,6 +207,16 @@
                                       d="M17 20h5V8a2 2 0 00-2-2h-3m-7 14H5a2 2 0 01-2-2V8a2 2 0 012-2h3m4 14v-4a2 2 0 00-2-2H8a2 2 0 00-2 2v4m6 0h2m-6 0H6m6-14V4a2 2 0 00-2-2H8a2 2 0 00-2 2v2m6 0H6"/>
                             </svg>
                             <span>Customers</span>
+                        </a>
+                    @endif
+
+                    @if($admin?->canAdmin('newsletters.manage'))
+                        <a href="{{ route('admin.newsletters.index') }}" class="{{ $navLink('admin.newsletters.*') }}">
+                            <svg class="pb-nav-icon h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            <span>Newsletters</span>
                         </a>
                     @endif
 
@@ -373,6 +383,20 @@
                                           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h6l5 5v11a2 2 0 01-2 2z"/>
                                 </svg>
                                 <span>Policies</span>
+                            </a>
+                            <a href="{{ route('admin.email-templates.index') }}" class="{{ $navLink('admin.email-templates.*') }}">
+                                <svg class="pb-nav-icon h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                          d="M4 4h16v16H4V4zm0 4h16M8 4v4m3 4h5m-5 4h5"/>
+                                </svg>
+                                <span>Email Templates</span>
+                            </a>
+                            <a href="{{ route('admin.memos.index') }}" class="{{ $navLink('admin.memos.*') }}">
+                                <svg class="pb-nav-icon h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                                <span>Internal Memos</span>
                             </a>
                         @endif
                     @endif

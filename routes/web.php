@@ -15,6 +15,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PolicyPageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceOrderController;
 use App\Http\Controllers\ShopCartController;
@@ -148,6 +149,10 @@ Route::middleware('customer.portal')->group(function (): void {
     Route::get('/products/{product}/order', [OrderController::class, 'create'])->name('orders.create');
     Route::post('/products/{product}/order', [OrderController::class, 'store'])->name('orders.store');
     Route::get('/orders/{order}/success', [OrderController::class, 'success'])->name('orders.success');
+
+    Route::get('/quotes/create', [QuoteController::class, 'create'])->name('quotes.create');
+    Route::post('/quotes', [QuoteController::class, 'store'])->name('quotes.store');
+    Route::get('/quotes/{order}/success', [QuoteController::class, 'success'])->name('quotes.success');
 
     Route::get('/track-order', [TrackOrderController::class, 'create'])->name('orders.track');
     Route::post('/track-order', [TrackOrderController::class, 'store'])->name('orders.track.store');

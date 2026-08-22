@@ -10,6 +10,7 @@
         <p>Staff HR Portal</p>
     </div>
     <div class="body">
+        {!! $introHtml ?? '' !!}
         <p class="greeting">Hello {{ $staff->displayName() }},</p>
         <p class="message">
             Welcome to the Printbuka team! Your account has been activated and you now have access to the staff portal.
@@ -30,6 +31,7 @@
             Once logged in, navigate to <strong>My Profile → Bio-Data</strong> to fill in the form.
             If you have any questions, contact HR directly.
         </p>
+        {!! $outroHtml ?? '' !!}
     </div>
     <div class="footer">
         &copy; {{ date('Y') }} Printbuka. This is an automated notification — do not reply to this email.

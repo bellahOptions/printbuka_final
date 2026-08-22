@@ -46,6 +46,11 @@
     <section id="catalog" class="py-12">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
+            <div class="mb-6">
+                <div class="badge badge-outline border-pink-300 text-pink-700 font-black mb-3">Full Catalog</div>
+                <h2 class="text-3xl font-black text-slate-950">All products with smart filters and infinite loading.</h2>
+            </div>
+
             <form method="GET" action="{{ route('products.index') }}" class="mb-8 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
                 <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                     <label class="form-control">

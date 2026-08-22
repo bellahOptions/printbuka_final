@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\HasEditableTemplate;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -10,7 +11,7 @@ use Illuminate\Support\Collection;
 
 class FinanceReportMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use HasEditableTemplate, Queueable, SerializesModels;
 
     public function __construct(
         private Collection $entries,
@@ -40,14 +41,32 @@ class FinanceReportMail extends Mailable
         $filename = 'finance-'.strtolower($this->periodLabel).'-'.now()->format('Y-m-d').'.pdf';
 
         return $this
-            ->subject('Printbuka Finance Report — '.$this->periodLabel.' ('.now()->format('M j, Y').')')
+            ->subject($this->templateSubject('Printbuka Finance Report — '.$this->periodLabel.' ('.now()->format('M j, Y').')'))
             ->view('mail.finance.report', [
                 'periodLabel'     => $this->periodLabel,
                 'incomeTotal'     => $this->incomeTotal,
                 'expenseTotal'    => $this->expenseTotal,
                 'netTotal'        => $this->netTotal,
                 'generatedByName' => $this->generatedByName,
+                'introHtml'       => $this->templateIntroHtml(),
+                'outroHtml'       => $this->templateOutroHtml(),
             ])
             ->attachData($pdf, $filename, ['mime' => 'application/pdf']);
+    }
+
+    protected function templateKey(): string
+    {
+        return 'finance.report';
+    }
+
+    protected function templateVariables(): array
+    {
+        return [
+            'period_label' => $this->periodLabel,
+            'income_total' => number_format($this->incomeTotal, 2),
+            'expense_total' => number_format($this->expenseTotal, 2),
+            'net_total' => number_format($this->netTotal, 2),
+            'generated_by_name' => $this->generatedByName,
+        ];
     }
 }

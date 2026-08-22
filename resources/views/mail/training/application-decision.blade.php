@@ -13,6 +13,7 @@
     </h1>
     <p style="margin:10px 0 0;color:#cbd5e1;font-size:14px;line-height:1.7;">Printbuka Graduate Trainee Program application update.</p>
 
+    {!! $introHtml ?? '' !!}
     <p style="margin:18px 0 14px;font-size:15px;line-height:1.7;">Hello {{ $applicantName }},</p>
 
     @if ($accepted)
@@ -46,4 +47,5 @@
             <p style="margin:0;font-size:13px;line-height:1.7;color:#334155;">{{ $application->decision_note }}</p>
         </div>
     @endif
+    {!! $outroHtml ?? '' !!}
 @endsection

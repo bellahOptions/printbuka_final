@@ -1,4 +1,5 @@
 import './bootstrap';
+import Sortable from 'sortablejs';
 
 /* ─── Popover (data-popover-btn / data-popover-panel) ─── */
 document.addEventListener('DOMContentLoaded', () => {
@@ -82,4 +83,61 @@ document.addEventListener('submit', (event) => {
 
         disableSubmittingForm(form, event.submitter);
     });
+});
+
+/* ─── Drag-and-drop email block builder (Alpine.data component) ─── */
+const blockDefaults = {
+    heading: { text: 'New heading', size: 'md' },
+    paragraph: { text: 'Write your message here…' },
+    image: { url: '', alt: '' },
+    button: { label: 'Click here', url: 'https://' },
+    divider: {},
+    spacer: { height: 16 },
+};
+
+const newBlockId = () => (window.crypto?.randomUUID ? window.crypto.randomUUID() : `blk_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
+
+document.addEventListener('alpine:init', () => {
+    window.Alpine.data('emailBlockBuilder', (initialBlocks = []) => ({
+        blocks: Array.isArray(initialBlocks) && initialBlocks.length
+            ? initialBlocks.map((block) => ({ id: block.id || newBlockId(), ...block }))
+            : [],
+        selectedId: null,
+
+        addBlock(type) {
+            if (!blockDefaults[type]) return;
+            const block = { id: newBlockId(), type, ...structuredClone(blockDefaults[type]) };
+            this.blocks.push(block);
+            this.selectedId = block.id;
+        },
+
+        removeBlock(id) {
+            this.blocks = this.blocks.filter((block) => block.id !== id);
+            if (this.selectedId === id) this.selectedId = null;
+        },
+
+        selectBlock(id) {
+            this.selectedId = this.selectedId === id ? null : id;
+        },
+
+        get selected() {
+            return this.blocks.find((block) => block.id === this.selectedId) || null;
+        },
+
+        initSortable(el) {
+            Sortable.create(el, {
+                handle: '.block-drag-handle',
+                animation: 150,
+                onEnd: (evt) => {
+                    if (evt.oldIndex === evt.newIndex) return;
+                    const moved = this.blocks.splice(evt.oldIndex, 1)[0];
+                    this.blocks.splice(evt.newIndex, 0, moved);
+                },
+            });
+        },
+
+        serialize() {
+            return JSON.stringify(this.blocks);
+        },
+    }));
 });

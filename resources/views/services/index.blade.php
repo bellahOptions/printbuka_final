@@ -41,6 +41,7 @@
         {{-- Content --}}
         <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-16">
             <div class="max-w-3xl">
+                <p class="text-xs font-black uppercase tracking-widest text-[#EC268F] mb-4">Our Services</p>
                 <h1 class="text-5xl sm:text-6xl font-black text-white leading-[1.05] mb-6">
                     Print Services Built<br>
                     for <span class="text-[#EC268F]">Business Results</span>

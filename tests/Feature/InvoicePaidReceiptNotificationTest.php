@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Mail\InvoicePaidReceiptMail;
 use App\Models\Invoice;
 use App\Models\Order;
+use App\Models\StaffProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -22,6 +23,7 @@ class InvoicePaidReceiptNotificationTest extends TestCase
             'role' => 'super_admin',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
 
         $order = Order::query()->create([
@@ -50,14 +52,24 @@ class InvoicePaidReceiptNotificationTest extends TestCase
         ]);
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->put(route('admin.invoices.update', $invoice), [
                 'order_id' => $order->id,
                 'invoice_number' => $invoice->invoice_number,
-                'subtotal' => 10000,
+                'customer_name' => 'Ada Client',
+                'customer_email' => 'ada@example.com',
+                'customer_phone' => '08012345678',
+                'catalog_item_key' => 'service:dtf',
+                'line_items' => [
+                    [
+                        'description' => 'Reprint balance',
+                        'quantity' => 10,
+                        'rate' => 1000,
+                    ],
+                ],
                 'tax_amount' => 0,
                 'discount_amount' => 0,
-                'total_amount' => 10000,
-                'status' => 'paid',
+                'invoice_status' => 'paid',
                 'issued_at' => now()->format('Y-m-d H:i:s'),
                 'due_at' => now()->addDays(7)->format('Y-m-d H:i:s'),
             ])
@@ -84,6 +96,7 @@ class InvoicePaidReceiptNotificationTest extends TestCase
             'role' => 'super_admin',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
 
         $order = Order::query()->create([
@@ -114,14 +127,24 @@ class InvoicePaidReceiptNotificationTest extends TestCase
         ]);
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->put(route('admin.invoices.update', $invoice), [
                 'order_id' => $order->id,
                 'invoice_number' => $invoice->invoice_number,
-                'subtotal' => 10000,
+                'customer_name' => 'Express Client',
+                'customer_email' => 'express@example.com',
+                'customer_phone' => '08012345678',
+                'catalog_item_key' => 'service:dtf',
+                'line_items' => [
+                    [
+                        'description' => 'Express reprint',
+                        'quantity' => 5,
+                        'rate' => 2000,
+                    ],
+                ],
                 'tax_amount' => 0,
                 'discount_amount' => 0,
-                'total_amount' => 10000,
-                'status' => 'paid',
+                'invoice_status' => 'paid',
                 'issued_at' => now()->format('Y-m-d H:i:s'),
                 'due_at' => now()->addDays(7)->format('Y-m-d H:i:s'),
             ])
@@ -146,6 +169,11 @@ class InvoicePaidReceiptNotificationTest extends TestCase
             'role' => 'customer_service',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
+        ]);
+        StaffProfile::query()->create([
+            'user_id' => $customerService->id,
+            'kyc_status' => 'approved',
         ]);
 
         $order = Order::query()->create([
@@ -174,14 +202,24 @@ class InvoicePaidReceiptNotificationTest extends TestCase
         ]);
 
         $this->actingAs($customerService)
+            ->withSession(['staff_2fa_verified' => true])
             ->put(route('admin.invoices.update', $invoice), [
                 'order_id' => $order->id,
                 'invoice_number' => $invoice->invoice_number,
-                'subtotal' => 10000,
+                'customer_name' => 'Dispute Client',
+                'customer_email' => 'dispute@example.com',
+                'customer_phone' => '08012345678',
+                'catalog_item_key' => 'service:dtf',
+                'line_items' => [
+                    [
+                        'description' => 'Disputed order',
+                        'quantity' => 10,
+                        'rate' => 1000,
+                    ],
+                ],
                 'tax_amount' => 0,
                 'discount_amount' => 0,
-                'total_amount' => 10000,
-                'status' => 'disputed',
+                'invoice_status' => 'disputed',
                 'issued_at' => now()->format('Y-m-d H:i:s'),
                 'due_at' => now()->addDays(7)->format('Y-m-d H:i:s'),
             ])

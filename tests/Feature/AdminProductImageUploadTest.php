@@ -20,6 +20,7 @@ class AdminProductImageUploadTest extends TestCase
         $admin = $this->adminUser();
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.products.store'), [
                 ...$this->validPayload(),
                 'featured_image' => UploadedFile::fake()->image('featured.jpg'),
@@ -62,6 +63,7 @@ class AdminProductImageUploadTest extends TestCase
         ]);
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.products.update', $product), [
                 '_method' => 'PUT',
                 ...$this->validPayload([
@@ -104,7 +106,10 @@ class AdminProductImageUploadTest extends TestCase
         Storage::disk('public')->put($galleryTwo, 'gallery-2');
 
         $this->actingAs($admin)
-            ->withSession([LivewireSecureUploads::SESSION_KEY => [$featuredPath, $galleryOne, $galleryTwo]])
+            ->withSession([
+                LivewireSecureUploads::SESSION_KEY => [$featuredPath, $galleryOne, $galleryTwo],
+                'staff_2fa_verified' => true,
+            ])
             ->post(route('admin.products.store'), [
                 ...$this->validPayload(),
                 'featured_image_path' => $featuredPath,
@@ -145,6 +150,7 @@ class AdminProductImageUploadTest extends TestCase
             'role' => 'super_admin',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
     }
 }

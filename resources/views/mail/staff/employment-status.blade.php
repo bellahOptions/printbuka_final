@@ -16,6 +16,7 @@
                         </tr>
                         <tr>
                             <td style="padding:26px;line-height:1.6;">
+                                {!! $introHtml ?? '' !!}
                                 <p style="margin:0 0 16px;">Hello {{ $staff->displayName() }},</p>
 
                                 @if ($status === 'terminated')
@@ -31,6 +32,7 @@
                                 @endif
 
                                 <p style="margin:0;">Regards,<br>Printbuka Management</p>
+                                {!! $outroHtml ?? '' !!}
                             </td>
                         </tr>
                     </table>

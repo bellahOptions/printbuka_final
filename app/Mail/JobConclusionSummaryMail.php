@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\HasEditableTemplate;
 use App\Models\Order;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -11,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 
 class JobConclusionSummaryMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use HasEditableTemplate, Queueable, SerializesModels;
 
     public function __construct(public User $recipient, public Order $order)
     {
@@ -49,11 +50,13 @@ class JobConclusionSummaryMail extends Mailable
         ])->output();
 
         return $this
-            ->subject('Job Concluded · '.$this->order->job_order_number)
+            ->subject($this->templateSubject('Job Concluded · '.$this->order->job_order_number))
             ->view('mail.jobs.concluded-summary', [
                 'recipient' => $this->recipient,
                 'order' => $this->order,
                 'expenseEntries' => $expenseEntries,
+                'introHtml' => $this->templateIntroHtml(),
+                'outroHtml' => $this->templateOutroHtml(),
             ])
             ->attachData($jobLogPdf, 'job-log-'.$this->order->job_order_number.'.pdf', [
                 'mime' => 'application/pdf',
@@ -61,6 +64,21 @@ class JobConclusionSummaryMail extends Mailable
             ->attachData($expenseLogPdf, 'expense-log-'.$this->order->job_order_number.'.pdf', [
                 'mime' => 'application/pdf',
             ]);
+    }
+
+    protected function templateKey(): string
+    {
+        return 'job.conclusion_summary';
+    }
+
+    protected function templateVariables(): array
+    {
+        return [
+            'recipient_name' => $this->recipient->displayName(),
+            'order_number' => (string) $this->order->job_order_number,
+            'customer_name' => (string) $this->order->customer_name,
+            'concluded_by' => (string) ($this->order->concludedBy?->displayName() ?? 'N/A'),
+        ];
     }
 }
 

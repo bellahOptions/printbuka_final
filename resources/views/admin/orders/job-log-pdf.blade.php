@@ -13,6 +13,8 @@
                 background: #ffffff;
                 line-height: 1.5;
             }
+            /* ₦ pinned to DejaVu Sans — Helvetica Neue lacks this glyph */
+            .naira { font-family: 'DejaVu Sans', sans-serif; font-weight: inherit; }
             .brand-header {
                 display: flex;
                 align-items: center;
@@ -200,7 +202,7 @@
             <div class="info-item"><span class="label">Status</span><span class="value">{{ $order->status }}</span></div>
             <div class="info-item"><span class="label">Payment</span><span class="value">{{ $order->payment_status }}</span></div>
             <div class="info-item"><span class="label">Delivery</span><span class="value">{{ $order->actual_delivery_at?->format('M j, Y') ?? 'Pending' }}</span></div>
-            <div class="info-item"><span class="label">Total Amount</span><span class="value">&#8358;{{ number_format((float) $order->total_price, 2) }}</span></div>
+            <div class="info-item"><span class="label">Total Amount</span><span class="value"><span class="naira">&#8358;</span>{{ number_format((float) $order->total_price, 2) }}</span></div>
         </div>
 
         <div class="section">
@@ -244,12 +246,12 @@
                                 <td>{{ $entry->category }}</td>
                                 <td>{{ $entry->description }}</td>
                                 <td>{{ $entry->recorder?->displayName() ?? 'Unknown' }}</td>
-                                <td class="amount-cell">&#8358;{{ number_format($entry->amount, 2) }}</td>
+                                <td class="amount-cell"><span class="naira">&#8358;</span>{{ number_format($entry->amount, 2) }}</td>
                             </tr>
                         @endforeach
                         <tr class="total-row">
                             <td colspan="4" style="text-align:right; font-weight:800;">Total Expenses</td>
-                            <td class="amount-cell">&#8358;{{ number_format($totalExpenses, 2) }}</td>
+                            <td class="amount-cell"><span class="naira">&#8358;</span>{{ number_format($totalExpenses, 2) }}</td>
                         </tr>
                     </tbody>
                 </table>

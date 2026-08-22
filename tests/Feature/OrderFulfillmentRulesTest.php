@@ -14,6 +14,19 @@ class OrderFulfillmentRulesTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // .env ships a real Paystack test-mode secret key, so without this the
+        // customer checkout flow below makes a live HTTP call to Paystack's API
+        // and redirects to a real (test-mode) checkout URL instead of
+        // orders.success, making these tests network-dependent and flaky.
+        // Disabling it here exercises the "payment gateway not configured"
+        // fallback path, matching what these tests actually assert.
+        config(['services.paystack.secret_key' => null]);
+    }
+
     public function test_sample_order_is_limited_to_two_units_and_auto_express_with_flat_fee(): void
     {
         Mail::fake();

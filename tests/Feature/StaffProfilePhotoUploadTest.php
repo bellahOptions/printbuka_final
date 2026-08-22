@@ -22,17 +22,20 @@ class StaffProfilePhotoUploadTest extends TestCase
             'department' => 'Management',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
 
         $staff = User::factory()->create([
-            'role' => 'designer',
+            'role' => 'office_assistant',
             'department' => 'Design',
             'is_active' => true,
             'email_verified_at' => now(),
             'photo' => null,
         ]);
 
-        $response = $this->actingAs($admin)->put(route('admin.staff.update', $staff), [
+        $response = $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
+            ->put(route('admin.staff.update', $staff), [
             'role' => $staff->role,
             'department' => $staff->department,
             'is_active' => 1,
@@ -58,10 +61,11 @@ class StaffProfilePhotoUploadTest extends TestCase
             'department' => 'Management',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
 
         $staff = User::factory()->create([
-            'role' => 'finance',
+            'role' => 'customer_service',
             'department' => 'Finance',
             'is_active' => true,
             'email_verified_at' => now(),
@@ -70,7 +74,9 @@ class StaffProfilePhotoUploadTest extends TestCase
 
         Storage::disk('public')->put('staff-photos/old-photo.jpg', 'old');
 
-        $this->actingAs($admin)->put(route('admin.staff.update', $staff), [
+        $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
+            ->put(route('admin.staff.update', $staff), [
             'role' => $staff->role,
             'department' => $staff->department,
             'is_active' => 1,
@@ -93,16 +99,18 @@ class StaffProfilePhotoUploadTest extends TestCase
             'department' => 'Management',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
 
         $staff = User::factory()->create([
-            'role' => 'production',
+            'role' => 'machine_operator',
             'department' => 'Production',
             'is_active' => true,
             'email_verified_at' => now(),
         ]);
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->from(route('admin.staff.index'))
             ->put(route('admin.staff.update', $staff), [
                 'role' => $staff->role,
@@ -155,10 +163,11 @@ class StaffProfilePhotoUploadTest extends TestCase
             'department' => 'Management',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
 
         $staff = User::factory()->create([
-            'role' => 'designer',
+            'role' => 'office_assistant',
             'department' => 'Design',
             'is_active' => true,
             'email_verified_at' => now(),
@@ -168,7 +177,10 @@ class StaffProfilePhotoUploadTest extends TestCase
         Storage::disk('public')->put($livewirePath, 'photo-content');
 
         $this->actingAs($admin)
-            ->withSession([LivewireSecureUploads::SESSION_KEY => [$livewirePath]])
+            ->withSession([
+                LivewireSecureUploads::SESSION_KEY => [$livewirePath],
+                'staff_2fa_verified' => true,
+            ])
             ->put(route('admin.staff.update', $staff), [
                 'role' => $staff->role,
                 'department' => $staff->department,

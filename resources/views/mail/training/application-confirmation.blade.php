@@ -10,6 +10,7 @@
     <h1 style="margin:18px 0 0;font-size:28px;line-height:1.2;">Your application is in.</h1>
     <p style="margin:10px 0 0;color:#cbd5e1;font-size:14px;line-height:1.7;">Thanks for applying to the Printbuka Graduate Trainee Program.</p>
 
+    {!! $introHtml ?? '' !!}
     <p style="margin:18px 0 14px;font-size:15px;line-height:1.7;">Hello {{ $applicantName }},</p>
     <p style="margin:0 0 18px;font-size:14px;line-height:1.7;">We have received your PGTP application. Our team will review your details and contact shortlisted applicants through the email or WhatsApp number provided.</p>
 
@@ -34,4 +35,5 @@
     </div>
 
     <p style="margin:0;font-size:14px;line-height:1.7;">Thank you for taking this step. We are rooting for serious, curious applicants who are ready to learn by doing.</p>
+    {!! $outroHtml ?? '' !!}
 @endsection

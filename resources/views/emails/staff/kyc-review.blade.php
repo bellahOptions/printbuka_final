@@ -18,6 +18,7 @@
     @endif
 
     <div class="body">
+        {!! $introHtml ?? '' !!}
         <p style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px">Hello {{ $staff->displayName() }},</p>
 
         @if ($status === 'approved')
@@ -48,6 +49,7 @@
         <p style="font-size:13px;color:#94a3b8;margin-top:24px;text-align:center">
             If you have any questions, please contact the HR department.
         </p>
+        {!! $outroHtml ?? '' !!}
     </div>
     <div class="footer">&copy; {{ date('Y') }} Printbuka. This message was sent automatically.</div>
 </div>

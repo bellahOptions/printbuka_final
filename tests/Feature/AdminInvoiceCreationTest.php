@@ -6,6 +6,7 @@ use App\Mail\InvoicePaidReceiptMail;
 use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\StaffProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -48,6 +49,7 @@ class AdminInvoiceCreationTest extends TestCase
         ]);
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.invoices.store'), [
                 'customer_id' => $customer->id,
                 'customer_name' => 'Ignore Name',
@@ -112,6 +114,7 @@ class AdminInvoiceCreationTest extends TestCase
         ]);
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.invoices.store'), [
                 'customer_name' => 'Option Pricing Client',
                 'customer_email' => 'option.pricing@example.com',
@@ -151,6 +154,7 @@ class AdminInvoiceCreationTest extends TestCase
         $admin = $this->adminUser('super_admin');
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->from(route('admin.invoices.create'))
             ->post(route('admin.invoices.store'), [
                 'customer_name' => 'Invalid Client',
@@ -168,9 +172,10 @@ class AdminInvoiceCreationTest extends TestCase
     {
         Mail::fake();
 
-        $admin = $this->adminUser('operations');
+        $admin = $this->adminUser('operations_manager');
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.invoices.store'), [
                 'customer_name' => 'Service Client',
                 'customer_email' => 'service.client@example.com',
@@ -203,9 +208,10 @@ class AdminInvoiceCreationTest extends TestCase
 
     public function test_admin_can_save_manual_invoice_without_customer_email(): void
     {
-        $admin = $this->adminUser('operations');
+        $admin = $this->adminUser('operations_manager');
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.invoices.store'), [
                 'customer_name' => 'Walk-in Client',
                 'customer_phone' => '08088889999',
@@ -227,9 +233,10 @@ class AdminInvoiceCreationTest extends TestCase
 
     public function test_admin_cannot_save_and_send_invoice_without_customer_email(): void
     {
-        $admin = $this->adminUser('operations');
+        $admin = $this->adminUser('operations_manager');
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->from(route('admin.invoices.create'))
             ->post(route('admin.invoices.store'), [
                 'customer_name' => 'Walk-in Client',
@@ -273,6 +280,7 @@ class AdminInvoiceCreationTest extends TestCase
         ]);
 
         $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
             ->put(route('admin.invoices.update', $invoice), [
                 'order_id' => $order->id,
                 'invoice_number' => 'INV-PAID-UPDATED',
@@ -293,10 +301,20 @@ class AdminInvoiceCreationTest extends TestCase
 
     private function adminUser(string $role): User
     {
-        return User::factory()->create([
+        $user = User::factory()->create([
             'role' => $role,
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
         ]);
+
+        if (! in_array($role, ['super_admin', 'managing_director', 'hr'], true)) {
+            StaffProfile::query()->create([
+                'user_id' => $user->id,
+                'kyc_status' => 'approved',
+            ]);
+        }
+
+        return $user;
     }
 }

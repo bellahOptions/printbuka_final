@@ -67,11 +67,14 @@ class ProfileUpdateTest extends TestCase
             'department' => 'Management',
             'is_active' => true,
             'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
             'email' => 'admin@example.com',
             'password' => 'Password123',
         ]);
 
-        $this->actingAs($admin)->put(route('admin.profile.update'), [
+        $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
+            ->put(route('admin.profile.update'), [
             'first_name' => 'Ada',
             'last_name' => 'Manager',
             'phone' => '09000000000',
