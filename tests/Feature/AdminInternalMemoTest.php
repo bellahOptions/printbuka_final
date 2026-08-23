@@ -141,6 +141,27 @@ class AdminInternalMemoTest extends TestCase
         Mail::assertSent(InternalMemoMail::class, 1);
     }
 
+    public function test_preview_endpoint_reflects_unsaved_block_edits_live(): void
+    {
+        $admin = $this->makeStaff('super_admin');
+
+        $blocks = json_encode([
+            ['id' => '1', 'type' => 'paragraph', 'text' => 'LIVE-PREVIEW-MARKER-not-yet-saved'],
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
+            ->get(route('admin.memos.preview').'?'.http_build_query([
+                'blocks' => $blocks,
+            ]));
+
+        $response->assertOk();
+        $response->assertSee('LIVE-PREVIEW-MARKER-not-yet-saved');
+
+        // Confirms nothing was persisted by merely previewing.
+        $this->assertSame(0, InternalMemo::query()->count());
+    }
+
     public function test_memo_content_renders_with_the_recipients_name(): void
     {
         Mail::fake();

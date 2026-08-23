@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\NewsletterCampaignMail;
 use App\Models\NewsletterCampaign;
 use App\Models\User;
+use App\Support\EmailBlockRenderer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -33,16 +34,21 @@ class AdminNewsletterController extends Controller
         ]);
     }
 
+    public function create(): View
+    {
+        return view('admin.newsletters.create');
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'subject' => ['required', 'string', 'max:255'],
             'preheader' => ['nullable', 'string', 'max:255'],
-            'headline' => ['nullable', 'string', 'max:255'],
-            'message' => ['required', 'string', 'max:5000'],
-            'cta_label' => ['nullable', 'string', 'max:255'],
-            'cta_url' => ['nullable', 'string', 'max:2048', 'regex:/^https?:\/\//i'],
+            'blocks' => ['required', 'string'],
         ]);
+
+        $blocks = json_decode($validated['blocks'], true);
+        abort_unless(is_array($blocks), 422, 'Invalid block data.');
 
         $customers = User::query()
             ->where('role', 'customer')
@@ -54,10 +60,7 @@ class AdminNewsletterController extends Controller
             'created_by_id' => $request->user()?->id,
             'subject' => $validated['subject'],
             'preheader' => $validated['preheader'] ?? null,
-            'headline' => $validated['headline'] ?? null,
-            'message' => $validated['message'],
-            'cta_label' => $validated['cta_label'] ?? null,
-            'cta_url' => $validated['cta_url'] ?? null,
+            'blocks' => $blocks,
             'recipient_count' => $customers->count(),
         ]);
 
@@ -87,5 +90,18 @@ class AdminNewsletterController extends Controller
         ]);
 
         return back()->with('status', 'Newsletter sent to '.$sent.' of '.$customers->count().' recipient(s).');
+    }
+
+    public function preview(Request $request): View
+    {
+        $blocks = json_decode((string) $request->query('blocks', '[]'), true) ?: [];
+
+        $sampleVariables = collect(['customer_name', 'company_name'])
+            ->mapWithKeys(fn (string $variable) => [$variable => '['.str($variable)->replace('_', ' ')->title()->value().']'])
+            ->all();
+
+        return view('admin.newsletters.preview', [
+            'bodyHtml' => EmailBlockRenderer::render($blocks, $sampleVariables),
+        ]);
     }
 }

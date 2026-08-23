@@ -1,33 +1,42 @@
 @extends('layouts/new-app')
 @section('title', 'Printbuka | No. 1 Online Print Shop in Nigeria')
 @section('meta_description', 'Order quality prints, branded gifts, UV-DTF, DTF, and laser engraving from Printbuka with nationwide delivery across Nigeria.')
+@php
+    $jsonLdOrganization = [
+        '@context' => 'https://schema.org',
+        '@type' => 'Organization',
+        'name' => $siteSettings['site_name'] ?? config('app.name', 'Printbuka'),
+        'url' => route('home'),
+        'logo' => asset('logo-04.svg'),
+    ];
+    $jsonLdWebsite = [
+        '@context' => 'https://schema.org',
+        '@type' => 'WebSite',
+        'name' => $siteSettings['site_name'] ?? config('app.name', 'Printbuka'),
+        'url' => route('home'),
+    ];
+@endphp
+@push('head')
+    <script type="application/ld+json">{!! json_encode($jsonLdOrganization, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+    <script type="application/ld+json">{!! json_encode($jsonLdWebsite, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+@endpush
 @section('content')
     <main role="main">
         {{-- ===== HERO SLIDER ===== --}}
-        <section class="relative overflow-hidden" style="min-height: 640px;">
+        <section class="relative overflow-hidden min-h-[640px]">
 
             {{-- Slide backgrounds --}}
-            @php
-                $heroSlides = [
-                    'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=1600&q=80',
-                    'https://images.unsplash.com/photo-1525909002-1b05e0c869d8?auto=format&fit=crop&w=1600&q=80',
-                    'https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=1600&q=80',
-                    'https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=1600&q=80',
-                    'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=1600&q=80',
-                ];
-            @endphp
-
             @foreach($heroSlides as $i => $slide)
                 <div class="hero-slide absolute inset-0 transition-opacity duration-1000 {{ $i === 0 ? 'opacity-100' : 'opacity-0' }}">
                     {{-- Background image --}}
                     <img src="{{ $slide }}" alt="" class="absolute inset-0 w-full h-full object-cover" aria-hidden="true">
                     {{-- Pink overlay --}}
-                    <div class="absolute inset-0" style="background-color: #EC268F; opacity: 0.82;"></div>
+                    <div class="absolute inset-0 bg-[#EC268F] opacity-[0.82]"></div>
                 </div>
             @endforeach
 
             {{-- Content — sits above slides --}}
-            <div class="relative z-10 flex items-center justify-center" style="min-height: 640px;">
+            <div class="relative z-10 flex items-center justify-center min-h-[640px]">
                 <div class="md:w-[70%] w-[90%] mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-center text-center">
                     <h1 class="text-4xl sm:text-5xl xl:text-6xl font-black text-white leading-[1.1] mb-5">
                         The Leader in<br>Quality <span class="text-pink-200">Custom</span><br>Print Design
@@ -59,37 +68,11 @@
         </style>
         @endpush
 
-        <script>
-            (function () {
-                const slides = document.querySelectorAll('.hero-slide');
-                const dots   = document.querySelectorAll('.hero-dot');
-                let current  = 0;
-                let timer;
-
-                function goTo(index) {
-                    slides[current].classList.remove('opacity-100');
-                    slides[current].classList.add('opacity-0');
-                    dots[current].classList.remove('active', 'w-6');
-                    dots[current].classList.add('w-2');
-                    current = (index + slides.length) % slides.length;
-                    slides[current].classList.remove('opacity-0');
-                    slides[current].classList.add('opacity-100');
-                    dots[current].classList.add('active', 'w-6');
-                    dots[current].classList.remove('w-2');
-                    clearInterval(timer);
-                    timer = setInterval(() => goTo(current + 1), 5500);
-                }
-
-                dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
-                timer = setInterval(() => goTo(current + 1), 5500);
-            })();
-        </script>
         {{-- Clients --}}
         <section class="py-12 overflow-hidden">
             <h2 class="text-3xl font-bold text-center mb-8">Trusted by Leading Brands</h2>
             <div class="relative overflow-hidden">
-                <div class="flex gap-16 items-center"
-                    style="animation: marquee-ltr 18s linear infinite; width: max-content;">
+                <div class="flex gap-16 items-center animate-[marquee-ltr_18s_linear_infinite] w-max">
                     <img src="{{ asset('client1.png') }}" alt="Client 1" class="h-12 flex-shrink-0">
                     <img src="{{ asset('client2.png') }}" alt="Client 2" class="h-12 flex-shrink-0">
                     <img src="{{ asset('client3.png') }}" alt="Client 3" class="h-12 flex-shrink-0">
@@ -116,8 +99,7 @@
                 <div class="overflow-hidden">
                     <div id="fp-track" class="flex gap-6 transition-transform duration-500">
                         @foreach($featuredProducts as $product)
-                            <div class="fp-slide group relative flex-shrink-0 rounded-2xl overflow-hidden"
-                                style="width: calc(25% - 18px); height: 340px;">
+                            <div class="fp-slide group relative flex-shrink-0 rounded-2xl overflow-hidden w-[calc(25%_-_18px)] h-[340px]">
 
                                 {{-- Full-bleed image --}}
                                 <img src="{{ $product->featuredImageUrl() ?? asset('img/product-placeholder.svg') }}"
@@ -256,7 +238,7 @@
 
                     <a href="{{ route('products.index') }}"
                         class="group relative rounded-3xl overflow-hidden block h-60 sm:h-72">
-                        <img src="https://images.unsplash.com/photo-1524638431109-93d95c968f03?auto=format&fit=crop&w=900&q=80"
+                        <img src="{{ $homePromoImages[0] }}"
                             alt="Custom print services"
                             class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700" />
                         <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/50 to-transparent">
@@ -274,7 +256,7 @@
 
                     <a href="{{ route('shop.index') }}"
                         class="group relative rounded-3xl overflow-hidden block h-60 sm:h-72">
-                        <img src="https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?auto=format&fit=crop&w=900&q=80"
+                        <img src="{{ $homePromoImages[1] }}"
                             alt="Branded gifts and merchandise"
                             class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition duration-700" />
                         <div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/50 to-transparent">
@@ -475,14 +457,6 @@
                 </div>
 
                 @php
-                    $catFallbacks = [
-                        'https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=900&q=80',
-                        'https://images.unsplash.com/photo-1586953208448-b95a79798f07?auto=format&fit=crop&w=900&q=80',
-                        'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=900&q=80',
-                        'https://images.unsplash.com/photo-1605902711622-cfb43c44367f?auto=format&fit=crop&w=900&q=80',
-                        'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=900&q=80',
-                        'https://images.unsplash.com/photo-1525909002-1b05e0c869d8?auto=format&fit=crop&w=900&q=80',
-                    ];
                     $catItems = $homeCategories ?? collect();
                 @endphp
 
@@ -492,13 +466,12 @@
                             <div id="cat-track" class="flex gap-6 transition-transform duration-500">
                                 @foreach($catItems as $category)
                                     @php
-                                        $catImage = $category->imageUrl() ?: $catFallbacks[$loop->index % count($catFallbacks)];
+                                        $catImage = $category->imageUrl() ?: $categoryFallbackImages[$loop->index % count($categoryFallbackImages)];
                                         $catSummary = $category->description ?: 'Explore print and branded products in this category.';
                                         $productCount = (int) ($category->active_products_count ?? 0);
                                     @endphp
                                     <a href="{{ route('products.category', $category) }}"
-                                        class="cat-slide group flex-shrink-0 rounded-3xl overflow-hidden border border-slate-100 hover:border-pink-200 hover:shadow-xl transition-all duration-300 bg-white flex flex-col"
-                                        style="width: calc(33.333% - 16px);">
+                                        class="cat-slide group flex-shrink-0 rounded-3xl overflow-hidden border border-slate-100 hover:border-pink-200 hover:shadow-xl transition-all duration-300 bg-white flex flex-col w-[calc(33.333%_-_16px)]">
                                         <div class="h-52 overflow-hidden bg-slate-100 shrink-0">
                                             <img src="{{ $catImage }}" alt="{{ $category->name }}"
                                                 class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
@@ -628,7 +601,7 @@
                     </div>
                     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                         @foreach($popularGiftItems as $product)
-                            <article class="group relative rounded-2xl overflow-hidden cursor-pointer" style="height: 320px;">
+                            <article class="group relative rounded-2xl overflow-hidden cursor-pointer h-[320px]">
                                 <img src="{{ $product->featuredImageUrl() ?? asset('img/product-placeholder.svg') }}"
                                     alt="{{ $product->name }}"
                                     class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
@@ -819,115 +792,12 @@
                                 class="inline-flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white text-sm font-black px-8 py-4 rounded-xl transition-colors">Create
                                 Free Account</a>
                             <a href="{{ route('products.index') }}"
-                                class="inline-flex items-center gap-2 text-white text-sm font-black px-8 py-4 rounded-xl transition-colors"
-                                style="border: 1px solid rgba(255,255,255,0.25);">Browse Products</a>
+                                class="inline-flex items-center gap-2 text-white text-sm font-black px-8 py-4 rounded-xl transition-colors border border-white/25">Browse Products</a>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
-
-        <script>
-            (function () {
-                const track = document.getElementById('fp-track');
-                const prevBtn = document.getElementById('fp-prev');
-                const nextBtn = document.getElementById('fp-next');
-                const dotsEl = document.getElementById('fp-dots');
-                const perPage = 4;
-                const slides = track ? Array.from(track.querySelectorAll('.fp-slide')) : [];
-                const total = slides.length;
-                const pages = Math.ceil(total / perPage);
-                let current = 0;
-
-                if (!track || total === 0) return;
-
-                // Build dots
-                for (let i = 0; i < pages; i++) {
-                    const d = document.createElement('button');
-                    d.className = 'w-2.5 h-2.5 rounded-full bg-gray-300 transition-colors';
-                    d.setAttribute('aria-label', 'Go to page ' + (i + 1));
-                    d.addEventListener('click', () => goTo(i));
-                    dotsEl.appendChild(d);
-                }
-
-                function goTo(page) {
-                    current = Math.max(0, Math.min(page, pages - 1));
-                    const slideWidth = slides[0].offsetWidth + 24; // 24 = gap-6
-                    track.style.transform = 'translateX(-' + (current * perPage * slideWidth) + 'px)';
-                    prevBtn.disabled = current === 0;
-                    nextBtn.disabled = current === pages - 1;
-                    dotsEl.querySelectorAll('button').forEach((d, i) => {
-                        d.classList.toggle('bg-[#EC268F]', i === current);
-                        d.classList.toggle('bg-gray-300', i !== current);
-                    });
-                }
-
-                prevBtn.addEventListener('click', () => goTo(current - 1));
-                nextBtn.addEventListener('click', () => goTo(current + 1));
-
-                goTo(0);
-            })();
-        </script>
-
-        <script>
-            (function () {
-                const track = document.getElementById('cat-track');
-                const prevBtn = document.getElementById('cat-prev');
-                const nextBtn = document.getElementById('cat-next');
-                const dotsEl = document.getElementById('cat-dots');
-                const perPage = 3;
-                const slides = track ? Array.from(track.querySelectorAll('.cat-slide')) : [];
-                const total = slides.length;
-                const pages = Math.ceil(total / perPage);
-                let current = 0;
-
-                if (!track || total === 0) return;
-
-                for (let i = 0; i < pages; i++) {
-                    const d = document.createElement('button');
-                    d.className = 'w-2.5 h-2.5 rounded-full bg-slate-300 transition-colors';
-                    d.setAttribute('aria-label', 'Go to page ' + (i + 1));
-                    d.addEventListener('click', () => catGoTo(i));
-                    dotsEl.appendChild(d);
-                }
-
-                function catGoTo(page) {
-                    current = Math.max(0, Math.min(page, pages - 1));
-                    const slideWidth = slides[0].offsetWidth + 24;
-                    track.style.transform = 'translateX(-' + (current * perPage * slideWidth) + 'px)';
-                    prevBtn.disabled = current === 0;
-                    nextBtn.disabled = current === pages - 1;
-                    dotsEl.querySelectorAll('button').forEach((d, i) => {
-                        d.classList.toggle('bg-[#EC268F]', i === current);
-                        d.classList.toggle('bg-slate-300', i !== current);
-                    });
-                }
-
-                prevBtn.addEventListener('click', () => catGoTo(current - 1));
-                nextBtn.addEventListener('click', () => catGoTo(current + 1));
-                catGoTo(0);
-            })();
-        </script>
-
-        <script>
-            (function () {
-                const videos = document.querySelectorAll('video.svc-video[data-src]');
-                if (!videos.length) return;
-
-                const observer = new IntersectionObserver(function (entries) {
-                    entries.forEach(function (entry) {
-                        if (!entry.isIntersecting) return;
-                        const v = entry.target;
-                        v.src = v.dataset.src;
-                        v.load();
-                        v.play().catch(function () { });
-                        observer.unobserve(v);
-                    });
-                }, { threshold: 0.15 });
-
-                videos.forEach(function (v) { observer.observe(v); });
-            })();
-        </script>
 
         <style>
             @keyframes marquee-ltr {

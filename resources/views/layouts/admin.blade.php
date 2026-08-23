@@ -152,6 +152,22 @@
                         <span>Dashboard</span>
                     </a>
 
+                    <a href="{{ route('admin.attendance.index') }}" class="{{ $navLink('admin.attendance.index') }}">
+                        <svg class="pb-nav-icon h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>My Attendance</span>
+                    </a>
+
+                    @if($admin?->canAdmin('attendance.manage'))
+                        <a href="{{ route('admin.attendance.team') }}" class="{{ $navLink('admin.attendance.team') }}">
+                            <svg class="pb-nav-icon h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 100-8 4 4 0 000 8zm6 3.13a4 4 0 010 7.75M9 8.13a4 4 0 000 7.75"/>
+                            </svg>
+                            <span>Team Attendance</span>
+                        </a>
+                    @endif
+
                     {{-- My KYC — all non-customer staff, hidden once approved (not shown to HR/admin who manage others' KYC) --}}
                     @php($myKycStatus = $admin?->staffProfile?->kyc_status ?? 'pending')
                     @if($admin && $admin->role !== 'customer' && $myKycStatus !== 'approved')

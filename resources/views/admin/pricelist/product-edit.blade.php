@@ -40,5 +40,31 @@
                 <button type="submit" class="rounded-md bg-pink-600 px-6 py-3 text-sm font-black text-white transition hover:bg-pink-700">Save pricing</button>
             </div>
         </form>
+
+        <div class="mt-8 rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-black text-slate-950">Custom price list items</h2>
+                <a href="{{ route('admin.pricelist.custom.create', ['product_id' => $product->id]) }}" class="text-sm font-black text-pink-600 hover:text-pink-800">
+                    + Add custom item
+                </a>
+            </div>
+            <p class="mt-1 text-sm text-slate-500">Freeform pricing lines linked to this product, outside the standard option pricing above.</p>
+
+            <div class="mt-4 divide-y divide-slate-100">
+                @forelse ($product->priceListItems as $item)
+                    <div class="flex items-center justify-between py-3 text-sm">
+                        <div>
+                            <p class="font-semibold text-slate-800">{{ $item->label }}</p>
+                            @if ($item->service_slug)
+                                <p class="text-xs text-slate-500">{{ config("printbuka_services.services.{$item->service_slug}.name", $item->service_slug) }}</p>
+                            @endif
+                        </div>
+                        <p class="font-semibold text-slate-800">₦{{ number_format((float) $item->price, 2) }}</p>
+                    </div>
+                @empty
+                    <p class="py-3 text-sm text-slate-500">No custom items linked to this product yet.</p>
+                @endforelse
+            </div>
+        </div>
     </div>
 @endsection

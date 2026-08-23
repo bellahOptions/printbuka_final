@@ -13,9 +13,14 @@
                         Send marketing emails to verified and active registered customers.
                     </p>
                 </div>
-                <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-right">
-                    <p class="text-xs font-black uppercase tracking-wide text-slate-500">Current Audience</p>
-                    <p class="text-2xl font-black text-slate-950">{{ number_format($audienceCount) }}</p>
+                <div class="flex items-center gap-4">
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-right">
+                        <p class="text-xs font-black uppercase tracking-wide text-slate-500">Current Audience</p>
+                        <p class="text-2xl font-black text-slate-950">{{ number_format($audienceCount) }}</p>
+                    </div>
+                    <a href="{{ route('admin.newsletters.create') }}" class="rounded-xl bg-pink-600 px-6 py-3 text-sm font-black text-white transition hover:bg-pink-700">
+                        + New Newsletter
+                    </a>
                 </div>
             </div>
 
@@ -24,71 +29,6 @@
                     {{ session('status') }}
                 </p>
             @endif
-        </section>
-
-        <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 class="text-xl font-black text-slate-950">Compose Newsletter</h2>
-            <form action="{{ route('admin.newsletters.store') }}" method="POST" class="mt-5 grid gap-5">
-                @csrf
-
-                <div class="grid gap-5 sm:grid-cols-2">
-                    <label class="text-sm font-black text-slate-800">
-                        Email Subject *
-                        <input type="text" name="subject" value="{{ old('subject') }}" required
-                            class="mt-2 min-h-12 w-full rounded-xl border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
-                            placeholder="Limited Offer: Save on Your Next Print Order">
-                        @error('subject')<span class="mt-1 block text-xs font-bold text-pink-700">{{ $message }}</span>@enderror
-                    </label>
-
-                    <label class="text-sm font-black text-slate-800">
-                        Preheader
-                        <input type="text" name="preheader" value="{{ old('preheader') }}"
-                            class="mt-2 min-h-12 w-full rounded-xl border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
-                            placeholder="Fresh deals on print and branding services">
-                        @error('preheader')<span class="mt-1 block text-xs font-bold text-pink-700">{{ $message }}</span>@enderror
-                    </label>
-                </div>
-
-                <label class="text-sm font-black text-slate-800">
-                    Headline
-                    <input type="text" name="headline" value="{{ old('headline') }}"
-                        class="mt-2 min-h-12 w-full rounded-xl border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
-                        placeholder="Big Savings for Your Next Campaign">
-                    @error('headline')<span class="mt-1 block text-xs font-bold text-pink-700">{{ $message }}</span>@enderror
-                </label>
-
-                <label class="text-sm font-black text-slate-800">
-                    Message *
-                    <textarea name="message" rows="8" required
-                        class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
-                        placeholder="Write your marketing message here...">{{ old('message') }}</textarea>
-                    @error('message')<span class="mt-1 block text-xs font-bold text-pink-700">{{ $message }}</span>@enderror
-                </label>
-
-                <div class="grid gap-5 sm:grid-cols-2">
-                    <label class="text-sm font-black text-slate-800">
-                        CTA Button Label
-                        <input type="text" name="cta_label" value="{{ old('cta_label') }}"
-                            class="mt-2 min-h-12 w-full rounded-xl border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
-                            placeholder="Shop Now">
-                        @error('cta_label')<span class="mt-1 block text-xs font-bold text-pink-700">{{ $message }}</span>@enderror
-                    </label>
-
-                    <label class="text-sm font-black text-slate-800">
-                        CTA URL
-                        <input type="url" name="cta_url" value="{{ old('cta_url') }}"
-                            class="mt-2 min-h-12 w-full rounded-xl border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
-                            placeholder="https://printbuka.com/products">
-                        @error('cta_url')<span class="mt-1 block text-xs font-bold text-pink-700">{{ $message }}</span>@enderror
-                    </label>
-                </div>
-
-                <div class="flex items-center justify-end gap-3 border-t border-slate-100 pt-5">
-                    <button type="submit" class="rounded-xl bg-pink-600 px-6 py-3 text-sm font-black text-white transition hover:bg-pink-700">
-                        Send Newsletter
-                    </button>
-                </div>
-            </form>
         </section>
 
         <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -110,8 +50,8 @@
                             <tr>
                                 <td class="px-4 py-3">
                                     <p class="font-black text-slate-900">{{ $campaign->subject }}</p>
-                                    @if ($campaign->headline)
-                                        <p class="text-xs font-semibold text-slate-500">{{ $campaign->headline }}</p>
+                                    @if ($campaign->preheader)
+                                        <p class="text-xs font-semibold text-slate-500">{{ $campaign->preheader }}</p>
                                     @endif
                                 </td>
                                 <td class="px-4 py-3 font-semibold text-slate-700">{{ $campaign->sender?->displayName() ?? 'System' }}</td>
@@ -134,4 +74,3 @@
         </section>
     </div>
 @endsection
-

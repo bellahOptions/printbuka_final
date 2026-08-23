@@ -127,6 +127,28 @@ class AdminPdfTemplateBuilderTest extends TestCase
         $this->assertSame('', $data['outroHtml']);
     }
 
+    public function test_preview_endpoint_reflects_unsaved_block_edits_live(): void
+    {
+        $admin = $this->makeStaff('super_admin');
+
+        $introBlocks = json_encode([
+            ['id' => '1', 'type' => 'paragraph', 'text' => 'LIVE-PREVIEW-MARKER-not-yet-saved'],
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
+            ->get(route('admin.pdf-templates.preview', 'pdf.invoice_customer').'?'.http_build_query([
+                'intro_blocks' => $introBlocks,
+                'outro_blocks' => '[]',
+            ]));
+
+        $response->assertOk();
+        $response->assertSee('LIVE-PREVIEW-MARKER-not-yet-saved');
+
+        // Confirms nothing was persisted by merely previewing.
+        $this->assertDatabaseMissing('email_templates', ['key' => 'pdf.invoice_customer']);
+    }
+
     public function test_reverting_a_pdf_template_removes_the_override(): void
     {
         $admin = $this->makeStaff('super_admin');

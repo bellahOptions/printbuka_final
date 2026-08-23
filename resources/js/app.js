@@ -104,6 +104,12 @@ document.addEventListener('alpine:init', () => {
             : [],
         selectedId: null,
 
+        init() {
+            this.$watch('blocks', () => {
+                this.$el.dispatchEvent(new CustomEvent('blocks-changed', { bubbles: true }));
+            });
+        },
+
         addBlock(type) {
             if (!blockDefaults[type]) return;
             const block = { id: newBlockId(), type, ...blockDefaults[type] };
@@ -140,4 +146,256 @@ document.addEventListener('alpine:init', () => {
             return JSON.stringify(this.blocks);
         },
     }));
+});
+
+/**
+ * Wires a live, auto-refreshing inline preview for a drag-and-drop block
+ * builder page. Listens for 'blocks-changed' bubbling from any canvas on the
+ * page (one or more `emailBlockBuilder` instances), debounces, and re-fetches
+ * server-rendered HTML into an <iframe> — no manual "Preview" click needed.
+ * The server (not this JS) remains the single source of truth for how blocks
+ * render, so this never duplicates App\Support\EmailBlockRenderer's logic.
+ *
+ * @param {string} iframeSelector - CSS selector for the target <iframe>.
+ * @param {() => string} buildPreviewUrl - returns the current preview URL
+ *   (reads whatever hidden block-JSON inputs exist on the page at call time).
+ */
+/* ─── Homepage: hero slider (.hero-slide / .hero-dot) ─── */
+document.addEventListener('DOMContentLoaded', () => {
+    const slides = document.querySelectorAll('.hero-slide');
+    const dots = document.querySelectorAll('.hero-dot');
+    if (!slides.length || !dots.length) return;
+
+    let current = 0;
+    let timer;
+
+    function goTo(index) {
+        slides[current].classList.remove('opacity-100');
+        slides[current].classList.add('opacity-0');
+        dots[current].classList.remove('active', 'w-6');
+        dots[current].classList.add('w-2');
+        current = (index + slides.length) % slides.length;
+        slides[current].classList.remove('opacity-0');
+        slides[current].classList.add('opacity-100');
+        dots[current].classList.add('active', 'w-6');
+        dots[current].classList.remove('w-2');
+        clearInterval(timer);
+        timer = setInterval(() => goTo(current + 1), 5500);
+    }
+
+    dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
+    timer = setInterval(() => goTo(current + 1), 5500);
+});
+
+/* ─── Homepage: featured products carousel (#fp-track) ─── */
+document.addEventListener('DOMContentLoaded', () => {
+    const track = document.getElementById('fp-track');
+    if (!track) return;
+
+    const prevBtn = document.getElementById('fp-prev');
+    const nextBtn = document.getElementById('fp-next');
+    const dotsEl = document.getElementById('fp-dots');
+    const perPage = 4;
+    const slides = Array.from(track.querySelectorAll('.fp-slide'));
+    const total = slides.length;
+    const pages = Math.ceil(total / perPage);
+    let current = 0;
+
+    if (total === 0) return;
+
+    // Build dots
+    for (let i = 0; i < pages; i++) {
+        const d = document.createElement('button');
+        d.className = 'w-2.5 h-2.5 rounded-full bg-gray-300 transition-colors';
+        d.setAttribute('aria-label', 'Go to page ' + (i + 1));
+        d.addEventListener('click', () => goTo(i));
+        dotsEl.appendChild(d);
+    }
+
+    function goTo(page) {
+        current = Math.max(0, Math.min(page, pages - 1));
+        const slideWidth = slides[0].offsetWidth + 24; // 24 = gap-6
+        track.style.transform = 'translateX(-' + (current * perPage * slideWidth) + 'px)';
+        prevBtn.disabled = current === 0;
+        nextBtn.disabled = current === pages - 1;
+        dotsEl.querySelectorAll('button').forEach((d, i) => {
+            d.classList.toggle('bg-[#EC268F]', i === current);
+            d.classList.toggle('bg-gray-300', i !== current);
+        });
+    }
+
+    prevBtn.addEventListener('click', () => goTo(current - 1));
+    nextBtn.addEventListener('click', () => goTo(current + 1));
+
+    goTo(0);
+});
+
+/* ─── Homepage: category carousel (#cat-track) ─── */
+document.addEventListener('DOMContentLoaded', () => {
+    const track = document.getElementById('cat-track');
+    if (!track) return;
+
+    const prevBtn = document.getElementById('cat-prev');
+    const nextBtn = document.getElementById('cat-next');
+    const dotsEl = document.getElementById('cat-dots');
+    const perPage = 3;
+    const slides = Array.from(track.querySelectorAll('.cat-slide'));
+    const total = slides.length;
+    const pages = Math.ceil(total / perPage);
+    let current = 0;
+
+    if (total === 0) return;
+
+    for (let i = 0; i < pages; i++) {
+        const d = document.createElement('button');
+        d.className = 'w-2.5 h-2.5 rounded-full bg-slate-300 transition-colors';
+        d.setAttribute('aria-label', 'Go to page ' + (i + 1));
+        d.addEventListener('click', () => catGoTo(i));
+        dotsEl.appendChild(d);
+    }
+
+    function catGoTo(page) {
+        current = Math.max(0, Math.min(page, pages - 1));
+        const slideWidth = slides[0].offsetWidth + 24;
+        track.style.transform = 'translateX(-' + (current * perPage * slideWidth) + 'px)';
+        prevBtn.disabled = current === 0;
+        nextBtn.disabled = current === pages - 1;
+        dotsEl.querySelectorAll('button').forEach((d, i) => {
+            d.classList.toggle('bg-[#EC268F]', i === current);
+            d.classList.toggle('bg-slate-300', i !== current);
+        });
+    }
+
+    prevBtn.addEventListener('click', () => catGoTo(current - 1));
+    nextBtn.addEventListener('click', () => catGoTo(current + 1));
+    catGoTo(0);
+});
+
+/* ─── Homepage: lazy-load specialist service videos (video.svc-video[data-src]) ─── */
+document.addEventListener('DOMContentLoaded', () => {
+    const videos = document.querySelectorAll('video.svc-video[data-src]');
+    if (!videos.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            const v = entry.target;
+            v.src = v.dataset.src;
+            v.load();
+            v.play().catch(() => {});
+            observer.unobserve(v);
+        });
+    }, { threshold: 0.15 });
+
+    videos.forEach((v) => observer.observe(v));
+});
+
+window.wireLivePreview = function wireLivePreview(iframeSelector, buildPreviewUrl) {
+    const iframe = document.querySelector(iframeSelector);
+    if (!iframe) return;
+
+    let debounceTimer = null;
+    let controller = null;
+
+    const refresh = () => {
+        if (controller) controller.abort();
+        controller = new AbortController();
+
+        fetch(buildPreviewUrl(), { signal: controller.signal })
+            .then((response) => response.text())
+            .then((html) => { iframe.srcdoc = html; })
+            .catch((error) => {
+                if (error.name !== 'AbortError') console.error('Live preview failed to refresh.', error);
+            });
+    };
+
+    document.addEventListener('blocks-changed', () => {
+        window.clearTimeout(debounceTimer);
+        debounceTimer = window.setTimeout(refresh, 400);
+    });
+
+    refresh();
+};
+
+/* ─── Attendance: geolocation + low-res selfie capture on clock in/out ─── */
+document.addEventListener('DOMContentLoaded', () => {
+    const forms = document.querySelectorAll('[data-attendance-form]');
+    if (!forms.length) return;
+
+    const MAX_PHOTO_WIDTH = 480;
+    const PHOTO_QUALITY = 0.6;
+
+    const downscalePhoto = (file) => new Promise((resolve, reject) => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+
+        img.onload = () => {
+            const scale = Math.min(1, MAX_PHOTO_WIDTH / img.width);
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            URL.revokeObjectURL(url);
+
+            canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('Could not process photo.'))), 'image/jpeg', PHOTO_QUALITY);
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not read photo.')); };
+        img.src = url;
+    });
+
+    const getLocation = () => new Promise((resolve) => {
+        if (!navigator.geolocation) { resolve(null); return; }
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => resolve({ lat: position.coords.latitude, lng: position.coords.longitude }),
+            () => resolve(null), // denied/unavailable — server still accepts the punch, just unverified
+            { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+        );
+    });
+
+    forms.forEach((form) => {
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const submitButton = form.querySelector('button[type="submit"]');
+            if (submitButton) { submitButton.disabled = true; submitButton.textContent = 'Getting location…'; }
+
+            const statusEl = form.querySelector('[data-attendance-status]');
+            if (statusEl) statusEl.textContent = 'Getting your location…';
+
+            const location = await getLocation();
+            const formData = new FormData(form);
+            if (location) {
+                formData.set('lat', location.lat);
+                formData.set('lng', location.lng);
+            }
+
+            const photoInput = form.querySelector('input[type="file"][data-attendance-photo]');
+            if (photoInput?.files?.[0]) {
+                if (statusEl) statusEl.textContent = 'Processing photo…';
+                try {
+                    const downscaled = await downscalePhoto(photoInput.files[0]);
+                    formData.set('photo', downscaled, 'attendance.jpg');
+                } catch {
+                    formData.delete('photo');
+                }
+            }
+
+            if (submitButton) submitButton.textContent = 'Submitting…';
+            if (statusEl) statusEl.textContent = 'Submitting…';
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            }).then(() => {
+                window.location.reload();
+            }).catch(() => {
+                if (statusEl) statusEl.textContent = 'Something went wrong — please try again.';
+                if (submitButton) { submitButton.disabled = false; submitButton.textContent = submitButton.dataset.originalLabel || 'Retry'; }
+            });
+        });
+    });
 });

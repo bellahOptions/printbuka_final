@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\InternalMemoMail;
 use App\Models\InternalMemo;
 use App\Models\User;
+use App\Support\EmailBlockRenderer;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -100,6 +101,19 @@ class AdminMemoController extends Controller
     {
         return view('admin.memos.show', [
             'memo' => $memo->load('sentBy'),
+        ]);
+    }
+
+    public function preview(Request $request): View
+    {
+        $blocks = json_decode((string) $request->query('blocks', '[]'), true) ?: [];
+
+        $sampleVariables = collect(['staff_name', 'company_name'])
+            ->mapWithKeys(fn (string $variable) => [$variable => '['.str($variable)->replace('_', ' ')->title()->value().']'])
+            ->all();
+
+        return view('admin.memos.preview', [
+            'bodyHtml' => EmailBlockRenderer::render($blocks, $sampleVariables),
         ]);
     }
 

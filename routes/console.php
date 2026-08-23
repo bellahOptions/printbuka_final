@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\AttendanceProcessingService;
 use App\Services\PendingJobReminderService;
 use App\Services\StaffActivitySummaryService;
 use App\Services\SupportTicketNotificationService;
@@ -54,10 +55,18 @@ Artisan::command('trainings:prune-duplicate-applications', function () {
     $this->info('Duplicate training applications deleted: '.$deleted);
 })->purpose('Delete duplicate training applications by email, keeping the first submission');
 
+Artisan::command('attendance:process-daily', function () {
+    $result = app(AttendanceProcessingService::class)->processDaily();
+    $this->info('Attendance processed — marked absent: '.$result['absent'].', auto-closed: '.$result['closed'].'.');
+})->purpose('Mark no-shows as absent past the shift cutoff and auto-close forgotten clock-outs');
+
 Schedule::command('jobs:send-pending-reminders')->everySixHours();
 Schedule::command('support:send-unanswered-ticket-reminders')->everySixHours();
 Schedule::command('invoices:send-unpaid-reminders')->hourly();
 Schedule::command('trainings:prune-duplicate-applications')->hourly();
+Schedule::command('attendance:process-daily')
+    ->hourly()
+    ->timezone(config('app.business_timezone', 'Africa/Lagos'));
 Schedule::command('staff:send-daily-activity-summary')
     ->weekdays()
     ->timezone(config('app.business_timezone', 'Africa/Lagos'))

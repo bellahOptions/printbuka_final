@@ -10,9 +10,22 @@
                 <h1 class="mt-2 text-4xl text-slate-950">Product & service pricing.</h1>
                 <p class="mt-2 max-w-2xl text-sm text-slate-500">Search a product or service to quote a client, or update pricing. Changes apply immediately across quotes, orders, and invoices.</p>
             </div>
-            <a href="{{ route('admin.pricelist.defaults.edit') }}" class="rounded-md border border-slate-300 bg-white px-5 py-3 text-sm font-black text-slate-700 transition hover:border-pink-400 hover:text-pink-700">
-                Edit default option prices
-            </a>
+            <div class="flex flex-col gap-2 sm:flex-row">
+                <a href="{{ route('admin.large-format.calculator') }}" class="rounded-md border border-slate-300 bg-white px-5 py-3 text-sm font-black text-slate-700 transition hover:border-pink-400 hover:text-pink-700">
+                    Large format calculator
+                </a>
+                @if (auth()->user()?->canAdmin('large_format.manage'))
+                    <a href="{{ route('admin.large-format.index') }}" class="rounded-md border border-slate-300 bg-white px-5 py-3 text-sm font-black text-slate-700 transition hover:border-pink-400 hover:text-pink-700">
+                        Large format rates
+                    </a>
+                @endif
+                <a href="{{ route('admin.pricelist.custom.index') }}" class="rounded-md border border-slate-300 bg-white px-5 py-3 text-sm font-black text-slate-700 transition hover:border-pink-400 hover:text-pink-700">
+                    Custom price list items
+                </a>
+                <a href="{{ route('admin.pricelist.defaults.edit') }}" class="rounded-md border border-slate-300 bg-white px-5 py-3 text-sm font-black text-slate-700 transition hover:border-pink-400 hover:text-pink-700">
+                    Edit default option prices
+                </a>
+            </div>
         </div>
 
         @if (session('status'))

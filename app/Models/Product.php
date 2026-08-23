@@ -63,6 +63,11 @@ class Product extends Model
         return $this->hasMany(Order::class);
     }
 
+    public function priceListItems(): HasMany
+    {
+        return $this->hasMany(PriceListItem::class);
+    }
+
     public function scopeFeatured($query)
     {
         return $query->where('is_featured', true)->where('is_active', true);

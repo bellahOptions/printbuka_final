@@ -104,6 +104,28 @@ class AdminEmailTemplateBuilderTest extends TestCase
         $this->assertStringContainsString('Hello Jane Doe,', $rendered);
     }
 
+    public function test_preview_endpoint_reflects_unsaved_block_edits_live(): void
+    {
+        $admin = $this->makeStaff('super_admin');
+
+        $introBlocks = json_encode([
+            ['id' => '1', 'type' => 'paragraph', 'text' => 'LIVE-PREVIEW-MARKER-not-yet-saved'],
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->withSession(['staff_2fa_verified' => true])
+            ->get(route('admin.email-templates.preview', 'staff.kyc_reminder').'?'.http_build_query([
+                'intro_blocks' => $introBlocks,
+                'outro_blocks' => '[]',
+            ]));
+
+        $response->assertOk();
+        $response->assertSee('LIVE-PREVIEW-MARKER-not-yet-saved');
+
+        // Confirms nothing was persisted by merely previewing.
+        $this->assertDatabaseMissing('email_templates', ['key' => 'staff.kyc_reminder']);
+    }
+
     public function test_reverting_a_template_removes_the_override(): void
     {
         $admin = $this->makeStaff('super_admin');

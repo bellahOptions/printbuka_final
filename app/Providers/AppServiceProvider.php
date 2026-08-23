@@ -47,7 +47,7 @@ class AppServiceProvider extends ServiceProvider
 
         View::share('siteSettings', SiteSettings::all());
 
-        View::composer(['layouts.guest.nav', 'layouts.guest.footer', 'welcome'], function ($view): void {
+        View::composer(['layouts.guest.nav', 'layouts.guest.footer'], function ($view): void {
             $cachedCategories = SafeCache::remember('public:category-tree:v1', now()->addMinutes(5), function (): array {
                 return ProductCategory::publicTreeQuery()
                     ->limit(6)

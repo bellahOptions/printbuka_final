@@ -48,6 +48,19 @@ class AdminSiteSettingController extends Controller
             'support_ticket_unanswered_reminder_hours' => ['nullable', 'integer', 'min:1', 'max:240'],
             'support_ticket_unanswered_reminder_cooldown_hours' => ['nullable', 'integer', 'min:1', 'max:240'],
             'important_action_notification_emails' => ['nullable', 'string', 'max:2000'],
+            'home_hero_image_1' => ['nullable', 'url', 'max:2000'],
+            'home_hero_image_2' => ['nullable', 'url', 'max:2000'],
+            'home_hero_image_3' => ['nullable', 'url', 'max:2000'],
+            'home_hero_image_4' => ['nullable', 'url', 'max:2000'],
+            'home_hero_image_5' => ['nullable', 'url', 'max:2000'],
+            'home_category_fallback_image_1' => ['nullable', 'url', 'max:2000'],
+            'home_category_fallback_image_2' => ['nullable', 'url', 'max:2000'],
+            'home_category_fallback_image_3' => ['nullable', 'url', 'max:2000'],
+            'home_category_fallback_image_4' => ['nullable', 'url', 'max:2000'],
+            'home_category_fallback_image_5' => ['nullable', 'url', 'max:2000'],
+            'home_category_fallback_image_6' => ['nullable', 'url', 'max:2000'],
+            'home_promo_image_1' => ['nullable', 'url', 'max:2000'],
+            'home_promo_image_2' => ['nullable', 'url', 'max:2000'],
         ]);
 
         if ($request->user()?->role !== 'super_admin') {
@@ -82,6 +95,7 @@ class AdminSiteSettingController extends Controller
             str_contains($key, 'paper_') || str_contains($key, 'finishings') => 'print_options',
             str_contains($key, 'important_action') => 'notifications',
             str_contains($key, 'notification') || str_contains($key, 'announcement') => 'notifications',
+            str_starts_with($key, 'home_') => 'homepage_images',
             default => 'general',
         };
     }

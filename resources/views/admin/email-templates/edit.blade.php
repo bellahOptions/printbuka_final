@@ -34,6 +34,14 @@
         </div>
 
         <div class="pb-card p-5">
+            <div class="flex items-center justify-between mb-3">
+                <p class="text-sm font-black text-slate-900">Live Preview</p>
+                <a href="#" id="open-full-preview" target="_blank" class="text-xs font-black text-pink-600 hover:text-pink-800">Open in new tab ↗</a>
+            </div>
+            <iframe id="template-preview-frame" class="w-full rounded-xl border border-slate-200" style="height: 420px;" title="Email preview"></iframe>
+        </div>
+
+        <div class="pb-card p-5">
             <p class="text-sm font-black text-slate-900 mb-4">Intro — shown before the email's main content</p>
             @include('admin.email-builder._canvas', [
                 'fieldName' => 'intro_blocks',
@@ -54,7 +62,6 @@
         <div class="flex items-center justify-between">
             <div class="flex gap-3">
                 <button type="submit" class="pb-btn pb-btn-primary">Save Template</button>
-                <button type="button" class="pb-btn pb-btn-outline" onclick="previewEmailTemplate('{{ route('admin.email-templates.preview', $key) }}')">Preview</button>
                 <a href="{{ route('admin.email-templates.index') }}" class="pb-btn pb-btn-outline">Cancel</a>
             </div>
             @if ($template)
@@ -68,13 +75,22 @@
 
 </div>
 <script>
-    function previewEmailTemplate(baseUrl) {
+    function buildTemplatePreviewUrl() {
         const introBlocks = document.querySelector('input[name="intro_blocks"]')?.value ?? '[]';
         const outroBlocks = document.querySelector('input[name="outro_blocks"]')?.value ?? '[]';
-        const url = new URL(baseUrl, window.location.origin);
+        const url = new URL('{{ route('admin.email-templates.preview', $key) }}', window.location.origin);
         url.searchParams.set('intro_blocks', introBlocks);
         url.searchParams.set('outro_blocks', outroBlocks);
-        window.open(url.toString(), '_blank');
+        return url.toString();
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('open-full-preview')?.addEventListener('click', (event) => {
+            event.preventDefault();
+            window.open(buildTemplatePreviewUrl(), '_blank');
+        });
+
+        window.wireLivePreview('#template-preview-frame', buildTemplatePreviewUrl);
+    });
 </script>
 @endsection

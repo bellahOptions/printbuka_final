@@ -11,10 +11,7 @@ class NewsletterCampaign extends Model
         'created_by_id',
         'subject',
         'preheader',
-        'headline',
-        'message',
-        'cta_label',
-        'cta_url',
+        'blocks',
         'recipient_count',
         'emails_sent',
         'emails_failed',
@@ -24,6 +21,7 @@ class NewsletterCampaign extends Model
     protected function casts(): array
     {
         return [
+            'blocks' => 'array',
             'recipient_count' => 'integer',
             'emails_sent' => 'integer',
             'emails_failed' => 'integer',

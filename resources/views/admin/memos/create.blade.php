@@ -29,6 +29,14 @@
         </div>
 
         <div class="pb-card p-5">
+            <div class="flex items-center justify-between mb-3">
+                <p class="text-sm font-black text-slate-900">Live Preview</p>
+                <a href="#" id="open-full-preview" target="_blank" class="text-xs font-black text-pink-600 hover:text-pink-800">Open in new tab ↗</a>
+            </div>
+            <iframe id="template-preview-frame" class="w-full rounded-xl border border-slate-200" style="height: 420px;" title="Memo preview"></iframe>
+        </div>
+
+        <div class="pb-card p-5">
             <p class="text-sm font-black text-slate-900 mb-4">Memo content</p>
             @include('admin.email-builder._canvas', [
                 'fieldName' => 'blocks',
@@ -79,4 +87,21 @@
     </form>
 
 </div>
+<script>
+    function buildMemoPreviewUrl() {
+        const blocks = document.querySelector('input[name="blocks"]')?.value ?? '[]';
+        const url = new URL('{{ route('admin.memos.preview') }}', window.location.origin);
+        url.searchParams.set('blocks', blocks);
+        return url.toString();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('open-full-preview')?.addEventListener('click', (event) => {
+            event.preventDefault();
+            window.open(buildMemoPreviewUrl(), '_blank');
+        });
+
+        window.wireLivePreview('#template-preview-frame', buildMemoPreviewUrl);
+    });
+</script>
 @endsection

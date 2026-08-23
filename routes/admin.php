@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminActivityLogController;
+use App\Http\Controllers\Admin\AdminAttendanceController;
 use App\Http\Controllers\Admin\AdminAdvertisementController;
 use App\Http\Controllers\Admin\AdminBlogPostController;
 use App\Http\Controllers\Admin\AdminCustomerController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\Admin\AdminEmailTemplateController;
 use App\Http\Controllers\Admin\AdminPdfTemplateController;
 use App\Http\Controllers\Admin\AdminFinanceController;
 use App\Http\Controllers\Admin\AdminInvoiceController;
+use App\Http\Controllers\Admin\AdminLargeFormatController;
 use App\Http\Controllers\Admin\AdminMemoController;
 use App\Http\Controllers\Admin\AdminNewsletterController;
 use App\Http\Controllers\Admin\AdminNotificationController;
@@ -56,6 +58,28 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
             Route::put('/products/{product}', [AdminPriceListController::class, 'updateProduct'])->name('products.update');
             Route::get('/services/{slug}', [AdminPriceListController::class, 'editService'])->name('services.edit');
             Route::put('/services/{slug}', [AdminPriceListController::class, 'updateService'])->name('services.update');
+            Route::get('/custom', [AdminPriceListController::class, 'customIndex'])->name('custom.index');
+            Route::get('/custom/create', [AdminPriceListController::class, 'customCreate'])->name('custom.create');
+            Route::post('/custom', [AdminPriceListController::class, 'customStore'])->name('custom.store');
+            Route::delete('/custom/{item}', [AdminPriceListController::class, 'customDestroy'])->name('custom.destroy');
+        });
+
+        Route::prefix('large-format')->name('large-format.')->group(function (): void {
+            Route::get('/calculator', [AdminLargeFormatController::class, 'calculator'])
+                ->middleware('admin.permission:large_format.calculate')
+                ->name('calculator');
+            Route::get('/', [AdminLargeFormatController::class, 'index'])
+                ->middleware('admin.permission:large_format.manage')
+                ->name('index');
+            Route::post('/', [AdminLargeFormatController::class, 'store'])
+                ->middleware('admin.permission:large_format.manage')
+                ->name('store');
+            Route::put('/{rate}', [AdminLargeFormatController::class, 'update'])
+                ->middleware('admin.permission:large_format.manage')
+                ->name('update');
+            Route::delete('/{rate}', [AdminLargeFormatController::class, 'destroy'])
+                ->middleware('admin.permission:large_format.manage')
+                ->name('destroy');
         });
         Route::resource('blog', AdminBlogPostController::class)
             ->except('show')
@@ -109,6 +133,12 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::get('/newsletters', [AdminNewsletterController::class, 'index'])
             ->middleware('admin.permission:newsletters.manage')
             ->name('newsletters.index');
+        Route::get('/newsletters/create', [AdminNewsletterController::class, 'create'])
+            ->middleware('admin.permission:newsletters.manage')
+            ->name('newsletters.create');
+        Route::get('/newsletters/preview', [AdminNewsletterController::class, 'preview'])
+            ->middleware('admin.permission:newsletters.manage')
+            ->name('newsletters.preview');
         Route::post('/newsletters', [AdminNewsletterController::class, 'store'])
             ->middleware('admin.permission:newsletters.manage')
             ->name('newsletters.store');
@@ -148,6 +178,9 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::get('/memos/create', [AdminMemoController::class, 'create'])
             ->middleware('super.admin')
             ->name('memos.create');
+        Route::get('/memos/preview', [AdminMemoController::class, 'preview'])
+            ->middleware('super.admin')
+            ->name('memos.preview');
         Route::post('/memos', [AdminMemoController::class, 'store'])
             ->middleware('super.admin')
             ->name('memos.store');
@@ -223,6 +256,39 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::post('/staff/{user}/kyc-review', [AdminStaffProfileController::class, 'reviewKyc'])
             ->middleware('admin.permission:staff.kyc')
             ->name('staff.kyc-review');
+
+        // ===== ATTENDANCE =====
+        // Self-service — any authenticated staff member (no extra permission
+        // beyond the base admin.view already required for this whole group).
+        Route::get('/attendance', [AdminAttendanceController::class, 'index'])
+            ->name('attendance.index');
+        Route::post('/attendance/clock-in', [AdminAttendanceController::class, 'clockIn'])
+            ->name('attendance.clock-in');
+        Route::post('/attendance/clock-out', [AdminAttendanceController::class, 'clockOut'])
+            ->name('attendance.clock-out');
+
+        // Management — HR / operations manager / super admin / MD.
+        Route::get('/attendance/team', [AdminAttendanceController::class, 'team'])
+            ->middleware('admin.permission:attendance.manage')
+            ->name('attendance.team');
+        Route::get('/attendance/staff/{staff}', [AdminAttendanceController::class, 'show'])
+            ->middleware('admin.permission:attendance.manage')
+            ->name('attendance.show');
+        Route::patch('/attendance/records/{record}', [AdminAttendanceController::class, 'correct'])
+            ->middleware('admin.permission:attendance.manage')
+            ->name('attendance.correct');
+        Route::get('/attendance/location', [AdminAttendanceController::class, 'locationEdit'])
+            ->middleware('admin.permission:attendance.manage')
+            ->name('attendance.location.edit');
+        Route::put('/attendance/location/{location}', [AdminAttendanceController::class, 'locationUpdate'])
+            ->middleware('admin.permission:attendance.manage')
+            ->name('attendance.location.update');
+        Route::post('/attendance/holidays', [AdminAttendanceController::class, 'holidaysStore'])
+            ->middleware('admin.permission:attendance.manage')
+            ->name('attendance.holidays.store');
+        Route::delete('/attendance/holidays/{holiday}', [AdminAttendanceController::class, 'holidaysDestroy'])
+            ->middleware('admin.permission:attendance.manage')
+            ->name('attendance.holidays.destroy');
 
         // ===== STAFF QUERIES =====
         Route::get('/staff-queries', [AdminStaffQueryController::class, 'index'])

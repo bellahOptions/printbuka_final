@@ -10,6 +10,7 @@ use App\Support\ProductOptionPricing;
 use App\Support\ServiceCatalog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class AdminPriceListController extends Controller
@@ -188,6 +189,57 @@ class AdminPriceListController extends Controller
         }
 
         return redirect()->route('admin.pricelist.services.edit', $slug)->with('status', 'Pricing updated for '.($service['name'] ?? $slug).'.');
+    }
+
+    public function customIndex(): View
+    {
+        return view('admin.pricelist.custom-index', [
+            'items' => PriceListItem::query()
+                ->where('category', 'custom')
+                ->with('product')
+                ->latest()
+                ->get(),
+        ]);
+    }
+
+    public function customCreate(Request $request): View
+    {
+        return view('admin.pricelist.custom-create', [
+            'services' => config('printbuka_services.services', []),
+            'products' => Product::query()->orderBy('name')->get(['id', 'name']),
+            'selectedProductId' => $request->integer('product_id') ?: null,
+        ]);
+    }
+
+    public function customStore(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'label' => ['required', 'string', 'max:255'],
+            'service_slug' => ['nullable', 'string', Rule::in(array_keys(config('printbuka_services.services', [])))],
+            'product_id' => ['nullable', 'exists:products,id'],
+            'price' => ['required', 'numeric', 'min:0'],
+        ]);
+
+        PriceListItem::query()->create([
+            'category' => 'custom',
+            'product_id' => $validated['product_id'] ?? null,
+            'service_slug' => $validated['service_slug'] ?? null,
+            'label' => $validated['label'],
+            'price' => $validated['price'],
+            'is_active' => true,
+            'updated_by_id' => $request->user()->id,
+        ]);
+
+        return redirect()->route('admin.pricelist.custom.index')->with('status', 'Custom price list item added.');
+    }
+
+    public function customDestroy(PriceListItem $item): RedirectResponse
+    {
+        abort_unless($item->category === 'custom', 404);
+
+        $item->delete();
+
+        return back()->with('status', 'Custom price list item removed.');
     }
 
     /**
