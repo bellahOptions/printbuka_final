@@ -57,6 +57,7 @@
 @endphp
 <body>
 <div class="page">
+    {!! $introHtml ?? '' !!}
     {{-- Header --}}
     <div class="header">
         <table class="header-grid">
@@ -166,6 +167,7 @@
             </tr>
         </table>
     </div>
+    {!! $outroHtml ?? '' !!}
 </div>
 </body>
 </html>

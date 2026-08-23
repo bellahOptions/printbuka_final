@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Mail\Concerns\HasEditableTemplate;
+use App\Support\PdfTemplateOverrides;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -36,6 +37,7 @@ class FinanceReportMail extends Mailable
             'dateFrom'     => $this->dateFrom ? \Carbon\Carbon::parse($this->dateFrom) : null,
             'dateTo'       => $this->dateTo   ? \Carbon\Carbon::parse($this->dateTo)   : null,
             'generatedBy'  => null,
+            ...PdfTemplateOverrides::forKey('pdf.finance_report', $this->templateVariables()),
         ])->output();
 
         $filename = 'finance-'.strtolower($this->periodLabel).'-'.now()->format('Y-m-d').'.pdf';

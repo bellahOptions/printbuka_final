@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\FinanceReportMail;
 use App\Models\FinanceEntry;
 use App\Models\Order;
+use App\Support\PdfTemplateOverrides;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -136,6 +137,10 @@ class AdminFinanceController extends Controller
             'dateFrom' => $request->date('date_from'),
             'dateTo' => $request->date('date_to'),
             'generatedBy' => $generatedBy,
+            ...PdfTemplateOverrides::forKey('pdf.finance_report', [
+                'period_label' => (string) ($request->period ?? 'All time'),
+                'net_total' => number_format((float) $netTotal, 2),
+            ]),
         ]);
 
         $periodLabel = match ($request->period) {
@@ -219,6 +224,10 @@ class AdminFinanceController extends Controller
 
         $pdf = Pdf::loadView('admin.finance.pdf', [
             'entry' => $entry,
+            ...PdfTemplateOverrides::forKey('pdf.finance_entry', [
+                'category' => (string) $entry->category,
+                'amount' => number_format((float) $entry->amount, 2),
+            ]),
         ]);
 
         return $pdf->download('finance-entry-'.$entry->id.'.pdf');

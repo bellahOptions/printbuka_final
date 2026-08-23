@@ -9,6 +9,7 @@ use App\Models\PayrollEntry;
 use App\Models\PayrollRun;
 use App\Models\SalaryStructure;
 use App\Models\User;
+use App\Support\PdfTemplateOverrides;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -274,8 +275,15 @@ class AdminPayrollController extends Controller
             403
         );
 
+        $entry->load('staff', 'payrollRun');
+
         $pdf = Pdf::loadView('admin.payroll.payslip-pdf', [
-            'entry' => $entry->load('staff', 'payrollRun'),
+            'entry' => $entry,
+            ...PdfTemplateOverrides::forKey('pdf.payslip', [
+                'staff_name' => (string) $entry->staff?->displayName(),
+                'period_label' => (string) $entry->payrollRun?->periodLabel(),
+                'net_salary' => number_format((float) $entry->net_salary, 2),
+            ]),
         ]);
 
         return $pdf->download('Payslip-'.$entry->payrollRun?->periodLabel().'-'.$entry->staff?->displayName().'.pdf');
@@ -296,6 +304,10 @@ class AdminPayrollController extends Controller
             'totalGross'      => $totalGross,
             'totalDeductions' => $totalDeductions,
             'totalNet'        => $totalNet,
+            ...PdfTemplateOverrides::forKey('pdf.payroll_run', [
+                'period_label' => $run->periodLabel(),
+                'total_net' => number_format((float) $totalNet, 2),
+            ]),
         ])->setPaper('a4', 'landscape');
 
         return $pdf->download('Payroll-'.$run->periodLabel().'.pdf');

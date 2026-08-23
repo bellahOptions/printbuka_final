@@ -45,6 +45,7 @@
 </head>
 <body>
 <div class="page">
+    {!! $introHtml ?? '' !!}
 
     {{-- Header --}}
     <div class="header">
@@ -146,6 +147,7 @@
     </div>
     @endif
 
+    {!! $outroHtml ?? '' !!}
     <div class="footer">
         <p>This payslip is computer-generated and does not require a signature. &copy; {{ date('Y') }} Printbuka. All rights reserved.</p>
         <p style="margin-top:4px">Generated: {{ now()->format('F j, Y \a\t g:i A') }}</p>

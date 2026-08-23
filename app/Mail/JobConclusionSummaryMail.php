@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Mail\Concerns\HasEditableTemplate;
 use App\Models\Order;
 use App\Models\User;
+use App\Support\PdfTemplateOverrides;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -42,11 +43,13 @@ class JobConclusionSummaryMail extends Mailable
             'order' => $this->order,
             'expenseEntries' => $expenseEntries,
             'asPdf' => true,
+            ...PdfTemplateOverrides::forKey('pdf.job_log', $this->templateVariables()),
         ])->output();
 
         $expenseLogPdf = Pdf::loadView('admin.orders.expense-log-pdf', [
             'order' => $this->order,
             'expenseEntries' => $expenseEntries,
+            ...PdfTemplateOverrides::forKey('pdf.expense_log', $this->templateVariables()),
         ])->output();
 
         return $this

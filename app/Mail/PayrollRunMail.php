@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Mail\Concerns\HasEditableTemplate;
 use App\Models\PayrollRun;
+use App\Support\PdfTemplateOverrides;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -49,6 +50,10 @@ class PayrollRunMail extends Mailable
             'totalGross'      => $totalGross,
             'totalDeductions' => $totalDeductions,
             'totalNet'        => $totalNet,
+            ...PdfTemplateOverrides::forKey('pdf.payroll_run', [
+                'period_label' => $this->run->periodLabel(),
+                'total_net' => number_format((float) $totalNet, 2),
+            ]),
         ])->setPaper('a4', 'landscape');
 
         $filename = 'Payroll-'.$this->run->periodLabel().'.pdf';

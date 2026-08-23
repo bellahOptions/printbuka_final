@@ -13,6 +13,7 @@ use App\Services\ImportantActionNotifier;
 use App\Services\InvoiceLifecycleService;
 use App\Services\InvoiceService;
 use App\Services\QuoteCsvImportService;
+use App\Support\PdfTemplateOverrides;
 use App\Support\ProductOptionPricing;
 use App\Support\ReferenceCode;
 use App\Support\ServiceCatalog;
@@ -53,6 +54,11 @@ class AdminInvoiceController extends Controller
 
         $pdf = Pdf::loadView('admin.invoices.pdf', [
             'invoice' => $invoice,
+            ...PdfTemplateOverrides::forKey('pdf.invoice_admin', [
+                'customer_name' => (string) $invoice->order->customer_name,
+                'invoice_number' => (string) $invoice->invoice_number,
+                'total_amount' => number_format((float) $invoice->total_amount, 2),
+            ]),
         ]);
 
         return $pdf->download($invoice->documentTypeLabel().'-'.$invoice->invoice_number.'.pdf');

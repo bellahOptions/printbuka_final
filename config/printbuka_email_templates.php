@@ -163,4 +163,40 @@ return [
         'mail_class' => \App\Mail\OrderAlertMail::class,
         'variables' => ['recipient_name', 'customer_name', 'order_number', 'alert_type'],
     ],
+
+    'job.pending_reminder' => [
+        'name' => 'Pending Jobs Reminder',
+        'mail_class' => \App\Mail\PendingJobsReminderMail::class,
+        'variables' => ['staff_name', 'job_count'],
+    ],
+
+    'support.ticket_raised' => [
+        'name' => 'Support Ticket Raised Alert',
+        'mail_class' => \App\Mail\SupportTicketRaisedAlertMail::class,
+        'variables' => ['staff_name', 'ticket_number', 'ticket_subject'],
+    ],
+
+    'support.unanswered_reminder' => [
+        'name' => 'Support Ticket Unanswered Reminder',
+        'mail_class' => \App\Mail\SupportTicketUnansweredReminderMail::class,
+        'variables' => ['staff_name', 'ticket_count', 'threshold_hours'],
+    ],
+
+    'training.application_decision' => [
+        'name' => 'Training Application Decision',
+        'mail_class' => \App\Mail\TrainingApplicationDecisionMail::class,
+        'variables' => ['applicant_name', 'track', 'decision'],
+    ],
+
+    'training.application_submitted' => [
+        'name' => 'Training Application Submitted (Internal Alert)',
+        'mail_class' => \App\Mail\TrainingApplicationSubmittedMail::class,
+        'variables' => ['applicant_name', 'track'],
+    ],
+
+    'policy.terms_updated' => [
+        'name' => 'Terms & Conditions Updated',
+        'mail_class' => \App\Mail\TermsPolicyUpdatedMail::class,
+        'variables' => ['customer_name', 'updated_at'],
+    ],
 ];

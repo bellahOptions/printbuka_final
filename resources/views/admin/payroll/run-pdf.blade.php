@@ -49,6 +49,7 @@
 </head>
 <body>
 <div class="page">
+    {!! $introHtml ?? '' !!}
 
     {{-- Header --}}
     <div class="header">
@@ -157,6 +158,7 @@
         </div>
     </div>
 
+    {!! $outroHtml ?? '' !!}
     <div class="footer">
         <p>This payroll report is computer-generated and confidential. For internal use only. &copy; {{ date('Y') }} Printbuka.</p>
     </div>

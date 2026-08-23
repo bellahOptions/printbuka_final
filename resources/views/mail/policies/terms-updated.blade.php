@@ -17,6 +17,7 @@
                     </tr>
                     <tr>
                         <td style="padding:28px;">
+                            {!! $introHtml ?? '' !!}
                             <p style="margin:0 0 16px;">Hello {{ $customer->displayName() }},</p>
                             <p style="margin:0 0 16px;line-height:1.6;">
                                 We have updated our Terms & Conditions. Please review the latest version to stay informed on current order and service rules.
@@ -28,6 +29,7 @@
                             <a href="{{ $termsUrl }}" style="display:inline-block;background:#EC268F;color:#ffffff;padding:12px 18px;border-radius:6px;font-weight:700;text-decoration:none;">
                                 Review Terms & Conditions
                             </a>
+                            {!! $outroHtml ?? '' !!}
                         </td>
                     </tr>
                 </table>

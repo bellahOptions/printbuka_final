@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AdminBlogPostController;
 use App\Http\Controllers\Admin\AdminCustomerController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminEmailTemplateController;
+use App\Http\Controllers\Admin\AdminPdfTemplateController;
 use App\Http\Controllers\Admin\AdminFinanceController;
 use App\Http\Controllers\Admin\AdminInvoiceController;
 use App\Http\Controllers\Admin\AdminMemoController;
@@ -126,6 +127,21 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::get('/email-templates/{key}/preview', [AdminEmailTemplateController::class, 'preview'])
             ->middleware('super.admin')
             ->name('email-templates.preview');
+        Route::get('/pdf-templates', [AdminPdfTemplateController::class, 'index'])
+            ->middleware('super.admin')
+            ->name('pdf-templates.index');
+        Route::get('/pdf-templates/{key}/edit', [AdminPdfTemplateController::class, 'edit'])
+            ->middleware('super.admin')
+            ->name('pdf-templates.edit');
+        Route::put('/pdf-templates/{key}', [AdminPdfTemplateController::class, 'update'])
+            ->middleware('super.admin')
+            ->name('pdf-templates.update');
+        Route::post('/pdf-templates/{key}/reset', [AdminPdfTemplateController::class, 'reset'])
+            ->middleware('super.admin')
+            ->name('pdf-templates.reset');
+        Route::get('/pdf-templates/{key}/preview', [AdminPdfTemplateController::class, 'preview'])
+            ->middleware('super.admin')
+            ->name('pdf-templates.preview');
         Route::get('/memos', [AdminMemoController::class, 'index'])
             ->middleware('super.admin')
             ->name('memos.index');

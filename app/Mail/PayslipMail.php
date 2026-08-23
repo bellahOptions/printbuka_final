@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Mail\Concerns\HasEditableTemplate;
 use App\Models\PayrollEntry;
+use App\Support\PdfTemplateOverrides;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -35,7 +36,10 @@ class PayslipMail extends Mailable
 
     public function attachments(): array
     {
-        $pdf = Pdf::loadView('admin.payroll.payslip-pdf', ['entry' => $this->entry]);
+        $pdf = Pdf::loadView('admin.payroll.payslip-pdf', [
+            'entry' => $this->entry,
+            ...PdfTemplateOverrides::forKey('pdf.payslip', $this->templateVariables()),
+        ]);
         $filename = 'Payslip-'.($this->entry->payrollRun?->periodLabel() ?? 'N/A').'.pdf';
 
         return [

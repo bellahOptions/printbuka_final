@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Mail\Concerns\HasEditableTemplate;
 use App\Models\Invoice;
+use App\Support\PdfTemplateOverrides;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -24,6 +25,7 @@ class InvoicePaidReceiptMail extends Mailable
 
         $pdf = Pdf::loadView('receipts.pdf', [
             'invoice' => $this->invoice,
+            ...PdfTemplateOverrides::forKey('pdf.receipt', $this->templateVariables()),
         ])->output();
 
         return $this

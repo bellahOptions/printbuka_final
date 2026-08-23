@@ -17,6 +17,7 @@ use App\Services\OrderFulfillmentService;
 use App\Services\PendingJobReminderService;
 use App\Support\JobAssetUpload;
 use App\Support\LivewireSecureUploads;
+use App\Support\PdfTemplateOverrides;
 use App\Support\ReferenceCode;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -158,6 +159,10 @@ class AdminOrderController extends Controller
             'staffActivities' => $staffActivities,
             'generatedBy' => $generatedBy,
             'asPdf' => true,
+            ...PdfTemplateOverrides::forKey('pdf.job_log', [
+                'order_number' => (string) ($order->job_order_number ?? $order->displayNumber()),
+                'customer_name' => (string) $order->customer_name,
+            ]),
         ]);
 
         return $pdf->download('job-log-'.$order->job_order_number.'.pdf');

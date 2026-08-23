@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Mail\Concerns\HasEditableTemplate;
 use App\Models\Order;
+use App\Support\PdfTemplateOverrides;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -29,6 +30,7 @@ class JobFinanceSummaryMail extends Mailable
             'order' => $this->order,
             'expenseEntries' => $expenseEntries,
             'asPdf' => true,
+            ...PdfTemplateOverrides::forKey('pdf.job_log', $this->templateVariables()),
         ])->output();
 
         return $this

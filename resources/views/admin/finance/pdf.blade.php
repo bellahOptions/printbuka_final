@@ -20,6 +20,7 @@
         </style>
     </head>
     <body>
+        {!! $introHtml ?? '' !!}
         <div class="header">
             <div>
                 <p class="title">Finance Record</p>
@@ -49,5 +50,6 @@
             <h2>Notes</h2>
             <p>{{ $entry->notes ?: 'No additional notes.' }}</p>
         </div>
+        {!! $outroHtml ?? '' !!}
     </body>
 </html>

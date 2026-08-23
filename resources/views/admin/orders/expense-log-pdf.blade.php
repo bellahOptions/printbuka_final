@@ -16,6 +16,7 @@
     </style>
 </head>
 <body>
+    {!! $introHtml ?? '' !!}
     <h1>Expense Log</h1>
     <div class="meta">
         <p><strong>Job:</strong> {{ $order->job_order_number ?? $order->displayNumber() }}</p>
@@ -51,6 +52,7 @@
     </table>
 
     <p class="summary">Total Expenses: ₦{{ number_format((float) $expenseEntries->sum('amount'), 2) }}</p>
+    {!! $outroHtml ?? '' !!}
 </body>
 </html>
 

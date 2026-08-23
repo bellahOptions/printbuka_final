@@ -106,7 +106,7 @@ document.addEventListener('alpine:init', () => {
 
         addBlock(type) {
             if (!blockDefaults[type]) return;
-            const block = { id: newBlockId(), type, ...structuredClone(blockDefaults[type]) };
+            const block = { id: newBlockId(), type, ...blockDefaults[type] };
             this.blocks.push(block);
             this.selectedId = block.id;
         },

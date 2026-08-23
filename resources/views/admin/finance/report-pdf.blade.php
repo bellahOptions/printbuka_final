@@ -208,6 +208,7 @@ body {
 </head>
 <body>
 <div class="page">
+{!! $introHtml ?? '' !!}
 
 {{-- ══════════════════════════════════════
      HEADER
@@ -414,6 +415,7 @@ body {
     </table>
 </div>
 
+{!! $outroHtml ?? '' !!}
 </div>
 </body>
 </html>
