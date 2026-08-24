@@ -124,7 +124,7 @@
                 <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">
                     Notes / Correction Instructions <span class="text-slate-400 normal-case font-normal">(optional for approval, recommended for corrections)</span>
                 </label>
-                <textarea name="kyc_notes" rows="3"
+                <textarea name="kyc_notes" rows="3" data-rich-editor
                     placeholder="E.g. Please update your bank account number and next-of-kin address."
                     class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:ring-2 focus:ring-pink-100 focus:outline-none">{{ old('kyc_notes', ($profile->kyc_status ?? 'pending') === 'correction_requested' ? $profile->kyc_review_notes : '') }}</textarea>
             </div>
@@ -371,7 +371,7 @@
                 </div>
                 <div class="sm:col-span-2">
                     <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Emergency Contact Notes</label>
-                    <textarea name="emergency_contact_notes" rows="2" @disabled(!$canEdit) class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none disabled:bg-slate-50">{{ old('emergency_contact_notes', $profile->emergency_contact_notes) }}</textarea>
+                    <textarea name="emergency_contact_notes" rows="2" data-rich-editor @disabled(!$canEdit) class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none disabled:bg-slate-50">{{ old('emergency_contact_notes', $profile->emergency_contact_notes) }}</textarea>
                 </div>
             </div>
 

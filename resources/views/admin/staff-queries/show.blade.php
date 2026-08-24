@@ -81,7 +81,7 @@
         <p class="text-sm text-amber-700 mb-4">Please provide your formal response to this query.</p>
         <form method="POST" action="{{ route('admin.staff-queries.respond', $query) }}">
             @csrf
-            <textarea name="staff_response" rows="5" required placeholder="Write your formal response here..." class="w-full rounded-xl border border-amber-300 px-4 py-3 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-100 focus:outline-none mb-3"></textarea>
+            <textarea name="staff_response" rows="5" required data-rich-editor placeholder="Write your formal response here..." class="w-full rounded-xl border border-amber-300 px-4 py-3 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-100 focus:outline-none mb-3"></textarea>
             <button type="submit" class="rounded-xl bg-amber-600 px-6 py-2.5 text-sm font-black text-white hover:bg-amber-700">Submit Response</button>
         </form>
     </div>
@@ -117,7 +117,7 @@
         <h2 class="text-base font-black text-slate-950 mb-4">Close Query</h2>
         <form method="POST" action="{{ route('admin.staff-queries.close', $query) }}">
             @csrf
-            <textarea name="resolution_notes" rows="3" placeholder="Resolution notes (optional)..." class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-pink-400 focus:ring-2 focus:ring-pink-100 focus:outline-none mb-3"></textarea>
+            <textarea name="resolution_notes" rows="3" data-rich-editor placeholder="Resolution notes (optional)..." class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-pink-400 focus:ring-2 focus:ring-pink-100 focus:outline-none mb-3"></textarea>
             <button type="submit" class="rounded-xl bg-slate-900 px-6 py-2.5 text-sm font-black text-white hover:bg-slate-700">Close Query</button>
         </form>
     </div>

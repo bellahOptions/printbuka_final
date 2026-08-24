@@ -13,6 +13,7 @@ use App\Services\ImportantActionNotifier;
 use App\Services\InvoiceLifecycleService;
 use App\Services\InvoiceService;
 use App\Services\QuoteCsvImportService;
+use App\Support\IdempotencyGuard;
 use App\Support\PdfTemplateOverrides;
 use App\Support\ProductOptionPricing;
 use App\Support\ReferenceCode;
@@ -817,6 +818,16 @@ class AdminInvoiceController extends Controller
             return back()->with('warning', $invoice->documentTypeLabel().' is already fully paid.');
         }
 
+        // A double-click, a slow-network retry, or an unsure resubmission all
+        // resend the same client-generated key — recognize the replay and
+        // report success without recording the payment twice.
+        $idempotencyKey = $request->input('idempotency_key');
+        $existingPayment = IdempotencyGuard::alreadyProcessed(InvoicePayment::class, $idempotencyKey);
+
+        if ($existingPayment) {
+            return back()->with('status', 'Payment of ₦'.number_format((float) $existingPayment->amount, 2).' recorded.');
+        }
+
         $validated = $request->validate([
             'amount'             => ['required', 'numeric', 'min:0.01'],
             'payment_method'     => ['required', 'string', 'max:100'],
@@ -826,9 +837,10 @@ class AdminInvoiceController extends Controller
         ]);
 
         $order = $invoice->order;
-        $thisAmount = (float) $validated['amount'];
+        $thisAmount = round((float) $validated['amount'], 2);
 
         InvoicePayment::query()->create([
+            'idempotency_key'   => $idempotencyKey,
             'invoice_id'        => $invoice->id,
             'order_id'          => $order?->id,
             'recorded_by_id'    => $request->user()?->id,

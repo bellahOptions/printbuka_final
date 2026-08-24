@@ -99,7 +99,7 @@
                         </label>
                         <div class="space-y-1">
                             <label class="text-sm font-black text-slate-700">Maintenance Message</label>
-                            <textarea name="maintenance_message" rows="4" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Message shown to visitors during maintenance">{{ old('maintenance_message', $settings['maintenance_message'] ?? '') }}</textarea>
+                            <textarea name="maintenance_message" rows="4" data-rich-editor class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Message shown to visitors during maintenance">{{ old('maintenance_message', $settings['maintenance_message'] ?? '') }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -120,11 +120,11 @@
                     <div class="space-y-4">
                         <div class="space-y-1">
                             <label class="text-sm font-black text-slate-700">Notification Message</label>
-                            <textarea name="notification_message" rows="3" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Short notification banner message">{{ old('notification_message', $settings['notification_message'] ?? '') }}</textarea>
+                            <textarea name="notification_message" rows="3" data-rich-editor class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Short notification banner message">{{ old('notification_message', $settings['notification_message'] ?? '') }}</textarea>
                         </div>
                         <div class="space-y-1">
                             <label class="text-sm font-black text-slate-700">Announcement</label>
-                            <textarea name="announcement" rows="4" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Detailed announcement content">{{ old('announcement', $settings['announcement'] ?? '') }}</textarea>
+                            <textarea name="announcement" rows="4" data-rich-editor class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Detailed announcement content">{{ old('announcement', $settings['announcement'] ?? '') }}</textarea>
                         </div>
                         @if (auth()->user()?->role === 'super_admin')
                             <div class="space-y-1">
@@ -268,7 +268,7 @@
                             </div>
                             <div class="space-y-1 sm:col-span-2">
                                 <label class="text-sm font-black text-slate-700">Account Note (Optional)</label>
-                                <textarea name="company_account_note" rows="3" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Use your invoice number as payment reference">{{ old('company_account_note', $settings['company_account_note'] ?? '') }}</textarea>
+                                <textarea name="company_account_note" rows="3" data-rich-editor class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Use your invoice number as payment reference">{{ old('company_account_note', $settings['company_account_note'] ?? '') }}</textarea>
                             </div>
                         </div>
                     </div>

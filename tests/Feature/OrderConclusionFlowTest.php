@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Mail\JobCompletedAppreciationMail;
+use App\Mail\JobConcludedStaffNotificationMail;
 use App\Mail\JobConclusionSummaryMail;
 use App\Models\Order;
 use App\Models\StaffProfile;
@@ -21,6 +22,9 @@ class OrderConclusionFlowTest extends TestCase
 
         $operationsManager = $this->staff('operations_manager', 'ops.manager@example.com');
         $managingDirector = $this->staff('managing_director', 'md@example.com');
+        $designer = $this->staff('designer', 'designer@example.com');
+        $inactiveStaff = $this->staff('designer', 'inactive.designer@example.com');
+        $inactiveStaff->forceFill(['is_active' => false])->save();
         $order = $this->order([
             'status' => 'Delivery In Progress',
             'actual_delivery_at' => null,
@@ -46,6 +50,20 @@ class OrderConclusionFlowTest extends TestCase
         Mail::assertSent(JobConclusionSummaryMail::class, function (JobConclusionSummaryMail $mail) use ($managingDirector, $order): bool {
             return $mail->hasTo($managingDirector->email) && $mail->order->is($order);
         });
+
+        // Active staff (excluding the MD, who already gets the detailed summary)
+        // get a lightweight conclusion notice — this includes the concluding
+        // operations manager and any other active staff, but not an inactive one.
+        Mail::assertSent(JobConcludedStaffNotificationMail::class, function (JobConcludedStaffNotificationMail $mail) use ($designer, $order): bool {
+            return $mail->hasTo($designer->email) && $mail->order->is($order);
+        });
+
+        Mail::assertSent(JobConcludedStaffNotificationMail::class, function (JobConcludedStaffNotificationMail $mail) use ($operationsManager, $order): bool {
+            return $mail->hasTo($operationsManager->email) && $mail->order->is($order);
+        });
+
+        Mail::assertNotSent(JobConcludedStaffNotificationMail::class, fn (JobConcludedStaffNotificationMail $mail): bool => $mail->hasTo('inactive.designer@example.com'));
+        Mail::assertNotSent(JobConcludedStaffNotificationMail::class, fn (JobConcludedStaffNotificationMail $mail): bool => $mail->hasTo($managingDirector->email));
     }
 
     public function test_concluded_job_cannot_be_edited_or_moved_forward(): void

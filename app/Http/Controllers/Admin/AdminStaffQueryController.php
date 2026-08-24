@@ -60,7 +60,7 @@ class AdminStaffQueryController extends Controller
             'query_date'        => ['required', 'date'],
             'query_type'        => ['required', 'string', 'in:'.implode(',', StaffQuery::$types)],
             'subject'           => ['required', 'string', 'max:255'],
-            'description'       => ['required', 'string', 'max:5000'],
+            'description'       => ['required', 'string', 'max:20000'],
             'response_due_date' => ['nullable', 'date', 'after_or_equal:query_date'],
         ]);
 
@@ -98,7 +98,7 @@ class AdminStaffQueryController extends Controller
         abort_if($query->staff_responded_at !== null, 422, 'You have already responded to this query.');
 
         $validated = $request->validate([
-            'staff_response' => ['required', 'string', 'max:5000'],
+            'staff_response' => ['required', 'string', 'max:20000'],
         ]);
 
         $query->forceFill([
@@ -115,7 +115,7 @@ class AdminStaffQueryController extends Controller
         abort_unless($request->user()?->canAdmin('staff.queries') || $request->user()?->canAdmin('*'), 403);
 
         $validated = $request->validate([
-            'resolution_notes' => ['nullable', 'string', 'max:2000'],
+            'resolution_notes' => ['nullable', 'string', 'max:8000'],
         ]);
 
         $query->forceFill([

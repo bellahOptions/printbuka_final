@@ -33,7 +33,7 @@
                     </div>
                     <div>
                         <label class="text-sm font-black text-slate-700">Body</label>
-                        <textarea name="body" rows="4" class="mt-2 w-full rounded-md border border-slate-200 px-3 py-3 text-sm font-semibold">{{ old('body') }}</textarea>
+                        <textarea name="body" rows="4" data-rich-editor class="mt-2 w-full rounded-md border border-slate-200 px-3 py-3 text-sm font-semibold">{{ old('body') }}</textarea>
                     </div>
                     <div>
                         <label class="text-sm font-black text-slate-700">Image URL</label>

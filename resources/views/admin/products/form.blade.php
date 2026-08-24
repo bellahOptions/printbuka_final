@@ -154,7 +154,7 @@
                             <label class="label">
                                 <span class="label-text font-semibold text-slate-700">Full Description *</span>
                             </label>
-                            <textarea name="description" rows="5" 
+                            <textarea name="description" rows="5" data-rich-editor
                                 class="textarea textarea-bordered w-full focus:textarea-primary @error('description') textarea-error @enderror"
                                 placeholder="Detailed product description including features, benefits, and specifications..." required>{{ old('description', $product->description) }}</textarea>
                             @error('description') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror

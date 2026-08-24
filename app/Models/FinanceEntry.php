@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class FinanceEntry extends Model
 {
     protected $fillable = [
+        'idempotency_key',
         'order_id',
         'user_id',
         'last_edited_by',

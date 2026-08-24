@@ -335,8 +335,9 @@
             </div>
 
             {{-- Payment form — standalone, no nested forms --}}
-            <form id="recordPaymentForm" method="POST" action="{{ route('admin.invoices.record-payment', $invoice) }}" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <form id="recordPaymentForm" method="POST" action="{{ route('admin.invoices.record-payment', $invoice) }}" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" data-confirm-amount="amount" data-confirm-label="this payment">
                 @csrf
+                <input type="hidden" name="idempotency_key" data-idempotency-key>
                 <div class="sm:col-span-2 lg:col-span-1">
                     <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">
                         Amount (₦) <span class="text-pink-600">*</span>

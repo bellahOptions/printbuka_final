@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\FinanceEntry;
 use App\Models\Invoice;
+use App\Models\InvoicePayment;
 use App\Models\Order;
 use App\Models\StaffProfile;
 use App\Models\User;
@@ -125,5 +126,71 @@ class FinanceInvoiceReconciliationTest extends TestCase
 
         $this->assertEqualsWithDelta(75000.0, (float) $totalIncomeRecorded, 0.01);
         $this->assertSame(1, FinanceEntry::query()->where('order_id', $invoice->order_id)->count());
+    }
+
+    public function test_resubmitting_the_same_payment_with_the_same_idempotency_key_does_not_duplicate_it(): void
+    {
+        Mail::fake();
+
+        $admin = $this->makeStaff('super_admin');
+        $invoice = $this->makeInvoice(100000);
+
+        $payload = [
+            'amount' => 50000,
+            'payment_method' => 'Bank Transfer',
+            'paid_at' => now()->toDateString(),
+            'idempotency_key' => 'pay-idem-key-001',
+        ];
+
+        // Simulates a double-click or a slow-network retry resending the
+        // exact same payment submission (same client-generated key) twice.
+        $this->actingAs($admin)->withSession(['staff_2fa_verified' => true])
+            ->post(route('admin.invoices.record-payment', $invoice), $payload)
+            ->assertRedirect();
+
+        $this->actingAs($admin)->withSession(['staff_2fa_verified' => true])
+            ->post(route('admin.invoices.record-payment', $invoice), $payload)
+            ->assertRedirect();
+
+        $this->assertSame(1, InvoicePayment::query()->where('idempotency_key', 'pay-idem-key-001')->count());
+
+        $totalIncomeRecorded = FinanceEntry::query()
+            ->where('order_id', $invoice->order_id)
+            ->where('type', 'income')
+            ->sum('amount');
+
+        $this->assertEqualsWithDelta(50000.0, (float) $totalIncomeRecorded, 0.01);
+    }
+
+    public function test_a_different_idempotency_key_records_a_genuinely_separate_instalment(): void
+    {
+        Mail::fake();
+
+        $admin = $this->makeStaff('super_admin');
+        $invoice = $this->makeInvoice(100000);
+
+        $this->actingAs($admin)->withSession(['staff_2fa_verified' => true])
+            ->post(route('admin.invoices.record-payment', $invoice), [
+                'amount' => 50000,
+                'payment_method' => 'Bank Transfer',
+                'paid_at' => now()->toDateString(),
+                'idempotency_key' => 'pay-key-a',
+            ])
+            ->assertRedirect();
+
+        // A real second instalment — a fresh page load gives a fresh key,
+        // so this must NOT be blocked.
+        $this->actingAs($admin)->withSession(['staff_2fa_verified' => true])
+            ->post(route('admin.invoices.record-payment', $invoice), [
+                'amount' => 50000,
+                'payment_method' => 'Bank Transfer',
+                'paid_at' => now()->toDateString(),
+                'idempotency_key' => 'pay-key-b',
+            ])
+            ->assertRedirect();
+
+        $this->assertSame(2, InvoicePayment::query()->where('invoice_id', $invoice->id)->count());
+        $invoice->refresh();
+        $this->assertSame('paid', $invoice->status);
     }
 }

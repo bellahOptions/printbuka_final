@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Uploads;
 
+use App\Models\SharedMediaAsset;
 use App\Services\CloudinaryUploadService;
 use App\Support\CloudinaryUrl;
 use App\Support\LivewireSecureUploads;
@@ -48,6 +49,21 @@ class SecureImageUpload extends Component
      * Whether the stored path is a Cloudinary public_id.
      */
     public bool $isCloudinary = false;
+
+    /**
+     * True when the current single storedPath was picked from the shared
+     * image library (or cropped via the library modal) rather than uploaded
+     * fresh through this field. Such assets may be referenced elsewhere, so
+     * they must never be auto-deleted from Cloudinary when this field is
+     * replaced or cleared — only a freshly-owned upload is safe to delete.
+     */
+    public bool $storedPathFromLibrary = false;
+
+    /**
+     * @var array<string, bool> public_id => true for entries in $storedPaths
+     *      that came from the shared library rather than a fresh upload.
+     */
+    public array $storedPathsFromLibrary = [];
 
     public function mount(
         string $inputName = 'image_upload_path',
@@ -103,7 +119,7 @@ class SecureImageUpload extends Component
             'upload' => $this->fileRules(),
         ]);
 
-        if (filled($this->storedPath)) {
+        if (filled($this->storedPath) && ! $this->storedPathFromLibrary) {
             $this->deleteStoredPath((string) $this->storedPath);
         }
 
@@ -117,9 +133,55 @@ class SecureImageUpload extends Component
             $this->storedPath = $path;
         }
 
+        $this->storedPathFromLibrary = false;
         LivewireSecureUploads::register(request(), (string) $this->storedPath);
 
         $this->upload = null;
+    }
+
+    /**
+     * Attach an image that was picked from the shared Cloudinary library, or
+     * cropped and uploaded via the library modal, without going through the
+     * native file-upload flow. Never deletes the previous asset when it is
+     * itself library-sourced, since it may still be in use elsewhere.
+     */
+    public function selectFromLibrary(string $publicId): void
+    {
+        if (! filled($publicId)) {
+            return;
+        }
+
+        // From this point on, this asset is known to be (potentially)
+        // referenced from more than one place and must never be silently
+        // deleted from Cloudinary again, even by an unrelated field/session.
+        SharedMediaAsset::query()->firstOrCreate(['public_id' => $publicId]);
+
+        if ($this->multiple) {
+            if (in_array($publicId, $this->storedPaths, true)) {
+                return;
+            }
+
+            if (count($this->storedPaths) >= $this->maxFiles) {
+                $this->addError('uploads', "You can select up to {$this->maxFiles} images.");
+
+                return;
+            }
+
+            $this->storedPaths[] = $publicId;
+            $this->storedPathsFromLibrary[$publicId] = true;
+            LivewireSecureUploads::register(request(), $publicId);
+
+            return;
+        }
+
+        if (filled($this->storedPath) && ! $this->storedPathFromLibrary) {
+            $this->deleteStoredPath((string) $this->storedPath);
+        }
+
+        $this->storedPath = $publicId;
+        $this->storedPathFromLibrary = true;
+        $this->upload = null;
+        LivewireSecureUploads::register(request(), $publicId);
     }
 
     public function updatedUploads(): void
@@ -174,8 +236,14 @@ class SecureImageUpload extends Component
             return;
         }
 
-        $this->deleteStoredPath((string) $this->storedPath);
+        if ($this->storedPathFromLibrary) {
+            LivewireSecureUploads::forget(request(), (string) $this->storedPath);
+        } else {
+            $this->deleteStoredPath((string) $this->storedPath);
+        }
+
         $this->storedPath = null;
+        $this->storedPathFromLibrary = false;
         $this->upload = null;
     }
 
@@ -192,7 +260,13 @@ class SecureImageUpload extends Component
             ->values()
             ->all();
 
-        $this->deleteStoredPath($decodedPath);
+        if ($this->storedPathsFromLibrary[$decodedPath] ?? false) {
+            LivewireSecureUploads::forget(request(), $decodedPath);
+        } else {
+            $this->deleteStoredPath($decodedPath);
+        }
+
+        unset($this->storedPathsFromLibrary[$decodedPath]);
     }
 
     public function imageUrl(?string $path): ?string
@@ -202,8 +276,12 @@ class SecureImageUpload extends Component
 
     private function deleteStoredPath(string $path): void
     {
+        // Never physically delete an asset known to be shared via the
+        // library picker — it may still be in use on another record.
+        $isSharedAsset = SharedMediaAsset::query()->where('public_id', $path)->exists();
+
         // If it's a Cloudinary public_id, delete from Cloudinary
-        if ($this->isCloudinary && CloudinaryUrl::isCloudinaryResource($path)) {
+        if (! $isSharedAsset && $this->isCloudinary && CloudinaryUrl::isCloudinaryResource($path)) {
             try {
                 $cloudinaryService = app(CloudinaryUploadService::class);
                 $cloudinaryService->delete($path);

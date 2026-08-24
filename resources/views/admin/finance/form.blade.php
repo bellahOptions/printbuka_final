@@ -13,9 +13,12 @@
             <p class="mt-2 text-sm text-slate-300">Income entries are generated automatically whenever an invoice is marked as paid.</p>
         </div>
 
-        <form action="{{ $entry->exists ? route('admin.finance.update', $entry) : route('admin.finance.store') }}" method="POST" class="mt-8 rounded-md border border-slate-200 bg-white p-6 shadow-sm">
+        <form action="{{ $entry->exists ? route('admin.finance.update', $entry) : route('admin.finance.store') }}" method="POST" class="mt-8 rounded-md border border-slate-200 bg-white p-6 shadow-sm" @if (! $entry->exists) data-idempotent-form @endif @unless ($isAutoIncome) data-confirm-amount="amount" data-confirm-label="this {{ $entry->exists ? 'updated' : 'new' }} expense entry" @endunless>
             @csrf
             @if ($entry->exists) @method('PUT') @endif
+            @if (! $entry->exists)
+                <input type="hidden" name="idempotency_key" data-idempotency-key>
+            @endif
             <input type="hidden" name="type" value="expense">
 
             <div class="grid gap-5 sm:grid-cols-2">

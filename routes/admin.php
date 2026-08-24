@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\AdminPdfTemplateController;
 use App\Http\Controllers\Admin\AdminFinanceController;
 use App\Http\Controllers\Admin\AdminInvoiceController;
 use App\Http\Controllers\Admin\AdminLargeFormatController;
+use App\Http\Controllers\Admin\AdminMediaController;
 use App\Http\Controllers\Admin\AdminMemoController;
 use App\Http\Controllers\Admin\AdminNewsletterController;
 use App\Http\Controllers\Admin\AdminNotificationController;
@@ -187,6 +188,10 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::get('/memos/{memo}', [AdminMemoController::class, 'show'])
             ->middleware('super.admin')
             ->name('memos.show');
+        Route::get('/media', [AdminMediaController::class, 'index'])
+            ->name('media.index');
+        Route::post('/media', [AdminMediaController::class, 'store'])
+            ->name('media.store');
         Route::get('/advertisements', [AdminAdvertisementController::class, 'index'])
             ->middleware('super.admin')
             ->name('advertisements.index');

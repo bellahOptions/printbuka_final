@@ -1,4 +1,8 @@
 <div class="space-y-3">
+    {{-- The shared Cloudinary image library / crop modal is only mounted in
+         the admin layout — staff-only, since it browses every image ever
+         uploaded across the app. --}}
+    @php($canUseLibrary = auth()->check() && auth()->user()->hasAdminAccess())
     @if($multiple)
         {{-- ── MULTIPLE FILE UPLOAD ─────────────────────────── --}}
 
@@ -38,6 +42,14 @@
                 </p>
             </div>
         </label>
+
+        @if($canUseLibrary)
+            <button type="button"
+                @click.prevent="window.dispatchEvent(new CustomEvent('open-image-picker', { detail: { onSelect: (url, publicId) => $wire.selectFromLibrary(publicId) } }))"
+                class="pb-btn pb-btn-sm pb-btn-outline text-xs">
+                Choose from Library / Crop
+            </button>
+        @endif
 
         {{-- Hidden inputs --}}
         @foreach($storedPaths as $path)
@@ -123,6 +135,13 @@
                     </p>
                 </div>
             </label>
+            @if($canUseLibrary)
+                <button type="button"
+                    @click.prevent="window.dispatchEvent(new CustomEvent('open-image-picker', { detail: { onSelect: (url, publicId) => $wire.selectFromLibrary(publicId) } }))"
+                    class="pb-btn pb-btn-sm pb-btn-outline text-xs">
+                    Choose from Library / Crop
+                </button>
+            @endif
         @endif
 
         <input type="hidden" name="{{ $inputName }}" value="{{ $storedPath ?? '' }}">
@@ -156,13 +175,22 @@
                         </svg>
                         Image uploaded
                     </p>
-                    <button
-                        type="button"
-                        wire:click="clearSingle"
-                        class="pb-btn pb-btn-sm pb-btn-outline text-xs text-red-600 border-red-200 hover:bg-red-50 hover:border-red-400"
-                    >
-                        Remove
-                    </button>
+                    <div class="flex gap-2">
+                        @if($canUseLibrary)
+                            <button type="button"
+                                @click.prevent="window.dispatchEvent(new CustomEvent('open-image-picker', { detail: { onSelect: (url, publicId) => $wire.selectFromLibrary(publicId) } }))"
+                                class="pb-btn pb-btn-sm pb-btn-outline text-xs">
+                                Change
+                            </button>
+                        @endif
+                        <button
+                            type="button"
+                            wire:click="clearSingle"
+                            class="pb-btn pb-btn-sm pb-btn-outline text-xs text-red-600 border-red-200 hover:bg-red-50 hover:border-red-400"
+                        >
+                            Remove
+                        </button>
+                    </div>
                 </div>
             </div>
         @endif

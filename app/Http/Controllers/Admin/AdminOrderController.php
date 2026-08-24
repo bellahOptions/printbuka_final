@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\JobCompletedAppreciationMail;
+use App\Mail\JobConcludedStaffNotificationMail;
 use App\Mail\JobConclusionSummaryMail;
 use App\Models\FinanceEntry;
 use App\Models\Order;
@@ -972,6 +973,27 @@ class AdminOrderController extends Controller
                 Mail::to((string) $recipient->email)->send(new JobConclusionSummaryMail($recipient, $order));
             } catch (\Throwable $exception) {
                 Log::error('Managing director conclusion summary email failed.', [
+                    'order_id' => $order->id,
+                    'recipient_id' => $recipient->id,
+                    'message' => $exception->getMessage(),
+                ]);
+            }
+        }
+
+        // Managing directors already receive the detailed summary above —
+        // everyone else on staff gets a lightweight "job concluded" notice.
+        $staffRecipients = User::query()
+            ->where('role', '!=', 'customer')
+            ->where('role', '!=', 'managing_director')
+            ->where('is_active', true)
+            ->get()
+            ->filter(fn (User $recipient): bool => filled($recipient->email));
+
+        foreach ($staffRecipients as $recipient) {
+            try {
+                Mail::to((string) $recipient->email)->send(new JobConcludedStaffNotificationMail($recipient, $order));
+            } catch (\Throwable $exception) {
+                Log::error('Staff job conclusion notification email failed.', [
                     'order_id' => $order->id,
                     'recipient_id' => $recipient->id,
                     'message' => $exception->getMessage(),

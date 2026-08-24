@@ -1,5 +1,44 @@
 import './bootstrap';
 import Sortable from 'sortablejs';
+import './rich-media';
+
+/* ─── Idempotency key: one generated per page load, resent unchanged on every
+   submit attempt of that form (including retries) so a double-click or a
+   slow-network resubmission is recognized server-side as a replay instead of
+   creating a duplicate record. Reloading the page gets a fresh key, so a
+   genuine second entry is never blocked. See App\Support\IdempotencyGuard. ─── */
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-idempotency-key]').forEach((input) => {
+        if (!input.value) {
+            input.value = window.crypto?.randomUUID ? window.crypto.randomUUID() : `idem_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+        }
+    });
+});
+
+/* ─── Confirm-before-submit for money amounts (data-confirm-amount="<field name>")
+   Shows the exact, formatted figure back to the staff member before it's saved,
+   so a mistyped amount (e.g. a missing digit or misplaced decimal) is caught
+   before it hits the ledger rather than after. Cancelling aborts the submit. ─── */
+document.addEventListener('submit', (event) => {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement) || !form.dataset.confirmAmount) {
+        return;
+    }
+
+    const input = form.querySelector(`[name="${form.dataset.confirmAmount}"]`);
+    const amount = input ? parseFloat(input.value) : NaN;
+    if (Number.isNaN(amount)) {
+        return;
+    }
+
+    const formatted = '₦' + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const label = form.dataset.confirmLabel || 'this entry';
+
+    if (!window.confirm(`Confirm ${label}\n\nAmount: ${formatted}\n\nDouble-check this figure matches what you intended before saving.`)) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+    }
+}, true);
 
 /* ─── Popover (data-popover-btn / data-popover-panel) ─── */
 document.addEventListener('DOMContentLoaded', () => {

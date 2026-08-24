@@ -21,7 +21,9 @@
     "dependencies": {
         "@fontsource/raleway": "^5.2.8",
         "@tailwindcss/postcss": "^4.2.2",
+        "cropperjs": "^1.6.3",
         "postcss": "^8.5.9",
+        "quill": "^2.0.3",
         "sortablejs": "^1.15.7"
     }
 }

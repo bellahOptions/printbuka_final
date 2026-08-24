@@ -47,7 +47,7 @@
 
                     <div>
                         <label class="text-sm font-black text-slate-700">Message</label>
-                        <textarea name="message" rows="5" class="mt-2 w-full rounded-md border border-slate-200 px-3 py-3 text-sm font-semibold" required>{{ old('message') }}</textarea>
+                        <textarea name="message" rows="5" data-rich-editor class="mt-2 w-full rounded-md border border-slate-200 px-3 py-3 text-sm font-semibold" required>{{ old('message') }}</textarea>
                         @error('message') <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p> @enderror
                     </div>
 

@@ -70,7 +70,7 @@
                         </div>
                         <div>
                             <label class="text-xs font-bold uppercase text-slate-500 block mb-1.5">Full Description</label>
-                            <textarea name="description" rows="5"
+                            <textarea name="description" rows="5" data-rich-editor
                                       class="textarea textarea-bordered border-slate-200 w-full"
                                       placeholder="Detailed product information, dimensions, materials…">{{ old('description', $product?->description) }}</textarea>
                         </div>

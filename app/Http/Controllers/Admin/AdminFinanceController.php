@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\FinanceReportMail;
 use App\Models\FinanceEntry;
 use App\Models\Order;
+use App\Support\IdempotencyGuard;
 use App\Support\PdfTemplateOverrides;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
@@ -248,14 +249,30 @@ class AdminFinanceController extends Controller
     {
         abort_unless($request->user()?->canAdmin('finance.view') ?? false, 403);
 
+        // A double-click, a slow-network retry, or an unsure resubmission all
+        // resend the same client-generated key — recognize the replay and
+        // redirect to the existing entry instead of creating a duplicate.
+        $idempotencyKey = $request->input('idempotency_key');
+        $existing = IdempotencyGuard::alreadyProcessed(FinanceEntry::class, $idempotencyKey);
+
+        if ($existing) {
+            return redirect()->route('admin.finance.index')->with('status', ($existing->type === 'income' ? 'Income' : 'Expense').' entry created.');
+        }
+
+        $validated = $this->validatedManualExpense($request);
+        $validated['amount'] = round((float) $validated['amount'], 2);
+
         FinanceEntry::query()->create([
-            ...$this->validatedManualExpense($request),
+            ...$validated,
+            'idempotency_key' => $idempotencyKey,
             'user_id' => $request->user()->id,
         ]);
-            if ($request->input('type') === 'income') {
-                return redirect()->route('admin.finance.index')
-                    ->with('status', 'Income entry created. Note: Income entries are typically generated automatically from paid invoices, check notes for details of the generated entry.');
-            }
+
+        if ($request->input('type') === 'income') {
+            return redirect()->route('admin.finance.index')
+                ->with('status', 'Income entry created. Note: Income entries are typically generated automatically from paid invoices, check notes for details of the generated entry.');
+        }
+
         return redirect()->route('admin.finance.index')->with('status', 'Expense entry created.');
     }
 

@@ -54,7 +54,7 @@
 
                 <div>
                     <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1.5">Query Description <span class="text-pink-600">*</span></label>
-                    <textarea name="description" rows="5" required placeholder="Describe the infraction or issue in detail..." class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:ring-2 focus:ring-pink-100 focus:outline-none">{{ old('description') }}</textarea>
+                    <textarea name="description" rows="5" required data-rich-editor placeholder="Describe the infraction or issue in detail..." class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:ring-2 focus:ring-pink-100 focus:outline-none">{{ old('description') }}</textarea>
                 </div>
 
                 <div>
