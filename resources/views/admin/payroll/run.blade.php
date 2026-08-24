@@ -68,15 +68,15 @@
     @endphp
     <div class="grid gap-4 sm:grid-cols-3">
         <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p class="text-2xl font-black text-slate-900">₦{{ number_format($totalGross, 0) }}</p>
+            <p class="text-2xl font-black text-slate-900 truncate" title="₦{{ number_format($totalGross, 2) }}">{{ \App\Support\CompactNumber::currency((float) $totalGross) }}</p>
             <p class="text-xs font-black uppercase tracking-wide text-slate-500 mt-1">Total Gross</p>
         </div>
         <div class="rounded-2xl border border-pink-100 bg-pink-50 p-5 shadow-sm">
-            <p class="text-2xl font-black text-pink-700">₦{{ number_format($totalDeductions, 0) }}</p>
+            <p class="text-2xl font-black text-pink-700 truncate" title="₦{{ number_format($totalDeductions, 2) }}">{{ \App\Support\CompactNumber::currency((float) $totalDeductions) }}</p>
             <p class="text-xs font-black uppercase tracking-wide text-pink-500 mt-1">Total Deductions</p>
         </div>
         <div class="rounded-2xl border border-emerald-100 bg-emerald-50 p-5 shadow-sm">
-            <p class="text-2xl font-black text-emerald-700">₦{{ number_format($totalNet, 0) }}</p>
+            <p class="text-2xl font-black text-emerald-700 truncate" title="₦{{ number_format($totalNet, 2) }}">{{ \App\Support\CompactNumber::currency((float) $totalNet) }}</p>
             <p class="text-xs font-black uppercase tracking-wide text-emerald-600 mt-1">Total Net Payroll</p>
         </div>
     </div>

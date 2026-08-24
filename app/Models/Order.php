@@ -206,4 +206,69 @@ class Order extends Model
             ->sortBy(fn (User $designer): array => [(int) ($activeWorkload[$designer->id] ?? 0), (int) $designer->id])
             ->first()?->id;
     }
+
+    /**
+     * The `priority` column stores a literal "emoji + word" string (see
+     * config/printbuka_admin.php). Rather than re-displaying that raw value
+     * verbatim — which breaks visibly if the stored bytes are ever mangled by
+     * an encoding issue upstream (import tooling, a misconfigured connection,
+     * etc.) — this matches on the ASCII word alone (which survives that kind
+     * of corruption intact) and renders a known-good emoji/label from here.
+     */
+    public function priorityLevel(): string
+    {
+        $value = (string) $this->priority;
+
+        return match (true) {
+            str_contains($value, 'Urgent') => 'urgent',
+            str_contains($value, 'Low') => 'low',
+            $value !== '' => 'normal',
+            default => 'none',
+        };
+    }
+
+    public function priorityLabel(): string
+    {
+        return match ($this->priorityLevel()) {
+            'urgent' => '🔴 Urgent',
+            'normal' => '🟡 Normal',
+            'low' => '🟢 Low',
+            default => '—',
+        };
+    }
+
+    public function priorityBadgeClass(): string
+    {
+        return match ($this->priorityLevel()) {
+            'urgent' => 'bg-pink-100 text-pink-800',
+            'normal' => 'bg-amber-100 text-amber-800',
+            'low' => 'bg-emerald-100 text-emerald-800',
+            default => 'bg-slate-100 text-slate-500',
+        };
+    }
+
+    public function paymentStatusBadgeClass(): string
+    {
+        $value = (string) $this->payment_status;
+
+        return match (true) {
+            str_contains($value, 'Settled (100%)') => 'bg-emerald-100 text-emerald-800',
+            str_contains($value, 'Settled (70%)') => 'bg-cyan-100 text-cyan-800',
+            str_contains($value, 'Awaiting') => 'bg-amber-100 text-amber-800',
+            str_contains($value, 'Disputed') => 'bg-pink-100 text-pink-800',
+            default => 'bg-slate-100 text-slate-600',
+        };
+    }
+
+    public function statusBadgeClass(): string
+    {
+        $value = (string) $this->status;
+
+        return match (true) {
+            str_contains($value, 'Satisfactory') || str_contains($value, 'Delivered') => 'bg-emerald-100 text-emerald-800',
+            str_contains($value, 'Cancelled') => 'bg-slate-200 text-slate-600',
+            str_contains($value, 'Quote Requested') => 'bg-slate-100 text-slate-600',
+            default => 'bg-cyan-100 text-cyan-800',
+        };
+    }
 }

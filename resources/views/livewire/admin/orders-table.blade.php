@@ -135,7 +135,7 @@
             </thead>
             <tbody class="divide-y divide-slate-100">
                 @forelse ($orders as $order)
-                    <tr wire:key="order-row-{{ $order->id }}">
+                    <tr wire:key="order-row-{{ $order->id }}" class="transition hover:bg-slate-50/70">
                         <td class="px-4 py-4">
                             <input type="checkbox" value="{{ $order->id }}" wire:model.live="selected" class="h-4 w-4 rounded border-slate-300 text-pink-600">
                         </td>
@@ -144,13 +144,19 @@
                             <span class="text-xs font-semibold text-slate-500">{{ $order->invoice?->invoice_number ?? 'Invoice Pending' }}</span>
                         </td>
                         <td class="px-5 py-4">
-                            <span class="block font-bold">{{ $order->customer_name }}</span>
+                            <span class="block font-bold text-slate-900">{{ $order->customer_name }}</span>
                             <span class="text-xs text-slate-500">{{ $order->customer_phone }} · {{ $order->customer_email }}</span>
                         </td>
-                        <td class="px-5 py-4">{{ $order->channel ?? 'Online' }}</td>
-                        <td class="px-5 py-4">{{ $order->priority ?: '—' }}</td>
-                        <td class="px-5 py-4">{{ $order->payment_status ?: 'Pending' }}</td>
-                        <td class="px-5 py-4">{{ $order->status }}</td>
+                        <td class="px-5 py-4 text-slate-600">{{ $order->channel ?? 'Online' }}</td>
+                        <td class="px-5 py-4">
+                            <span class="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-black {{ $order->priorityBadgeClass() }}">{{ $order->priorityLabel() }}</span>
+                        </td>
+                        <td class="px-5 py-4">
+                            <span class="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-black {{ $order->paymentStatusBadgeClass() }}">{{ $order->payment_status ?: 'Pending' }}</span>
+                        </td>
+                        <td class="px-5 py-4">
+                            <span class="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-black {{ $order->statusBadgeClass() }}">{{ $order->status }}</span>
+                        </td>
                         <td class="px-5 py-4 text-right">
                             <a href="{{ route('admin.orders.show', $order) }}" class="font-black text-pink-700 hover:text-pink-800">Manage</a>
                         </td>

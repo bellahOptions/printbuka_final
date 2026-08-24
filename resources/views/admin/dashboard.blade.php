@@ -110,12 +110,12 @@
         <div class="grid sm:grid-cols-3 gap-3">
             <div class="pb-card p-4 bg-gradient-to-br from-pink-50 to-white">
                 <p class="text-xs font-bold uppercase text-pink-600 mb-1">Shop Revenue (Month)</p>
-                <p class="text-xl font-black text-slate-900">₦{{ number_format($shopOrderStats['revenue_month'], 0) }}</p>
+                <p class="text-xl font-black text-slate-900 truncate" title="₦{{ number_format($shopOrderStats['revenue_month'], 2) }}">{{ \App\Support\CompactNumber::currency((float) $shopOrderStats['revenue_month']) }}</p>
                 <p class="text-xs text-slate-400 mt-0.5">Paid orders this month</p>
             </div>
             <div class="pb-card p-4">
                 <p class="text-xs font-bold uppercase text-slate-400 mb-1">Total Shop Revenue</p>
-                <p class="text-xl font-black text-slate-900">₦{{ number_format($shopOrderStats['revenue_total'], 0) }}</p>
+                <p class="text-xl font-black text-slate-900 truncate" title="₦{{ number_format($shopOrderStats['revenue_total'], 2) }}">{{ \App\Support\CompactNumber::currency((float) $shopOrderStats['revenue_total']) }}</p>
                 <p class="text-xs text-slate-400 mt-0.5">All time</p>
             </div>
             <div class="pb-card p-4 {{ $shopOrderStats['pending_dispatch'] > 0 ? 'border border-amber-200 bg-amber-50/50' : '' }}">

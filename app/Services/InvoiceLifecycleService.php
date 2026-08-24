@@ -70,6 +70,16 @@ class InvoiceLifecycleService
             return;
         }
 
+        // AdminInvoiceController::recordPayment() already writes one FinanceEntry
+        // per instalment (InvoicePayment row) as it's recorded, and those already
+        // sum to the invoice total. If instalments were tracked for this invoice,
+        // creating another entry here for the same total would double-count the
+        // income — so this sync only runs for paths with no per-instalment
+        // tracking (Paystack callback, "mark as paid", CSV import).
+        if ($invoice->payments()->exists()) {
+            return;
+        }
+
         $description = trim($invoice->documentTypeLabel().' '.$invoice->invoice_number.' paid');
 
         FinanceEntry::query()->updateOrCreate(

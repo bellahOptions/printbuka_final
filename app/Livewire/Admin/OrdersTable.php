@@ -129,12 +129,15 @@ class OrdersTable extends Component
             return;
         }
 
+        // Use the canonical priority strings from config — not a locally
+        // hardcoded literal — so batch-set values always match what the order
+        // creation form and every other priority read in the app expect.
         if ($this->batchAction === 'priority_urgent') {
-            $affected = (int) Order::query()->whereKey($selectedIds)->update(['priority' => '🟥 Urgent']);
+            $affected = (int) Order::query()->whereKey($selectedIds)->update(['priority' => config('printbuka_admin.priorities.0', '🔴 Urgent')]);
         }
 
         if ($this->batchAction === 'priority_normal') {
-            $affected = (int) Order::query()->whereKey($selectedIds)->update(['priority' => '🟩 Normal']);
+            $affected = (int) Order::query()->whereKey($selectedIds)->update(['priority' => config('printbuka_admin.priorities.1', '🟡 Normal')]);
         }
 
         if ($this->batchAction === 'status') {

@@ -65,7 +65,7 @@
                     <span class="text-xs font-black uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2 py-1 rounded-full">+{{ number_format($income > 0 ? (($income - ($income * 0.1)) / $income) * 100 : 0, 1) }}%</span>
                 </div>
                 <p class="text-sm font-black uppercase tracking-wider text-slate-500">Total Income</p>
-                <p class="mt-2 text-3xl font-black text-slate-950">₦{{ number_format((float) $income, 2) }}</p>
+                <p class="mt-2 text-3xl font-black text-slate-950 truncate" title="₦{{ number_format((float) $income, 2) }}">{{ \App\Support\CompactNumber::currency((float) $income) }}</p>
                 <p class="mt-2 text-xs text-slate-500">All time revenue</p>
             </div>
 
@@ -79,7 +79,7 @@
                     <span class="text-xs font-black uppercase tracking-wider text-pink-700 bg-pink-100 px-2 py-1 rounded-full">Outflow</span>
                 </div>
                 <p class="text-sm font-black uppercase tracking-wider text-slate-500">Total Expenses</p>
-                <p class="mt-2 text-3xl font-black text-slate-950">₦{{ number_format((float) $expenses, 2) }}</p>
+                <p class="mt-2 text-3xl font-black text-slate-950 truncate" title="₦{{ number_format((float) $expenses, 2) }}">{{ \App\Support\CompactNumber::currency((float) $expenses) }}</p>
                 <p class="mt-2 text-xs text-slate-500">Operational costs</p>
             </div>
 
@@ -95,7 +95,7 @@
                     </span>
                 </div>
                 <p class="text-sm font-black uppercase tracking-wider text-slate-500">Net Income</p>
-                <p class="mt-2 text-3xl font-black {{ $netIncome >= 0 ? 'text-cyan-700' : 'text-red-700' }}">₦{{ number_format($netIncome, 2) }}</p>
+                <p class="mt-2 text-3xl font-black {{ $netIncome >= 0 ? 'text-cyan-700' : 'text-red-700' }} truncate" title="₦{{ number_format($netIncome, 2) }}">{{ \App\Support\CompactNumber::currency($netIncome) }}</p>
                 <p class="mt-2 text-xs text-slate-500">Profit margin</p>
             </div>
 

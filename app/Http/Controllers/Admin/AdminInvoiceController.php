@@ -879,7 +879,7 @@ class AdminInvoiceController extends Controller
                     'Ref: '.($validated['payment_reference'] ?? 'N/A').
                     '. Running total: ₦'.number_format($totalPaid, 2).
                     ' ('.number_format($pctPaid, 1).'% of invoice).'.
-                    ($validated['notes'] ? ' '.$validated['notes'] : '')
+                    (($validated['notes'] ?? null) ? ' '.$validated['notes'] : '')
                 ),
             ]);
         }
