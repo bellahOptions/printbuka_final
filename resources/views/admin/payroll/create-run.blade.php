@@ -47,7 +47,7 @@
 
                 <div>
                     <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1.5">Notes</label>
-                    <textarea name="notes" rows="2" placeholder="Optional notes for this payroll run..." class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none">{{ old('notes') }}</textarea>
+                    <textarea name="notes" rows="2" data-rich-editor placeholder="Optional notes for this payroll run..." class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none">{{ old('notes') }}</textarea>
                 </div>
 
                 <div class="rounded-xl bg-amber-50 border border-amber-200 p-4">

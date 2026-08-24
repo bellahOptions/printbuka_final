@@ -55,7 +55,7 @@
 
             <div class="form-control w-full">
                 <label class="label"><span class="label-text font-black text-slate-700">Details *</span></label>
-                <textarea name="message" rows="8" class="textarea textarea-bordered border-slate-200 w-full @error('message') textarea-error @enderror" required>{{ old('message') }}</textarea>
+                <textarea name="message" rows="8" data-rich-editor class="textarea textarea-bordered border-slate-200 w-full @error('message') textarea-error @enderror" required>{{ old('message') }}</textarea>
                 @error('message') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
             </div>
 

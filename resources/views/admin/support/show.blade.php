@@ -42,7 +42,7 @@
                 <form action="{{ route('admin.support.reply', $ticket) }}" method="POST" class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                     @csrf
                     <label class="label"><span class="label-text font-black text-slate-700">Add Reply</span></label>
-                    <textarea name="message" rows="5" class="textarea textarea-bordered border-slate-200 w-full @error('message') textarea-error @enderror" required>{{ old('message') }}</textarea>
+                    <textarea name="message" rows="5" data-rich-editor class="textarea textarea-bordered border-slate-200 w-full @error('message') textarea-error @enderror" required>{{ old('message') }}</textarea>
                     @error('message') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
                     <div class="mt-4 flex justify-end">
                         <button type="submit" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black">Send Reply</button>

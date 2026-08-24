@@ -92,17 +92,17 @@
 
                 <div>
                     <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1.5">Strengths / Commendations</label>
-                    <textarea name="strengths" rows="3" class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none">{{ old('strengths', $evaluation->strengths ?? '') }}</textarea>
+                    <textarea name="strengths" rows="3" data-rich-editor class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none">{{ old('strengths', $evaluation->strengths ?? '') }}</textarea>
                 </div>
 
                 <div>
                     <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1.5">Areas for Improvement</label>
-                    <textarea name="areas_for_improvement" rows="3" class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none">{{ old('areas_for_improvement', $evaluation->areas_for_improvement ?? '') }}</textarea>
+                    <textarea name="areas_for_improvement" rows="3" data-rich-editor class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none">{{ old('areas_for_improvement', $evaluation->areas_for_improvement ?? '') }}</textarea>
                 </div>
 
                 <div>
                     <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1.5">Additional Comments</label>
-                    <textarea name="comments" rows="2" class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none">{{ old('comments', $evaluation->comments ?? '') }}</textarea>
+                    <textarea name="comments" rows="2" data-rich-editor class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-pink-400 focus:outline-none">{{ old('comments', $evaluation->comments ?? '') }}</textarea>
                 </div>
 
                 <div class="flex gap-4 pt-2">

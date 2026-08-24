@@ -82,7 +82,7 @@
 
                 <label class="text-sm font-black sm:col-span-2">
                     Notes
-                    <textarea name="notes" rows="4" class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 font-semibold" @disabled($isAutoIncome)>{{ old('notes', $entry->notes) }}</textarea>
+                    <textarea name="notes" rows="4" data-rich-editor class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 font-semibold" @disabled($isAutoIncome)>{{ old('notes', $entry->notes) }}</textarea>
                 </label>
             </div>
 

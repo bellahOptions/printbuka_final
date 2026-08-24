@@ -420,7 +420,7 @@
             <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
                 <div class="space-y-1">
                     <label class="flex items-center gap-2 text-sm font-black text-slate-700">Internal Notes</label>
-                    <textarea name="internal_notes" rows="4" class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Private notes for staff only">{{ old('internal_notes') }}</textarea>
+                    <textarea name="internal_notes" rows="4" data-rich-editor class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Private notes for staff only">{{ old('internal_notes') }}</textarea>
                 </div>
             </div>
 

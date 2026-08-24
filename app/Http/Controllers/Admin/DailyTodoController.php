@@ -81,7 +81,7 @@ $validated = $request->validate([
     'user_ids.*' => ['required', 'integer', 'exists:users,id', 'distinct'],
     'task' => ['required', 'string', 'max:500'],
     'priority' => ['required', 'string', Rule::in(['high', 'medium', 'low'])],
-    'notes' => ['nullable', 'string', 'max:3000'],
+    'notes' => ['nullable', 'string', 'max:20000'],
     'due_date' => ['required', 'date'],
     'order_id' => ['nullable', 'integer', 'exists:orders,id'],
 ]);

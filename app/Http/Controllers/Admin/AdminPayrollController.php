@@ -110,7 +110,7 @@ class AdminPayrollController extends Controller
             'payroll_month' => ['required', 'integer', 'between:1,12'],
             'payroll_year'  => ['required', 'integer', 'min:2020', 'max:2100'],
             'payment_date'  => ['nullable', 'date'],
-            'notes'         => ['nullable', 'string', 'max:1000'],
+            'notes'         => ['nullable', 'string', 'max:20000'],
         ]);
 
         $exists = PayrollRun::query()

@@ -98,9 +98,9 @@ class AdminStaffEvaluationController extends Controller
             'teamwork_rating'           => ['nullable', 'integer', 'between:1,5'],
             'communication_rating'      => ['nullable', 'integer', 'between:1,5'],
             'initiative_rating'         => ['nullable', 'integer', 'between:1,5'],
-            'strengths'                 => ['nullable', 'string', 'max:2000'],
-            'areas_for_improvement'     => ['nullable', 'string', 'max:2000'],
-            'comments'                  => ['nullable', 'string', 'max:2000'],
+            'strengths'                 => ['nullable', 'string', 'max:20000'],
+            'areas_for_improvement'     => ['nullable', 'string', 'max:20000'],
+            'comments'                  => ['nullable', 'string', 'max:20000'],
         ]);
 
         $eval = StaffEvaluation::updateOrCreate(

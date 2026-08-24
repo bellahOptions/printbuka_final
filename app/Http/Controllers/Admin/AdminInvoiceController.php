@@ -204,8 +204,8 @@ class AdminInvoiceController extends Controller
             'due_at' => ['nullable', 'date'],
             'delivery_city' => ['nullable', 'string', 'max:255'],
             'delivery_address' => ['nullable', 'string', 'max:500'],
-            'artwork_notes' => ['nullable', 'string', 'max:2000'],
-            'internal_notes' => ['nullable', 'string', 'max:3000'],
+            'artwork_notes' => ['nullable', 'string', 'max:20000'],
+            'internal_notes' => ['nullable', 'string', 'max:20000'],
             'action' => ['nullable', 'string', Rule::in(['save', 'save_download', 'save_send'])],
         ]);
 
@@ -675,8 +675,8 @@ class AdminInvoiceController extends Controller
         'due_at' => ['nullable', 'date'],
         'delivery_city' => ['nullable', 'string', 'max:255'],
         'delivery_address' => ['nullable', 'string', 'max:500'],
-        'artwork_notes' => ['nullable', 'string', 'max:2000'],
-        'internal_notes' => ['nullable', 'string', 'max:3000'],
+        'artwork_notes' => ['nullable', 'string', 'max:20000'],
+        'internal_notes' => ['nullable', 'string', 'max:20000'],
     ]);
 
     // Resolve catalog item
@@ -1003,8 +1003,8 @@ class AdminInvoiceController extends Controller
             'due_at' => ['nullable', 'date'],
             'delivery_city' => ['nullable', 'string', 'max:255'],
             'delivery_address' => ['nullable', 'string', 'max:500'],
-            'artwork_notes' => ['nullable', 'string', 'max:2000'],
-            'internal_notes' => ['nullable', 'string', 'max:3000'],
+            'artwork_notes' => ['nullable', 'string', 'max:20000'],
+            'internal_notes' => ['nullable', 'string', 'max:20000'],
             'action' => ['nullable', 'string', Rule::in(['save', 'save_download', 'save_send'])],
         ]);
 

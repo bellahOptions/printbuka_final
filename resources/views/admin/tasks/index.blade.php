@@ -199,7 +199,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-black text-slate-800">Notes</label>
-                                <textarea name="notes" rows="3" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-100" placeholder="Optional task details"></textarea>
+                                <textarea name="notes" rows="3" data-rich-editor class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-100" placeholder="Optional task details"></textarea>
                             </div>
                             <button type="submit" class="inline-flex w-full items-center justify-center rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700">Assign task</button>
                         </form>

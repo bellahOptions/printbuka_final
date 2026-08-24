@@ -71,7 +71,7 @@ class AdminTrainingApplicationController extends Controller
 
         $validated = $request->validate([
             'status' => ['required', Rule::in([Training::STATUS_ACCEPTED, Training::STATUS_REJECTED])],
-            'decision_note' => ['nullable', 'string', 'max:2000'],
+            'decision_note' => ['nullable', 'string', 'max:20000'],
         ]);
 
         $training->forceFill([

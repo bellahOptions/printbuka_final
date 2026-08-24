@@ -94,7 +94,7 @@
                         <input type="hidden" name="status" value="{{ \App\Models\Training::STATUS_ACCEPTED }}">
                         <div>
                             <label for="accept_note" class="text-sm font-black text-slate-800">Acceptance note</label>
-                            <textarea id="accept_note" name="decision_note" rows="4" class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100" placeholder="Optional onboarding note for the applicant.">{{ old('decision_note') }}</textarea>
+                            <textarea id="accept_note" name="decision_note" rows="4" data-rich-editor class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100" placeholder="Optional onboarding note for the applicant.">{{ old('decision_note') }}</textarea>
                         </div>
                         <button class="min-h-11 w-full rounded-md bg-emerald-600 px-5 text-sm font-black text-white transition hover:bg-emerald-700">Accept Applicant</button>
                     </form>
@@ -105,7 +105,7 @@
                         <input type="hidden" name="status" value="{{ \App\Models\Training::STATUS_REJECTED }}">
                         <div>
                             <label for="reject_note" class="text-sm font-black text-slate-800">Rejection note</label>
-                            <textarea id="reject_note" name="decision_note" rows="4" class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" placeholder="Optional polite feedback for the applicant.">{{ old('decision_note') }}</textarea>
+                            <textarea id="reject_note" name="decision_note" rows="4" data-rich-editor class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" placeholder="Optional polite feedback for the applicant.">{{ old('decision_note') }}</textarea>
                         </div>
                         <button class="min-h-11 w-full rounded-md bg-pink-600 px-5 text-sm font-black text-white transition hover:bg-pink-700">Reject Applicant</button>
                     </form>

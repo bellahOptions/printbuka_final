@@ -404,7 +404,7 @@
 
                 <label class="text-sm font-black sm:col-span-2">
                     Internal Notes
-                    <textarea name="internal_notes" rows="4" class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3">{{ old('internal_notes', $order->internal_notes) }}</textarea>
+                    <textarea name="internal_notes" rows="4" data-rich-editor class="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3">{{ old('internal_notes', $order->internal_notes) }}</textarea>
                 </label>
             </div>
 

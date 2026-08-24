@@ -505,7 +505,7 @@
                             </svg>
                             Artwork / Brief Notes
                         </label>
-                        <textarea name="artwork_notes" rows="4" 
+                        <textarea name="artwork_notes" rows="4" data-rich-editor
                                   class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none"
                                   placeholder="Describe artwork requirements, special instructions, etc.">{{ old('artwork_notes') }}</textarea>
                     </div>
@@ -517,7 +517,7 @@
                             </svg>
                             Internal Notes
                         </label>
-                        <textarea name="internal_notes" rows="4" 
+                        <textarea name="internal_notes" rows="4" data-rich-editor
                                   class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none"
                                   placeholder="Private notes for staff only">{{ old('internal_notes') }}</textarea>
                     </div>
