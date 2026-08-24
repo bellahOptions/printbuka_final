@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Printbuka Staff</string>
+    <string name="title_activity_main">Printbuka Staff</string>
+    <string name="package_name">com.printbuka.staff</string>
+    <string name="custom_url_scheme">com.printbuka.staff</string>
+</resources>

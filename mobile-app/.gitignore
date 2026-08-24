@@ -1,0 +1,17 @@
+node_modules/
+.DS_Store
+
+# Android build output (the android/ project itself is normally committed —
+# only build artifacts and local machine config are excluded)
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/capacitor-cordova-android-plugins/build/
+*.keystore
+*.jks
+
+# iOS build output
+ios/App/Pods/
+ios/App/build/
+ios/App/App.xcworkspace/xcuserdata/

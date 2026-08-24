@@ -1,6 +1,7 @@
 import './bootstrap';
 import Sortable from 'sortablejs';
 import './rich-media';
+import './capacitor-bridge';
 
 /* ─── Idempotency key: one generated per page load, resent unchanged on every
    submit attempt of that form (including retries) so a double-click or a
@@ -39,6 +40,13 @@ document.addEventListener('submit', (event) => {
         event.stopImmediatePropagation();
     }
 }, true);
+
+/* ─── Staff PWA / Capacitor shell: service worker registration ─── */
+if ('serviceWorker' in navigator && (location.pathname.startsWith('/staff') || location.pathname.startsWith('/admin'))) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/staff-sw.js').catch(() => {});
+    });
+}
 
 /* ─── Popover (data-popover-btn / data-popover-panel) ─── */
 document.addEventListener('DOMContentLoaded', () => {
@@ -385,6 +393,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const getLocation = () => new Promise((resolve) => {
+        // Inside the Capacitor shell, the native Geolocation plugin handles OS
+        // permission prompts more reliably than the raw browser API embedded
+        // in a WebView. Fall back to the browser API everywhere else (plain
+        // mobile/desktop browser, or if the plugin isn't present).
+        if (window.pbNativeGeolocation) {
+            window.pbNativeGeolocation().then(resolve);
+            return;
+        }
+
         if (!navigator.geolocation) { resolve(null); return; }
 
         navigator.geolocation.getCurrentPosition(

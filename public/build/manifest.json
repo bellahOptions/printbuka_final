@@ -1,6 +1,36 @@
 {
+  "node_modules/@capacitor/geolocation/dist/esm/index.js": {
+    "file": "assets/esm-hJoQALO2.js",
+    "name": "esm",
+    "src": "node_modules/@capacitor/geolocation/dist/esm/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ],
+    "dynamicImports": [
+      "node_modules/@capacitor/geolocation/dist/esm/web.js"
+    ]
+  },
+  "node_modules/@capacitor/geolocation/dist/esm/web.js": {
+    "file": "assets/web-jA2C3rP-.js",
+    "name": "web",
+    "src": "node_modules/@capacitor/geolocation/dist/esm/web.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ]
+  },
+  "node_modules/@capacitor/push-notifications/dist/esm/index.js": {
+    "file": "assets/esm-osLBFA8V.js",
+    "name": "esm",
+    "src": "node_modules/@capacitor/push-notifications/dist/esm/index.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "resources/js/app.js"
+    ]
+  },
   "resources/css/app.css": {
-    "file": "assets/app-C2b_O9sI.css",
+    "file": "assets/app-BdwVOk9b.css",
     "name": "app",
     "names": [
       "app.css"
@@ -9,10 +39,14 @@
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-CKHcDkvn.js",
+    "file": "assets/app-Dx74gA-Y.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
+    "dynamicImports": [
+      "node_modules/@capacitor/push-notifications/dist/esm/index.js",
+      "node_modules/@capacitor/geolocation/dist/esm/index.js"
+    ],
     "css": [
       "assets/app-DrI22Ge3.css"
     ]

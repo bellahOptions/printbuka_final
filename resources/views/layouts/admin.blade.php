@@ -6,6 +6,14 @@
         <meta name="color-scheme" content="light">
         <meta name="supported-color-schemes" content="light">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="staff-devices-url" content="{{ route('admin.devices.store') }}">
+        <link rel="manifest" href="/staff-manifest.json">
+        <meta name="theme-color" content="#0f172a">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="PB Staff">
+        <link rel="apple-touch-icon" href="/apple-icon-180x180.png">
         <title>@yield('title', $title ?? ($siteSettings['site_name'] ?? config('app.name')))</title>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireStyles

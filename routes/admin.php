@@ -40,6 +40,13 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::get('/profile', [ProfileController::class, 'editAdmin'])->name('profile.edit');
         Route::put('/profile', [ProfileController::class, 'updateAdmin'])->name('profile.update');
 
+        // Push-device registration for the Capacitor-wrapped staff app. Reuses
+        // the same Api\StaffDeviceController used by the Sanctum mobile API —
+        // it only ever calls $request->user(), so it works unchanged under the
+        // session-authenticated `web` guard these pages already use.
+        Route::post('/devices', [\App\Http\Controllers\Api\StaffDeviceController::class, 'store'])->name('devices.store');
+        Route::delete('/devices', [\App\Http\Controllers\Api\StaffDeviceController::class, 'destroy'])->name('devices.destroy');
+
         Route::delete('/products/seeded-catalog', [AdminProductController::class, 'destroySeeded'])
             ->middleware(['admin.permission:products.manage', 'super.admin'])
             ->name('products.seeded.destroy');

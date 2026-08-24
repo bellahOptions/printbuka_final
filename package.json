@@ -19,6 +19,10 @@
         "vite": "^8.0.0"
     },
     "dependencies": {
+        "@capacitor/camera": "^8.2.3",
+        "@capacitor/core": "^8.5.0",
+        "@capacitor/geolocation": "^8.2.2",
+        "@capacitor/push-notifications": "^8.1.2",
         "@fontsource/raleway": "^5.2.8",
         "@tailwindcss/postcss": "^4.2.2",
         "cropperjs": "^1.6.3",
