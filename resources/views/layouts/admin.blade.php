@@ -504,6 +504,10 @@
                                 New Job
                             </a>
                         @endif
+                        <button type="button" data-open-staff-spotlight title="Staff Spotlight"
+                            class="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-amber-600 transition text-base">
+                            🏆
+                        </button>
                         <livewire:notification-bell />
                         @if($admin?->profilePhotoUrl())
                             <a href="{{ route('admin.profile.edit') }}"
@@ -680,6 +684,9 @@
         </script>
 
         @include('admin._partials.image-picker-modal')
+        @if($admin)
+            @include('admin._partials.staff-spotlight-modal')
+        @endif
 
         @stack('scripts')
         @livewireScripts

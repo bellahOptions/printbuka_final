@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\AdminSiteSettingController;
 use App\Http\Controllers\Admin\AdminStaffController;
 use App\Http\Controllers\Admin\AdminStaffProfileController;
 use App\Http\Controllers\Admin\AdminStaffQueryController;
+use App\Http\Controllers\Admin\AdminStaffSpotlightController;
 use App\Http\Controllers\Admin\AdminStaffEvaluationController;
 use App\Http\Controllers\Admin\AdminPayrollController;
 use App\Http\Controllers\Admin\AdminSupportTicketController;
@@ -270,6 +271,12 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
             ->name('staff.kyc-review');
         Route::post('/staff/work-mode', [AdminStaffProfileController::class, 'updateWorkMode'])
             ->name('staff.work-mode.update');
+
+        // ===== STAFF SPOTLIGHT =====
+        // Self-service — any authenticated staff member. Loaded into the
+        // Staff Spotlight modal via fetch(), not visited as a page.
+        Route::get('/staff-spotlight', [AdminStaffSpotlightController::class, 'index'])
+            ->name('staff-spotlight.index');
 
         // ===== ATTENDANCE =====
         // Self-service — any authenticated staff member (no extra permission

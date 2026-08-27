@@ -3,6 +3,7 @@
 use App\Services\AttendanceProcessingService;
 use App\Services\PendingJobReminderService;
 use App\Services\StaffActivitySummaryService;
+use App\Services\StaffRatingService;
 use App\Services\SupportTicketNotificationService;
 use App\Services\UnpaidInvoiceReminderService;
 use App\Models\Training;
@@ -60,6 +61,13 @@ Artisan::command('attendance:process-daily', function () {
     $this->info('Attendance processed — marked absent: '.$result['absent'].', auto-closed: '.$result['closed'].'.');
 })->purpose('Mark no-shows as absent past the shift cutoff and auto-close forgotten clock-outs');
 
+Artisan::command('staff-ratings:snapshot', function () {
+    $service = app(StaffRatingService::class);
+    $week = $service->snapshotCurrentWeek();
+    $month = $service->snapshotCurrentMonth();
+    $this->info('Staff rating snapshots recomputed — '.$week->count().' staff (week), '.$month->count().' staff (month).');
+})->purpose('Recompute this week\'s and this month\'s staff rating leaderboards');
+
 Schedule::command('jobs:send-pending-reminders')->everySixHours();
 Schedule::command('support:send-unanswered-ticket-reminders')->everySixHours();
 Schedule::command('invoices:send-unpaid-reminders')->hourly();
@@ -71,3 +79,6 @@ Schedule::command('staff:send-daily-activity-summary')
     ->weekdays()
     ->timezone(config('app.business_timezone', 'Africa/Lagos'))
     ->at('20:00');
+Schedule::command('staff-ratings:snapshot')
+    ->dailyAt('21:00')
+    ->timezone(config('app.business_timezone', 'Africa/Lagos'));
