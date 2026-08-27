@@ -362,6 +362,15 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::get('/payroll/{run}', [AdminPayrollController::class, 'showRun'])
             ->middleware('admin.permission:payroll.view')
             ->name('payroll.run');
+        Route::get('/payroll/{run}/edit', [AdminPayrollController::class, 'editRun'])
+            ->middleware('admin.permission:payroll.manage')
+            ->name('payroll.edit-run');
+        Route::put('/payroll/{run}', [AdminPayrollController::class, 'updateRun'])
+            ->middleware('admin.permission:payroll.manage')
+            ->name('payroll.update-run');
+        Route::delete('/payroll/{run}', [AdminPayrollController::class, 'destroyRun'])
+            ->middleware('admin.permission:payroll.manage')
+            ->name('payroll.destroy-run');
         Route::patch('/payroll/entries/{entry}', [AdminPayrollController::class, 'updateEntry'])
             ->middleware('admin.permission:payroll.manage')
             ->name('payroll.update-entry');

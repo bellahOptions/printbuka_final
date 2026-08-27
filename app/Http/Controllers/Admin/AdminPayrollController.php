@@ -179,6 +179,60 @@ class AdminPayrollController extends Controller
         ]);
     }
 
+    public function editRun(PayrollRun $run): View
+    {
+        abort_unless(request()->user()?->canAdmin('payroll.manage') || request()->user()?->canAdmin('*'), 403);
+        abort_if($run->status !== 'draft', 422, 'Only pending payroll runs can be edited.');
+
+        return view('admin.payroll.edit-run', [
+            'run' => $run,
+        ]);
+    }
+
+    public function updateRun(Request $request, PayrollRun $run): RedirectResponse
+    {
+        abort_unless($request->user()?->canAdmin('payroll.manage') || $request->user()?->canAdmin('*'), 403);
+        abort_if($run->status !== 'draft', 422, 'Only pending payroll runs can be edited.');
+
+        $validated = $request->validate([
+            'payroll_month' => ['required', 'integer', 'between:1,12'],
+            'payroll_year'  => ['required', 'integer', 'min:2020', 'max:2100'],
+            'payment_date'  => ['nullable', 'date'],
+            'notes'         => ['nullable', 'string', 'max:20000'],
+        ]);
+
+        $exists = PayrollRun::query()
+            ->where('payroll_month', $validated['payroll_month'])
+            ->where('payroll_year', $validated['payroll_year'])
+            ->whereKeyNot($run->id)
+            ->exists();
+
+        if ($exists) {
+            throw ValidationException::withMessages([
+                'payroll_month' => 'A payroll run for this month already exists.',
+            ]);
+        }
+
+        $run->update($validated);
+
+        return redirect()
+            ->route('admin.payroll.run', $run)
+            ->with('status', 'Payroll run updated to '.$run->periodLabel().'.');
+    }
+
+    public function destroyRun(PayrollRun $run): RedirectResponse
+    {
+        abort_unless(request()->user()?->canAdmin('payroll.manage') || request()->user()?->canAdmin('*'), 403);
+        abort_if($run->status !== 'draft', 422, 'Only pending payroll runs can be cancelled — this one has already been finalized.');
+
+        $periodLabel = $run->periodLabel();
+        $run->delete();
+
+        return redirect()
+            ->route('admin.payroll.index')
+            ->with('status', 'Payroll run for '.$periodLabel.' cancelled.');
+    }
+
     public function updateEntry(Request $request, PayrollEntry $entry): RedirectResponse
     {
         abort_unless($request->user()?->canAdmin('payroll.manage') || $request->user()?->canAdmin('*'), 403);
