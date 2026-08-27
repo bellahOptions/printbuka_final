@@ -12,7 +12,7 @@
             Back to Tickets
         </a>
         <h1 class="mt-3 text-2xl font-black text-slate-950">Create IT Support Ticket</h1>
-        <p class="text-sm font-semibold text-slate-500">This ticket will be routed to active Super Admin / IT staff.</p>
+        <p class="text-sm font-semibold text-slate-500">This ticket will be routed to active Process & Technology Manager / IT staff.</p>
     </div>
 
     <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">

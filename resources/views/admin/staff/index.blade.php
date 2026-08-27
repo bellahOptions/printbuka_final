@@ -214,7 +214,7 @@
                                 Save & Activate
                             </button>
                         @else
-                            <span class="pb-badge pb-badge-secondary">Super Admin assigns role</span>
+                            <span class="pb-badge pb-badge-secondary">Process & Technology Manager assigns role</span>
                         @endif
                     </div>
 
@@ -346,7 +346,7 @@
                                         </button>
                                     </form>
                                 @else
-                                    <span class="pb-badge pb-badge-secondary text-[10px]">Super Admin only</span>
+                                    <span class="pb-badge pb-badge-secondary text-[10px]">Process & Technology Manager only</span>
                                 @endif
                             </td>
                             <td>
@@ -365,7 +365,7 @@
                                             <button type="submit" class="pb-btn pb-btn-sm pb-btn-ink text-xs w-full">Apply</button>
                                         </form>
                                     @else
-                                        <span class="pb-badge pb-badge-secondary text-[10px]">HR / Super Admin</span>
+                                        <span class="pb-badge pb-badge-secondary text-[10px]">HR / Process & Technology Manager</span>
                                     @endif
 
                                     @if(auth()->user()?->role === 'super_admin' && $person->role !== 'super_admin')

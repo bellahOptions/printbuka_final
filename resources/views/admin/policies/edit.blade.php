@@ -18,14 +18,14 @@
             </div>
             <h1 class="mt-3 text-4xl font-bold">Policy Management</h1>
             <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
-                Super Admin only area for managing legal documents shown to customers and staff.
+                Process & Technology Manager only area for managing legal documents shown to customers and staff.
             </p>
-            {{-- Super Admin Badge --}}
+            {{-- Process & Technology Manager Badge --}}
             <div class="mt-4 inline-flex items-center gap-2 rounded-full bg-pink-500/20 px-3 py-1 text-xs font-semibold text-pink-300">
                 <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                 </svg>
-                Super Admin Access Only
+                Process & Technology Manager Access Only
             </div>
         </div>
 

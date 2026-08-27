@@ -27,7 +27,7 @@ return [
     ],
 
     'role_labels' => [
-        'super_admin'        => 'Super Admin',
+        'super_admin'        => 'Process & Technology Manager',
         'managing_director'  => 'MD / CEO',
         'hr'                 => 'HR',
         'operations_manager' => 'Operations Manager',
