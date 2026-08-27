@@ -19,6 +19,8 @@ class AttendanceRecord extends Model
         'clock_out_lng',
         'clock_in_distance_meters',
         'clock_out_distance_meters',
+        'clock_in_accuracy_meters',
+        'clock_out_accuracy_meters',
         'clock_in_within_geofence',
         'clock_out_within_geofence',
         'clock_in_photo_path',
@@ -46,6 +48,8 @@ class AttendanceRecord extends Model
             'clock_out_lng' => 'decimal:7',
             'clock_in_within_geofence' => 'boolean',
             'clock_out_within_geofence' => 'boolean',
+            'clock_in_accuracy_meters' => 'integer',
+            'clock_out_accuracy_meters' => 'integer',
             'overtime_minutes' => 'integer',
         ];
     }

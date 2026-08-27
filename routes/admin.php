@@ -274,10 +274,6 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         // beyond the base admin.view already required for this whole group).
         Route::get('/attendance', [AdminAttendanceController::class, 'index'])
             ->name('attendance.index');
-        Route::post('/attendance/clock-in', [AdminAttendanceController::class, 'clockIn'])
-            ->name('attendance.clock-in');
-        Route::post('/attendance/clock-out', [AdminAttendanceController::class, 'clockOut'])
-            ->name('attendance.clock-out');
 
         // Management — HR / operations manager / super admin / MD.
         Route::get('/attendance/team', [AdminAttendanceController::class, 'team'])
