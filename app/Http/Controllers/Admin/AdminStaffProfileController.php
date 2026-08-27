@@ -127,6 +127,34 @@ class AdminStaffProfileController extends Controller
         return back()->with('status', 'Bio-data profile saved.');
     }
 
+    /**
+     * Self-service: a staff member declares (or later updates) their own
+     * work arrangement — onsite, hybrid, or fully remote. Drives whether
+     * attendance clock-in enforces the office geofence for them.
+     */
+    public function updateWorkMode(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        abort_if(! $user || $user->role === 'customer', 404);
+
+        $validated = $request->validate([
+            'work_mode'      => ['required', 'string', 'in:'.implode(',', StaffProfile::WORK_MODES)],
+            'onsite_days'    => ['required_if:work_mode,hybrid', 'array', 'min:1'],
+            'onsite_days.*'  => ['string', 'in:'.implode(',', StaffProfile::WEEKDAYS)],
+        ]);
+
+        StaffProfile::query()->updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'work_mode'       => $validated['work_mode'],
+                'onsite_days'     => $validated['work_mode'] === 'hybrid' ? array_values($validated['onsite_days']) : null,
+                'work_mode_set_at' => now(),
+            ]
+        );
+
+        return back()->with('status', 'Work arrangement saved.');
+    }
+
     public function markKycComplete(Request $request, User $user): RedirectResponse
     {
         abort_unless($request->user()?->canAdmin('staff.kyc') || $request->user()?->canAdmin('*'), 403);

@@ -268,6 +268,8 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::post('/staff/{user}/kyc-review', [AdminStaffProfileController::class, 'reviewKyc'])
             ->middleware('admin.permission:staff.kyc')
             ->name('staff.kyc-review');
+        Route::post('/staff/work-mode', [AdminStaffProfileController::class, 'updateWorkMode'])
+            ->name('staff.work-mode.update');
 
         // ===== ATTENDANCE =====
         // Self-service — any authenticated staff member (no extra permission

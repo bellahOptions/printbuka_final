@@ -614,6 +614,12 @@
                         @endif
                     @endif
 
+                    {{-- Work-arrangement prompt — only once KYC is approved, so it
+                         doesn't compete with the mandatory onboarding flow above. --}}
+                    @if($admin && $admin->role !== 'customer' && ($adminKycProfile?->kyc_status ?? 'pending') === 'approved' && $adminKycProfile?->needsWorkModePrompt())
+                        @include('admin._partials.work-mode-prompt-modal')
+                    @endif
+
                     @yield('content')
                 </main>
             </div>

@@ -16,7 +16,18 @@ class StaffProfile extends Model
         'bank_name', 'bank_account_number',
         'emergency_contact_notes', 'kyc_completed_at',
         'kyc_status', 'kyc_review_notes', 'kyc_reviewed_by_id', 'kyc_reviewed_at',
+        'work_mode', 'onsite_days', 'work_mode_set_at',
     ];
+
+    public const WORK_MODES = ['onsite', 'hybrid', 'remote'];
+
+    /**
+     * Weekday abbreviations accepted for the hybrid onsite_days selection,
+     * matching Carbon's ->format('D') output (Mon, Tue, ... Sat). Attendance
+     * is Monday–Saturday only (see AttendanceProcessingService), so Sunday
+     * isn't offered as a selectable onsite day.
+     */
+    public const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     protected function casts(): array
     {
@@ -24,6 +35,8 @@ class StaffProfile extends Model
             'date_of_employment' => 'date',
             'kyc_completed_at'   => 'datetime',
             'kyc_reviewed_at'    => 'datetime',
+            'onsite_days'        => 'array',
+            'work_mode_set_at'   => 'datetime',
         ];
     }
 
@@ -58,6 +71,46 @@ class StaffProfile extends Model
             'correction_requested' => 'bg-amber-100 text-amber-800',
             default                => 'bg-slate-100 text-slate-700',
         };
+    }
+
+    public function needsWorkModePrompt(): bool
+    {
+        return $this->work_mode === null;
+    }
+
+    public function workModeLabel(): string
+    {
+        return match ($this->work_mode) {
+            'onsite' => 'Onsite',
+            'hybrid' => 'Hybrid',
+            'remote' => 'Fully Remote',
+            default  => 'Not set',
+        };
+    }
+
+    /**
+     * Whether this staff member is expected at the office today, given their
+     * declared work mode. Drives whether attendance clock-in enforces the
+     * office geofence: onsite (or undeclared) staff are always held to it,
+     * fully remote staff never are, and hybrid staff only on their declared
+     * onsite days.
+     */
+    public function isExpectedOnsite(?\Carbon\Carbon $when = null): bool
+    {
+        return match ($this->work_mode) {
+            'remote' => false,
+            'hybrid' => in_array(($when ?? now())->format('D'), $this->onsite_days ?? [], true),
+            default  => true, // 'onsite', or not yet declared — safest default
+        };
+    }
+
+    public function onsiteDaysLabel(): string
+    {
+        if ($this->work_mode !== 'hybrid' || blank($this->onsite_days)) {
+            return '—';
+        }
+
+        return implode(', ', $this->onsite_days);
     }
 
     public function completionPercentage(): int

@@ -13,5 +13,20 @@
 
     <livewire:admin.attendance-clock />
 
+    @php($myProfile = auth()->user()?->staffProfile)
+    <details class="pb-card p-6">
+        <summary class="cursor-pointer text-sm font-black text-slate-900">
+            Work arrangement — {{ $myProfile?->workModeLabel() ?? 'Not set' }}
+            @if ($myProfile?->work_mode === 'hybrid')
+                <span class="font-normal text-slate-500">(onsite {{ $myProfile->onsiteDaysLabel() }})</span>
+            @endif
+        </summary>
+        <form method="POST" action="{{ route('admin.staff.work-mode.update') }}" class="mt-4 space-y-4" data-work-mode-form>
+            @csrf
+            @include('admin._partials.work-mode-fields', ['profile' => $myProfile])
+            <button type="submit" class="pb-btn pb-btn-outline w-full">Update work arrangement</button>
+        </form>
+    </details>
+
 </div>
 @endsection

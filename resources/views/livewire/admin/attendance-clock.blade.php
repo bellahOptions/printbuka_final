@@ -9,9 +9,15 @@
             <p class="text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Not clocked in today</p>
             <p class="text-3xl font-black text-slate-950 mb-6">{{ now(config('app.business_timezone'))->format('h:i A') }}</p>
 
-            @if ($location)
-                <p class="mb-4 text-xs text-slate-400">
-                    You must be within {{ $location->radius_meters }}m of {{ $location->name }} to clock in — we'll check your device's GPS location when you tap the button below.
+            @if ($expectedOnsiteToday)
+                @if ($location)
+                    <p class="mb-4 text-xs text-slate-400">
+                        You must be within {{ $location->radius_meters }}m of {{ $location->name }} to clock in — we'll check your device's GPS location when you tap the button below.
+                    </p>
+                @endif
+            @else
+                <p class="mb-4 rounded-xl border border-cyan-200 bg-cyan-50 p-3 text-xs font-bold text-cyan-800">
+                    You're set as working remotely today — no office check-in required.
                 </p>
             @endif
 
