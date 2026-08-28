@@ -15,7 +15,12 @@ class AddSecurityHeaders
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
-        $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+        // geolocation is scoped to same-origin (not blocked outright) — staff
+        // attendance clock-in/out requires it to verify staff are on site.
+        // Camera/microphone stay fully denied: nothing in this app uses the
+        // getUserMedia() JS API (selfie capture goes through the plain HTML
+        // file-input camera picker instead, which this policy doesn't affect).
+        $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(self)');
         $response->headers->set('X-XSS-Protection', '1; mode=block');
 
         return $response;
