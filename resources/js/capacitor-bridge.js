@@ -43,6 +43,12 @@ async function initPushNotifications() {
 async function initNativeGeolocation() {
     const { Geolocation } = await import('@capacitor/geolocation');
 
+    const toLocationResult = (position) => ({
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        accuracy: Number.isFinite(position.coords.accuracy) ? Math.round(position.coords.accuracy) : null,
+    });
+
     window.pbNativeGeolocation = async () => {
         try {
             const permission = await Geolocation.requestPermissions();
@@ -50,9 +56,19 @@ async function initNativeGeolocation() {
                 return null;
             }
 
-            const position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 8000 });
-
-            return { lat: position.coords.latitude, lng: position.coords.longitude };
+            try {
+                // First try: a fresh, high-accuracy GPS fix — best case outdoors.
+                return toLocationResult(await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 15000 }));
+            } catch {
+                // GPS often can't get a satellite lock indoors (e.g. inside the
+                // office itself) and times out — and a device where the staff
+                // member only granted "approximate location" (coarseLocation)
+                // can't get a GPS fix at all. Fall back to network/WiFi-based
+                // positioning, which is faster and works far better indoors, at
+                // the cost of some precision — still far better than failing
+                // the clock-in outright for staff who are genuinely on site.
+                return toLocationResult(await Geolocation.getCurrentPosition({ enableHighAccuracy: false, timeout: 10000 }));
+            }
         } catch {
             return null;
         }
