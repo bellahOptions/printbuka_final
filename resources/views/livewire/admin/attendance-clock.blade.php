@@ -128,28 +128,43 @@
                 img.src = url;
             });
 
-            const getLocation = () => new Promise((resolve) => {
+            const toLocationResult = (position) => ({
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+                accuracy: Number.isFinite(position.coords.accuracy) ? Math.round(position.coords.accuracy) : null,
+            });
+
+            const requestPosition = (options) => new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject, options);
+            });
+
+            const getLocation = async () => {
                 // Inside the Capacitor shell, the native Geolocation plugin handles OS
                 // permission prompts more reliably than the raw browser API embedded
                 // in a WebView. Fall back to the browser API everywhere else (plain
                 // mobile/desktop browser, or if the plugin isn't present).
                 if (window.pbNativeGeolocation) {
-                    window.pbNativeGeolocation().then(resolve);
-                    return;
+                    return window.pbNativeGeolocation();
                 }
 
-                if (!navigator.geolocation) { resolve(null); return; }
+                if (!navigator.geolocation) return null;
 
-                navigator.geolocation.getCurrentPosition(
-                    (position) => resolve({
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude,
-                        accuracy: Number.isFinite(position.coords.accuracy) ? Math.round(position.coords.accuracy) : null,
-                    }),
-                    () => resolve(null), // denied/unavailable — the server will refuse to clock in without a fix
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                );
-            });
+                try {
+                    // First try: a fresh, high-accuracy GPS fix — best case outdoors.
+                    return toLocationResult(await requestPosition({ enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }));
+                } catch {
+                    // GPS often can't get a satellite lock indoors (e.g. inside the
+                    // office itself) and times out. Fall back to network/WiFi-based
+                    // positioning, which is faster and works far better indoors, at
+                    // the cost of some precision — still far better than failing
+                    // the clock-in outright for staff who are genuinely on site.
+                    try {
+                        return toLocationResult(await requestPosition({ enableHighAccuracy: false, timeout: 10000, maximumAge: 120000 }));
+                    } catch {
+                        return null; // permission denied, or truly no fix available
+                    }
+                }
+            };
 
             let busy = false;
 
