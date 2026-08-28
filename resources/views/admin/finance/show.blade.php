@@ -37,6 +37,21 @@
                 <p class="text-xs font-black uppercase tracking-wide text-slate-500">Amount</p>
                 <p class="mt-2 text-sm text-slate-900">₦{{ number_format($entry->amount, 2) }}</p>
             </div>
+            @if ($entry->type === 'income')
+                <div>
+                    <p class="text-xs font-black uppercase tracking-wide text-slate-500">Status</p>
+                    <p class="mt-2">
+                        <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider {{ $entry->statusBadgeClass() }}">
+                            {{ $entry->statusLabel() }}
+                        </span>
+                    </p>
+                    @if ($entry->isRefunded())
+                        <p class="mt-1 text-xs text-slate-500">
+                            Refunded by {{ $entry->refundedBy?->displayName() ?? 'N/A' }} on {{ $entry->refunded_at?->format('M j, Y \a\t h:i A') }}
+                        </p>
+                    @endif
+                </div>
+            @endif
         </div>
 
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -60,6 +75,23 @@
                     @method('DELETE')
                     <button class="rounded-xl border border-red-200 bg-white px-5 py-3 text-sm font-black text-red-700 hover:bg-red-50">Delete Entry</button>
                 </form>
+            </div>
+        @endif
+
+        @if (auth()->user()?->canAdmin('finance.view') && $entry->type === 'income')
+            <div class="flex flex-wrap gap-3">
+                @if ($entry->isRefunded())
+                    <form action="{{ route('admin.finance.unrefund', $entry) }}" method="POST" onsubmit="return confirm('Undo the refund on this income entry? It will count toward income totals again.')">
+                        @csrf
+                        @method('DELETE')
+                        <button class="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-900 hover:bg-slate-50">Undo Refund</button>
+                    </form>
+                @else
+                    <form action="{{ route('admin.finance.refund', $entry) }}" method="POST" onsubmit="return confirm('Mark this income entry as refunded? It will be excluded from income totals.')">
+                        @csrf
+                        <button class="rounded-xl bg-red-600 px-5 py-3 text-sm font-black text-white hover:bg-red-700">Mark as Refunded</button>
+                    </form>
+                @endif
             </div>
         @endif
 

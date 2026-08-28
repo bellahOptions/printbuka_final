@@ -210,7 +210,7 @@
         </div>
 
         <div class="table-scroll-container overflow-x-auto border-t border-slate-100">
-            <table class="pb-table w-full min-w-[720px]">
+            <table class="pb-table pb-table--cards w-full md:min-w-[720px]">
                 <thead>
                     <tr>
                         <th>Job</th>
@@ -225,26 +225,26 @@
                 <tbody>
                     @forelse($recentOrders as $order)
                         <tr>
-                            <td>
+                            <td data-label="Job">
                                 <p class="font-semibold text-slate-900 text-sm">{{ $order->job_order_number ?? $order->displayNumber() }}</p>
                                 <p class="text-xs text-slate-400 mt-0.5">{{ $order->created_at->format('M j, Y') }}</p>
                             </td>
-                            <td>
+                            <td data-label="Client">
                                 <p class="font-medium text-slate-800 text-sm">{{ $order->customer_name }}</p>
                                 <p class="text-xs text-slate-400 mt-0.5 hidden sm:block">{{ $order->customer_email }}</p>
                             </td>
-                            <td class="hidden sm:table-cell">
+                            <td data-label="Product" class="hidden sm:table-cell">
                                 <span class="text-sm text-slate-600">{{ $order->product?->name ?? 'Custom' }}</span>
                             </td>
-                            <td>
+                            <td data-label="Status">
                                 <span class="pb-badge pb-badge-cyan text-[10px]">{{ $order->status }}</span>
                             </td>
-                            <td class="hidden md:table-cell">
+                            <td data-label="Invoice" class="hidden md:table-cell">
                                 <span class="text-sm {{ $order->invoice ? 'text-slate-700 font-medium' : 'text-slate-400' }}">
                                     {{ $order->invoice?->invoice_number ?? 'Pending' }}
                                 </span>
                             </td>
-                            <td class="hidden lg:table-cell">
+                            <td data-label="Phase" class="hidden lg:table-cell">
                                 <div class="flex items-center gap-1.5 text-xs text-slate-600">
                                     <span class="h-1.5 w-1.5 rounded-full bg-amber-400 shrink-0"></span>
                                     {{ $order->phase_approval_status ?? 'Awaiting approval' }}
@@ -338,7 +338,7 @@
 
         {{-- Most viewed table --}}
         <div class="border-t border-slate-100">
-            <table class="pb-table w-full min-w-[460px]">
+            <table class="pb-table pb-table--cards w-full md:min-w-[460px]">
                 <thead>
                     <tr>
                         <th>Product</th>
@@ -349,9 +349,9 @@
                 <tbody>
                     @forelse($mostViewedProducts as $product)
                         <tr>
-                            <td class="font-medium text-slate-900">{{ $product->name }}</td>
-                            <td class="text-slate-500">{{ $product->category?->name ?? 'Uncategorized' }}</td>
-                            <td class="font-bold text-brand-700">{{ number_format((int)$product->view_count) }}</td>
+                            <td data-label="Product" class="font-medium text-slate-900">{{ $product->name }}</td>
+                            <td data-label="Category" class="text-slate-500">{{ $product->category?->name ?? 'Uncategorized' }}</td>
+                            <td data-label="Views" class="font-bold text-brand-700">{{ number_format((int)$product->view_count) }}</td>
                         </tr>
                     @empty
                         <tr>
@@ -431,7 +431,7 @@
 
             {{-- Top staff table --}}
             <div class="border-t border-slate-100">
-                <table class="pb-table w-full min-w-[460px]">
+                <table class="pb-table pb-table--cards w-full md:min-w-[460px]">
                     <thead>
                         <tr>
                             <th>Staff Member</th>
@@ -442,9 +442,9 @@
                     <tbody>
                         @forelse($topStaff as $s)
                             <tr>
-                                <td class="font-medium text-slate-900">{{ $s->displayName() }}</td>
-                                <td class="text-slate-500">{{ config('printbuka_admin.role_labels.'.$s->role, $s->role) }}</td>
-                                <td class="font-bold text-violet-700">{{ number_format((int)$s->staff_activities_count) }}</td>
+                                <td data-label="Staff Member" class="font-medium text-slate-900">{{ $s->displayName() }}</td>
+                                <td data-label="Role" class="text-slate-500">{{ config('printbuka_admin.role_labels.'.$s->role, $s->role) }}</td>
+                                <td data-label="Activities (7 days)" class="font-bold text-violet-700">{{ number_format((int)$s->staff_activities_count) }}</td>
                             </tr>
                         @empty
                             <tr>

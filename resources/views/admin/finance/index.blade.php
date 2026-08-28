@@ -13,8 +13,8 @@
         });
         
         $chartLabels = $monthlyData->keys()->toArray();
-        $incomeData = $monthlyData->map(function($month) { 
-            return $month->where('type', 'income')->sum('amount');
+        $incomeData = $monthlyData->map(function($month) {
+            return $month->where('type', 'income')->where('status', '!=', 'refunded')->sum('amount');
         })->values()->toArray();
         $expenseData = $monthlyData->map(function($month) {
             return $month->where('type', 'expense')->sum('amount');
@@ -173,16 +173,20 @@
             </div> 
             <div class="rounded-xl border border-slate-200/60 bg-white p-5">
                 <p class="text-xs font-black uppercase tracking-wider text-slate-500">Largest Income</p>
-                <p class="mt-2 text-2xl font-black text-emerald-700">₦{{ number_format($entries->where('type', 'income')->max('amount') ?? 0, 2) }}</p>
+                <p class="mt-2 text-2xl font-black text-emerald-700">₦{{ number_format($entries->where('type', 'income')->where('status', '!=', 'refunded')->max('amount') ?? 0, 2) }}</p>
             </div>
             <div class="rounded-xl border border-slate-200/60 bg-white p-5">
                 <p class="text-xs font-black uppercase tracking-wider text-slate-500">Largest Expense</p>
                 <p class="mt-2 text-2xl font-black text-pink-700">₦{{ number_format($entries->where('type', 'expense')->max('amount') ?? 0, 2) }}</p>
             </div>
             <div class="rounded-xl border border-slate-200/60 bg-white p-5">
+                @php
+                    $monthIncome = $entries->where('entry_date', '>=', now()->startOfMonth())->where('type', 'income')->where('status', '!=', 'refunded')->sum('amount');
+                    $monthExpense = $entries->where('entry_date', '>=', now()->startOfMonth())->where('type', 'expense')->sum('amount');
+                @endphp
                 <p class="text-xs font-black uppercase tracking-wider text-slate-500">This Month</p>
-                <p class="mt-2 text-2xl font-black {{ ($entries->where('entry_date', '>=', now()->startOfMonth())->where('type', 'income')->sum('amount') - $entries->where('entry_date', '>=', now()->startOfMonth())->where('type', 'expense')->sum('amount')) >= 0 ? 'text-emerald-700' : 'text-red-700' }}">
-                    ₦{{ number_format($entries->where('entry_date', '>=', now()->startOfMonth())->where('type', 'income')->sum('amount') - $entries->where('entry_date', '>=', now()->startOfMonth())->where('type', 'expense')->sum('amount'), 2) }}
+                <p class="mt-2 text-2xl font-black {{ ($monthIncome - $monthExpense) >= 0 ? 'text-emerald-700' : 'text-red-700' }}">
+                    ₦{{ number_format($monthIncome - $monthExpense, 2) }}
                 </p>
             </div>
         </div>
@@ -236,6 +240,11 @@
                                             <span class="ml-1 text-[9px]">(CEO Credit)</span>
                                         @endif
                                     </span>
+                                    @if($entry->type === 'income' && $entry->isRefunded())
+                                        <span class="mt-1 inline-flex items-center gap-1.5 rounded-full bg-red-100 px-3 py-1 text-xs font-black uppercase tracking-wider text-red-700">
+                                            Refunded
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="font-semibold text-slate-700">{{ $entry->category }}</span>

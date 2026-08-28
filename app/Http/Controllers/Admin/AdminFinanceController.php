@@ -43,7 +43,7 @@ class AdminFinanceController extends Controller
                 ->orderByDesc('created_at')
                 ->paginate(20)
                 ->withQueryString(),
-            'income' => FinanceEntry::query()->where('type', 'income')->sum('amount'),
+            'income' => FinanceEntry::query()->where('type', 'income')->where('status', '!=', 'refunded')->sum('amount'),
             'expenses' => FinanceEntry::query()->where('type', 'expense')->sum('amount'),
         ]);
     }
@@ -123,7 +123,7 @@ class AdminFinanceController extends Controller
 
         $entries = $query->orderByDesc('entry_date')->orderByDesc('created_at')->get();
 
-        $incomeTotal = $entries->where('type', 'income')->sum('amount');
+        $incomeTotal = $entries->where('type', 'income')->where('status', '!=', 'refunded')->sum('amount');
         $expenseTotal = $entries->where('type', 'expense')->sum('amount');
         $netTotal = $incomeTotal - $expenseTotal;
 
@@ -193,7 +193,7 @@ class AdminFinanceController extends Controller
         }
 
         $entries      = $query->orderByDesc('entry_date')->orderByDesc('created_at')->get();
-        $incomeTotal  = $entries->where('type', 'income')->sum('amount');
+        $incomeTotal  = $entries->where('type', 'income')->where('status', '!=', 'refunded')->sum('amount');
         $expenseTotal = $entries->where('type', 'expense')->sum('amount');
         $netTotal     = $incomeTotal - $expenseTotal;
 
@@ -304,6 +304,34 @@ class AdminFinanceController extends Controller
         ]);
 
         return redirect()->route('admin.finance.index')->with('status', 'Expense entry updated.');
+    }
+
+    public function markRefunded(Request $request, FinanceEntry $finance): RedirectResponse
+    {
+        abort_unless($request->user()?->canAdmin('finance.view') ?? false, 403);
+        abort_unless($finance->type === 'income', 422, 'Only income entries can be marked as refunded.');
+
+        $finance->update([
+            'status' => 'refunded',
+            'refunded_by_id' => $request->user()->id,
+            'refunded_at' => now(),
+        ]);
+
+        return back()->with('status', 'Income entry marked as refunded — excluded from income totals.');
+    }
+
+    public function unmarkRefunded(Request $request, FinanceEntry $finance): RedirectResponse
+    {
+        abort_unless($request->user()?->canAdmin('finance.view') ?? false, 403);
+        abort_unless($finance->type === 'income', 422, 'Only income entries can be refunded/un-refunded.');
+
+        $finance->update([
+            'status' => 'completed',
+            'refunded_by_id' => null,
+            'refunded_at' => null,
+        ]);
+
+        return back()->with('status', 'Refund undone — entry counts toward income totals again.');
     }
 
     public function destroy(Request $request, FinanceEntry $finance): RedirectResponse

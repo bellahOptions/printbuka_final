@@ -16,6 +16,9 @@ class FinanceEntry extends Model
         'entry_date',
         'type',
         'entry_type',
+        'status',
+        'refunded_by_id',
+        'refunded_at',
         'category',
         'description',
         'payee',
@@ -30,6 +33,7 @@ class FinanceEntry extends Model
             'entry_date' => 'date',
             'amount' => 'decimal:2',
             'last_edited_at' => 'datetime',
+            'refunded_at' => 'datetime',
         ];
     }
 
@@ -42,6 +46,27 @@ class FinanceEntry extends Model
             'credit_from_ceo' => 'Credit from CEO',
             'auto_income' => 'Auto Income (Invoice)',
             default => 'Manual Entry',
+        };
+    }
+
+    public function isRefunded(): bool
+    {
+        return $this->status === 'refunded';
+    }
+
+    public function statusLabel(): string
+    {
+        return match ($this->status) {
+            'refunded' => 'Refunded',
+            default => 'Completed',
+        };
+    }
+
+    public function statusBadgeClass(): string
+    {
+        return match ($this->status) {
+            'refunded' => 'bg-red-100 text-red-700',
+            default => 'bg-emerald-100 text-emerald-700',
         };
     }
 
@@ -58,5 +83,10 @@ class FinanceEntry extends Model
     public function lastEditor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'last_edited_by');
+    }
+
+    public function refundedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'refunded_by_id');
     }
 }

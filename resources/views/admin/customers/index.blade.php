@@ -69,7 +69,7 @@
         </div>
 
         <div class="table-scroll-container overflow-x-auto">
-            <table class="pb-table w-full min-w-[1100px]">
+            <table class="pb-table pb-table--cards w-full md:min-w-[1100px]">
                 <thead>
                     <tr>
                         <th>Customer</th>
@@ -101,7 +101,7 @@
                     @forelse($customers as $customer)
                         @php($lifecycle = $lifecycleFn((int)($customer->orders_count ?? 0), (float)($customer->total_paid ?? 0)))
                         <tr>
-                            <td>
+                            <td data-label="Customer">
                                 <div class="flex items-center gap-3">
                                     <div class="pb-avatar pb-avatar-md shrink-0">
                                         <div class="pb-avatar-fallback bg-blue-100 text-blue-800 font-semibold text-xs">
@@ -115,29 +115,29 @@
                                     </div>
                                 </div>
                             </td>
-                            <td>
+                            <td data-label="Company">
                                 <span class="text-sm text-slate-600">{{ $customer->companyName ?: '—' }}</span>
                             </td>
-                            <td>
+                            <td data-label="Orders">
                                 <span class="font-semibold text-slate-900">{{ number_format((int)($customer->orders_count ?? 0)) }}</span>
                             </td>
-                            <td>
+                            <td data-label="Invoices">
                                 <span class="font-semibold text-slate-700">{{ number_format((int)($customer->invoices_count ?? 0)) }}</span>
                             </td>
-                            <td>
+                            <td data-label="Lifetime Value">
                                 <span class="font-semibold text-slate-900">
                                     ₦{{ number_format((float)($customer->total_paid ?? 0), 0) }}
                                 </span>
                             </td>
-                            <td>
+                            <td data-label="Lifecycle">
                                 <span class="pb-badge {{ $lifecycle['badge'] }} text-[10px]">
                                     {{ $lifecycle['label'] }}
                                 </span>
                             </td>
-                            <td>
+                            <td data-label="Joined">
                                 <span class="text-xs text-slate-500">{{ $customer->created_at->format('M j, Y') }}</span>
                             </td>
-                            <td>
+                            <td data-label="Status">
                                 <span class="pb-badge {{ $customer->is_active ? 'pb-badge-success' : 'pb-badge-warning' }} text-[10px]">
                                     {{ $customer->is_active ? 'Active' : 'Inactive' }}
                                 </span>

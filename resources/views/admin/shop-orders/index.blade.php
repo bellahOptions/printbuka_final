@@ -102,7 +102,7 @@
         </div>
     @else
         <div class="overflow-x-auto">
-            <table class="pb-table">
+            <table class="pb-table pb-table--cards">
                 <thead>
                     <tr>
                         <th>Reference</th>
@@ -132,30 +132,30 @@
                         };
                     @endphp
                         <tr class="hover:bg-slate-50/60 transition-colors">
-                            <td>
+                            <td data-label="Reference">
                                 <a href="{{ route('admin.shop-orders.show', $order) }}"
                                    class="font-mono font-black text-slate-900 hover:text-pink-600 text-sm transition-colors">{{ $order->reference }}</a>
                             </td>
-                            <td>
+                            <td data-label="Customer">
                                 <p class="font-black text-slate-900 text-sm leading-tight">{{ $order->customer_name }}</p>
                                 <p class="text-xs text-slate-400 mt-0.5">{{ $order->customer_email }}</p>
                             </td>
-                            <td class="hidden sm:table-cell">
+                            <td data-label="Items" class="hidden sm:table-cell">
                                 <span class="pb-badge-neutral text-xs">{{ $order->items_count }} item{{ $order->items_count !== 1 ? 's' : '' }}</span>
                             </td>
-                            <td>
+                            <td data-label="Total">
                                 <p class="font-black text-slate-900 text-sm">₦{{ number_format((float)$order->total, 0) }}</p>
                             </td>
-                            <td>
+                            <td data-label="Payment">
                                 <span class="{{ $payConfig['class'] }} text-xs">{{ $payConfig['label'] }}</span>
                             </td>
-                            <td>
+                            <td data-label="Order Status">
                                 <div class="flex items-center gap-1.5">
                                     <span class="w-1.5 h-1.5 rounded-full shrink-0 {{ $fulfillConfig['dot'] }}"></span>
                                     <span class="{{ $fulfillConfig['class'] }} text-xs">{{ $fulfillConfig['label'] }}</span>
                                 </div>
                             </td>
-                            <td class="hidden md:table-cell">
+                            <td data-label="Date" class="hidden md:table-cell">
                                 <p class="text-xs text-slate-500">{{ $order->created_at->format('d M Y') }}</p>
                                 <p class="text-xs text-slate-400">{{ $order->created_at->format('H:i') }}</p>
                             </td>

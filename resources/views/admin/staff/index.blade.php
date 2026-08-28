@@ -255,7 +255,7 @@
         </div>
 
         <div class="table-scroll-container overflow-x-auto">
-            <table class="pb-table w-full min-w-[1200px]">
+            <table class="pb-table pb-table--cards w-full md:min-w-[1200px]">
                 <thead>
                     <tr>
                         <th>Employee</th>
@@ -272,7 +272,7 @@
                 <tbody>
                     @forelse($staff as $person)
                         <tr>
-                            <td>
+                            <td data-label="Employee">
                                 <div class="flex items-center gap-3">
                                     @if($person->profilePhotoUrl())
                                         <img src="{{ $person->profilePhotoUrl() }}" alt="{{ $person->displayName() }}"
@@ -289,13 +289,13 @@
                                     </div>
                                 </div>
                             </td>
-                            <td>
+                            <td data-label="Role">
                                 <span class="text-sm font-medium text-slate-700">{{ $roles[$person->role] ?? $person->role }}</span>
                             </td>
-                            <td>
+                            <td data-label="Department">
                                 <span class="text-sm text-slate-600">{{ $person->department ?? '—' }}</span>
                             </td>
-                            <td>
+                            <td data-label="Status">
                                 <span class="pb-badge {{ $person->is_active ? 'pb-badge-success' : 'pb-badge-danger' }} text-[10px]">
                                     {{ $person->is_active ? 'Active' : 'Inactive' }}
                                 </span>
@@ -303,13 +303,13 @@
                                     <span class="pb-badge pb-badge-danger text-[10px] mt-1 block">Access Restricted</span>
                                 @endif
                             </td>
-                            <td>
+                            <td data-label="Employment">
                                 <span class="pb-badge {{ match($person->employment_status ?? 'active') { 'active'=>'pb-badge-success','suspended'=>'pb-badge-warning','terminated'=>'pb-badge-danger', default=>'pb-badge-secondary' } }} text-[10px]">{{ $person->employmentStatusLabel() }}</span>
                                 @if($person->employment_status_changed_at)
                                     <p class="text-[10px] text-slate-400 mt-1">{{ $person->employment_status_changed_at->format('M j, Y') }}</p>
                                 @endif
                             </td>
-                            <td>
+                            <td data-label="KYC">
                                 @php($personKycStatus = $person->staffProfile?->kyc_status ?? 'pending')
                                 <span class="pb-badge text-[10px] {{ match($personKycStatus) { 'approved' => 'pb-badge-success', 'correction_requested' => 'pb-badge-warning', default => 'pb-badge-danger' } }}">
                                     {{ $person->staffProfile?->kycStatusLabel() ?? 'Pending Review' }}
@@ -320,10 +320,10 @@
                                     </a>
                                 @endif
                             </td>
-                            <td>
+                            <td data-label="Approved">
                                 <span class="text-xs text-slate-500">{{ $person->approved_at?->format('M j, Y') ?? '—' }}</span>
                             </td>
-                            <td>
+                            <td data-label="Profile Photo">
                                 @if($canAssignRoles)
                                     <form action="{{ route('admin.staff.update', $person) }}" method="POST"
                                           enctype="multipart/form-data"
@@ -349,7 +349,7 @@
                                     <span class="pb-badge pb-badge-secondary text-[10px]">Process & Technology Manager only</span>
                                 @endif
                             </td>
-                            <td>
+                            <td data-label="Actions">
                                 <div class="space-y-2 min-w-[200px]">
                                     @if($canManageEmployment)
                                         <form action="{{ route('admin.staff.employment-status', $person) }}" method="POST"

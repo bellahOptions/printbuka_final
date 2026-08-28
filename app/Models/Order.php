@@ -7,9 +7,12 @@ use App\Models\FinanceEntry;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
+    use SoftDeletes;
+
     public function getRouteKeyName(): string
     {
         return 'job_order_number';
@@ -105,6 +108,7 @@ class Order extends Model
             'verified_at' => 'datetime',
             'phase_approved_at' => 'datetime',
             'concluded_at' => 'datetime',
+            'deleted_at' => 'datetime',
         ];
     }
 

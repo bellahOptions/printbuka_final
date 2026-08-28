@@ -27,7 +27,7 @@
         @endif
 
         <div class="mt-8 overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm">
-            <table class="pb-table w-full text-sm">
+            <table class="pb-table pb-table--cards w-full text-sm">
                 <thead>
                     <tr>
                         <th class="px-4 py-3 text-left">Label</th>
@@ -40,18 +40,18 @@
                 <tbody>
                     @forelse ($items as $item)
                         <tr class="border-t border-slate-100">
-                            <td class="px-4 py-3 font-semibold text-slate-800">{{ $item->label }}</td>
-                            <td class="px-4 py-3 text-slate-600">
+                            <td data-label="Label" class="px-4 py-3 font-semibold text-slate-800">{{ $item->label }}</td>
+                            <td data-label="Service" class="px-4 py-3 text-slate-600">
                                 {{ $item->service_slug ? config("printbuka_services.services.{$item->service_slug}.name", $item->service_slug) : '—' }}
                             </td>
-                            <td class="px-4 py-3 text-slate-600">
+                            <td data-label="Product" class="px-4 py-3 text-slate-600">
                                 @if ($item->product)
                                     <a href="{{ route('admin.pricelist.products.edit', $item->product) }}" class="text-pink-600 hover:underline">{{ $item->product->name }}</a>
                                 @else
                                     —
                                 @endif
                             </td>
-                            <td class="px-4 py-3 text-right font-semibold text-slate-800">₦{{ number_format((float) $item->price, 2) }}</td>
+                            <td data-label="Price (₦)" class="px-4 py-3 text-right font-semibold text-slate-800">₦{{ number_format((float) $item->price, 2) }}</td>
                             <td class="px-4 py-3 text-right">
                                 <form action="{{ route('admin.pricelist.custom.destroy', $item) }}" method="POST" onsubmit="return confirm('Remove this custom price list item?');">
                                     @csrf

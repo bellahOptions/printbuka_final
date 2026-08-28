@@ -252,6 +252,43 @@
         @apply px-4 py-3.5 text-slate-700;
     }
 
+    /* Below md, each row collapses into its own card and the header row
+       (redundant once every cell carries its own data-label) is dropped.
+       Every <td> needs a `data-label="Column Name"` attribute matching its
+       <th> — that's what renders as the bold mini-label on the left of each
+       card row via the ::before below. A <td> with no data-label (e.g. a
+       lone actions cell) just renders without one. */
+    @media (max-width: 767.98px) {
+        .pb-table-wrapper:has(.pb-table--cards) {
+            @apply overflow-x-visible border-none bg-transparent;
+        }
+        .pb-table--cards {
+            @apply block w-full;
+        }
+        .pb-table--cards thead {
+            @apply hidden;
+        }
+        .pb-table--cards tbody {
+            @apply block space-y-3;
+        }
+        .pb-table--cards tbody tr {
+            @apply block rounded-xl border border-slate-200 bg-white p-3 shadow-sm;
+        }
+        .pb-table--cards tbody tr:last-child {
+            @apply border-b border-slate-200;
+        }
+        .pb-table--cards td {
+            @apply flex items-center justify-between gap-4 border-b border-slate-100 px-1 py-2 text-right last:border-b-0;
+        }
+        .pb-table--cards td[data-label]::before {
+            content: attr(data-label);
+            @apply text-left text-xs font-semibold uppercase tracking-wider text-slate-500;
+        }
+        .pb-table--cards td:not([data-label]) {
+            @apply justify-end;
+        }
+    }
+
     /* ─── ALERTS ───────────────────────────────────────── */
     .pb-alert {
         @apply flex gap-3 rounded-xl border p-4 text-sm font-medium;
