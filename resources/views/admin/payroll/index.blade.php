@@ -59,7 +59,16 @@
                     <td class="px-5 py-4 text-sm text-slate-600">{{ $run->payment_date?->format('M j, Y') ?? '—' }}</td>
                     <td class="px-5 py-4 text-sm text-slate-600">{{ $run->createdBy?->displayName() }}</td>
                     <td class="px-5 py-4 text-right">
-                        <a href="{{ route('admin.payroll.run', $run) }}" class="text-sm font-black text-slate-700 hover:text-pink-600">View</a>
+                        <div class="flex items-center justify-end gap-3">
+                            <a href="{{ route('admin.payroll.run', $run) }}" class="text-sm font-black text-slate-700 hover:text-pink-600">View</a>
+                            @if ($run->status === 'draft' && (auth()->user()->canAdmin('payroll.manage') || auth()->user()->canAdmin('*')))
+                                <form method="POST" action="{{ route('admin.payroll.destroy-run', $run) }}" onsubmit="return confirm('Cancel and permanently delete the payroll run for {{ $run->periodLabel() }}? This cannot be undone.')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-sm font-black text-red-600 hover:text-red-800">Cancel</button>
+                                </form>
+                            @endif
+                        </div>
                     </td>
                 </tr>
                 @empty

@@ -806,10 +806,16 @@ class AdminInvoiceController extends Controller
         $invoice->delete();
 
         if ($order) {
+            // Auto-income finance entries are normally protected from manual
+            // deletion (see AdminFinanceController::destroy), but once the
+            // order itself is gone there's nothing left for them to
+            // reconcile against — remove them too, even if already paid.
+            FinanceEntry::query()->where('order_id', $order->id)->delete();
+
             $order->delete();
         }
 
-        return back()->with('status', 'Invoice and associated order deleted.');
+        return back()->with('status', 'Invoice, associated order, and finance records deleted.');
     }
 
     public function recordPayment(Request $request, Invoice $invoice, InvoiceLifecycleService $invoiceLifecycleService): RedirectResponse

@@ -37,6 +37,10 @@
                 </form>
 
                 @if ($run->status === 'draft')
+                    <a href="{{ route('admin.payroll.edit-run', $run) }}"
+                       class="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-black text-slate-700 hover:bg-slate-50">
+                        Edit Run
+                    </a>
                     <form method="POST" action="{{ route('admin.payroll.finalize', $run) }}" onsubmit="return confirm('Finalize this payroll run? No more edits after this.')">
                         @csrf
                         <button type="submit" class="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-black text-white hover:bg-slate-700">Finalize Run</button>

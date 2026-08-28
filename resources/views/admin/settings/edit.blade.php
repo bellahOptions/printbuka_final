@@ -249,7 +249,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <h2 class="text-lg font-black text-slate-950">Company Account Details (Super Admin)</h2>
+                                <h2 class="text-lg font-black text-slate-950">Company Account Details (Process & Technology Manager)</h2>
                                 <p class="text-sm text-slate-500">Used on quotations, invoices and invoice-related emails.</p>
                             </div>
                         </div>

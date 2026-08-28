@@ -126,24 +126,25 @@
                 }
             @endif
 
+            @page { margin: 12mm 15mm; }
+
             * { box-sizing: border-box; }
 
             body {
                 margin: 0;
-                padding: 20px;
+                padding: 0;
                 font-family: 'Open Sans', 'DejaVu Sans', Arial, sans-serif;
-                background: #f1f5f9;
+                background: #ffffff;
                 color: #13203a;
-                font-size: 12px;
-                line-height: 1.45;
+                font-size: 10px;
+                line-height: 1.35;
             }
             /* ₦ pinned to DejaVu Sans — the embedded Open Sans glyph set lacks it */
             .naira { font-family: 'DejaVu Sans', sans-serif; font-weight: inherit; font-size: inherit; }
 
             .wrap {
+                width: 100%;
                 background: #ffffff;
-                border-radius: 24px;
-                padding: 48px;
             }
 
             .lt {
@@ -157,38 +158,38 @@
             }
 
             .doc-title {
-                font-size: 22px;
+                font-size: 18px;
                 font-weight: 600;
                 color: #13203a;
                 margin: 0;
             }
 
-            .logo-img { height: 46px; width: auto; }
-            .logo-fallback { font-size: 26px; font-weight: 700; color: #13203a; }
+            .logo-img { height: 34px; width: auto; }
+            .logo-fallback { font-size: 20px; font-weight: 700; color: #13203a; }
 
             hr {
                 border: 0;
                 border-top: 1px solid #fbcfe8;
-                margin: 12px 0;
+                margin: 8px 0;
             }
 
-            .addr-label { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-            .addr-body { font-size: 12px; color: #3e5068; line-height: 1.7; margin-top: 4px; }
+            .addr-label { font-size: 11px; font-weight: 700; margin-bottom: 3px; }
+            .addr-body { font-size: 9px; color: #3e5068; line-height: 1.55; margin-top: 3px; }
 
             .items-tbl {
                 width: 100%;
                 border-collapse: collapse;
-                margin-top: 56px;
-                margin-bottom: 12px;
+                margin-top: 20px;
+                margin-bottom: 8px;
             }
 
             .items-tbl thead tr { background: #be185d; }
 
             .items-tbl th {
-                padding: 16px;
+                padding: 8px 10px;
                 text-align: center;
                 color: #ffffff;
-                font-size: 13px;
+                font-size: 9px;
                 font-weight: 600;
                 text-transform: uppercase;
                 border-right: 2px solid #ffffff;
@@ -197,8 +198,8 @@
             .items-tbl th.col-desc { text-align: left; }
 
             .items-tbl td {
-                padding: 20px;
-                font-size: 13px;
+                padding: 8px 10px;
+                font-size: 9px;
                 font-weight: 500;
                 text-align: center;
                 border-right: 2px solid #ffffff;
@@ -208,31 +209,31 @@
             .items-tbl td.col-desc { text-align: left; font-weight: 600; }
 
             .totals-cell {
-                padding: 4px 0;
+                padding: 3px 0;
                 text-align: right;
                 border: 0;
                 background: #ffffff;
-                font-size: 13px;
+                font-size: 9px;
             }
-            .totals-lbl { padding-right: 48px; font-weight: 700; }
-            .totals-grand { font-size: 15px; font-weight: 700; }
+            .totals-lbl { padding-right: 32px; font-weight: 700; }
+            .totals-grand { font-size: 12px; font-weight: 700; }
 
-            .pay-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
-            .pay-row { font-size: 12px; color: #3e5068; line-height: 1.8; margin-top: 8px; }
+            .pay-title { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+            .pay-row { font-size: 9px; color: #3e5068; line-height: 1.7; margin-top: 4px; }
 
             .contact-link {
-                font-size: 11px;
+                font-size: 9px;
                 font-weight: 500;
                 text-transform: uppercase;
-                letter-spacing: 0.08em;
+                letter-spacing: 0.06em;
                 color: #13203a;
                 display: block;
-                margin-top: 4px;
+                margin-top: 3px;
             }
 
             .fine-print {
-                margin-top: 14px;
-                font-size: 9px;
+                margin-top: 10px;
+                font-size: 7px;
                 color: #7a8aa3;
                 text-align: center;
             }
@@ -267,15 +268,15 @@
             {{-- Date + Invoice No --}}
             <table class="lt">
                 <tr>
-                    <td style="font-size: 13px;"><strong>Date:</strong> {{ $issuedAt->format('d/m/Y') }}</td>
-                    <td style="font-size: 13px; text-align: right;"><strong>{{ $documentType }} No:</strong> {{ $invoice->invoice_number }}</td>
+                    <td style="font-size: 10px;"><strong>Date:</strong> {{ $issuedAt->format('d/m/Y') }}</td>
+                    <td style="font-size: 10px; text-align: right;"><strong>{{ $documentType }} No:</strong> {{ $invoice->invoice_number }}</td>
                 </tr>
             </table>
 
             <hr>
 
             {{-- Addresses: Invoice To (left) + Pay To (right) --}}
-            <table class="lt" style="margin-top: 16px;">
+            <table class="lt" style="margin-top: 10px;">
                 <tr>
                     <td style="width: 50%;">
                         <div class="addr-label">Invoice To:</div>
@@ -322,7 +323,7 @@
                     @endforeach
 
                     <tr>
-                        <td colspan="4" class="totals-cell" style="padding-top: 16px;">
+                        <td colspan="4" class="totals-cell" style="padding-top: 10px;">
                             <span class="totals-lbl">Sub Total:</span><span class="naira">₦</span>{{ number_format((float) $invoice->subtotal, 2) }}
                         </td>
                     </tr>
@@ -339,7 +340,7 @@
                         </tr>
                     @endif
                     <tr>
-                        <td colspan="4" class="totals-cell totals-grand" style="padding-bottom: 12px;">
+                        <td colspan="4" class="totals-cell totals-grand" style="padding-bottom: 8px;">
                             <span class="totals-lbl">Total:</span><span class="naira">₦</span>{{ number_format((float) $invoice->total_amount, 2) }}
                         </td>
                     </tr>
@@ -347,7 +348,7 @@
             </table>
 
             {{-- Footer: Payment info left, contact right --}}
-            <table class="lt" style="margin-top: 112px;">
+            <table class="lt" style="margin-top: 36px; page-break-inside: avoid;">
                 <tr>
                     <td style="width: 55%; vertical-align: top;">
                         @if ($hasCompanyAccountDetails)

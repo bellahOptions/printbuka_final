@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>Receipt {{ $order->reference }}</title>
     <style>
+        @page { margin: 12mm 15mm; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 12px; color: #0f172a; background: #fff; }
         .page { padding: 40px 48px; }

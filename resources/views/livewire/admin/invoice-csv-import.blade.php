@@ -1,7 +1,7 @@
 <div class="mt-6 rounded-md border border-cyan-200 bg-cyan-50 p-5">
     <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div class="max-w-2xl">
-            <p class="text-sm font-black uppercase tracking-wide text-cyan-700">Super Admin Import</p>
+            <p class="text-sm font-black uppercase tracking-wide text-cyan-700">Process & Technology Manager Import</p>
             <h2 class="mt-1 text-2xl font-black text-slate-950">Upload customer invoices and quotes</h2>
             <p class="mt-2 text-sm leading-6 text-slate-700">CSV rows are grouped by invoice or quote number. Imported records are saved as paid invoice/quotation records and their jobs are marked delivered.</p>
         </div>

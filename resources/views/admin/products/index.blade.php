@@ -16,7 +16,7 @@
             <div class="mt-6 rounded-md border border-red-200 bg-red-50 p-5">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div class="max-w-2xl">
-                        <p class="text-sm font-black uppercase tracking-wide text-red-700">Super Admin Cleanup</p>
+                        <p class="text-sm font-black uppercase tracking-wide text-red-700">Process & Technology Manager Cleanup</p>
                         <h2 class="mt-1 text-2xl font-black text-slate-950">Remove seeded product catalog</h2>
                         <p class="mt-2 text-sm leading-6 text-slate-700">
                             Removes {{ number_format($seededProductCount ?? 0) }} product(s) marked as seeded. For older production data created before seed tracking existed, tick the legacy option to clear all {{ number_format($productCount ?? 0) }} current product(s).

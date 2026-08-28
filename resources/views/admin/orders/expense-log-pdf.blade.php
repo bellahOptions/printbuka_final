@@ -13,6 +13,10 @@
         th { background: #f3f4f6; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
         .right { text-align: right; }
         .summary { margin-top: 16px; font-weight: 700; }
+        /* ₦ pinned to DejaVu Sans explicitly — if dompdf ever falls through to
+           a fallback font in the stack above, that font may have no glyph for
+           U+20A6 and silently substitute "?". */
+        .naira { font-family: 'DejaVu Sans', sans-serif; font-weight: inherit; font-size: inherit; }
     </style>
 </head>
 <body>
@@ -41,7 +45,7 @@
                     <td>{{ $entry->category ?? 'N/A' }}</td>
                     <td>{{ $entry->description ?? ($entry->notes ?? 'N/A') }}</td>
                     <td>{{ $entry->recorder?->displayName() ?? 'Unknown' }}</td>
-                    <td class="right">₦{{ number_format((float) $entry->amount, 2) }}</td>
+                    <td class="right"><span class="naira">₦</span>{{ number_format((float) $entry->amount, 2) }}</td>
                 </tr>
             @empty
                 <tr>
@@ -51,7 +55,7 @@
         </tbody>
     </table>
 
-    <p class="summary">Total Expenses: ₦{{ number_format((float) $expenseEntries->sum('amount'), 2) }}</p>
+    <p class="summary">Total Expenses: <span class="naira">₦</span>{{ number_format((float) $expenseEntries->sum('amount'), 2) }}</p>
     {!! $outroHtml ?? '' !!}
 </body>
 </html>

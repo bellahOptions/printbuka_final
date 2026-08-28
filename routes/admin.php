@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\AdminSiteSettingController;
 use App\Http\Controllers\Admin\AdminStaffController;
 use App\Http\Controllers\Admin\AdminStaffProfileController;
 use App\Http\Controllers\Admin\AdminStaffQueryController;
+use App\Http\Controllers\Admin\AdminStaffSpotlightController;
 use App\Http\Controllers\Admin\AdminStaffEvaluationController;
 use App\Http\Controllers\Admin\AdminPayrollController;
 use App\Http\Controllers\Admin\AdminSupportTicketController;
@@ -268,16 +269,20 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::post('/staff/{user}/kyc-review', [AdminStaffProfileController::class, 'reviewKyc'])
             ->middleware('admin.permission:staff.kyc')
             ->name('staff.kyc-review');
+        Route::post('/staff/work-mode', [AdminStaffProfileController::class, 'updateWorkMode'])
+            ->name('staff.work-mode.update');
+
+        // ===== STAFF SPOTLIGHT =====
+        // Self-service — any authenticated staff member. Loaded into the
+        // Staff Spotlight modal via fetch(), not visited as a page.
+        Route::get('/staff-spotlight', [AdminStaffSpotlightController::class, 'index'])
+            ->name('staff-spotlight.index');
 
         // ===== ATTENDANCE =====
         // Self-service — any authenticated staff member (no extra permission
         // beyond the base admin.view already required for this whole group).
         Route::get('/attendance', [AdminAttendanceController::class, 'index'])
             ->name('attendance.index');
-        Route::post('/attendance/clock-in', [AdminAttendanceController::class, 'clockIn'])
-            ->name('attendance.clock-in');
-        Route::post('/attendance/clock-out', [AdminAttendanceController::class, 'clockOut'])
-            ->name('attendance.clock-out');
 
         // Management — HR / operations manager / super admin / MD.
         Route::get('/attendance/team', [AdminAttendanceController::class, 'team'])
@@ -357,6 +362,15 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::get('/payroll/{run}', [AdminPayrollController::class, 'showRun'])
             ->middleware('admin.permission:payroll.view')
             ->name('payroll.run');
+        Route::get('/payroll/{run}/edit', [AdminPayrollController::class, 'editRun'])
+            ->middleware('admin.permission:payroll.manage')
+            ->name('payroll.edit-run');
+        Route::put('/payroll/{run}', [AdminPayrollController::class, 'updateRun'])
+            ->middleware('admin.permission:payroll.manage')
+            ->name('payroll.update-run');
+        Route::delete('/payroll/{run}', [AdminPayrollController::class, 'destroyRun'])
+            ->middleware('admin.permission:payroll.manage')
+            ->name('payroll.destroy-run');
         Route::patch('/payroll/entries/{entry}', [AdminPayrollController::class, 'updateEntry'])
             ->middleware('admin.permission:payroll.manage')
             ->name('payroll.update-entry');

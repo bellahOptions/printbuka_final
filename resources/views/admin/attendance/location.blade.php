@@ -44,7 +44,7 @@
         <div class="pb-field">
             <label class="pb-label">Geofence radius (meters)</label>
             <input type="number" min="20" max="2000" name="radius_meters" value="{{ old('radius_meters', $location->radius_meters) }}" class="pb-input" required>
-            <p class="text-xs text-slate-400 mt-1">Clock-ins outside this radius are still accepted, but flagged for review.</p>
+            <p class="text-xs text-slate-400 mt-1">Staff outside this radius cannot clock in. Clock-outs outside it are still accepted, but flagged for review.</p>
         </div>
 
         <div class="grid grid-cols-2 gap-3">

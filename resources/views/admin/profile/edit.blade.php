@@ -49,7 +49,7 @@
                     <div class="sm:col-span-2 rounded-md border border-slate-200 bg-slate-50 p-4">
                         <p class="text-xs font-black uppercase tracking-wide text-slate-500">Access Assignment</p>
                         <p class="mt-2 text-sm font-semibold text-slate-700">
-                            Role and department are assigned by the Super Admin only.
+                            Role and department are assigned by the Process & Technology Manager only.
                         </p>
                         <div class="mt-3 flex flex-wrap items-center gap-2">
                             <span class="rounded-md bg-white px-3 py-1 text-xs font-black text-slate-700">

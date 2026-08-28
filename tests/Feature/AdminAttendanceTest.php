@@ -2,12 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Admin\AttendanceClock;
 use App\Models\AttendanceRecord;
 use App\Models\StaffProfile;
 use App\Models\User;
 use App\Models\WorkLocation;
 use App\Services\AttendanceProcessingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class AdminAttendanceTest extends TestCase
@@ -46,26 +48,20 @@ class AdminAttendanceTest extends TestCase
         $staff = $this->makeStaff('office_assistant');
         $location = WorkLocation::query()->first();
 
-        $this->actingAs($staff)
-            ->withSession(['staff_2fa_verified' => true])
-            ->post(route('admin.attendance.clock-in'), [
-                'lat' => (float) $location->latitude,
-                'lng' => (float) $location->longitude,
-            ])
-            ->assertRedirect();
+        Livewire::actingAs($staff)
+            ->test(AttendanceClock::class)
+            ->call('clockIn', (float) $location->latitude, (float) $location->longitude, 10)
+            ->assertHasNoErrors();
 
         $record = AttendanceRecord::query()->where('user_id', $staff->id)->firstOrFail();
         $this->assertNotNull($record->clock_in_at);
         $this->assertTrue($record->clock_in_within_geofence);
         $this->assertNull($record->clock_out_at);
 
-        $this->actingAs($staff)
-            ->withSession(['staff_2fa_verified' => true])
-            ->post(route('admin.attendance.clock-out'), [
-                'lat' => (float) $location->latitude,
-                'lng' => (float) $location->longitude,
-            ])
-            ->assertRedirect();
+        Livewire::actingAs($staff)
+            ->test(AttendanceClock::class)
+            ->call('clockOut', (float) $location->latitude, (float) $location->longitude, 10)
+            ->assertHasNoErrors();
 
         $this->assertNotNull($record->fresh()->clock_out_at);
     }
@@ -73,51 +69,136 @@ class AdminAttendanceTest extends TestCase
     public function test_cannot_clock_in_twice_in_the_same_day(): void
     {
         $staff = $this->makeStaff('office_assistant');
+        $location = WorkLocation::query()->first();
 
-        $this->actingAs($staff)->withSession(['staff_2fa_verified' => true])
-            ->post(route('admin.attendance.clock-in'))->assertRedirect();
+        Livewire::actingAs($staff)
+            ->test(AttendanceClock::class)
+            ->call('clockIn', (float) $location->latitude, (float) $location->longitude)
+            ->assertHasNoErrors();
 
-        $this->actingAs($staff)->withSession(['staff_2fa_verified' => true])
-            ->post(route('admin.attendance.clock-in'))
-            ->assertStatus(422);
+        Livewire::actingAs($staff)
+            ->test(AttendanceClock::class)
+            ->call('clockIn', (float) $location->latitude, (float) $location->longitude)
+            ->assertHasErrors('clockIn');
     }
 
     public function test_cannot_clock_out_without_clocking_in(): void
     {
         $staff = $this->makeStaff('office_assistant');
+        $location = WorkLocation::query()->first();
 
-        $this->actingAs($staff)
-            ->withSession(['staff_2fa_verified' => true])
-            ->post(route('admin.attendance.clock-out'))
-            ->assertStatus(422);
+        Livewire::actingAs($staff)
+            ->test(AttendanceClock::class)
+            ->call('clockOut', (float) $location->latitude, (float) $location->longitude)
+            ->assertHasErrors('clockOut');
     }
 
-    public function test_clocking_in_far_from_the_office_is_flagged_but_not_blocked(): void
+    public function test_clocking_in_without_a_location_fix_is_blocked(): void
+    {
+        $staff = $this->makeStaff('office_assistant');
+
+        Livewire::actingAs($staff)
+            ->test(AttendanceClock::class)
+            ->call('clockIn')
+            ->assertHasErrors('clockIn');
+
+        $this->assertDatabaseMissing('attendance_records', ['user_id' => $staff->id]);
+    }
+
+    public function test_clocking_in_far_from_the_office_is_blocked(): void
     {
         $staff = $this->makeStaff('office_assistant');
 
         // Roughly 5km away from the seeded head-office coordinates.
-        $this->actingAs($staff)
-            ->withSession(['staff_2fa_verified' => true])
-            ->post(route('admin.attendance.clock-in'), [
-                'lat' => 6.58,
-                'lng' => 3.42,
-            ])
-            ->assertRedirect();
+        Livewire::actingAs($staff)
+            ->test(AttendanceClock::class)
+            ->call('clockIn', 6.58, 3.42)
+            ->assertHasErrors('clockIn');
+
+        $this->assertDatabaseMissing('attendance_records', ['user_id' => $staff->id]);
+    }
+
+    public function test_fully_remote_staff_can_clock_in_without_a_location_fix(): void
+    {
+        $staff = $this->makeStaff('office_assistant');
+        $staff->staffProfile()->update(['work_mode' => 'remote', 'work_mode_set_at' => now()]);
+
+        Livewire::actingAs($staff)
+            ->test(AttendanceClock::class)
+            ->call('clockIn')
+            ->assertHasNoErrors();
 
         $record = AttendanceRecord::query()->where('user_id', $staff->id)->firstOrFail();
         $this->assertNotNull($record->clock_in_at);
-        $this->assertFalse($record->clock_in_within_geofence);
-        $this->assertNotNull($record->flagged_reason);
+        $this->assertNull($record->clock_in_within_geofence);
+    }
+
+    public function test_hybrid_staff_is_not_blocked_on_a_declared_remote_day(): void
+    {
+        $staff = $this->makeStaff('office_assistant');
+        $staff->staffProfile()->update(['work_mode' => 'hybrid', 'onsite_days' => ['Mon'], 'work_mode_set_at' => now()]);
+
+        \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::parse('2026-08-25 09:00:00', 'Africa/Lagos')); // a Tuesday
+
+        Livewire::actingAs($staff)
+            ->test(AttendanceClock::class)
+            ->call('clockIn')
+            ->assertHasNoErrors();
+
+        \Illuminate\Support\Carbon::setTestNow();
+
+        $record = AttendanceRecord::query()->where('user_id', $staff->id)->firstOrFail();
+        $this->assertNotNull($record->clock_in_at);
+    }
+
+    public function test_hybrid_staff_is_still_blocked_on_a_declared_onsite_day(): void
+    {
+        $staff = $this->makeStaff('office_assistant');
+        $staff->staffProfile()->update(['work_mode' => 'hybrid', 'onsite_days' => ['Mon'], 'work_mode_set_at' => now()]);
+
+        \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::parse('2026-08-24 09:00:00', 'Africa/Lagos')); // a Monday
+
+        Livewire::actingAs($staff)
+            ->test(AttendanceClock::class)
+            ->call('clockIn')
+            ->assertHasErrors('clockIn');
+
+        \Illuminate\Support\Carbon::setTestNow();
+
+        $this->assertDatabaseMissing('attendance_records', ['user_id' => $staff->id]);
+    }
+
+    public function test_clocking_out_far_from_the_office_is_flagged_but_not_blocked(): void
+    {
+        $staff = $this->makeStaff('office_assistant');
+        $location = WorkLocation::query()->first();
+
+        Livewire::actingAs($staff)
+            ->test(AttendanceClock::class)
+            ->call('clockIn', (float) $location->latitude, (float) $location->longitude)
+            ->assertHasNoErrors();
+
+        // Roughly 5km away from the seeded head-office coordinates.
+        Livewire::actingAs($staff)
+            ->test(AttendanceClock::class)
+            ->call('clockOut', 6.58, 3.42)
+            ->assertHasNoErrors();
+
+        $record = AttendanceRecord::query()->where('user_id', $staff->id)->firstOrFail();
+        $this->assertNotNull($record->clock_out_at);
+        $this->assertFalse($record->clock_out_within_geofence);
     }
 
     public function test_hr_can_view_team_attendance_and_correct_a_record(): void
     {
         $hr = $this->makeStaff('hr');
         $staff = $this->makeStaff('office_assistant');
+        $location = WorkLocation::query()->first();
 
-        $this->actingAs($staff)->withSession(['staff_2fa_verified' => true])
-            ->post(route('admin.attendance.clock-in'))->assertRedirect();
+        Livewire::actingAs($staff)
+            ->test(AttendanceClock::class)
+            ->call('clockIn', (float) $location->latitude, (float) $location->longitude)
+            ->assertHasNoErrors();
 
         $record = AttendanceRecord::query()->where('user_id', $staff->id)->firstOrFail();
 
@@ -182,6 +263,15 @@ class AdminAttendanceTest extends TestCase
         $staff = $this->makeStaff('office_assistant');
         $absentee = $this->makeStaff('hr');
 
+        // Pin "now" to a known Monday, well past the shift cutoff — deterministic
+        // regardless of which real-world weekday the suite happens to run on.
+        // Pinned before creating the "yesterday" record below so both that
+        // record and the later lookup agree on what "yesterday" means.
+        \Illuminate\Support\Facades\App::make('config')->set('app.business_timezone', 'Africa/Lagos');
+        \App\Models\SiteSetting::query()->create(['key' => 'attendance_shift_start', 'value' => '00:00', 'group' => 'attendance']);
+        \App\Support\SiteSettings::clearCache();
+        \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::parse('2026-08-24 12:00:00', 'Africa/Lagos')); // a Monday
+
         // Yesterday: staff clocked in but never out.
         AttendanceRecord::query()->create([
             'user_id' => $staff->id,
@@ -189,16 +279,7 @@ class AdminAttendanceTest extends TestCase
             'clock_in_at' => now()->subDay()->setTime(8, 0),
         ]);
 
-        // Pin "now" to a known Monday, well past the shift cutoff — deterministic
-        // regardless of which real-world weekday the suite happens to run on.
-        \Illuminate\Support\Facades\App::make('config')->set('app.business_timezone', 'Africa/Lagos');
-        \App\Models\SiteSetting::query()->create(['key' => 'attendance_shift_start', 'value' => '00:00', 'group' => 'attendance']);
-        \App\Support\SiteSettings::clearCache();
-        \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::parse('2026-08-24 12:00:00', 'Africa/Lagos')); // a Monday
-
         $result = app(AttendanceProcessingService::class)->processDaily();
-
-        \Illuminate\Support\Carbon::setTestNow();
 
         $this->assertGreaterThanOrEqual(1, $result['absent']);
         $this->assertSame(1, $result['closed']);
@@ -213,6 +294,8 @@ class AdminAttendanceTest extends TestCase
             ->where('work_date', now()->subDay()->toDateString())
             ->firstOrFail();
         $this->assertNotNull($yesterdayRecord->clock_out_at);
+
+        \Illuminate\Support\Carbon::setTestNow();
     }
 
     public function test_no_one_is_marked_absent_on_a_sunday(): void
@@ -251,18 +334,23 @@ class AdminAttendanceTest extends TestCase
     public function test_clocking_out_after_shift_end_records_overtime(): void
     {
         $staff = $this->makeStaff('office_assistant');
+        $location = WorkLocation::query()->first();
 
         \App\Models\SiteSetting::query()->create(['key' => 'attendance_shift_end', 'value' => '20:00', 'group' => 'attendance']);
         \App\Support\SiteSettings::clearCache();
 
         \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::parse('2026-08-24 08:00:00', 'Africa/Lagos'));
-        $this->actingAs($staff)->withSession(['staff_2fa_verified' => true])
-            ->post(route('admin.attendance.clock-in'))->assertRedirect();
+        Livewire::actingAs($staff)
+            ->test(AttendanceClock::class)
+            ->call('clockIn', (float) $location->latitude, (float) $location->longitude)
+            ->assertHasNoErrors();
 
         // Clock out 45 minutes past the 8pm shift end.
         \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::parse('2026-08-24 20:45:00', 'Africa/Lagos'));
-        $this->actingAs($staff)->withSession(['staff_2fa_verified' => true])
-            ->post(route('admin.attendance.clock-out'))->assertRedirect();
+        Livewire::actingAs($staff)
+            ->test(AttendanceClock::class)
+            ->call('clockOut', (float) $location->latitude, (float) $location->longitude)
+            ->assertHasNoErrors();
 
         \Illuminate\Support\Carbon::setTestNow();
 
@@ -274,17 +362,22 @@ class AdminAttendanceTest extends TestCase
     public function test_clocking_out_before_shift_end_records_no_overtime(): void
     {
         $staff = $this->makeStaff('office_assistant');
+        $location = WorkLocation::query()->first();
 
         \App\Models\SiteSetting::query()->create(['key' => 'attendance_shift_end', 'value' => '20:00', 'group' => 'attendance']);
         \App\Support\SiteSettings::clearCache();
 
         \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::parse('2026-08-24 08:00:00', 'Africa/Lagos'));
-        $this->actingAs($staff)->withSession(['staff_2fa_verified' => true])
-            ->post(route('admin.attendance.clock-in'))->assertRedirect();
+        Livewire::actingAs($staff)
+            ->test(AttendanceClock::class)
+            ->call('clockIn', (float) $location->latitude, (float) $location->longitude)
+            ->assertHasNoErrors();
 
         \Illuminate\Support\Carbon::setTestNow(\Illuminate\Support\Carbon::parse('2026-08-24 18:00:00', 'Africa/Lagos'));
-        $this->actingAs($staff)->withSession(['staff_2fa_verified' => true])
-            ->post(route('admin.attendance.clock-out'))->assertRedirect();
+        Livewire::actingAs($staff)
+            ->test(AttendanceClock::class)
+            ->call('clockOut', (float) $location->latitude, (float) $location->longitude)
+            ->assertHasNoErrors();
 
         \Illuminate\Support\Carbon::setTestNow();
 

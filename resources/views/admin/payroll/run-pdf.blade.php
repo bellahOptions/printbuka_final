@@ -6,6 +6,10 @@
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 10px; color: #1e293b; background: #fff; }
+    /* ₦ pinned to DejaVu Sans explicitly — if dompdf ever falls through to the
+       Arial/sans-serif fallback in the stack above, that core font has no
+       glyph for U+20A6 and silently substitutes "?". */
+    .naira { font-family: 'DejaVu Sans', sans-serif; font-weight: inherit; font-size: inherit; }
     .page { padding: 28px 32px; }
 
     .header { display: table; width: 100%; border-bottom: 3px solid #0f172a; padding-bottom: 16px; margin-bottom: 16px; }
@@ -72,7 +76,7 @@
             <div class="meta-label">Total Staff</div>
             <div class="meta-value">{{ $entries->count() }}</div>
             <div class="meta-label">Total Net Payroll</div>
-            <div class="meta-value" style="color:#059669;font-size:13px;font-weight:700">&#8358;{{ number_format($totalNet, 2) }}</div>
+            <div class="meta-value" style="color:#059669;font-size:13px;font-weight:700"><span class="naira">&#8358;</span>{{ number_format($totalNet, 2) }}</div>
             @if ($run->payment_date)
                 <div class="meta-label">Payment Date</div>
                 <div class="meta-value">{{ $run->payment_date->format('M j, Y') }}</div>
@@ -104,16 +108,16 @@
                 <td>
                     <div class="staff-role">{{ $entry->staff ? ucwords(str_replace('_', ' ', $entry->staff->role)) : '—' }}</div>
                 </td>
-                <td class="right">&#8358;{{ number_format($entry->basic_salary, 2) }}</td>
+                <td class="right"><span class="naira">&#8358;</span>{{ number_format($entry->basic_salary, 2) }}</td>
                 <td class="right">
-                    &#8358;{{ number_format(
+                    <span class="naira">&#8358;</span>{{ number_format(
                         $entry->housing_allowance + $entry->transport_allowance + $entry->medical_allowance + $entry->other_allowances,
                         2
                     ) }}
                 </td>
-                <td class="right">&#8358;{{ number_format($entry->gross_salary, 2) }}</td>
-                <td class="deduct">-&#8358;{{ number_format($entry->total_deductions, 2) }}</td>
-                <td class="right" style="font-weight:700">&#8358;{{ number_format($entry->net_salary, 2) }}</td>
+                <td class="right"><span class="naira">&#8358;</span>{{ number_format($entry->gross_salary, 2) }}</td>
+                <td class="deduct">-<span class="naira">&#8358;</span>{{ number_format($entry->total_deductions, 2) }}</td>
+                <td class="right" style="font-weight:700"><span class="naira">&#8358;</span>{{ number_format($entry->net_salary, 2) }}</td>
                 <td>
                     @if ($entry->payment_method)
                         <span class="method-badge">{{ $entry->payment_method }}</span>
@@ -127,9 +131,9 @@
         <tfoot>
             <tr>
                 <td colspan="4" style="font-weight:700">TOTALS</td>
-                <td class="right">&#8358;{{ number_format($totalGross, 2) }}</td>
-                <td class="right" style="color:#fca5a5">-&#8358;{{ number_format($totalDeductions, 2) }}</td>
-                <td class="net">&#8358;{{ number_format($totalNet, 2) }}</td>
+                <td class="right"><span class="naira">&#8358;</span>{{ number_format($totalGross, 2) }}</td>
+                <td class="right" style="color:#fca5a5">-<span class="naira">&#8358;</span>{{ number_format($totalDeductions, 2) }}</td>
+                <td class="net"><span class="naira">&#8358;</span>{{ number_format($totalNet, 2) }}</td>
                 <td></td>
             </tr>
         </tfoot>

@@ -7,7 +7,7 @@
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="text-2xl font-black text-slate-950">IT Support Tickets</h1>
-            <p class="text-sm font-semibold text-slate-500">Create and track internal tickets for Super Admin / IT resolution.</p>
+            <p class="text-sm font-semibold text-slate-500">Create and track internal tickets for Process & Technology Manager / IT resolution.</p>
         </div>
         <a href="{{ route('admin.support.create') }}" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black">New Ticket</a>
     </div>

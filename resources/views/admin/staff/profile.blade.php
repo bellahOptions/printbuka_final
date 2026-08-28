@@ -88,7 +88,7 @@
         </div>
     </div>
 
-    {{-- KYC Review Panel (HR / Super Admin only) --}}
+    {{-- KYC Review Panel (HR / Process & Technology Manager only) --}}
     @if ($canManageKyc)
     <div class="rounded-2xl border {{ ($profile->kyc_status ?? 'pending') === 'approved' ? 'border-emerald-200 bg-emerald-50' : (($profile->kyc_status ?? 'pending') === 'correction_requested' ? 'border-amber-200 bg-amber-50' : 'border-slate-200 bg-white') }} p-6 shadow-sm">
         <div class="flex flex-wrap items-start justify-between gap-4 mb-5">
@@ -151,7 +151,7 @@
     </div>
     @endif
 
-    {{-- Access Restriction Panel (Super Admin only) --}}
+    {{-- Access Restriction Panel (Process & Technology Manager only) --}}
     @if(auth()->user()?->role === 'super_admin' && $staffMember->role !== 'super_admin' && !$isSelf)
         <div class="rounded-2xl border {{ $staffMember->access_restricted ? 'border-red-300 bg-red-50' : 'border-slate-200 bg-white' }} p-6 shadow-sm">
             <div class="flex flex-wrap items-start justify-between gap-4">

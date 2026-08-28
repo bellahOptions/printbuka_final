@@ -86,7 +86,7 @@ class AuthController extends Controller
                 'suspended' => 'Your staff account has been suspended. Contact Printbuka HR or management.',
                 'terminated' => 'Your staff account has been terminated and access is disabled.',
                 default => $staffOnly
-                    ? 'Your staff account is pending approval by the Super Admin.'
+                    ? 'Your staff account is pending approval by the Process & Technology Manager.'
                     : 'This account is inactive. Contact Printbuka management.',
             };
 
@@ -180,7 +180,7 @@ class AuthController extends Controller
 
         return redirect()
             ->route('staff.login')
-            ->with('status', 'Staff registration submitted. Your account remains pending until Super Admin approval, and email verification will be required at first login.');
+            ->with('status', 'Staff registration submitted. Your account remains pending until Process & Technology Manager approval, and email verification will be required at first login.');
     }
 
     public function logout(Request $request): RedirectResponse
