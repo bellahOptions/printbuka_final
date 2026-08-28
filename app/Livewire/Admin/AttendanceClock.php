@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use App\Models\AttendanceRecord;
 use App\Models\WorkLocation;
 use App\Services\CloudinaryUploadService;
+use App\Support\AttendanceCalculator;
 use App\Support\SiteSettings;
 use Carbon\Carbon;
 use Livewire\Component;
@@ -218,20 +219,12 @@ class AttendanceClock extends Component
     }
 
     /**
-     * Minutes worked past the configured shift end — documented as overtime.
      * Only counts time on the SAME calendar day as shift end (an auto-closed,
      * forgotten clock-out is never awarded overtime — see AttendanceProcessingService).
      */
     private function calculateOvertimeMinutes(Carbon $clockOutAt): int
     {
-        $settings = SiteSettings::all();
-        $shiftEnd = (string) ($settings['attendance_shift_end'] ?? '20:00');
-
-        $expectedEnd = $clockOutAt->copy()->setTimeFromTimeString($shiftEnd);
-
-        return $clockOutAt->greaterThan($expectedEnd)
-            ? (int) $expectedEnd->diffInMinutes($clockOutAt)
-            : 0;
+        return AttendanceCalculator::overtimeMinutes($clockOutAt);
     }
 
     private function storePhoto(): ?string

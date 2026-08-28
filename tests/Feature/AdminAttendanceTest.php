@@ -220,6 +220,66 @@ class AdminAttendanceTest extends TestCase
         $this->assertSame($hr->id, $record->fresh()->corrected_by_id);
     }
 
+    public function test_hr_can_manually_enter_attendance_for_a_day_the_staff_member_never_clocked_in(): void
+    {
+        $hr = $this->makeStaff('hr');
+        $staff = $this->makeStaff('office_assistant');
+        $workDate = now(config('app.business_timezone'))->toDateString();
+
+        $this->assertDatabaseMissing('attendance_records', ['user_id' => $staff->id, 'work_date' => $workDate]);
+
+        $this->actingAs($hr)
+            ->withSession(['staff_2fa_verified' => true])
+            ->post(route('admin.attendance.manual-entry', $staff), [
+                'work_date' => $workDate,
+                'clock_in_time' => '08:15',
+                'clock_out_time' => '17:00',
+                'status' => 'present',
+                'notes' => 'Phone died, could not clock in — confirmed onsite by supervisor.',
+            ])
+            ->assertRedirect();
+
+        $record = AttendanceRecord::query()->where('user_id', $staff->id)->where('work_date', $workDate)->firstOrFail();
+
+        $this->assertSame('08:15', $record->clock_in_at->format('H:i'));
+        $this->assertSame('17:00', $record->clock_out_at->format('H:i'));
+        $this->assertSame('present', $record->status);
+        $this->assertSame($hr->id, $record->corrected_by_id);
+        $this->assertNull($record->clock_in_within_geofence);
+        $this->assertNull($record->clock_in_lat);
+    }
+
+    public function test_manual_entry_rejects_clock_out_before_clock_in(): void
+    {
+        $hr = $this->makeStaff('hr');
+        $staff = $this->makeStaff('office_assistant');
+
+        $this->actingAs($hr)
+            ->withSession(['staff_2fa_verified' => true])
+            ->post(route('admin.attendance.manual-entry', $staff), [
+                'work_date' => now(config('app.business_timezone'))->toDateString(),
+                'clock_in_time' => '17:00',
+                'clock_out_time' => '08:00',
+                'status' => 'present',
+            ])
+            ->assertSessionHasErrors('clock_out_time');
+    }
+
+    public function test_staff_without_attendance_manage_permission_cannot_submit_manual_entry(): void
+    {
+        $staff = $this->makeStaff('office_assistant');
+        $colleague = $this->makeStaff('machine_operator');
+
+        $this->actingAs($staff)
+            ->withSession(['staff_2fa_verified' => true])
+            ->post(route('admin.attendance.manual-entry', $colleague), [
+                'work_date' => now(config('app.business_timezone'))->toDateString(),
+                'clock_in_time' => '08:00',
+                'status' => 'present',
+            ])
+            ->assertForbidden();
+    }
+
     public function test_staff_without_attendance_manage_permission_cannot_view_team_attendance(): void
     {
         $staff = $this->makeStaff('office_assistant');

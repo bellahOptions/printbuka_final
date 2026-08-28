@@ -302,6 +302,9 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::patch('/attendance/records/{record}', [AdminAttendanceController::class, 'correct'])
             ->middleware('admin.permission:attendance.manage')
             ->name('attendance.correct');
+        Route::post('/attendance/staff/{staff}/manual-entry', [AdminAttendanceController::class, 'manualEntry'])
+            ->middleware('admin.permission:attendance.manage')
+            ->name('attendance.manual-entry');
         Route::get('/attendance/location', [AdminAttendanceController::class, 'locationEdit'])
             ->middleware('admin.permission:attendance.manage')
             ->name('attendance.location.edit');

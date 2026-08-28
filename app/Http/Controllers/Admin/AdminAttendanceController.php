@@ -8,9 +8,13 @@ use App\Models\AttendanceRecord;
 use App\Models\SiteSetting;
 use App\Models\User;
 use App\Models\WorkLocation;
+use App\Support\AttendanceCalculator;
 use App\Support\SiteSettings;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class AdminAttendanceController extends Controller
@@ -74,6 +78,71 @@ class AdminAttendanceController extends Controller
         ]);
 
         return back()->with('status', 'Attendance record updated for '.$record->user?->displayName().'.');
+    }
+
+    /**
+     * Fallback for when a staff member genuinely couldn't clock in through
+     * the app (geofence blocked them off-site, a dead phone, forgot
+     * entirely, etc.) — a manager records the actual time worked directly.
+     * This bypasses geolocation verification entirely, so every field that
+     * would normally carry a GPS fix is left null and the record is tagged
+     * with corrected_by_id so it's visibly a manual entry, not a device punch.
+     */
+    public function manualEntry(Request $request, User $staff): RedirectResponse
+    {
+        $validated = $request->validate([
+            'work_date' => ['required', 'date', 'before_or_equal:today'],
+            'clock_in_time' => ['nullable', 'date_format:H:i'],
+            'clock_out_time' => ['nullable', 'date_format:H:i'],
+            'status' => ['required', Rule::in(['present', 'late', 'absent', 'on_leave', 'half_day'])],
+            'notes' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $timezone = config('app.business_timezone');
+        $existing = AttendanceRecord::query()
+            ->where('user_id', $staff->id)
+            ->where('work_date', $validated['work_date'])
+            ->first();
+
+        $clockInAt = $validated['clock_in_time']
+            ? Carbon::parse($validated['work_date'].' '.$validated['clock_in_time'], $timezone)
+            : $existing?->clock_in_at;
+
+        $clockOutAt = $validated['clock_out_time']
+            ? Carbon::parse($validated['work_date'].' '.$validated['clock_out_time'], $timezone)
+            : ($validated['clock_in_time'] ? null : $existing?->clock_out_at);
+
+        if ($clockOutAt && ! $clockInAt) {
+            throw ValidationException::withMessages(['clock_in_time' => 'A clock-in time is required before a clock-out time can be set.']);
+        }
+        if ($clockOutAt && $clockInAt && $clockOutAt->lessThanOrEqualTo($clockInAt)) {
+            throw ValidationException::withMessages(['clock_out_time' => 'Clock-out must be after clock-in.']);
+        }
+
+        $record = AttendanceRecord::query()->updateOrCreate(
+            ['user_id' => $staff->id, 'work_date' => $validated['work_date']],
+            [
+                'clock_in_at' => $clockInAt,
+                'clock_out_at' => $clockOutAt,
+                'clock_in_lat' => null,
+                'clock_in_lng' => null,
+                'clock_out_lat' => null,
+                'clock_out_lng' => null,
+                'clock_in_distance_meters' => null,
+                'clock_out_distance_meters' => null,
+                'clock_in_accuracy_meters' => null,
+                'clock_out_accuracy_meters' => null,
+                'clock_in_within_geofence' => null,
+                'clock_out_within_geofence' => null,
+                'overtime_minutes' => $clockOutAt ? AttendanceCalculator::overtimeMinutes($clockOutAt) : 0,
+                'status' => $validated['status'],
+                'flagged_reason' => null,
+                'notes' => $validated['notes'] ?? null,
+                'corrected_by_id' => $request->user()->id,
+            ]
+        );
+
+        return back()->with('status', 'Manual attendance entry saved for '.$staff->displayName().' on '.$record->work_date.'.');
     }
 
     public function locationEdit(): View
