@@ -24,9 +24,16 @@
                     Approve registrations, manage roles and departments, track employment status, and monitor team performance.
                 </p>
             </div>
-            <a href="{{ route('admin.dashboard') }}" class="pb-btn pb-btn-md pb-btn-outline self-start text-sm">
-                ← Dashboard
-            </a>
+            <div class="flex flex-col gap-2 self-start sm:flex-row">
+                @if($canAssignRoles)
+                    <a href="{{ route('admin.staff.roles.index') }}" class="pb-btn pb-btn-md pb-btn-primary text-sm">
+                        Manage Roles
+                    </a>
+                @endif
+                <a href="{{ route('admin.dashboard') }}" class="pb-btn pb-btn-md pb-btn-outline text-sm">
+                    ← Dashboard
+                </a>
+            </div>
         </div>
 
         @if(session('status'))
@@ -254,6 +261,16 @@
             </div>
         </div>
 
+        @if($canAssignRoles)
+            <datalist id="dept-options">
+                @foreach($departmentCounts as $dc)
+                    @if($dc->department)
+                        <option value="{{ $dc->department }}"></option>
+                    @endif
+                @endforeach
+            </datalist>
+        @endif
+
         <div class="table-scroll-container overflow-x-auto">
             <table class="pb-table pb-table--cards w-full md:min-w-[1200px]">
                 <thead>
@@ -265,7 +282,6 @@
                         <th>Employment</th>
                         <th>KYC</th>
                         <th>Approved</th>
-                        <th>Profile Photo</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -288,12 +304,36 @@
                                         <p class="text-xs text-slate-400">{{ $person->email }}</p>
                                     </div>
                                 </div>
+                                @if($canAssignRoles)
+                                    <form id="staff-role-form-{{ $person->id }}" action="{{ route('admin.staff.update', $person) }}" method="POST" class="hidden">
+                                        @csrf @method('PUT')
+                                        <input type="hidden" name="is_active" value="{{ $person->is_active ? 1 : 0 }}">
+                                    </form>
+                                @endif
                             </td>
                             <td data-label="Role">
-                                <span class="text-sm font-medium text-slate-700">{{ $roles[$person->role] ?? $person->role }}</span>
+                                @if($canAssignRoles)
+                                    <select name="role" form="staff-role-form-{{ $person->id }}" class="pb-select text-xs h-9 py-0">
+                                        @foreach($roles as $value => $label)
+                                            <option value="{{ $value }}" @selected($person->role === $value)>{{ $label }}</option>
+                                        @endforeach
+                                    </select>
+                                @else
+                                    <span class="text-sm font-medium text-slate-700">{{ $roles[$person->role] ?? $person->role }}</span>
+                                @endif
                             </td>
                             <td data-label="Department">
-                                <span class="text-sm text-slate-600">{{ $person->department ?? '—' }}</span>
+                                @if($canAssignRoles)
+                                    <input type="text" name="department" form="staff-role-form-{{ $person->id }}"
+                                           list="dept-options" value="{{ $person->department }}"
+                                           placeholder="e.g. Creative" maxlength="100"
+                                           class="pb-input text-xs h-9 py-0 w-full">
+                                    <button type="submit" form="staff-role-form-{{ $person->id }}" class="pb-btn pb-btn-sm pb-btn-outline text-[10px] mt-1.5 w-full">
+                                        Save role & dept
+                                    </button>
+                                @else
+                                    <span class="text-sm text-slate-600">{{ $person->department ?? '—' }}</span>
+                                @endif
                             </td>
                             <td data-label="Status">
                                 <span class="pb-badge {{ $person->is_active ? 'pb-badge-success' : 'pb-badge-danger' }} text-[10px]">
@@ -322,32 +362,6 @@
                             </td>
                             <td data-label="Approved">
                                 <span class="text-xs text-slate-500">{{ $person->approved_at?->format('M j, Y') ?? '—' }}</span>
-                            </td>
-                            <td data-label="Profile Photo">
-                                @if($canAssignRoles)
-                                    <form action="{{ route('admin.staff.update', $person) }}" method="POST"
-                                          enctype="multipart/form-data"
-                                          class="flex items-start gap-2">
-                                        @csrf @method('PUT')
-                                        <input type="hidden" name="role" value="{{ $person->role }}">
-                                        <input type="hidden" name="department" value="{{ $person->department }}">
-                                        <input type="hidden" name="is_active" value="{{ $person->is_active ? 1 : 0 }}">
-                                        <div class="min-w-[180px]">
-                                            <livewire:uploads.secure-image-upload
-                                                :key="'staff-photo-'.$person->id"
-                                                input-name="photo_upload_path"
-                                                directory="staff-photos"
-                                                :max-size-kb="2048"
-                                                :multiple="false"
-                                            />
-                                        </div>
-                                        <button type="submit" class="pb-btn pb-btn-sm pb-btn-primary text-xs shrink-0">
-                                            Upload
-                                        </button>
-                                    </form>
-                                @else
-                                    <span class="pb-badge pb-badge-secondary text-[10px]">Process & Technology Manager only</span>
-                                @endif
                             </td>
                             <td data-label="Actions">
                                 <div class="space-y-2 min-w-[200px]">
@@ -391,7 +405,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="py-12 text-center">
+                            <td colspan="8" class="py-12 text-center">
                                 <div class="pb-empty border-0 bg-transparent">
                                     <p class="pb-empty-title">No approved staff yet</p>
                                 </div>

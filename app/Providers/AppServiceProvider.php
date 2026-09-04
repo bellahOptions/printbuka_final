@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\ProductCategory;
 use App\Models\ShopProduct;
+use App\Support\RoleRegistry;
 use App\Support\SafeCache;
 use App\Support\SiteSettings;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -30,6 +31,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(191);
+
+        RoleRegistry::applyOverlay();
 
         VerifyEmail::createUrlUsing(function (object $notifiable): string {
             $relativeSignedUrl = URL::temporarySignedRoute(

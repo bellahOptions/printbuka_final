@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Notifications\Auth\ResetPasswordNotification;
 use App\Notifications\Auth\VerifyEmailNotification;
 use App\Support\MediaUrl;
+use App\Support\RoleRegistry;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -74,14 +75,14 @@ class User extends Authenticatable implements MustVerifyEmailContract
 
     public function canAdmin(string $permission): bool
     {
-        $permissions = (array) config('printbuka_admin.roles.'.$this->role, []);
+        $permissions = RoleRegistry::permissionsFor($this->role);
 
         return in_array('*', $permissions, true) || in_array($permission, $permissions, true);
     }
 
     public function rolePriority(): int
     {
-        return (int) config('printbuka_admin.role_priority.'.$this->role, 0);
+        return RoleRegistry::priorityFor($this->role);
     }
 
     public function displayName(): string

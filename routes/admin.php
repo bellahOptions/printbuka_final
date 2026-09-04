@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\AdminPolicyController;
 use App\Http\Controllers\Admin\AdminPriceListController;
 use App\Http\Controllers\Admin\AdminProductCategoryController;
 use App\Http\Controllers\Admin\AdminProductController;
+use App\Http\Controllers\Admin\AdminRoleController;
 use App\Http\Controllers\Admin\AdminShopOrderController;
 use App\Http\Controllers\Admin\AdminShopProductController;
 use App\Http\Controllers\Admin\AdminSiteSettingController;
@@ -259,6 +260,13 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::put('/staff/{user}', [AdminStaffController::class, 'update'])
             ->middleware('super.admin')
             ->name('staff.update');
+
+        Route::middleware('super.admin')->prefix('staff/roles')->name('staff.roles.')->group(function (): void {
+            Route::get('/', [AdminRoleController::class, 'index'])->name('index');
+            Route::post('/', [AdminRoleController::class, 'store'])->name('store');
+            Route::put('/{role}', [AdminRoleController::class, 'update'])->name('update');
+            Route::delete('/{role}', [AdminRoleController::class, 'destroy'])->name('destroy');
+        });
         Route::patch('/staff/{user}/employment-status', [AdminStaffController::class, 'updateEmploymentStatus'])
             ->middleware('admin.permission:staff.view')
             ->name('staff.employment-status');
