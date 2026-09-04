@@ -21,7 +21,7 @@ class AdminDirectCustomerMessageMail extends Mailable
     public function build(): self
     {
         return $this
-            ->from($this->senderEmail, $this->senderName)
+            ->from((string) config('mail.from.address'), $this->senderName)
             ->replyTo($this->senderEmail, $this->senderName)
             ->subject($this->subjectLine)
             ->view('mail.customers.admin-direct-message')

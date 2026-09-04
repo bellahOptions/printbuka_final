@@ -15,6 +15,7 @@ use App\Http\Middleware\VerifyTurnstile;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Routing\Exceptions\InvalidSignatureException;
 use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Http\Middleware\CheckAbilities;
 use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
@@ -56,5 +57,11 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (InvalidSignatureException $e, $request) {
+            $email = \App\Models\User::query()->find($request->route('id'))?->email;
+
+            return redirect()
+                ->route('verification.notice', ['email' => $email])
+                ->with('status', 'This verification link has expired. Please request a new one below.');
+        });
     })->create();
