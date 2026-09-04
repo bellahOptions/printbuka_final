@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\StaffAuthController;
 use App\Http\Controllers\Api\StaffDeviceController;
+use App\Http\Controllers\Api\StaffExportController;
 use App\Http\Controllers\Api\StaffNotificationController;
 use Illuminate\Support\Facades\Route;
 
@@ -41,3 +42,9 @@ Route::prefix('staff')
         Route::post('/notifications/{id}/read', [StaffNotificationController::class, 'markRead']);
         Route::delete('/notifications/{id}', [StaffNotificationController::class, 'destroy']);
     });
+
+// Migration export — scoped to a short-lived token with the 'staff-export'
+// ability only (see staff:export-token:create / staff:revoke-export-tokens).
+// Consumed by Alet's `staff:import-from-printbuka` command.
+Route::middleware(['auth:sanctum', 'abilities:staff-export'])
+    ->get('/admin/staff-export', [StaffExportController::class, 'index']);
