@@ -23,7 +23,7 @@ class RoleRegistry
 
     public static function all(): Collection
     {
-        return SafeCache::remember(
+        $roles = SafeCache::remember(
             self::CACHE_KEY,
             now()->addMinutes(self::CACHE_TTL_MINUTES),
             function (): Collection {
@@ -38,6 +38,17 @@ class RoleRegistry
                 }
             }
         );
+
+        // Guards against stale/corrupt serialized cache entries (e.g. from a
+        // renamed/moved model) that unserialize silently into a
+        // __PHP_Incomplete_Class instead of throwing.
+        if (! $roles instanceof Collection) {
+            self::clearCache();
+
+            return collect();
+        }
+
+        return $roles;
     }
 
     /**
