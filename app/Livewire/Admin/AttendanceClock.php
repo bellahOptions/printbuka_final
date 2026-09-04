@@ -61,9 +61,11 @@ class AttendanceClock extends Component
             }
 
             $distance = $location->distanceToInMeters($lat, $lng);
+            $effectiveDistance = $this->effectiveDistance($distance, $accuracyMeters);
 
-            if ($distance === null || $distance > $location->radius_meters) {
-                $this->addError('clockIn', "You're {$distance}m from {$location->name} — you need to be within {$location->radius_meters}m of the office to clock in.");
+            if ($distance === null || $effectiveDistance > $location->radius_meters) {
+                $accuracyNote = $accuracyMeters !== null ? " (device location accuracy: ±{$accuracyMeters}m)" : '';
+                $this->addError('clockIn', "You're {$distance}m from {$location->name}{$accuracyNote} — you need to be within {$location->radius_meters}m of the office to clock in.");
 
                 return;
             }
@@ -137,6 +139,7 @@ class AttendanceClock extends Component
         $distance = ($location && $lat !== null && $lng !== null)
             ? $location->distanceToInMeters($lat, $lng)
             : null;
+        $effectiveDistance = $this->effectiveDistance($distance, $accuracyMeters);
 
         $photoPath = $this->storePhoto();
         $clockOutAt = now(config('app.business_timezone'));
@@ -148,7 +151,7 @@ class AttendanceClock extends Component
             'clock_out_lng' => $lng,
             'clock_out_distance_meters' => $distance,
             'clock_out_accuracy_meters' => $accuracyMeters,
-            'clock_out_within_geofence' => $location && $distance !== null ? $distance <= $location->radius_meters : null,
+            'clock_out_within_geofence' => $location && $effectiveDistance !== null ? $effectiveDistance <= $location->radius_meters : null,
             'clock_out_photo_path' => $photoPath,
             'overtime_minutes' => $overtimeMinutes,
         ]);
@@ -193,6 +196,22 @@ class AttendanceClock extends Component
     private function isExpectedOnsiteToday(\App\Models\User $user): bool
     {
         return ($user->staffProfile?->isExpectedOnsite(now(config('app.business_timezone'))) ?? true);
+    }
+
+    /**
+     * Discounts the reported distance by the device's GPS accuracy radius —
+     * a low-confidence fix (common indoors, where phones fall back to
+     * network/WiFi positioning) can be off by hundreds of meters even when
+     * the device is physically on-site, so the true position could be
+     * anywhere within that accuracy circle.
+     */
+    private function effectiveDistance(?int $distance, ?int $accuracyMeters): ?int
+    {
+        if ($distance === null) {
+            return null;
+        }
+
+        return $accuracyMeters !== null ? max(0, $distance - $accuracyMeters) : $distance;
     }
 
     /**
