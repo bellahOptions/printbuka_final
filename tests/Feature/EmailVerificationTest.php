@@ -89,6 +89,29 @@ class EmailVerificationTest extends TestCase
         $this->assertTrue($user->fresh()->hasVerifiedEmail());
     }
 
+    public function test_real_verification_email_link_actually_verifies(): void
+    {
+        // Regression test: the notification used to sign the URL as absolute
+        // while the route validated it via `signed:relative`, so every real
+        // verification email link failed signature validation and no one
+        // could ever verify their address. Exercise the actual notification
+        // (not a hand-built signed URL) to catch that mismatch.
+        $user = User::factory()->unverified()->create([
+            'is_active' => true,
+            'role' => 'designer',
+        ]);
+
+        $mail = (new VerifyEmail)->toMail($user);
+        preg_match('/href="([^"]*email\/verify[^"]*)"/', $mail->render(), $matches);
+        $verificationUrl = html_entity_decode($matches[1] ?? '');
+
+        $this->assertNotEmpty($verificationUrl);
+
+        $this->get($verificationUrl)->assertRedirect(route('login'));
+
+        $this->assertTrue($user->fresh()->hasVerifiedEmail());
+    }
+
     public function test_guest_can_resend_verification_link_using_email(): void
     {
         Notification::fake();

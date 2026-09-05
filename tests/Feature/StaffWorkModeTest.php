@@ -66,7 +66,7 @@ class StaffWorkModeTest extends TestCase
         $this->assertSame(['Mon', 'Wed', 'Fri'], $profile->onsite_days);
     }
 
-    public function test_staff_can_change_a_previously_declared_work_mode(): void
+    public function test_staff_cannot_change_a_previously_declared_work_mode(): void
     {
         $staff = $this->makeStaff('office_assistant');
         $staff->staffProfile()->update(['work_mode' => 'onsite', 'work_mode_set_at' => now()]);
@@ -74,8 +74,37 @@ class StaffWorkModeTest extends TestCase
         $this->actingAs($staff)
             ->withSession(['staff_2fa_verified' => true])
             ->post(route('admin.staff.work-mode.update'), ['work_mode' => 'remote'])
+            ->assertRedirect()
+            ->assertSessionHas('status_error');
+
+        $this->assertSame('onsite', $staff->staffProfile()->firstOrFail()->work_mode);
+    }
+
+    public function test_super_admin_can_override_a_locked_work_mode(): void
+    {
+        $superAdmin = $this->makeStaff('super_admin');
+        $staff = $this->makeStaff('office_assistant');
+        $staff->staffProfile()->update(['work_mode' => 'onsite', 'work_mode_set_at' => now()]);
+
+        $this->actingAs($superAdmin)
+            ->withSession(['staff_2fa_verified' => true])
+            ->put(route('admin.staff.work-mode.override', $staff), ['work_mode' => 'remote'])
             ->assertRedirect();
 
         $this->assertSame('remote', $staff->staffProfile()->firstOrFail()->work_mode);
+    }
+
+    public function test_non_super_admin_cannot_override_a_locked_work_mode(): void
+    {
+        $hr = $this->makeStaff('hr');
+        $staff = $this->makeStaff('office_assistant');
+        $staff->staffProfile()->update(['work_mode' => 'onsite', 'work_mode_set_at' => now()]);
+
+        $this->actingAs($hr)
+            ->withSession(['staff_2fa_verified' => true])
+            ->put(route('admin.staff.work-mode.override', $staff), ['work_mode' => 'remote'])
+            ->assertForbidden();
+
+        $this->assertSame('onsite', $staff->staffProfile()->firstOrFail()->work_mode);
     }
 }

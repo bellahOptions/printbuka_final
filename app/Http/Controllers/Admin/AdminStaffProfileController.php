@@ -128,14 +128,19 @@ class AdminStaffProfileController extends Controller
     }
 
     /**
-     * Self-service: a staff member declares (or later updates) their own
-     * work arrangement — onsite, hybrid, or fully remote. Drives whether
-     * attendance clock-in enforces the office geofence for them.
+     * Self-service: a staff member declares their own work arrangement once
+     * — onsite, hybrid, or fully remote. Drives whether attendance clock-in
+     * enforces the office geofence for them. Locked after the first save —
+     * only Super Admin/IT can change it afterwards, via overrideWorkMode().
      */
     public function updateWorkMode(Request $request): RedirectResponse
     {
         $user = $request->user();
         abort_if(! $user || $user->role === 'customer', 404);
+
+        if ($user->staffProfile?->work_mode_set_at !== null) {
+            return back()->with('status_error', 'Your work arrangement is already set and locked. Contact the Process & Technology Manager or IT to change it.');
+        }
 
         $validated = $request->validate([
             'work_mode'      => ['required', 'string', 'in:'.implode(',', StaffProfile::WORK_MODES)],
@@ -153,6 +158,35 @@ class AdminStaffProfileController extends Controller
         );
 
         return back()->with('status', 'Work arrangement saved.');
+    }
+
+    /**
+     * Super Admin/IT override: change a staff member's work arrangement
+     * after it has been locked by their own first save.
+     */
+    public function overrideWorkMode(Request $request, User $user): RedirectResponse
+    {
+        abort_if($user->role === 'customer', 404);
+
+        $actor = $request->user();
+        abort_unless($actor?->role === 'super_admin' || $actor?->canAdmin('*'), 403);
+
+        $validated = $request->validate([
+            'work_mode'      => ['required', 'string', 'in:'.implode(',', StaffProfile::WORK_MODES)],
+            'onsite_days'    => ['required_if:work_mode,hybrid', 'array', 'min:1'],
+            'onsite_days.*'  => ['string', 'in:'.implode(',', StaffProfile::WEEKDAYS)],
+        ]);
+
+        StaffProfile::query()->updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'work_mode'       => $validated['work_mode'],
+                'onsite_days'     => $validated['work_mode'] === 'hybrid' ? array_values($validated['onsite_days']) : null,
+                'work_mode_set_at' => now(),
+            ]
+        );
+
+        return back()->with('status', 'Work arrangement updated for '.$user->displayName().'.');
     }
 
     public function markKycComplete(Request $request, User $user): RedirectResponse

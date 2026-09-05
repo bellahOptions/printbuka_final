@@ -192,6 +192,31 @@
         </div>
     @endif
 
+    {{-- Work Arrangement Override (Super Admin / IT only) --}}
+    @if(($viewer->role === 'super_admin' || $viewer->canAdmin('*')) && !$isSelf)
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-black text-slate-950">Work Arrangement</h2>
+                    <p class="text-xs text-slate-500 mt-1">
+                        Current: <strong>{{ $profile->workModeLabel() }}</strong>
+                        @if($profile->work_mode === 'hybrid')
+                            (onsite {{ $profile->onsiteDaysLabel() }})
+                        @endif
+                        @if($profile->work_mode_set_at)
+                            — locked since {{ $profile->work_mode_set_at->format('M j, Y') }}, staff can no longer change it themselves.
+                        @endif
+                    </p>
+                </div>
+            </div>
+            <form method="POST" action="{{ route('admin.staff.work-mode.override', $staffMember) }}" class="mt-4 space-y-4" data-work-mode-form>
+                @csrf @method('PUT')
+                @include('admin._partials.work-mode-fields', ['profile' => $profile])
+                <button type="submit" class="pb-btn pb-btn-outline">Save work arrangement</button>
+            </form>
+        </div>
+    @endif
+
     {{-- Bio-Data Form --}}
     <div class="rounded-2xl border {{ $kycApproved ? 'border-emerald-200' : ($kycStatus === 'correction_requested' ? 'border-amber-300' : 'border-slate-200') }} bg-white shadow-sm overflow-hidden">
 

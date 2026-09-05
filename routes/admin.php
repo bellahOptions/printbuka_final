@@ -287,6 +287,8 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
             ->name('staff.kyc-review');
         Route::post('/staff/work-mode', [AdminStaffProfileController::class, 'updateWorkMode'])
             ->name('staff.work-mode.update');
+        Route::put('/staff/{user}/work-mode', [AdminStaffProfileController::class, 'overrideWorkMode'])
+            ->name('staff.work-mode.override');
 
         // ===== STAFF SPOTLIGHT =====
         // Self-service — any authenticated staff member. Loaded into the

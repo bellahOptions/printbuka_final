@@ -21,11 +21,17 @@
                 <span class="font-normal text-slate-500">(onsite {{ $myProfile->onsiteDaysLabel() }})</span>
             @endif
         </summary>
-        <form method="POST" action="{{ route('admin.staff.work-mode.update') }}" class="mt-4 space-y-4" data-work-mode-form>
-            @csrf
-            @include('admin._partials.work-mode-fields', ['profile' => $myProfile])
-            <button type="submit" class="pb-btn pb-btn-outline w-full">Update work arrangement</button>
-        </form>
+        @if ($myProfile?->work_mode_set_at)
+            <p class="mt-4 text-xs text-slate-500">
+                Locked since {{ $myProfile->work_mode_set_at->format('M j, Y') }}. Contact the Process & Technology Manager or IT if this needs to change.
+            </p>
+        @else
+            <form method="POST" action="{{ route('admin.staff.work-mode.update') }}" class="mt-4 space-y-4" data-work-mode-form>
+                @csrf
+                @include('admin._partials.work-mode-fields', ['profile' => $myProfile])
+                <button type="submit" class="pb-btn pb-btn-outline w-full">Save work arrangement</button>
+            </form>
+        @endif
     </details>
 
 </div>
