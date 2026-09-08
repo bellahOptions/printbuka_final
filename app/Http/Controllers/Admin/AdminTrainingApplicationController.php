@@ -19,26 +19,7 @@ class AdminTrainingApplicationController extends Controller
         $skill = $request->string('skill')->toString();
         $search = $request->string('search')->toString();
 
-        $applications = Training::query()
-            ->with('decidedBy:id,first_name,last_name,email')
-            ->when($status !== '', fn ($query) => $query->where('status', $status))
-            ->when($skill !== '', fn ($query) => $query->where('desired_skill', $skill))
-            ->when($search !== '', function ($query) use ($search): void {
-                $query->where(function ($inner) use ($search): void {
-                    $inner
-                        ->where('first_name', 'like', '%'.$search.'%')
-                        ->orWhere('last_name', 'like', '%'.$search.'%')
-                        ->orWhere('email', 'like', '%'.$search.'%')
-                        ->orWhere('phone_whatsapp', 'like', '%'.$search.'%');
-                });
-            })
-            ->orderByRaw("CASE status WHEN 'pending' THEN 0 WHEN 'accepted' THEN 1 WHEN 'rejected' THEN 2 ELSE 3 END")
-            ->latest()
-            ->paginate(20)
-            ->withQueryString();
-
         return view('admin.training.index', [
-            'applications' => $applications,
             'stats' => [
                 'total' => Training::query()->count(),
                 'pending' => Training::query()->where('status', Training::STATUS_PENDING)->count(),

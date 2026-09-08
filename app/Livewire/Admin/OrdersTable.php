@@ -3,15 +3,13 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Order;
+use App\Services\OrderConclusionService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class OrdersTable extends Component
 {
-    use WithPagination;
-
     public string $search = '';
 
     public string $sortField = 'created_at';
@@ -19,6 +17,10 @@ class OrdersTable extends Component
     public string $sortDirection = 'desc';
 
     public int $perPage = 20;
+
+    public int $page = 1;
+
+    public bool $hasMore = true;
 
     /**
      * @var array<int, int>
@@ -64,7 +66,7 @@ class OrdersTable extends Component
 
     public function updatingSearch(): void
     {
-        $this->resetPage();
+        $this->page = 1;
         $this->selected = [];
     }
 
@@ -81,26 +83,35 @@ class OrdersTable extends Component
             $this->sortDirection = 'asc';
         }
 
-        $this->resetPage();
+        $this->page = 1;
     }
 
-    public function toggleSelectPageSelection(): void
+    public function loadMore(): void
     {
-        $pageIds = $this->currentPageIds();
-
-        if ($pageIds === []) {
+        if (! $this->hasMore) {
             return;
         }
 
-        $allSelected = count(array_diff($pageIds, $this->selected)) === 0;
+        $this->page++;
+    }
+
+    public function toggleSelectLoadedSelection(): void
+    {
+        $loadedIds = $this->loadedIds();
+
+        if ($loadedIds === []) {
+            return;
+        }
+
+        $allSelected = count(array_diff($loadedIds, $this->selected)) === 0;
 
         if ($allSelected) {
-            $this->selected = array_values(array_diff($this->selected, $pageIds));
+            $this->selected = array_values(array_diff($this->selected, $loadedIds));
 
             return;
         }
 
-        $this->selected = array_values(array_unique([...$this->selected, ...$pageIds]));
+        $this->selected = array_values(array_unique([...$this->selected, ...$loadedIds]));
     }
 
     public function applyBatchAction(): void
@@ -122,8 +133,9 @@ class OrdersTable extends Component
         $orders = Order::query()->whereKey($selectedIds)->get();
         $affected = 0;
         $blockedByPaymentRule = 0;
+        $alreadyConcluded = 0;
 
-        if (! in_array($this->batchAction, ['priority_urgent', 'priority_normal', 'status', 'payment_status'], true)) {
+        if (! in_array($this->batchAction, ['priority_urgent', 'priority_normal', 'status', 'payment_status', 'conclude'], true)) {
             $this->addError('batchAction', 'Choose a valid batch action.');
 
             return;
@@ -198,6 +210,25 @@ class OrdersTable extends Component
             ]);
         }
 
+        if ($this->batchAction === 'conclude') {
+            if (! OrderConclusionService::canConclude($user)) {
+                abort(403);
+            }
+
+            $conclusionService = app(OrderConclusionService::class);
+
+            foreach ($orders as $order) {
+                if ($order->is_concluded) {
+                    $alreadyConcluded++;
+
+                    continue;
+                }
+
+                $conclusionService->conclude($order, $user);
+                $affected++;
+            }
+        }
+
         $this->selected = [];
         $this->batchAction = '';
         $this->targetStatus = '';
@@ -207,19 +238,28 @@ class OrdersTable extends Component
             session()->flash('warning', $blockedByPaymentRule.' '.str('order')->plural($blockedByPaymentRule).' skipped. Phase 1 jobs require at least 70% payment before status can move forward.');
         }
 
+        if ($alreadyConcluded > 0) {
+            session()->flash('warning', $alreadyConcluded.' '.str('order')->plural($alreadyConcluded).' skipped — already concluded.');
+        }
+
         session()->flash('status', $affected.' '.str('order')->plural($affected).' updated.');
-        $this->resetPage();
+        $this->page = 1;
     }
 
     public function render(): View
     {
-        $orders = $this->tableQuery()->paginate($this->perPage);
+        $query = $this->tableQuery();
+        $totalCount = (clone $query)->count();
+        $orders = (clone $query)->limit($this->page * $this->perPage)->get();
+        $this->hasMore = $orders->count() < $totalCount;
         $user = auth()->user();
 
         return view('livewire.admin.orders-table', [
             'orders' => $orders,
+            'totalCount' => $totalCount,
             'canApproveWorkflow' => (bool) ($user?->canAdmin('workflow.approve') ?? false),
             'canManageInvoices' => (bool) ($user?->canAdmin('invoices.manage') ?? false),
+            'canConcludeJob' => OrderConclusionService::canConclude($user),
             'statusOptions' => (array) config('printbuka_admin.job_statuses', []),
             'paymentStatusOptions' => (array) config('printbuka_admin.payment_statuses', []),
         ]);
@@ -252,10 +292,10 @@ class OrdersTable extends Component
     /**
      * @return array<int, int>
      */
-    private function currentPageIds(): array
+    private function loadedIds(): array
     {
         return $this->tableQuery()
-            ->paginate($this->perPage, ['*'], $this->getPageName())
+            ->limit($this->page * $this->perPage)
             ->pluck('id')
             ->map(fn ($id): int => (int) $id)
             ->all();

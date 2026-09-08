@@ -7,11 +7,13 @@
 <body style="font-family: Arial, sans-serif; color: #111827; margin: 0; padding: 24px; background: #f8fafc;">
     <div style="max-width: 620px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,.08);">
 
-        <div style="background: linear-gradient(135deg, #be185d, #9d174d); padding: 28px 32px;">
-            <p style="margin: 0 0 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #fbcfe8;">Financial Report</p>
-            <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #ffffff;">{{ $periodLabel }} Report</h1>
-            <p style="margin: 6px 0 0; font-size: 13px; color: #fce7f3;">Generated {{ now()->format('F j, Y') }} &middot; Printbuka</p>
-        </div>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+            @include('mail.partials.header', [
+                'headerBadge' => 'FINANCIAL REPORT',
+                'headerTitle' => $periodLabel.' Report',
+                'headerSubtitle' => 'Generated '.now()->format('F j, Y').' · Printbuka',
+            ])
+        </table>
 
         <div style="padding: 28px 32px;">
             {!! $introHtml ?? '' !!}

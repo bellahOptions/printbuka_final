@@ -9,11 +9,9 @@
             <tr>
                 <td align="center">
                     <table role="presentation" width="620" cellpadding="0" cellspacing="0" style="max-width:620px;background:#ffffff;border-radius:10px;overflow:hidden;">
-                        <tr>
-                            <td style="background:#0f172a;color:#ffffff;padding:24px;">
-                                <h1 style="margin:0;font-size:24px;line-height:1.25;">{{ $statusLabel }}</h1>
-                            </td>
-                        </tr>
+                        @include('mail.partials.header', [
+                            'headerTitle' => $statusLabel,
+                        ])
                         <tr>
                             <td style="padding:26px;line-height:1.6;">
                                 {!! $introHtml ?? '' !!}

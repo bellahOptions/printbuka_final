@@ -18,22 +18,13 @@ use Illuminate\View\View;
 
 class AdminShopProductController extends Controller
 {
-    public function index(\Illuminate\Http\Request $request): View
+    public function index(Request $request): View
     {
-        $products = ShopProduct::query()
-            ->withCount('optionGroups')
-            ->when($request->input('search'), fn ($q, $s) => $q->where(function ($q) use ($s): void {
-                $q->where('name', 'like', "%{$s}%")
-                    ->orWhere('sku', 'like', "%{$s}%")
-                    ->orWhere('short_description', 'like', "%{$s}%");
-            }))
-            ->when($request->input('status') === 'active',   fn ($q) => $q->where('is_active', true))
-            ->when($request->input('status') === 'inactive', fn ($q) => $q->where('is_active', false))
-            ->when($request->input('status') === 'featured', fn ($q) => $q->where('is_featured', true))
-            ->when($request->input('stock') === 'out',       fn ($q) => $q->where('manage_stock', true)->where('stock_quantity', 0))
-            ->latest()
-            ->paginate(20)
-            ->withQueryString();
+        $filters = [
+            'search' => (string) $request->input('search', ''),
+            'status' => (string) $request->input('status', ''),
+            'stock' => (string) $request->input('stock', ''),
+        ];
 
         $stats = [
             'total'    => ShopProduct::count(),
@@ -42,7 +33,7 @@ class AdminShopProductController extends Controller
             'out_of_stock' => ShopProduct::where('manage_stock', true)->where('stock_quantity', 0)->count(),
         ];
 
-        return view('admin.shop-products.index', compact('products', 'stats'));
+        return view('admin.shop-products.index', compact('filters', 'stats'));
     }
 
     public function create(): View

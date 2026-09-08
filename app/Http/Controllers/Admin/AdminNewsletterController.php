@@ -17,11 +17,6 @@ class AdminNewsletterController extends Controller
 {
     public function index(): View
     {
-        $campaigns = NewsletterCampaign::query()
-            ->with('sender')
-            ->latest('id')
-            ->paginate(15);
-
         $audienceCount = User::query()
             ->where('role', 'customer')
             ->where('is_active', true)
@@ -29,7 +24,6 @@ class AdminNewsletterController extends Controller
             ->count();
 
         return view('admin.newsletters.index', [
-            'campaigns' => $campaigns,
             'audienceCount' => $audienceCount,
         ]);
     }

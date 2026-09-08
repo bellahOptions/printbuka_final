@@ -17,35 +17,7 @@
     @endif
 
     <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <table class="w-full">
-            <thead class="border-b border-slate-200 bg-slate-50">
-                <tr class="text-xs font-black uppercase tracking-wide text-slate-500">
-                    <th class="px-5 py-3.5 text-left">Subject</th>
-                    <th class="px-5 py-3.5 text-left">Sent</th>
-                    <th class="px-5 py-3.5 text-left">Delivery</th>
-                    <th class="px-5 py-3.5 text-left">By</th>
-                    <th class="px-5 py-3.5"></th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-                @forelse ($memos as $memo)
-                <tr class="hover:bg-slate-50/70 transition">
-                    <td class="px-5 py-4 font-black text-slate-900">{{ $memo->subject }}</td>
-                    <td class="px-5 py-4 text-sm text-slate-600">{{ $memo->sent_at?->format('M j, Y g:i A') ?? '—' }}</td>
-                    <td class="px-5 py-4 text-sm text-slate-600">{{ $memo->emails_sent }} sent{{ $memo->emails_failed > 0 ? ', '.$memo->emails_failed.' failed' : '' }} / {{ $memo->recipient_count }}</td>
-                    <td class="px-5 py-4 text-sm text-slate-600">{{ $memo->sentBy?->displayName() }}</td>
-                    <td class="px-5 py-4 text-right">
-                        <a href="{{ route('admin.memos.show', $memo) }}" class="text-sm font-black text-slate-700 hover:text-pink-600">View</a>
-                    </td>
-                </tr>
-                @empty
-                <tr><td colspan="5" class="px-5 py-12 text-center text-sm text-slate-400 font-semibold">No memos sent yet.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
-        @if ($memos->hasPages())
-        <div class="px-5 py-4 border-t border-slate-200">{{ $memos->links() }}</div>
-        @endif
+        <livewire:admin.internal-memos-table />
     </div>
 
 </div>

@@ -18,33 +18,44 @@ class AdminFinanceController extends Controller
 {
     public function index(Request $request): View
     {
+        $filters = [
+            'type' => trim((string) $request->input('type', '')),
+            'entry_type' => trim((string) $request->input('entry_type', '')),
+            'category' => trim((string) $request->input('category', '')),
+            'date_from' => trim((string) $request->input('date_from', '')),
+            'date_to' => trim((string) $request->input('date_to', '')),
+        ];
+
         $query = FinanceEntry::query()
             ->with('order', 'recorder');
 
         // Apply filters
-        if ($request->filled('type')) {
-            $query->where('type', $request->input('type'));
+        if ($filters['type'] !== '') {
+            $query->where('type', $filters['type']);
         }
-        if ($request->filled('entry_type')) {
-            $query->where('entry_type', $request->input('entry_type'));
+        if ($filters['entry_type'] !== '') {
+            $query->where('entry_type', $filters['entry_type']);
         }
-        if ($request->filled('category')) {
-            $query->where('category', 'like', '%'.$request->input('category').'%');
+        if ($filters['category'] !== '') {
+            $query->where('category', 'like', '%'.$filters['category'].'%');
         }
-        if ($request->filled('date_from')) {
-            $query->whereDate('entry_date', '>=', $request->input('date_from'));
+        if ($filters['date_from'] !== '') {
+            $query->whereDate('entry_date', '>=', $filters['date_from']);
         }
-        if ($request->filled('date_to')) {
-            $query->whereDate('entry_date', '<=', $request->input('date_to'));
+        if ($filters['date_to'] !== '') {
+            $query->whereDate('entry_date', '<=', $filters['date_to']);
         }
 
         return view('admin.finance.index', [
+            // Full filtered set (not just the currently loaded infinite-scroll
+            // batch) — the charts and summary cards below aggregate across
+            // every matching entry, not only what's visibly loaded in the table.
             'entries' => $query->orderByDesc('entry_date')
                 ->orderByDesc('created_at')
-                ->paginate(20)
-                ->withQueryString(),
+                ->get(),
             'income' => FinanceEntry::query()->where('type', 'income')->where('status', '!=', 'refunded')->sum('amount'),
             'expenses' => FinanceEntry::query()->where('type', 'expense')->sum('amount'),
+            'filters' => $filters,
         ]);
     }
 

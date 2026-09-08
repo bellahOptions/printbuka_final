@@ -18,9 +18,7 @@ class AdminMemoController extends Controller
 {
     public function index(): View
     {
-        return view('admin.memos.index', [
-            'memos' => InternalMemo::query()->with('sentBy')->latest('id')->paginate(20),
-        ]);
+        return view('admin.memos.index');
     }
 
     public function create(): View

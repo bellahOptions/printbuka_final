@@ -7,12 +7,9 @@ use App\Services\InvoiceLifecycleService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class InvoicesTable extends Component
 {
-    use WithPagination;
-
     protected $listeners = [
         'invoices-imported' => 'refreshAfterImport',
     ];
@@ -24,6 +21,10 @@ class InvoicesTable extends Component
     public string $sortDirection = 'desc';
 
     public int $perPage = 20;
+
+    public int $page = 1;
+
+    public bool $hasMore = true;
 
     /**
      * @var array<int, int>
@@ -55,7 +56,7 @@ class InvoicesTable extends Component
 
     public function updatingSearch(): void
     {
-        $this->resetPage();
+        $this->page = 1;
         $this->selected = [];
     }
 
@@ -72,26 +73,35 @@ class InvoicesTable extends Component
             $this->sortDirection = 'asc';
         }
 
-        $this->resetPage();
+        $this->page = 1;
     }
 
-    public function toggleSelectPageSelection(): void
+    public function loadMore(): void
     {
-        $pageIds = $this->currentPageIds();
-
-        if ($pageIds === []) {
+        if (! $this->hasMore) {
             return;
         }
 
-        $allSelected = count(array_diff($pageIds, $this->selected)) === 0;
+        $this->page++;
+    }
+
+    public function toggleSelectLoadedSelection(): void
+    {
+        $loadedIds = $this->loadedIds();
+
+        if ($loadedIds === []) {
+            return;
+        }
+
+        $allSelected = count(array_diff($loadedIds, $this->selected)) === 0;
 
         if ($allSelected) {
-            $this->selected = array_values(array_diff($this->selected, $pageIds));
+            $this->selected = array_values(array_diff($this->selected, $loadedIds));
 
             return;
         }
 
-        $this->selected = array_values(array_unique([...$this->selected, ...$pageIds]));
+        $this->selected = array_values(array_unique([...$this->selected, ...$loadedIds]));
     }
 
     public function applyBatchAction(): void
@@ -155,22 +165,26 @@ class InvoicesTable extends Component
         $this->batchAction = '';
 
         session()->flash('status', $affected.' '.str('invoice')->plural($affected).' updated.');
-        $this->resetPage();
+        $this->page = 1;
     }
 
     public function refreshAfterImport(): void
     {
         $this->selected = [];
         $this->batchAction = '';
-        $this->resetPage();
+        $this->page = 1;
     }
 
     public function render(): View
     {
-        $invoices = $this->tableQuery()->paginate($this->perPage);
+        $query = $this->tableQuery();
+        $totalCount = (clone $query)->count();
+        $invoices = (clone $query)->limit($this->page * $this->perPage)->get();
+        $this->hasMore = $invoices->count() < $totalCount;
 
         return view('livewire.admin.invoices-table', [
             'invoices' => $invoices,
+            'totalCount' => $totalCount,
         ]);
     }
 
@@ -202,10 +216,10 @@ class InvoicesTable extends Component
     /**
      * @return array<int, int>
      */
-    private function currentPageIds(): array
+    private function loadedIds(): array
     {
         return $this->tableQuery()
-            ->paginate($this->perPage, ['*'], $this->getPageName())
+            ->limit($this->page * $this->perPage)
             ->pluck('id')
             ->map(fn ($id): int => (int) $id)
             ->all();

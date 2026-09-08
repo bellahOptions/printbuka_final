@@ -12,18 +12,9 @@
             <tr>
                 <td align="center">
                     <table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;">
-                        <tr>
-                            <td style="background:#0f172a;padding:24px;color:#ffffff;">
-                                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                                    <tr>
-                                        <td style="vertical-align:top;">
-                                            <img src="{{ $message->embed(public_path('logo-dark.svg')) }}" alt="Printbuka" width="150" style="display:inline-block;height:auto;">
-                                        </td>
-                                        <td style="text-align:right;vertical-align:top;color:#67e8f9;font-size:11px;font-weight:700;letter-spacing:0.08em;">INTERNAL MEMO</td>
-                                    </tr>
-                                </table>
-                            </td>
-                        </tr>
+                        @include('mail.partials.header', [
+                            'headerBadge' => 'INTERNAL MEMO',
+                        ])
                         <tr>
                             <td style="padding:26px;">
                                 <p style="margin:0 0 4px;font-size:11px;font-weight:700;color:#db2777;text-transform:uppercase;letter-spacing:0.06em;">{{ $memo->subject }}</p>

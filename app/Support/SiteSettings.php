@@ -29,6 +29,7 @@ class SiteSettings
                     'announcement' => null,
                     'maintenance_mode' => '0',
                     'maintenance_message' => 'We are making a few improvements. Please check back shortly.',
+                    'otp_enabled' => '1',
                     'paper_types' => implode(PHP_EOL, config('printbuka_admin.materials', [])),
                     'paper_sizes' => implode(PHP_EOL, config('printbuka_admin.sizes', [])),
                     'finishings' => implode(PHP_EOL, config('printbuka_admin.finishes', [])),
@@ -76,6 +77,11 @@ class SiteSettings
     public static function maintenanceEnabled(): bool
     {
         return in_array(self::get('maintenance_mode', '0'), ['1', 1, true, 'true', 'on'], true);
+    }
+
+    public static function otpEnabled(): bool
+    {
+        return in_array(self::get('otp_enabled', '1'), ['1', 1, true, 'true', 'on'], true);
     }
 
     public static function clearCache(): void

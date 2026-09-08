@@ -7,12 +7,9 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class ProductsTable extends Component
 {
-    use WithPagination;
-
     public string $search = '';
 
     public string $sortField = 'created_at';
@@ -20,6 +17,10 @@ class ProductsTable extends Component
     public string $sortDirection = 'desc';
 
     public int $perPage = 20;
+
+    public int $page = 1;
+
+    public bool $hasMore = true;
 
     /**
      * @var array<int, int>
@@ -51,7 +52,7 @@ class ProductsTable extends Component
 
     public function updatingSearch(): void
     {
-        $this->resetPage();
+        $this->page = 1;
         $this->selected = [];
     }
 
@@ -68,26 +69,35 @@ class ProductsTable extends Component
             $this->sortDirection = 'asc';
         }
 
-        $this->resetPage();
+        $this->page = 1;
     }
 
-    public function toggleSelectPageSelection(): void
+    public function loadMore(): void
     {
-        $pageIds = $this->currentPageIds();
-
-        if ($pageIds === []) {
+        if (! $this->hasMore) {
             return;
         }
 
-        $allSelected = count(array_diff($pageIds, $this->selected)) === 0;
+        $this->page++;
+    }
+
+    public function toggleSelectLoadedSelection(): void
+    {
+        $loadedIds = $this->loadedIds();
+
+        if ($loadedIds === []) {
+            return;
+        }
+
+        $allSelected = count(array_diff($loadedIds, $this->selected)) === 0;
 
         if ($allSelected) {
-            $this->selected = array_values(array_diff($this->selected, $pageIds));
+            $this->selected = array_values(array_diff($this->selected, $loadedIds));
 
             return;
         }
 
-        $this->selected = array_values(array_unique([...$this->selected, ...$pageIds]));
+        $this->selected = array_values(array_unique([...$this->selected, ...$loadedIds]));
     }
 
     public function applyBatchAction(): void
@@ -146,15 +156,19 @@ class ProductsTable extends Component
         $this->batchAction = '';
 
         session()->flash('status', $affected.' '.str('product')->plural($affected).' updated.');
-        $this->resetPage();
+        $this->page = 1;
     }
 
     public function render(): View
     {
-        $products = $this->tableQuery()->paginate($this->perPage);
+        $query = $this->tableQuery();
+        $totalCount = (clone $query)->count();
+        $products = (clone $query)->limit($this->page * $this->perPage)->get();
+        $this->hasMore = $products->count() < $totalCount;
 
         return view('livewire.admin.products-table', [
             'products' => $products,
+            'totalCount' => $totalCount,
         ]);
     }
 
@@ -182,10 +196,10 @@ class ProductsTable extends Component
     /**
      * @return array<int, int>
      */
-    private function currentPageIds(): array
+    private function loadedIds(): array
     {
         return $this->tableQuery()
-            ->paginate($this->perPage, ['*'], $this->getPageName())
+            ->limit($this->page * $this->perPage)
             ->pluck('id')
             ->map(fn ($id): int => (int) $id)
             ->all();

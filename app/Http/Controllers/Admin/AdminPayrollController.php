@@ -29,7 +29,6 @@ class AdminPayrollController extends Controller
         $allRuns = PayrollRun::query();
 
         return view('admin.payroll.index', [
-            'runs'       => PayrollRun::query()->with('createdBy')->orderByDesc('payroll_year')->orderByDesc('payroll_month')->paginate(12),
             'totalRuns'  => (clone $allRuns)->count(),
             'paidRuns'   => (clone $allRuns)->where('status', 'paid')->count(),
             'draftRuns'  => (clone $allRuns)->whereIn('status', ['draft', 'finalized'])->count(),

@@ -19,24 +19,12 @@ class AdminStaffQueryController extends Controller
     {
         abort_unless(request()->user()?->canAdmin('staff.queries') || request()->user()?->canAdmin('*'), 403);
 
-        $q = StaffQuery::query()->with(['staff', 'issuedBy']);
-
-        if ($status = request('status')) {
-            $q->where('status', $status);
-        }
-        if ($type = request('type')) {
-            $q->where('query_type', $type);
-        }
-        if ($search = request('search')) {
-            $q->where(function ($sq) use ($search) {
-                $sq->where('subject', 'like', "%{$search}%")
-                    ->orWhere('query_number', 'like', "%{$search}%")
-                    ->orWhereHas('staff', fn ($u) => $u->where('first_name', 'like', "%{$search}%")->orWhere('last_name', 'like', "%{$search}%"));
-            });
-        }
-
         return view('admin.staff-queries.index', [
-            'queries' => $q->latest()->paginate(20),
+            'filters' => [
+                'status' => request('status'),
+                'type' => request('type'),
+                'search' => request('search'),
+            ],
         ]);
     }
 

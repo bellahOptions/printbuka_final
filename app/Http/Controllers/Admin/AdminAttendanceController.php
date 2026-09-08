@@ -54,10 +54,6 @@ class AdminAttendanceController extends Controller
 
         return view('admin.attendance.show', [
             'staff' => $staff,
-            'records' => AttendanceRecord::query()
-                ->where('user_id', $staff->id)
-                ->orderByDesc('work_date')
-                ->paginate(31),
             'overtimeThisMonthMinutes' => AttendanceRecord::query()
                 ->where('user_id', $staff->id)
                 ->where('work_date', 'like', $thisMonth.'%')

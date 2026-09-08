@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -27,19 +26,6 @@ class AdminStaffController extends Controller
     public function index(): View
     {
         return view('admin.staff.index', [
-            'pendingStaff' => User::query()
-                ->where('role', 'staff_pending')
-                ->orWhere(function ($query): void {
-                    $query->where('is_active', false)->whereNotNull('requested_role');
-                })
-                ->latest()
-                ->paginate(6, ['*'], 'pending_page'),
-            'staff' => User::query()
-                ->where('role', '!=', 'customer')
-                ->where('role', '!=', 'staff_pending')
-                ->with('staffProfile')
-                ->latest()
-                ->paginate(12, ['*'], 'staff_page'),
             'staffStats' => [
                 'total' => User::query()->where('role', '!=', 'customer')->count(),
                 'active' => User::query()->where('role', '!=', 'customer')->where('is_active', true)->count(),

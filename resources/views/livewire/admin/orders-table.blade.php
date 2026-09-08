@@ -32,11 +32,17 @@
                             @if ($canManageInvoices)
                                 <option value="payment_status">Set Payment Status</option>
                             @endif
+                            @if ($canConcludeJob)
+                                <option value="conclude">Conclude Job(s)</option>
+                            @endif
                         </select>
                     </label>
                     <button
                         type="button"
                         wire:click="applyBatchAction"
+                        @if ($batchAction === 'conclude')
+                            wire:confirm="Conclude the selected job(s)? This locks them from further edits, auto-settles their invoice, and emails the client and staff. This cannot be undone."
+                        @endif
                         class="h-11 rounded-md bg-slate-900 px-4 text-sm font-black text-white transition hover:bg-pink-700"
                     >
                         Apply
@@ -88,11 +94,11 @@
             <thead>
                 <tr class="border-b border-slate-200 bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
                     @php
-                        $pageIds = $orders->pluck('id')->map(fn ($id): int => (int) $id)->all();
-                        $allPageSelected = $pageIds !== [] && count(array_diff($pageIds, $selected)) === 0;
+                        $loadedIds = $orders->pluck('id')->map(fn ($id): int => (int) $id)->all();
+                        $allLoadedSelected = $loadedIds !== [] && count(array_diff($loadedIds, $selected)) === 0;
                     @endphp
                     <th class="px-4 py-4">
-                        <input type="checkbox" wire:click="toggleSelectPageSelection" class="h-4 w-4 rounded border-slate-300 text-pink-600" @checked($allPageSelected)>
+                        <input type="checkbox" wire:click="toggleSelectLoadedSelection" class="h-4 w-4 rounded border-slate-300 text-pink-600" @checked($allLoadedSelected)>
                     </th>
                     <th class="px-5 py-4">
                         <button type="button" wire:click="sortBy('job_order_number')" class="inline-flex items-center gap-1">
@@ -170,5 +176,21 @@
         </table>
     </div>
 
-    <div>{{ $orders->links() }}</div>
+    <p class="text-xs font-bold text-slate-400">
+        Showing {{ number_format($orders->count()) }} of {{ number_format($totalCount) }} {{ Str::plural('job', $totalCount) }}
+    </p>
+
+    @if ($hasMore)
+        <div class="flex flex-col items-center gap-3 py-4" wire:poll.visible="loadMore">
+            <span class="text-xs font-bold uppercase tracking-wide text-slate-400" wire:loading.remove wire:target="loadMore">
+                Loading more jobs as you scroll...
+            </span>
+            <span class="text-xs font-bold uppercase tracking-wide text-pink-600" wire:loading wire:target="loadMore">
+                Loading more jobs...
+            </span>
+            <button type="button" wire:click="loadMore" class="rounded-md border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:border-pink-400 hover:text-pink-700">
+                Load More
+            </button>
+        </div>
+    @endif
 </section>

@@ -33,44 +33,9 @@
 
         <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 class="text-xl font-black text-slate-950">Recent Campaigns</h2>
-            <div class="mt-5 overflow-x-auto rounded-xl border border-slate-100">
-                <table class="w-full min-w-[900px] text-left text-sm">
-                    <thead>
-                        <tr class="border-b border-slate-200 bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
-                            <th class="px-4 py-3">Subject</th>
-                            <th class="px-4 py-3">Sent By</th>
-                            <th class="px-4 py-3">Recipients</th>
-                            <th class="px-4 py-3">Delivered</th>
-                            <th class="px-4 py-3">Failed</th>
-                            <th class="px-4 py-3">Sent At</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @forelse ($campaigns as $campaign)
-                            <tr>
-                                <td class="px-4 py-3">
-                                    <p class="font-black text-slate-900">{{ $campaign->subject }}</p>
-                                    @if ($campaign->preheader)
-                                        <p class="text-xs font-semibold text-slate-500">{{ $campaign->preheader }}</p>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3 font-semibold text-slate-700">{{ $campaign->sender?->displayName() ?? 'System' }}</td>
-                                <td class="px-4 py-3 font-semibold text-slate-700">{{ number_format($campaign->recipient_count) }}</td>
-                                <td class="px-4 py-3 font-semibold text-emerald-700">{{ number_format($campaign->emails_sent) }}</td>
-                                <td class="px-4 py-3 font-semibold text-pink-700">{{ number_format($campaign->emails_failed) }}</td>
-                                <td class="px-4 py-3 font-semibold text-slate-600">{{ $campaign->sent_at?->format('M j, Y g:i A') ?? 'Pending' }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="px-4 py-10 text-center text-sm font-semibold text-slate-500">
-                                    No newsletter campaign has been sent yet.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+            <div class="mt-5">
+                <livewire:admin.newsletter-campaigns-table />
             </div>
-            <div class="mt-5">{{ $campaigns->links() }}</div>
         </section>
     </div>
 @endsection

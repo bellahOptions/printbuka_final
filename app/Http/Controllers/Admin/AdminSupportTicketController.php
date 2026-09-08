@@ -25,10 +25,6 @@ class AdminSupportTicketController extends Controller
                 fn ($query) => $query->where('user_id', $user->id)
             );
 
-        $tickets = (clone $baseQuery)
-            ->latest()
-            ->paginate(12);
-
         $stats = [
             'total' => (clone $baseQuery)->count(),
             'open' => (clone $baseQuery)->where('status', 'open')->count(),
@@ -36,7 +32,7 @@ class AdminSupportTicketController extends Controller
             'resolved' => (clone $baseQuery)->whereIn('status', ['resolved', 'closed'])->count(),
         ];
 
-        return view('admin.support.index', compact('tickets', 'stats'));
+        return view('admin.support.index', compact('stats'));
     }
 
     public function create(): View

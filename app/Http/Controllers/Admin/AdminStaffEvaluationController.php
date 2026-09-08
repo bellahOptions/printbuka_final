@@ -21,21 +21,13 @@ class AdminStaffEvaluationController extends Controller
             403
         );
 
-        $query = StaffEvaluation::query()->with(['staff', 'evaluatedBy']);
-
-        if ($staffId = request('staff_id')) {
-            $query->where('staff_id', $staffId);
-        }
-        if ($month = request('month')) {
-            $query->where('period_month', (int) $month);
-        }
-        if ($year = request('year')) {
-            $query->where('period_year', (int) $year);
-        }
-
         return view('admin.evaluations.index', [
-            'evaluations' => $query->orderByDesc('period_year')->orderByDesc('period_month')->paginate(24),
-            'staffList'   => User::query()->where('role', '!=', 'customer')->where('is_active', true)->orderBy('first_name')->get(),
+            'filters' => [
+                'staff_id' => request('staff_id'),
+                'month' => request('month'),
+                'year' => request('year'),
+            ],
+            'staffList' => User::query()->where('role', '!=', 'customer')->where('is_active', true)->orderBy('first_name')->get(),
         ]);
     }
 

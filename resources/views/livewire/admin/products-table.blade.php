@@ -48,11 +48,11 @@
             <thead>
                 <tr class="border-b border-slate-200 bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
                     @php
-                        $pageIds = $products->pluck('id')->map(fn ($id): int => (int) $id)->all();
-                        $allPageSelected = $pageIds !== [] && count(array_diff($pageIds, $selected)) === 0;
+                        $loadedIds = $products->pluck('id')->map(fn ($id): int => (int) $id)->all();
+                        $allLoadedSelected = $loadedIds !== [] && count(array_diff($loadedIds, $selected)) === 0;
                     @endphp
                     <th class="px-4 py-4">
-                        <input type="checkbox" wire:click="toggleSelectPageSelection" class="h-4 w-4 rounded border-slate-300 text-pink-600" @checked($allPageSelected)>
+                        <input type="checkbox" wire:click="toggleSelectLoadedSelection" class="h-4 w-4 rounded border-slate-300 text-pink-600" @checked($allLoadedSelected)>
                     </th>
                     <th class="px-5 py-4">
                         <button type="button" wire:click="sortBy('name')" class="inline-flex items-center gap-1">
@@ -117,5 +117,21 @@
         </table>
     </div>
 
-    <div>{{ $products->links() }}</div>
+    <p class="text-xs font-bold text-slate-400">
+        Showing {{ number_format($products->count()) }} of {{ number_format($totalCount) }} {{ Str::plural('product', $totalCount) }}
+    </p>
+
+    @if ($hasMore)
+        <div class="flex flex-col items-center gap-3 py-4" wire:poll.visible="loadMore">
+            <span class="text-xs font-bold uppercase tracking-wide text-slate-400" wire:loading.remove wire:target="loadMore">
+                Loading more products as you scroll...
+            </span>
+            <span class="text-xs font-bold uppercase tracking-wide text-pink-600" wire:loading wire:target="loadMore">
+                Loading more products...
+            </span>
+            <button type="button" wire:click="loadMore" class="rounded-md border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:border-pink-400 hover:text-pink-700">
+                Load More
+            </button>
+        </div>
+    @endif
 </section>

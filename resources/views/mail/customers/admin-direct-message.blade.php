@@ -10,12 +10,10 @@
         <tr>
             <td align="center">
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;">
-                    <tr>
-                        <td style="padding:20px 24px;background:#0f172a;color:#ffffff;">
-                            <p style="margin:0;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;opacity:0.8;">Direct Admin Message</p>
-                            <h1 style="margin:8px 0 0 0;font-size:24px;line-height:1.25;">Hello {{ $recipientName }}</h1>
-                        </td>
-                    </tr>
+                    @include('mail.partials.header', [
+                        'headerBadge' => 'DIRECT ADMIN MESSAGE',
+                        'headerTitle' => 'Hello '.$recipientName,
+                    ])
                     <tr>
                         <td style="padding:24px;">
                             <p style="margin:0 0 14px 0;font-size:15px;line-height:1.7;color:#334155;">You received a direct message from Printbuka administration.</p>

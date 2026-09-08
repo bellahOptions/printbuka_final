@@ -6,7 +6,6 @@
     <title>Order {{ $statusLabel }}</title>
 </head>
 @php
-    $logoUrl = asset('logo-dark.svg');
     $settings = \App\Support\SiteSettings::all();
     $siteName = trim((string) ($settings['site_name'] ?? 'Printbuka'));
 
@@ -25,26 +24,11 @@
             <td align="center">
                 <table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border-radius:10px;overflow:hidden;">
 
-                    {{-- Header --}}
-                    <tr>
-                        <td style="background:#0f172a;color:#ffffff;padding:24px;">
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                                <tr>
-                                    <td style="vertical-align:top;">
-                                        <img src="{{ $message->embed(public_path('logo-dark.svg')) }}" alt="{{ $siteName }}" width="140" style="display:inline-block;height:auto;">
-                                    </td>
-                                    <td style="text-align:right;vertical-align:middle;color:#cbd5e1;font-size:11px;text-transform:uppercase;letter-spacing:1px;">
-                                        Order Update
-                                    </td>
-                                </tr>
-                            </table>
-                            <div style="margin-top:20px;display:inline-block;background:{{ $statusColor }};color:#fff;font-size:12px;font-weight:700;padding:5px 14px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase;">
-                                {{ $statusLabel }}
-                            </div>
-                            <h1 style="margin:10px 0 0;font-size:24px;line-height:1.2;">Order {{ $statusLabel }}</h1>
-                            <p style="margin:8px 0 0;color:#94a3b8;line-height:1.5;font-size:14px;">Ref: <span style="font-family:monospace;">{{ $order->reference }}</span></p>
-                        </td>
-                    </tr>
+                    @include('mail.partials.header', [
+                        'headerBadge' => 'ORDER UPDATE',
+                        'headerTitle' => 'Order '.$statusLabel,
+                        'headerSubtitle' => 'Ref: '.$order->reference,
+                    ])
 
                     {{-- Status Progress Bar --}}
                     <tr>

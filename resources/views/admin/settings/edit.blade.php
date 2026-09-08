@@ -104,6 +104,30 @@
                     </div>
                 </div>
 
+                @if(auth()->user()->role === 'super_admin')
+                <!-- OTP Verification -->
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="p-2 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 border border-emerald-200">
+                            <svg class="w-5 h-5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-black text-slate-950">Two-Factor Verification (Email OTP)</h2>
+                            <p class="text-sm text-slate-500">Super admin only — controls sign-in verification for staff without an authenticator app</p>
+                        </div>
+                    </div>
+                    <label class="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-slate-200 px-5 py-4 transition-all duration-300 hover:border-pink-200 hover:bg-pink-50/30">
+                        <input type="checkbox" name="otp_enabled" value="1" @checked(old('otp_enabled', ($settings['otp_enabled'] ?? '1') === '1')) class="h-5 w-5 rounded border-slate-300 text-pink-600 focus:ring-pink-500">
+                        <div>
+                            <p class="text-sm font-black text-slate-900">Enable email OTP verification</p>
+                            <p class="text-xs text-slate-500 mt-0.5">When on, staff without a confirmed authenticator app are sent a one-time code by email at login instead of being forced to set one up. Staff who already use an authenticator app are unaffected either way. Turning this on or off notifies every staff/admin account by email.</p>
+                        </div>
+                    </label>
+                </div>
+                @endif
+
                 <!-- Notifications -->
                 <div>
                     <div class="flex items-center gap-3 mb-6">

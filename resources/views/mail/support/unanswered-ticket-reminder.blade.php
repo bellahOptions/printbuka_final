@@ -6,24 +6,16 @@
         <meta name="supported-color-schemes" content="light">
         <title>Unanswered Ticket Reminder</title>
     </head>
-    @php($logoUrl = asset('logo-dark.svg'))
     <body style="margin:0;background:#f8fafc;font-family:Arial,Helvetica,sans-serif;color:#0f172a;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:28px 14px;">
             <tr>
                 <td align="center">
                     <table role="presentation" width="680" cellpadding="0" cellspacing="0" style="max-width:680px;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e2e8f0;">
-                        <tr>
-                            <td style="background:#0f172a;padding:22px 24px;color:#ffffff;">
-                                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                                    <tr>
-                                        <td style="vertical-align:top;"><img src="{{ $message->embed(public_path('logo-dark.svg')) }}" alt="Printbuka" width="150" style="display:inline-block;height:auto;"></td>
-                                        <td style="text-align:right;vertical-align:top;color:#cbd5e1;font-size:11px;font-weight:700;letter-spacing:0.06em;">SUPPORT REMINDER</td>
-                                    </tr>
-                                </table>
-                                <h1 style="margin:14px 0 0;font-size:25px;line-height:1.2;">Unanswered Support Tickets</h1>
-                                <p style="margin:10px 0 0;color:#cbd5e1;line-height:1.6;font-size:14px;">{{ $tickets->count() }} ticket(s) have been awaiting response for at least {{ $thresholdHours }} hour(s).</p>
-                            </td>
-                        </tr>
+                        @include('mail.partials.header', [
+                            'headerBadge' => 'SUPPORT REMINDER',
+                            'headerTitle' => 'Unanswered Support Tickets',
+                            'headerSubtitle' => $tickets->count().' ticket(s) have been awaiting response for at least '.$thresholdHours.' hour(s).',
+                        ])
                         <tr>
                             <td style="padding:24px;">
                                 {!! $introHtml ?? '' !!}

@@ -14,7 +14,6 @@ class AdminAdvertisementController extends Controller
     public function index(): View
     {
         return view('admin.advertisements.index', [
-            'advertisements' => Advertisement::query()->latest()->paginate(15),
             'placements' => Advertisement::placements(),
         ]);
     }

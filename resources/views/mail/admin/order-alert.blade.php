@@ -10,7 +10,6 @@
     $siteName  = trim((string) ($settings['site_name'] ?? 'Printbuka'));
     $isShop    = $alertType === 'shop_order';
     $accentBg  = $isShop ? '#0f172a' : '#1e1b4b';
-    $tagBg     = $isShop ? '#3b82f6' : '#7c3aed';
     $tagLabel  = $isShop ? 'SHOP ORDER' : 'QUOTE REQUEST';
     $adminUrl  = $isShop
         ? route('admin.shop-orders.show', $order)
@@ -22,25 +21,11 @@
         <td align="center">
             <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);">
 
-                {{-- Header --}}
-                <tr>
-                    <td style="background:{{ $accentBg }};padding:24px 28px;">
-                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                            <tr>
-                                <td>
-                                    <img src="{{ $message->embed(public_path('logo-dark.svg')) }}" alt="{{ $siteName }}" width="130" style="display:block;height:auto;">
-                                </td>
-                                <td align="right">
-                                    <span style="background:{{ $tagBg }};color:#fff;font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;letter-spacing:1px;">{{ $tagLabel }}</span>
-                                </td>
-                            </tr>
-                        </table>
-                        <h1 style="margin:18px 0 4px;font-size:22px;color:#ffffff;line-height:1.2;">
-                            {{ $isShop ? 'New shop order received' : 'New quote request received' }}
-                        </h1>
-                        <p style="margin:0;color:#94a3b8;font-size:13px;">Hi {{ $recipient->first_name ?? $recipient->displayName() }}, action may be required.</p>
-                    </td>
-                </tr>
+                @include('mail.partials.header', [
+                    'headerBadge' => $tagLabel,
+                    'headerTitle' => $isShop ? 'New shop order received' : 'New quote request received',
+                    'headerSubtitle' => 'Hi '.($recipient->first_name ?? $recipient->displayName()).', action may be required.',
+                ])
 
                 {{-- Reference Banner --}}
                 <tr>

@@ -24,7 +24,7 @@
                         </div>
                         <h1 class="text-3xl font-black lg:text-4xl">{{ $category->name }}</h1>
                         <p class="mt-2 max-w-2xl text-sm text-slate-300">{{ $category->description }}</p>
-                        <p class="mt-4 text-sm text-slate-400">{{ $products->total() }} products available</p>
+                        <p class="mt-4 text-sm text-slate-400">{{ $activeProductCount }} products available</p>
                     </div>
                     @if($category->imageUrl())
                         <img src="{{ $category->imageUrl() }}" alt="{{ $category->name }}" class="h-32 w-32 rounded-2xl object-cover shadow-lg" />
@@ -33,47 +33,7 @@
             </div>
         </div>
 
-        @if($products->isNotEmpty())
-            <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                @foreach($products as $product)
-                    <article class="group rounded-2xl border border-slate-100 bg-white shadow-md transition hover:-translate-y-1 hover:shadow-xl">
-                        <figure class="h-48 overflow-hidden rounded-t-2xl">
-                            <a href="{{ route('products.show', $product) }}">
-                                <img src="{{ $product->featuredImageUrl() ?? asset('img/product-placeholder.svg') }}"
-                                     alt="{{ $product->name }}"
-                                     class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                                     onerror="this.onerror=null;this.src='{{ asset('img/product-placeholder.svg') }}';" />
-                            </a>
-                        </figure>
-                        <div class="p-5">
-                            <h3 class="text-base font-bold text-slate-900">
-                                <a href="{{ route('products.show', $product) }}" class="hover:text-pink-600 transition">{{ $product->name }}</a>
-                            </h3>
-                            <p class="mt-2 line-clamp-2 text-sm text-slate-500">{{ $product->short_description }}</p>
-                            <div class="mt-3">
-                                <p class="text-xs font-bold text-slate-400">{{ $product->hasAvailablePrice() ? 'starting at' : 'pricing' }}</p>
-                                <p class="text-xl font-black text-pink-600">{{ $product->hasAvailablePrice() ? 'â‚¦'.number_format((float) $product->price, 0) : 'Contact us' }}</p>
-                            </div>
-                            <div class="mt-4 grid grid-cols-2 gap-2">
-                                <a href="{{ route('products.show', $product) }}" class="btn btn-sm btn-outline border-slate-200 hover:border-pink-400 hover:text-pink-700">View</a>
-                                <a href="{{ $product->hasAvailablePrice() ? route('orders.create', $product) : route('products.show', $product) }}" class="btn btn-sm border-0 bg-pink-600 text-white hover:bg-pink-700">{{ $product->hasAvailablePrice() ? 'Order' : 'View' }}</a>
-                            </div>
-                        </div>
-                    </article>
-                @endforeach
-            </div>
-
-            <div class="mt-10">
-                {{ $products->links() }}
-            </div>
-        @else
-            <div class="py-20 text-center">
-                <p class="font-medium text-slate-500">No active products in this category yet.</p>
-                <a href="{{ route('products.index') }}" class="mt-4 inline-flex rounded-lg border border-slate-200 px-4 py-2 text-sm font-black text-slate-700 hover:border-pink-400 hover:text-pink-700">
-                    Browse all products
-                </a>
-            </div>
-        @endif
+        <livewire:product.infinite-catalog :filters="['category' => $category->slug]" />
     </div>
 </main>
 @endsection

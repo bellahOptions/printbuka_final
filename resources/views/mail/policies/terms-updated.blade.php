@@ -9,12 +9,10 @@
         <tr>
             <td align="center">
                 <table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border-radius:8px;overflow:hidden;">
-                    <tr>
-                        <td style="background:#0f172a;color:#ffffff;padding:28px;">
-                            <h1 style="margin:0;font-size:28px;">Terms & Conditions Updated</h1>
-                            <p style="margin:12px 0 0;color:#cbd5e1;">Please review the latest terms for using Printbuka services.</p>
-                        </td>
-                    </tr>
+                    @include('mail.partials.header', [
+                        'headerTitle' => 'Terms & Conditions Updated',
+                        'headerSubtitle' => 'Please review the latest terms for using Printbuka services.',
+                    ])
                     <tr>
                         <td style="padding:28px;">
                             {!! $introHtml ?? '' !!}

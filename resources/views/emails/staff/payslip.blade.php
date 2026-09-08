@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><title>Payslip</title>
-<style>body{font-family:Arial,sans-serif;background:#f1f5f9;margin:0;padding:30px 0}.container{max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08)}.header{background:linear-gradient(135deg,#0f172a,#1e293b);padding:32px;text-align:center}.header h1{color:#fff;font-size:20px;margin:0}.header p{color:#94a3b8;font-size:12px;margin:6px 0 0}.body{padding:32px}.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:14px}.row .label{color:#64748b}.row .value{font-weight:600;color:#0f172a}.total-row{display:flex;justify-content:space-between;padding:12px 0;font-size:16px;font-weight:700;border-top:2px solid #0f172a;margin-top:8px}.footer{padding:20px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:12px;color:#94a3b8;text-align:center}</style>
+<style>body{font-family:Arial,sans-serif;background:#f1f5f9;margin:0;padding:30px 0}.container{max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08)}.body{padding:32px}.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:14px}.row .label{color:#64748b}.row .value{font-weight:600;color:#0f172a}.total-row{display:flex;justify-content:space-between;padding:12px 0;font-size:16px;font-weight:700;border-top:2px solid #0f172a;margin-top:8px}.footer{padding:20px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:12px;color:#94a3b8;text-align:center}</style>
 </head>
 <body>
 <div class="container">
-    <div class="header">
-        <h1>Printbuka Payslip</h1>
-        <p>{{ $entry->payrollRun?->periodLabel() }}</p>
-    </div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        @include('mail.partials.header', [
+            'headerTitle' => 'Printbuka Payslip',
+            'headerSubtitle' => $entry->payrollRun?->periodLabel(),
+        ])
+    </table>
     <div class="body">
         {!! $introHtml ?? '' !!}
         <p style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px">{{ $entry->staff?->displayName() }}</p>

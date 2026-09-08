@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invoice;
-use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -14,14 +12,6 @@ class UserInvoiceController extends Controller
     public function index(): View
     {
         $user = Auth::user();
-
-        $invoices = Invoice::query()
-            ->whereHas('order', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })
-            ->with('order.product')
-            ->latest('issued_at')
-            ->paginate(10);
 
         // Calculate statistics
         $totalInvoices = Invoice::whereHas('order', function ($query) use ($user) {
@@ -43,7 +33,6 @@ class UserInvoiceController extends Controller
           ->count();
 
         return view('user-invoice.index', [
-            'invoices' => $invoices,
             'totalInvoices' => $totalInvoices,
             'pendingAmount' => $pendingAmount,
             'paidAmount' => $paidAmount,

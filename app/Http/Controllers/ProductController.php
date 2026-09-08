@@ -81,23 +81,22 @@ class ProductController extends Controller
     {
         abort_if(! $category->is_active, 404);
 
-        $categoryIds = SafeCache::remember("products:category:{$category->id}:visible-child-ids:v1", now()->addMinutes(5), function () use ($category): array {
-            return $category->children()
+        $activeProductCount = SafeCache::remember("products:category:{$category->id}:active-count:v1", now()->addMinutes(5), function () use ($category): int {
+            $categoryIds = $category->children()
                 ->where('is_active', true)
                 ->pluck('id')
                 ->push($category->id)
                 ->all();
-        });
 
-        $products = Product::query()
-            ->whereIn('product_category_id', $categoryIds)
-            ->where('is_active', true)
-            ->latest()
-            ->paginate(12);
+            return Product::query()
+                ->whereIn('product_category_id', $categoryIds)
+                ->where('is_active', true)
+                ->count();
+        });
 
         return view('categories.show', [
             'category' => $category,
-            'products' => $products,
+            'activeProductCount' => $activeProductCount,
         ]);
     }
 

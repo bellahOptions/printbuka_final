@@ -17,30 +17,9 @@ class AdminCustomerController extends Controller
     {
         $search = trim((string) $request->input('search', ''));
 
-        $customers = User::query()
-            ->where('role', 'customer')
-            ->when($search !== '', function ($query) use ($search): void {
-                $query->where(function ($innerQuery) use ($search): void {
-                    $innerQuery
-                        ->where('first_name', 'like', '%'.$search.'%')
-                        ->orWhere('last_name', 'like', '%'.$search.'%')
-                        ->orWhere('email', 'like', '%'.$search.'%')
-                        ->orWhere('phone', 'like', '%'.$search.'%')
-                        ->orWhere('companyName', 'like', '%'.$search.'%');
-                });
-            })
-            ->withCount('orders')
-            ->withCount([
-                'orders as invoices_count' => fn ($query) => $query->whereHas('invoice'),
-            ])
-            ->withSum('orders as total_paid', 'amount_paid')
-            ->latest()
-            ->paginate(20)
-            ->withQueryString();
-
         return view('admin.customers.index', [
-            'customers' => $customers,
             'search' => $search,
+            'filters' => ['search' => $search],
         ]);
     }
 

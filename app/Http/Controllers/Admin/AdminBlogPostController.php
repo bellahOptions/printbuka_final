@@ -19,7 +19,9 @@ class AdminBlogPostController extends Controller
     public function index(): View
     {
         return view('admin.blog.index', [
-            'posts' => BlogPost::query()->with('author')->latest()->paginate(20),
+            'total' => BlogPost::query()->count(),
+            'published' => BlogPost::query()->where('status', 'published')->count(),
+            'drafts' => BlogPost::query()->where('status', 'draft')->count(),
         ]);
     }
 

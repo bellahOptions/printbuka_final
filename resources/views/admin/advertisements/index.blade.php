@@ -72,29 +72,9 @@
 
             <section class="rounded-md border border-slate-200 bg-white p-6 shadow-sm">
                 <h2 class="text-2xl font-black text-slate-950">Active library</h2>
-                <div class="mt-5 space-y-3">
-                    @forelse ($advertisements as $ad)
-                        <article class="rounded-md border border-slate-200 p-4">
-                            <div class="flex items-start justify-between gap-4">
-                                <div>
-                                    <p class="font-black text-slate-950">{{ $ad->title }}</p>
-                                    <p class="mt-1 text-xs font-black uppercase tracking-wide text-slate-500">{{ $placements[$ad->placement] ?? $ad->placement }} · {{ $ad->is_active ? 'Active' : 'Inactive' }}</p>
-                                    @if ($ad->body)
-                                        <p class="mt-2 text-sm font-semibold text-slate-700">{{ $ad->body }}</p>
-                                    @endif
-                                </div>
-                                <form action="{{ route('admin.advertisements.destroy', $ad) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="rounded-md border border-slate-200 px-3 py-2 text-xs font-black text-slate-600 transition hover:border-pink-300 hover:text-pink-700">Delete</button>
-                                </form>
-                            </div>
-                        </article>
-                    @empty
-                        <p class="rounded-md border border-dashed border-slate-300 p-5 text-sm font-semibold text-slate-500">No ads created yet.</p>
-                    @endforelse
+                <div class="mt-5">
+                    <livewire:admin.advertisements-list />
                 </div>
-                <div class="mt-5">{{ $advertisements->links() }}</div>
             </section>
         </div>
     </div>

@@ -19,18 +19,11 @@ class AdminShopOrderController extends Controller
 
     public function index(Request $request): View
     {
-        $orders = ShopOrder::query()
-            ->withCount('items')
-            ->when($request->input('status'), fn ($q, $s) => $q->where('fulfillment_status', $s))
-            ->when($request->input('payment'), fn ($q, $p) => $q->where('payment_status', $p))
-            ->when($request->input('search'), fn ($q, $s) => $q->where(function ($q) use ($s): void {
-                $q->where('reference', 'like', "%{$s}%")
-                    ->orWhere('customer_name', 'like', "%{$s}%")
-                    ->orWhere('customer_email', 'like', "%{$s}%");
-            }))
-            ->latest()
-            ->paginate(25)
-            ->withQueryString();
+        $filters = [
+            'search' => (string) $request->input('search', ''),
+            'status' => (string) $request->input('status', ''),
+            'payment' => (string) $request->input('payment', ''),
+        ];
 
         $stats = [
             'total'          => ShopOrder::count(),
@@ -41,7 +34,7 @@ class AdminShopOrderController extends Controller
             'paid'           => ShopOrder::where('payment_status', 'paid')->count(),
         ];
 
-        return view('admin.shop-orders.index', compact('orders', 'stats'));
+        return view('admin.shop-orders.index', compact('filters', 'stats'));
     }
 
     public function show(ShopOrder $shopOrder): View

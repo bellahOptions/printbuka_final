@@ -6,7 +6,6 @@
     <title>Order confirmed</title>
 </head>
 @php
-    $logoUrl = asset('logo-dark.svg');
     $settings = \App\Support\SiteSettings::all();
     $siteName = trim((string) ($settings['site_name'] ?? 'Printbuka'));
 @endphp
@@ -15,23 +14,11 @@
         <tr>
             <td align="center">
                 <table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border-radius:10px;overflow:hidden;">
-                    {{-- Header --}}
-                    <tr>
-                        <td style="background:#0f172a;color:#ffffff;padding:24px;">
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                                <tr>
-                                    <td style="vertical-align:top;">
-                                        <img src="{{ $message->embed(public_path('logo-dark.svg')) }}" alt="{{ $siteName }}" width="140" style="display:inline-block;height:auto;">
-                                    </td>
-                                    <td style="text-align:right;vertical-align:middle;color:#cbd5e1;font-size:11px;text-transform:uppercase;letter-spacing:1px;">
-                                        Order Confirmed
-                                    </td>
-                                </tr>
-                            </table>
-                            <h1 style="margin:20px 0 0;font-size:26px;line-height:1.2;">Payment Successful!</h1>
-                            <p style="margin:8px 0 0;color:#94a3b8;line-height:1.5;">Thank you for your order. We're getting it ready!</p>
-                        </td>
-                    </tr>
+                    @include('mail.partials.header', [
+                        'headerBadge' => 'ORDER CONFIRMED',
+                        'headerTitle' => 'Payment Successful!',
+                        'headerSubtitle' => "Thank you for your order. We're getting it ready!",
+                    ])
 
                     {{-- Body --}}
                     <tr>

@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><title>KYC Review</title>
-<style>body{font-family:Arial,sans-serif;background:#f1f5f9;margin:0;padding:30px 0}.container{max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08)}.header-approved{background:linear-gradient(135deg,#064e3b,#065f46);padding:32px;text-align:center}.header-correction{background:linear-gradient(135deg,#78350f,#92400e);padding:32px;text-align:center}.header h1{color:#fff;font-size:20px;margin:0}.header p{color:rgba(255,255,255,.75);font-size:13px;margin:8px 0 0}.body{padding:32px}.notes-box{background:#fff7ed;border-left:4px solid #f59e0b;padding:14px 16px;border-radius:0 8px 8px 0;margin-top:16px}.notes-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#92400e;margin-bottom:6px}.notes-text{font-size:14px;color:#451a03;line-height:1.6}.footer{padding:20px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:12px;color:#94a3b8;text-align:center}</style>
+<style>body{font-family:Arial,sans-serif;background:#f1f5f9;margin:0;padding:30px 0}.container{max-width:560px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08)}.body{padding:32px}.notes-box{background:#fff7ed;border-left:4px solid #f59e0b;padding:14px 16px;border-radius:0 8px 8px 0;margin-top:16px}.notes-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#92400e;margin-bottom:6px}.notes-text{font-size:14px;color:#451a03;line-height:1.6}.footer{padding:20px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:12px;color:#94a3b8;text-align:center}</style>
 </head>
 <body>
 <div class="container">
-    @if ($status === 'approved')
-        <div class="header header-approved">
-            <h1>KYC Approved ✓</h1>
-            <p>Your bio-data has been verified and approved</p>
-        </div>
-    @else
-        <div class="header header-correction">
-            <h1>Correction Required</h1>
-            <p>Your bio-data needs to be updated</p>
-        </div>
-    @endif
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        @if ($status === 'approved')
+            @include('mail.partials.header', [
+                'headerTitle' => 'KYC Approved',
+                'headerSubtitle' => 'Your bio-data has been verified and approved',
+            ])
+        @else
+            @include('mail.partials.header', [
+                'headerTitle' => 'Correction Required',
+                'headerSubtitle' => 'Your bio-data needs to be updated',
+            ])
+        @endif
+    </table>
 
     <div class="body">
         {!! $introHtml ?? '' !!}

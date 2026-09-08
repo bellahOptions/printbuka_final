@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Complete Your Bio-Data Form</title>
-<style>body{font-family:Arial,sans-serif;background:#f1f5f9;margin:0;padding:30px 0}.container{max-width:580px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08)}.header{background:linear-gradient(135deg,#0f172a,#1e293b);padding:36px 32px;text-align:center}.header h1{color:#fff;font-size:22px;margin:0}.header p{color:#94a3b8;font-size:13px;margin:8px 0 0}.body{padding:32px}.greeting{font-size:16px;color:#0f172a;font-weight:600;margin-bottom:16px}.message{font-size:14px;color:#475569;line-height:1.7;margin-bottom:24px}.btn{display:inline-block;background:#db2777;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px}.highlight{background:#fdf2f8;border-left:4px solid #db2777;padding:16px;border-radius:6px;margin:20px 0;font-size:13px;color:#831843}.footer{padding:20px 32px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:12px;color:#94a3b8;text-align:center}</style>
+<style>body{font-family:Arial,sans-serif;background:#f1f5f9;margin:0;padding:30px 0}.container{max-width:580px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08)}.body{padding:32px}.greeting{font-size:16px;color:#0f172a;font-weight:600;margin-bottom:16px}.message{font-size:14px;color:#475569;line-height:1.7;margin-bottom:24px}.btn{display:inline-block;background:#db2777;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px}.highlight{background:#fdf2f8;border-left:4px solid #db2777;padding:16px;border-radius:6px;margin:20px 0;font-size:13px;color:#831843}.footer{padding:20px 32px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:12px;color:#94a3b8;text-align:center}</style>
 </head>
 <body>
 <div class="container">
-    <div class="header">
-        <h1>Printbuka</h1>
-        <p>Staff HR Portal</p>
-    </div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+        @include('mail.partials.header', [
+            'headerTitle' => 'Printbuka',
+            'headerSubtitle' => 'Staff HR Portal',
+        ])
+    </table>
     <div class="body">
         {!! $introHtml ?? '' !!}
         <p class="greeting">Hello {{ $staff->displayName() }},</p>

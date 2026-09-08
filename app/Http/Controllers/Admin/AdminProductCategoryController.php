@@ -14,13 +14,7 @@ class AdminProductCategoryController extends Controller
 {
     public function index(): View
     {
-        return view('admin.product-categories.index', [
-            'categories' => ProductCategory::query()
-                ->with('parent')
-                ->withCount('products')
-                ->latest()
-                ->paginate(20),
-        ]);
+        return view('admin.product-categories.index');
     }
 
     public function create(): View

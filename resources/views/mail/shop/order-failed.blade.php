@@ -6,7 +6,6 @@
     <title>Payment unsuccessful</title>
 </head>
 @php
-    $logoUrl = asset('logo-dark.svg');
     $settings = \App\Support\SiteSettings::all();
     $siteName = trim((string) ($settings['site_name'] ?? 'Printbuka'));
     $phone    = trim((string) ($settings['contact_phone'] ?? ''));
@@ -17,23 +16,11 @@
         <tr>
             <td align="center">
                 <table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border-radius:10px;overflow:hidden;">
-                    {{-- Header --}}
-                    <tr>
-                        <td style="background:#7f1d1d;color:#ffffff;padding:24px;">
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                                <tr>
-                                    <td style="vertical-align:top;">
-                                        <img src="{{ $message->embed(public_path('logo-dark.svg')) }}" alt="{{ $siteName }}" width="140" style="display:inline-block;height:auto;">
-                                    </td>
-                                    <td style="text-align:right;vertical-align:middle;color:#fca5a5;font-size:11px;text-transform:uppercase;letter-spacing:1px;">
-                                        Payment Failed
-                                    </td>
-                                </tr>
-                            </table>
-                            <h1 style="margin:20px 0 0;font-size:26px;line-height:1.2;">Payment Unsuccessful</h1>
-                            <p style="margin:8px 0 0;color:#fca5a5;line-height:1.5;">Unfortunately your payment could not be processed.</p>
-                        </td>
-                    </tr>
+                    @include('mail.partials.header', [
+                        'headerBadge' => 'PAYMENT FAILED',
+                        'headerTitle' => 'Payment Unsuccessful',
+                        'headerSubtitle' => 'Unfortunately your payment could not be processed.',
+                    ])
 
                     {{-- Body --}}
                     <tr>

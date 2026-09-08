@@ -5,56 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\BlogPost;
 use App\Support\SafeCache;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
 use Illuminate\View\View;
 
 class BlogController extends Controller
 {
     public function index(): View
     {
-        $perPage = 9;
-        $page = Paginator::resolveCurrentPage('page');
-
-        $cachedPage = SafeCache::remember("blog:index:v1:page:{$page}:per-page:{$perPage}", now()->addMinutes(5), function () use ($page, $perPage): array {
-            $baseQuery = $this->publishedPostsQuery();
-
-            return [
-                'total' => (clone $baseQuery)->count(),
-                'ids' => (clone $baseQuery)
-                    ->forPage($page, $perPage)
-                    ->pluck('id')
-                    ->all(),
-            ];
-        });
-
-        $postIds = (array) ($cachedPage['ids'] ?? []);
-        $posts = $postIds === []
-            ? collect()
-            : BlogPost::query()
-                ->whereIn('id', $postIds)
-                ->get()
-                ->sortBy(function (BlogPost $post) use ($postIds): int {
-                    $index = array_search($post->id, $postIds, true);
-
-                    return is_int($index) ? $index : PHP_INT_MAX;
-                })
-                ->values();
-
-        $paginator = new LengthAwarePaginator(
-            $posts,
-            (int) ($cachedPage['total'] ?? 0),
-            $perPage,
-            $page,
-            [
-                'path' => Paginator::resolveCurrentPath(),
-                'pageName' => 'page',
-            ]
-        );
-
-        return view('blog.index', [
-            'posts' => $paginator,
-        ]);
+        return view('blog.index');
     }
 
     public function show(BlogPost $post): View

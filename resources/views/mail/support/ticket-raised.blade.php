@@ -7,7 +7,6 @@
         <title>New Support Ticket</title>
     </head>
     @php
-        $logoUrl = asset('logo-dark.svg');
         $ticketUrl = route('admin.support.show', $ticket);
     @endphp
     <body style="margin:0;background:#f8fafc;font-family:Arial,Helvetica,sans-serif;color:#0f172a;">
@@ -15,20 +14,11 @@
             <tr>
                 <td align="center">
                     <table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e2e8f0;">
-                        <tr>
-                            <td style="background:#0f172a;padding:22px 24px;color:#ffffff;">
-                                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                                    <tr>
-                                        <td style="vertical-align:top;">
-                                            <img src="{{ $message->embed(public_path('logo-dark.svg')) }}" alt="Printbuka" width="150" style="display:inline-block;height:auto;">
-                                        </td>
-                                        <td style="text-align:right;vertical-align:top;color:#cbd5e1;font-size:11px;font-weight:700;letter-spacing:0.06em;">SUPPORT ALERT</td>
-                                    </tr>
-                                </table>
-                                <h1 style="margin:14px 0 0;font-size:26px;line-height:1.2;">New Support Ticket Raised</h1>
-                                <p style="margin:10px 0 0;color:#cbd5e1;line-height:1.6;font-size:14px;">Ticket {{ $ticket->ticket_number }} needs attention from the admin team.</p>
-                            </td>
-                        </tr>
+                        @include('mail.partials.header', [
+                            'headerBadge' => 'SUPPORT ALERT',
+                            'headerTitle' => 'New Support Ticket Raised',
+                            'headerSubtitle' => 'Ticket '.$ticket->ticket_number.' needs attention from the admin team.',
+                        ])
                         <tr>
                             <td style="padding:24px;">
                                 {!! $introHtml ?? '' !!}

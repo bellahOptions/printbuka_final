@@ -5,17 +5,10 @@
         <meta name="color-scheme" content="light">
         <meta name="supported-color-schemes" content="light">
         <title>{{ $invoice->invoice_number }}</title>
-        <style>
-            .logo-dark {
-                display: none !important;
-            }
-        </style>
     </head>
     @php
         $documentType = $invoice->documentTypeLabel();
         $documentTypeLower = strtolower($documentType);
-        $lightLogoUrl = asset('logo-dark.svg');
-        $darkLogoUrl = asset('logo.svg');
         $settings = \App\Support\SiteSettings::all();
         $companyAccountName = trim((string) ($settings['company_account_name'] ?? ''));
         $companyAccountNumber = trim((string) ($settings['company_account_number'] ?? ''));
@@ -28,23 +21,11 @@
             <tr>
                 <td align="center">
                     <table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border-radius:10px;overflow:hidden;" class="email-card">
-                        <tr>
-                            <td style="background:#0f172a;color:#ffffff;padding:24px;">
-                                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                                    <tr>
-                                        <td style="vertical-align:top;">
-                                            <img src="{{ $lightLogoUrl }}" alt="Printbuka" width="154" style="display:inline-block;height:auto;" class="logo-light">
-                                            <img src="{{ $darkLogoUrl }}" alt="Printbuka dark" width="154" style="display:none;height:auto;" class="logo-dark">
-                                        </td>
-                                        <td style="text-align:right;vertical-align:top;color:#cbd5e1;font-size:12px;">
-                                            {{ strtoupper($documentType) }}
-                                        </td>
-                                    </tr>
-                                </table>
-                                <h1 style="margin:16px 0 0;font-size:28px;line-height:1.2;">Your Printbuka {{ $documentTypeLower }} is ready</h1>
-                                <p style="margin:10px 0 0;color:#cbd5e1;line-height:1.5;">{{ $documentType }} {{ $invoice->invoice_number }} for order {{ $invoice->order->job_order_number ?? $invoice->order->displayNumber() }} is attached as a PDF.</p>
-                            </td>
-                        </tr>
+                        @include('mail.partials.header', [
+                            'headerBadge' => $documentType,
+                            'headerTitle' => 'Your Printbuka '.$documentTypeLower.' is ready',
+                            'headerSubtitle' => $documentType.' '.$invoice->invoice_number.' for order '.($invoice->order->job_order_number ?? $invoice->order->displayNumber()).' is attached as a PDF.',
+                        ])
                         <tr>
                             <td class="email-content" style="padding:26px;">
                                 {!! $introHtml ?? '' !!}

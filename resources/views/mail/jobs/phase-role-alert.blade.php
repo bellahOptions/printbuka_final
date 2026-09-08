@@ -7,7 +7,6 @@
         <title>Phase Alert</title>
     </head>
     @php
-        $logoUrl = asset('logo-dark.svg');
         $phaseName = (string) ($phase['phase'] ?? 'Workflow Update');
         $phaseOwner = (string) ($phase['responsible'] ?? 'Assigned team');
         $phaseGates = collect((array) ($phase['gates'] ?? []))
@@ -21,22 +20,11 @@
             <tr>
                 <td align="center">
                     <table role="presentation" width="640" cellpadding="0" cellspacing="0" style="max-width:640px;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e2e8f0;">
-                        <tr>
-                            <td style="background:#0f172a;padding:22px 24px;color:#ffffff;">
-                                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-                                    <tr>
-                                        <td style="vertical-align:top;">
-                                            <img src="{{ $message->embed(public_path('logo-dark.svg')) }}" alt="Printbuka" width="150" style="display:inline-block;height:auto;">
-                                        </td>
-                                        <td style="text-align:right;vertical-align:top;color:#cbd5e1;font-size:11px;font-weight:700;letter-spacing:0.06em;">
-                                            PHASE NOTIFICATION
-                                        </td>
-                                    </tr>
-                                </table>
-                                <h1 style="margin:14px 0 0;font-size:26px;line-height:1.2;">A Job Has Entered Your Phase</h1>
-                                <p style="margin:10px 0 0;color:#cbd5e1;line-height:1.6;font-size:14px;">Order {{ $order->job_order_number ?? $order->displayNumber() }} is now in <strong style="color:#fbcfe8;">{{ $phaseName }}</strong>.</p>
-                            </td>
-                        </tr>
+                        @include('mail.partials.header', [
+                            'headerBadge' => 'PHASE NOTIFICATION',
+                            'headerTitle' => 'A Job Has Entered Your Phase',
+                            'headerSubtitle' => 'Order '.($order->job_order_number ?? $order->displayNumber()).' is now in '.$phaseName.'.',
+                        ])
                         <tr>
                             <td style="padding:24px;">
                                 {!! $introHtml ?? '' !!}

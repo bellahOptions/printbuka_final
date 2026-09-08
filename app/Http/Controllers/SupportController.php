@@ -17,19 +17,15 @@ class SupportController extends Controller
     public function index(): View
     {
         $user = Auth::user();
-        
-        $tickets = Ticket::where('user_id', $user->id)
-            ->latest()
-            ->paginate(10);
-        
+
         $stats = [
             'total' => Ticket::where('user_id', $user->id)->count(),
             'open' => Ticket::where('user_id', $user->id)->where('status', 'open')->count(),
             'in_progress' => Ticket::where('user_id', $user->id)->where('status', 'in_progress')->count(),
             'resolved' => Ticket::where('user_id', $user->id)->where('status', 'resolved')->count(),
         ];
-        
-        return view('support.index', compact('tickets', 'stats'));
+
+        return view('support.index', compact('stats'));
     }
 
     public function create(): View
