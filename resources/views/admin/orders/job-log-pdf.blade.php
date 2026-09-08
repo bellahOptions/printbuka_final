@@ -14,7 +14,7 @@
                 line-height: 1.5;
             }
             /* ₦ pinned to DejaVu Sans — Helvetica Neue lacks this glyph */
-            .naira { font-family: 'DejaVu Sans', sans-serif; font-weight: inherit; }
+            .naira { font-family: 'DejaVu Sans', sans-serif; font-weight: bold; }
             .brand-header {
                 display: flex;
                 align-items: center;

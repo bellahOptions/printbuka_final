@@ -9,7 +9,7 @@
     /* ₦ pinned to DejaVu Sans explicitly — if dompdf ever falls through to the
        Arial/sans-serif fallback in the stack above, that core font has no
        glyph for U+20A6 and silently substitutes "?". */
-    .naira { font-family: 'DejaVu Sans', sans-serif; font-weight: inherit; font-size: inherit; }
+    .naira { font-family: 'DejaVu Sans', sans-serif; font-weight: bold; font-size: inherit; }
     .page { padding: 28px 32px; }
 
     .header { display: table; width: 100%; border-bottom: 3px solid #0f172a; padding-bottom: 16px; margin-bottom: 16px; }

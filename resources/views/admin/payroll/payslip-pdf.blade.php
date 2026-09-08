@@ -10,7 +10,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: "Raleway", sans-serif; font-size: 11px; color: #1e293b; background: #fff; }
     /* ₦ pinned to DejaVu Sans — Raleway lacks this glyph */
-    .naira { font-family: 'DejaVu Sans', sans-serif; font-weight: inherit; }
+    .naira { font-family: 'DejaVu Sans', sans-serif; font-weight: bold; }
     .page { padding: 30px 35px; }
     .header { border-bottom: 3px solid #0f172a; padding-bottom: 18px; margin-bottom: 18px; display: table; width: 100%; }
     .header-left { display: table-cell; vertical-align: top; width: 60%; }

@@ -140,7 +140,7 @@
                 line-height: 1.35;
             }
             /* ₦ pinned to DejaVu Sans — the embedded Open Sans glyph set lacks it */
-            .naira { font-family: 'DejaVu Sans', sans-serif; font-weight: inherit; font-size: inherit; }
+            .naira { font-family: 'DejaVu Sans', sans-serif; font-weight: bold; font-size: inherit; }
 
             .wrap {
                 width: 100%;

@@ -6,7 +6,7 @@
         <style>
             body { margin: 0; padding: 24px; font-family: Arial, sans-serif; color: #1f2937; }
             /* ₦ pinned to DejaVu Sans — Arial lacks this glyph */
-            .naira { font-family: 'DejaVu Sans', sans-serif; font-weight: inherit; font-size: inherit; }
+            .naira { font-family: 'DejaVu Sans', sans-serif; font-weight: bold; font-size: inherit; }
             .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
             .title { font-size: 24px; font-weight: 800; margin: 0; }
             .meta { text-align: right; }
