@@ -168,6 +168,18 @@
                         {{ number_format($staffStats['active']) }} active employees — manage roles, photos, and employment status.
                     </p>
                 </div>
+                @if($canSendKycReminders)
+                    <form action="{{ route('admin.staff.kyc-reminders') }}" method="POST"
+                          onsubmit="return confirm('Send a KYC bio-data reminder email to all {{ $staffStats['kycPending'] }} staff whose KYC has not been submitted or approved yet?')">
+                        @csrf
+                        <button type="submit" class="pb-btn pb-btn-md pb-btn-outline text-sm" @disabled($staffStats['kycPending'] === 0)>
+                            Send KYC Reminders
+                            @if($staffStats['kycPending'] > 0)
+                                <span class="pb-badge pb-badge-warning ml-1 text-[10px]">{{ number_format($staffStats['kycPending']) }}</span>
+                            @endif
+                        </button>
+                    </form>
+                @endif
             </div>
         </div>
 

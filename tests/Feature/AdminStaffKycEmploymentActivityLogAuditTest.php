@@ -432,4 +432,79 @@ class AdminStaffKycEmploymentActivityLogAuditTest extends TestCase
         $response->assertSee('Viewed payroll');
         $response->assertDontSee('Approved KYC for Jane Doe');
     }
+
+    public function test_terminated_staff_do_not_appear_in_staff_directory(): void
+    {
+        $superAdmin = $this->makeStaff('super_admin');
+        $activeStaff = $this->makeStaff('designer', ['first_name' => 'Active', 'last_name' => 'Designer']);
+        $terminatedStaff = $this->makeStaff('designer', [
+            'first_name' => 'Gone',
+            'last_name' => 'Employee',
+            'employment_status' => 'terminated',
+            'is_active' => false,
+        ]);
+
+        $response = $this->actingAs($superAdmin)
+            ->withSession(['staff_2fa_verified' => true])
+            ->get(route('admin.staff.index'));
+
+        $response->assertOk();
+        $response->assertSee($activeStaff->displayName());
+        $response->assertDontSee($terminatedStaff->displayName());
+    }
+
+    public function test_super_admin_can_send_kyc_reminders_to_staff_without_approved_kyc(): void
+    {
+        Mail::fake();
+
+        $superAdmin = $this->makeStaff('super_admin');
+
+        $needsReminder = User::factory()->create([
+            'role' => 'designer',
+            'is_active' => true,
+            'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
+        ]);
+        StaffProfile::query()->create(['user_id' => $needsReminder->id, 'kyc_status' => 'pending']);
+
+        $noProfileYet = User::factory()->create([
+            'role' => 'designer',
+            'is_active' => true,
+            'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
+        ]);
+        // No StaffProfile row at all — counts as "not submitted".
+
+        $alreadyApproved = $this->makeStaff('designer');
+
+        $terminatedNeedsReminder = User::factory()->create([
+            'role' => 'designer',
+            'is_active' => false,
+            'employment_status' => 'terminated',
+            'email_verified_at' => now(),
+            'two_factor_confirmed_at' => now(),
+        ]);
+        StaffProfile::query()->create(['user_id' => $terminatedNeedsReminder->id, 'kyc_status' => 'pending']);
+
+        $this->actingAs($superAdmin)
+            ->withSession(['staff_2fa_verified' => true])
+            ->post(route('admin.staff.kyc-reminders'))
+            ->assertRedirect()
+            ->assertSessionHas('status', '2 KYC reminders sent.');
+
+        Mail::assertQueued(\App\Mail\StaffKycReminderMail::class, fn ($mail) => $mail->hasTo($needsReminder->email));
+        Mail::assertQueued(\App\Mail\StaffKycReminderMail::class, fn ($mail) => $mail->hasTo($noProfileYet->email));
+        Mail::assertNotQueued(\App\Mail\StaffKycReminderMail::class, fn ($mail) => $mail->hasTo($alreadyApproved->email));
+        Mail::assertNotQueued(\App\Mail\StaffKycReminderMail::class, fn ($mail) => $mail->hasTo($terminatedNeedsReminder->email));
+    }
+
+    public function test_non_super_admin_cannot_send_kyc_reminders(): void
+    {
+        $hr = $this->makeStaff('hr');
+
+        $this->actingAs($hr)
+            ->withSession(['staff_2fa_verified' => true])
+            ->post(route('admin.staff.kyc-reminders'))
+            ->assertForbidden();
+    }
 }

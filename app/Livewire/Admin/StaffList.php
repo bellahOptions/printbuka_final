@@ -68,6 +68,7 @@ class StaffList extends Component
         return User::query()
             ->where('role', '!=', 'customer')
             ->where('role', '!=', 'staff_pending')
+            ->where('employment_status', '!=', 'terminated')
             ->with('staffProfile')
             ->latest();
     }

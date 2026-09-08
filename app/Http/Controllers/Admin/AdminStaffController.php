@@ -11,6 +11,7 @@ use App\Services\CloudinaryUploadService;
 use App\Support\CloudinaryUrl;
 use App\Services\ImportantActionNotifier;
 use App\Support\LivewireSecureUploads;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -31,6 +32,7 @@ class AdminStaffController extends Controller
                 'active' => User::query()->where('role', '!=', 'customer')->where('is_active', true)->count(),
                 'pending' => User::query()->where('role', 'staff_pending')->orWhere(fn ($query) => $query->where('is_active', false)->whereNotNull('requested_role'))->count(),
                 'inactive' => User::query()->where('role', '!=', 'customer')->where('is_active', false)->count(),
+                'kycPending' => $this->kycPendingQuery()->count(),
             ],
             'roleCounts' => User::query()
                 ->where('role', '!=', 'customer')
@@ -48,7 +50,47 @@ class AdminStaffController extends Controller
             'canAssignRoles' => request()->user()?->role === 'super_admin',
             'canManageEmployment' => in_array(request()->user()?->role, ['super_admin', 'hr'], true),
             'canManageKyc' => request()->user()?->canAdmin('staff.kyc') || request()->user()?->canAdmin('*'),
+            'canSendKycReminders' => request()->user()?->role === 'super_admin',
         ]);
+    }
+
+    public function sendKycReminders(Request $request): RedirectResponse
+    {
+        abort_unless(($request->user()?->role ?? null) === 'super_admin', 403);
+
+        $staff = $this->kycPendingQuery()->get()->filter(fn (User $member): bool => filled($member->email));
+
+        $sent = 0;
+
+        foreach ($staff as $member) {
+            try {
+                Mail::to((string) $member->email)->queue(new StaffKycReminderMail($member));
+                $sent++;
+            } catch (\Throwable $exception) {
+                Log::error('Staff KYC reminder email failed.', [
+                    'staff_id' => $member->id,
+                    'staff_email' => $member->email,
+                    'message' => $exception->getMessage(),
+                ]);
+            }
+        }
+
+        return back()->with('status', $sent.' KYC reminder'.($sent === 1 ? '' : 's').' sent.');
+    }
+
+    /**
+     * Staff (excluding customers, still-pending registrations, and terminated
+     * staff) whose KYC bio-data form has not been submitted or not yet
+     * approved — i.e. no StaffProfile, or one with kyc_status other than
+     * 'approved'.
+     */
+    private function kycPendingQuery(): Builder
+    {
+        return User::query()
+            ->where('role', '!=', 'customer')
+            ->where('role', '!=', 'staff_pending')
+            ->where('employment_status', '!=', 'terminated')
+            ->whereDoesntHave('staffProfile', fn ($query) => $query->where('kyc_status', 'approved'));
     }
 
     public function update(Request $request, User $user): RedirectResponse

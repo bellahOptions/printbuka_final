@@ -248,6 +248,9 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::get('/staff', [AdminStaffController::class, 'index'])
             ->middleware('admin.permission:staff.view')
             ->name('staff.index');
+        Route::post('/staff/kyc-reminders', [AdminStaffController::class, 'sendKycReminders'])
+            ->middleware('super.admin')
+            ->name('staff.kyc-reminders');
         Route::get('/training-applications', [AdminTrainingApplicationController::class, 'index'])
             ->middleware('admin.permission:training.manage')
             ->name('training.index');
