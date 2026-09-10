@@ -293,6 +293,8 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
             ->name('staff.work-mode.update');
         Route::put('/staff/{user}/work-mode', [AdminStaffProfileController::class, 'overrideWorkMode'])
             ->name('staff.work-mode.override');
+        Route::put('/staff/{user}/permission-overrides', [AdminStaffProfileController::class, 'updatePermissionOverrides'])
+            ->name('staff.permission-overrides.update');
 
         // ===== STAFF SPOTLIGHT =====
         // Self-service — any authenticated staff member. Loaded into the

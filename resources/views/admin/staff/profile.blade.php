@@ -217,6 +217,52 @@
         </div>
     @endif
 
+    {{-- Extra Permissions (Super Admin only) --}}
+    @if(($viewer->role === 'super_admin' || $viewer->canAdmin('*')) && !$isSelf)
+        @php($roleHasWildcard = in_array('*', $rolePermissions, true))
+        @php($currentOverrides = $staffMember->extraPermissions())
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="mb-4">
+                <h2 class="text-lg font-black text-slate-950">Extra Permissions</h2>
+                <p class="text-xs text-slate-500 mt-1">
+                    Grant {{ $staffMember->displayName() }} access to specific features beyond what their
+                    <strong>{{ ucwords(str_replace('_', ' ', $staffMember->role)) }}</strong> role normally allows —
+                    without changing the role for everyone else who shares it.
+                </p>
+            </div>
+
+            @if($roleHasWildcard)
+                <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm font-semibold text-emerald-800">
+                    This role already has full access (*) — no extra grants are needed.
+                </div>
+            @else
+                <form method="POST" action="{{ route('admin.staff.permission-overrides.update', $staffMember) }}" class="space-y-4">
+                    @csrf @method('PUT')
+                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        @foreach($permissionGroups as $group => $permissions)
+                            <fieldset class="rounded-lg border border-slate-200 p-3">
+                                <legend class="px-1 text-xs font-semibold uppercase tracking-wide text-slate-500">{{ $group }}</legend>
+                                <div class="space-y-1.5 mt-1">
+                                    @foreach($permissions as $value => $description)
+                                        @php($grantedByRole = in_array($value, $rolePermissions, true))
+                                        <label class="flex items-start gap-2 text-xs {{ $grantedByRole ? 'text-slate-400' : 'text-slate-700 cursor-pointer' }}">
+                                            <input type="checkbox" name="permission_overrides[]" value="{{ $value }}"
+                                                   class="mt-0.5 h-3.5 w-3.5 rounded border-slate-300 text-violet-600 focus:ring-violet-500"
+                                                   @checked($grantedByRole || in_array($value, $currentOverrides, true))
+                                                   @disabled($grantedByRole)>
+                                            <span>{{ $description }}<span class="block text-slate-400">{{ $value }}{{ $grantedByRole ? ' — already included in role' : '' }}</span></span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </fieldset>
+                        @endforeach
+                    </div>
+                    <button type="submit" class="pb-btn pb-btn-outline">Save extra permissions</button>
+                </form>
+            @endif
+        </div>
+    @endif
+
     {{-- Bio-Data Form --}}
     <div class="rounded-2xl border {{ $kycApproved ? 'border-emerald-200' : ($kycStatus === 'correction_requested' ? 'border-amber-300' : 'border-slate-200') }} bg-white shadow-sm overflow-hidden">
 

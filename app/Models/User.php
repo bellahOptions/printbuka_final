@@ -17,7 +17,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['first_name', 'last_name', 'phone', 'companyName', 'email', 'password', 'google_id', 'avatar', 'email_verified_at', 'role', 'department', 'requested_role', 'other_role', 'address', 'date_of_birth', 'photo', 'approved_by_id', 'approved_at', 'is_active', 'employment_status', 'employment_status_reason', 'employment_status_changed_at', 'employment_status_changed_by_id', 'two_factor_secret', 'two_factor_recovery_codes', 'two_factor_confirmed_at', 'access_restricted', 'access_restricted_reason', 'access_restricted_by_id', 'access_restricted_at'])]
+#[Fillable(['first_name', 'last_name', 'phone', 'companyName', 'email', 'password', 'google_id', 'avatar', 'email_verified_at', 'role', 'department', 'requested_role', 'other_role', 'address', 'date_of_birth', 'photo', 'approved_by_id', 'approved_at', 'is_active', 'employment_status', 'employment_status_reason', 'employment_status_changed_at', 'employment_status_changed_by_id', 'two_factor_secret', 'two_factor_recovery_codes', 'two_factor_confirmed_at', 'access_restricted', 'access_restricted_reason', 'access_restricted_by_id', 'access_restricted_at', 'permission_overrides'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmailContract
 {
@@ -41,6 +41,7 @@ class User extends Authenticatable implements MustVerifyEmailContract
             'approved_at'                    => 'datetime',
             'employment_status_changed_at'   => 'datetime',
             'two_factor_confirmed_at'        => 'datetime',
+            'permission_overrides'           => 'array',
         ];
     }
 
@@ -77,7 +78,22 @@ class User extends Authenticatable implements MustVerifyEmailContract
     {
         $permissions = RoleRegistry::permissionsFor($this->role);
 
-        return in_array('*', $permissions, true) || in_array($permission, $permissions, true);
+        if (in_array('*', $permissions, true) || in_array($permission, $permissions, true)) {
+            return true;
+        }
+
+        return in_array($permission, $this->extraPermissions(), true);
+    }
+
+    /**
+     * Permission strings granted to this individual staff member on top of
+     * their role — set by Super Admin from the staff profile page.
+     *
+     * @return list<string>
+     */
+    public function extraPermissions(): array
+    {
+        return array_values((array) ($this->permission_overrides ?? []));
     }
 
     public function rolePriority(): int

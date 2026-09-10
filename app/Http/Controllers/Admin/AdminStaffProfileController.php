@@ -9,11 +9,14 @@ use App\Models\User;
 use App\Services\CloudinaryUploadService;
 use App\Support\CloudinaryUrl;
 use App\Support\LivewireSecureUploads;
+use App\Support\PermissionCatalog;
+use App\Support\RoleRegistry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -38,6 +41,8 @@ class AdminStaffProfileController extends Controller
             'evaluations' => $user->staffEvaluations()->with('evaluatedBy')->latest('period_year')->latest('period_month')->get(),
             'latestSalary' => $user->salaryStructures()->where('is_active', true)->latest('effective_date')->first(),
             'payslips'    => $user->payrollEntries()->with('payrollRun')->latest()->take(12)->get(),
+            'permissionGroups' => PermissionCatalog::grouped(),
+            'rolePermissions' => RoleRegistry::permissionsFor($user->role),
         ]);
     }
 
@@ -187,6 +192,30 @@ class AdminStaffProfileController extends Controller
         );
 
         return back()->with('status', 'Work arrangement updated for '.$user->displayName().'.');
+    }
+
+    /**
+     * Super Admin only: grant this specific staff member extra permission
+     * strings on top of whatever their role already gives them, without
+     * changing the role's permissions for everyone else who shares it.
+     */
+    public function updatePermissionOverrides(Request $request, User $user): RedirectResponse
+    {
+        abort_if($user->role === 'customer', 404);
+
+        $actor = $request->user();
+        abort_unless($actor?->role === 'super_admin' || $actor?->canAdmin('*'), 403);
+
+        $validated = $request->validate([
+            'permission_overrides'   => ['nullable', 'array'],
+            'permission_overrides.*' => [Rule::in(PermissionCatalog::all())],
+        ]);
+
+        $user->forceFill([
+            'permission_overrides' => array_values($validated['permission_overrides'] ?? []),
+        ])->save();
+
+        return back()->with('status', 'Extra permissions updated for '.$user->displayName().'.');
     }
 
     public function markKycComplete(Request $request, User $user): RedirectResponse
