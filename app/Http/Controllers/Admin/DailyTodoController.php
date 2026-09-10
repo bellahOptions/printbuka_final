@@ -207,6 +207,7 @@ $validated = $request->validate([
                     'priority'    => $todo->priority ?? '',
                     'due_date'    => $todo->due_date?->toDateString() ?? '',
                     'assigned_by' => $assigner->displayName(),
+                    'action_url'  => route('admin.tasks.index'),
                 ],
             ));
         } catch (\Throwable $e) {
@@ -239,6 +240,7 @@ $validated = $request->validate([
                     'rating'      => $rating,
                     'reviewed_by' => $reviewer->displayName(),
                     'comments'    => $todo->review_comments ?? '',
+                    'action_url'  => route('admin.tasks.index'),
                 ],
             ));
         } catch (\Throwable $e) {

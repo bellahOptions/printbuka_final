@@ -576,6 +576,8 @@ class AdminOrderController extends Controller
             'phase_approved_at' => null,
         ])->save();
 
+        $jobWorkflowNotificationService->notifyApprovalRequested($order->fresh(['product']), $user, $nextStatus);
+
         return back()->with('status', 'Move-forward request submitted. Operations manager approval is required.');
     }
 

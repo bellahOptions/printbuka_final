@@ -26,7 +26,16 @@
                             <p class="text-xs font-semibold text-slate-500">{{ $log->user?->email ?? 'No email' }}</p>
                             <p class="text-xs font-semibold text-slate-500">{{ config('printbuka_admin.role_labels.'.$log->role, $log->role) }}</p>
                         </td>
-                        <td class="px-5 py-4 font-semibold text-slate-800">{{ $log->action }}</td>
+                        <td class="px-5 py-4">
+                            @if ($log->description)
+                                <p class="font-bold text-slate-900">
+                                    {{ $log->user?->displayName() ?? 'Someone' }} {{ $log->description }}
+                                </p>
+                                <p class="mt-0.5 text-xs font-semibold text-slate-400">{{ $log->action }}</p>
+                            @else
+                                <p class="font-semibold text-slate-800">{{ $log->action }}</p>
+                            @endif
+                        </td>
                         <td class="px-5 py-4 text-xs font-semibold text-slate-600">{{ $log->route_name ?? 'n/a' }}</td>
                         <td class="px-5 py-4">
                             <span class="inline-flex rounded-full px-2 py-1 text-xs font-black {{ $log->method === 'DELETE' ? 'bg-red-100 text-red-700' : ($log->method === 'POST' || $log->method === 'PUT' || $log->method === 'PATCH' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700') }}">

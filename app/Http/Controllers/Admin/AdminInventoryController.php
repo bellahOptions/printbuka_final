@@ -8,6 +8,7 @@ use App\Models\InventoryStockMovement;
 use App\Models\User;
 use App\Services\CloudinaryUploadService;
 use App\Support\CloudinaryUrl;
+use App\Support\ExecutiveAlert;
 use App\Support\LivewireSecureUploads;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -109,6 +110,14 @@ class AdminInventoryController extends Controller
                 'created_by' => $request->user()->id,
             ]);
         }
+
+        ExecutiveAlert::send(
+            title: 'New Inventory Item',
+            body: $request->user()->displayName().' added "'.$item->name.'" to inventory.',
+            type: 'inventory_created',
+            data: ['item_id' => $item->id, 'action_url' => route('admin.inventory.show', $item)],
+            excludeUserId: $request->user()->id,
+        );
 
         return redirect()->route('admin.inventory.index')->with('status', 'Inventory item created.');
     }

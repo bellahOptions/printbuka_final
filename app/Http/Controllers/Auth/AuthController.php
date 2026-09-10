@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Mail\StaffSignupAlertMail;
 use App\Models\User;
+use App\Support\ExecutiveAlert;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
@@ -223,7 +224,7 @@ class AuthController extends Controller
     private function notifySuperAdminsOfStaffSignup(User $staff): void
     {
         $recipients = User::query()
-            ->where('role', 'super_admin')
+            ->whereIn('role', ['super_admin', 'managing_director'])
             ->where('is_active', true)
             ->whereNotNull('email')
             ->get();
@@ -241,5 +242,12 @@ class AuthController extends Controller
                 ]);
             }
         }
+
+        ExecutiveAlert::send(
+            title: 'New Staff Sign-Up',
+            body: $staff->displayName().' ('.$staff->email.') requested a staff account and is awaiting approval.',
+            type: 'staff_signup',
+            data: ['staff_id' => $staff->id, 'action_url' => route('admin.staff.index')],
+        );
     }
 }

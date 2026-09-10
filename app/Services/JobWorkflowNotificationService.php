@@ -51,6 +51,45 @@ class JobWorkflowNotificationService
         }
     }
 
+    /**
+     * A staff member without approval rights requested to move a job to the
+     * next phase — notify everyone who can approve it (workflow.approve or
+     * wildcard) so the request doesn't sit unnoticed.
+     */
+    public function notifyApprovalRequested(Order $order, User $requestedBy, string $nextStatus): void
+    {
+        $order->loadMissing('product');
+
+        $approvers = User::query()
+            ->where('role', '!=', 'customer')
+            ->where('is_active', true)
+            ->get()
+            ->filter(fn (User $user): bool => $user->canAdmin('workflow.approve') || $user->canAdmin('*'));
+
+        foreach ($approvers as $approver) {
+            try {
+                $approver->notify(new StaffPushNotification(
+                    title: 'Approval Needed',
+                    body: $requestedBy->displayName()." requested to move Order #{$order->id} to: {$nextStatus}",
+                    type: 'workflow_approval_requested',
+                    data: [
+                        'order_id'     => $order->id,
+                        'next_status'  => $nextStatus,
+                        'requested_by' => $requestedBy->displayName(),
+                        'product'      => $order->product?->name ?? '',
+                        'action_url'   => route('admin.orders.show', $order),
+                    ],
+                ));
+            } catch (\Throwable $exception) {
+                Log::error('Approval-requested push notification failed.', [
+                    'order_id'     => $order->id,
+                    'recipient_id' => $approver->id,
+                    'message'      => $exception->getMessage(),
+                ]);
+            }
+        }
+    }
+
     private function notifyCustomerStatusChange(Order $order, string $oldStatus, string $newStatus): void
     {
         if (! filled($order->customer_email)) {
@@ -91,9 +130,10 @@ class JobWorkflowNotificationService
                 body: "Order #{$order->id} – {$order->product?->name}",
                 type: 'job_assigned',
                 data: [
-                    'order_id' => $order->id,
-                    'product'  => $order->product?->name ?? '',
-                    'status'   => $order->status ?? '',
+                    'order_id'   => $order->id,
+                    'product'    => $order->product?->name ?? '',
+                    'status'     => $order->status ?? '',
+                    'action_url' => route('admin.orders.show', $order),
                 ],
             ));
         } catch (\Throwable $exception) {
@@ -147,6 +187,7 @@ class JobWorkflowNotificationService
                         'old_status' => $oldStatus,
                         'new_status' => $newStatus,
                         'product'    => $order->product?->name ?? '',
+                        'action_url' => route('admin.orders.show', $order),
                     ],
                 ));
             } catch (\Throwable $exception) {

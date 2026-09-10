@@ -2,11 +2,27 @@
 
 namespace App\Models;
 
+use App\Support\ExecutiveAlert;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class FinanceEntry extends Model
 {
+    protected static function booted(): void
+    {
+        static::created(function (FinanceEntry $entry): void {
+            $label = $entry->type === 'income' ? 'Income' : 'Expense';
+
+            ExecutiveAlert::send(
+                title: 'New Finance Entry: '.$label,
+                body: trim($entry->category.' — ₦'.number_format((float) $entry->amount, 2).($entry->description ? ' ('.$entry->description.')' : '')),
+                type: 'finance_entry_created',
+                data: ['entry_id' => $entry->id, 'action_url' => route('admin.finance.show', $entry)],
+                excludeUserId: $entry->user_id,
+            );
+        });
+    }
+
     protected $fillable = [
         'idempotency_key',
         'order_id',

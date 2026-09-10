@@ -60,6 +60,7 @@ class ActivityLogsTable extends Component
                 $builder->where(function (Builder $innerQuery) use ($search): void {
                     $innerQuery
                         ->where('action', 'like', '%'.$search.'%')
+                        ->orWhere('description', 'like', '%'.$search.'%')
                         ->orWhere('method', 'like', '%'.$search.'%')
                         ->orWhere('route_name', 'like', '%'.$search.'%')
                         ->orWhere('url', 'like', '%'.$search.'%')

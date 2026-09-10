@@ -11,6 +11,7 @@ class AdminActivityLog extends Model
         'user_id',
         'role',
         'action',
+        'description',
         'method',
         'route_name',
         'url',

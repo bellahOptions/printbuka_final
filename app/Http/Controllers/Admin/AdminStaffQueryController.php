@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Mail\StaffQueryIssuedMail;
 use App\Models\StaffQuery;
 use App\Models\User;
+use App\Notifications\StaffPushNotification;
+use App\Support\ExecutiveAlert;
 use App\Support\ReferenceCode;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -60,6 +62,7 @@ class AdminStaffQueryController extends Controller
         ]);
 
         $this->sendQueryEmail($query);
+        $this->notifyStaffQueryIssued($query);
 
         return redirect()
             ->route('admin.staff-queries.show', $query)
@@ -95,6 +98,8 @@ class AdminStaffQueryController extends Controller
             'status'             => 'responded',
         ])->save();
 
+        $this->notifyStaffQueryResponded($query, $request->user());
+
         return back()->with('status', 'Your response has been recorded.');
     }
 
@@ -112,6 +117,8 @@ class AdminStaffQueryController extends Controller
             'resolved_by_id'   => $request->user()->id,
             'resolved_at'      => now(),
         ])->save();
+
+        $this->notifyStaffQueryClosed($query);
 
         return back()->with('status', 'Query '.$query->query_number.' has been closed.');
     }
@@ -146,6 +153,75 @@ class AdminStaffQueryController extends Controller
             Mail::to($email)->send(new StaffQueryIssuedMail($query));
         } catch (\Throwable $e) {
             Log::error('Staff query email failed.', ['query_id' => $query->id, 'message' => $e->getMessage()]);
+        }
+    }
+
+    private function notifyStaffQueryIssued(StaffQuery $query): void
+    {
+        $staff = $query->staff;
+        if (! $staff) return;
+
+        try {
+            $staff->notify(new StaffPushNotification(
+                title: 'Query Issued: '.$query->query_number,
+                body: $query->subject,
+                type: 'staff_query_issued',
+                data: [
+                    'query_id'   => $query->id,
+                    'query_type' => $query->query_type,
+                    'action_url' => route('admin.staff-queries.show', $query),
+                ],
+            ));
+        } catch (\Throwable $e) {
+            Log::error('Staff query push notification failed.', ['query_id' => $query->id, 'message' => $e->getMessage()]);
+        }
+
+        ExecutiveAlert::send(
+            title: 'Staff Query Issued: '.$query->query_number,
+            body: ($query->issuedBy?->displayName() ?: 'A staff member').' issued a '.$query->typeLabel().' to '.($staff->displayName()).': '.$query->subject,
+            type: 'staff_query_issued_executive',
+            data: ['query_id' => $query->id, 'action_url' => route('admin.staff-queries.show', $query)],
+            excludeUserId: $query->issued_by_id,
+        );
+    }
+
+    private function notifyStaffQueryResponded(StaffQuery $query, User $respondent): void
+    {
+        $issuedBy = $query->issuedBy;
+        if (! $issuedBy) return;
+
+        try {
+            $issuedBy->notify(new StaffPushNotification(
+                title: 'Query Response Received',
+                body: $respondent->displayName().' responded to '.$query->query_number,
+                type: 'staff_query_responded',
+                data: [
+                    'query_id'   => $query->id,
+                    'action_url' => route('admin.staff-queries.show', $query),
+                ],
+            ));
+        } catch (\Throwable $e) {
+            Log::error('Staff query response push notification failed.', ['query_id' => $query->id, 'message' => $e->getMessage()]);
+        }
+    }
+
+    private function notifyStaffQueryClosed(StaffQuery $query): void
+    {
+        $staff = $query->staff;
+        if (! $staff) return;
+
+        try {
+            $staff->notify(new StaffPushNotification(
+                title: 'Query Closed: '.$query->query_number,
+                body: $query->resolution_notes ?: 'This query has been closed.',
+                type: 'staff_query_closed',
+                data: [
+                    'query_id'   => $query->id,
+                    'action_url' => route('admin.staff-queries.show', $query),
+                ],
+            ));
+        } catch (\Throwable $e) {
+            Log::error('Staff query closed push notification failed.', ['query_id' => $query->id, 'message' => $e->getMessage()]);
         }
     }
 }

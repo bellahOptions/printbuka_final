@@ -44,15 +44,19 @@ class StaffPushNotification extends Notification implements ShouldQueue
     }
 
     /**
-     * Stored in the `notifications` table — fetched by the mobile app.
+     * Stored in the `notifications` table — fetched by the mobile app and by
+     * the web notification bell. `body`/`message` are kept as duplicate keys
+     * since the mobile app reads `body` while the bell UI reads `message`.
      */
     public function toDatabase(object $notifiable): array
     {
         return [
-            'title' => $this->title,
-            'body'  => $this->body,
-            'type'  => $this->type,
-            'data'  => $this->data,
+            'title'      => $this->title,
+            'body'       => $this->body,
+            'message'    => $this->body,
+            'type'       => $this->type,
+            'action_url' => $this->data['action_url'] ?? null,
+            'data'       => $this->data,
         ];
     }
 

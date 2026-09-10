@@ -3,10 +3,17 @@
 namespace App\Livewire;
 
 use App\Notifications\AdminBroadcastNotification;
+use App\Notifications\StaffPushNotification;
 use Livewire\Component;
 
 class NotificationBell extends Component
 {
+    /** @var array<int, string> */
+    private const VISIBLE_TYPES = [
+        AdminBroadcastNotification::class,
+        StaffPushNotification::class,
+    ];
+
     public function markAsReadAndOpen(string $notificationId, string $url): void
     {
         $this->markAsRead($notificationId);
@@ -25,7 +32,7 @@ class NotificationBell extends Component
 
         $notification = auth()->user()
             ->unreadNotifications()
-            ->where('type', AdminBroadcastNotification::class)
+            ->whereIn('type', self::VISIBLE_TYPES)
             ->whereKey($notificationId)
             ->first();
 
@@ -40,7 +47,7 @@ class NotificationBell extends Component
 
         auth()->user()
             ->unreadNotifications()
-            ->where('type', AdminBroadcastNotification::class)
+            ->whereIn('type', self::VISIBLE_TYPES)
             ->update(['read_at' => now()]);
     }
 
@@ -49,19 +56,16 @@ class NotificationBell extends Component
         if (! auth()->check()) {
             return view('livewire.notification-bell', [
                 'notifications' => collect(),
-                'surfaceNotifications' => collect(),
                 'count' => 0,
             ]);
         }
 
         $query = auth()->user()
             ->unreadNotifications()
-            ->where('type', AdminBroadcastNotification::class);
-        $notifications = (clone $query)->latest()->limit(8)->get();
+            ->whereIn('type', self::VISIBLE_TYPES);
 
         return view('livewire.notification-bell', [
-            'notifications' => $notifications,
-            'surfaceNotifications' => $notifications,
+            'notifications' => (clone $query)->latest()->limit(8)->get(),
             'count' => (clone $query)->count(),
         ]);
     }

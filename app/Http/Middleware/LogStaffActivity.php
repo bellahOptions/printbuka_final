@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\AdminActivityLog;
 use App\Models\StaffActivity;
+use App\Support\ActivityNarrator;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -198,6 +199,7 @@ class LogStaffActivity
             'user_id' => $userId,
             'role' => $role,
             'action' => $this->describeAuditAction($request),
+            'description' => ActivityNarrator::describe($request),
             'method' => Str::upper((string) $request->method()),
             'route_name' => $request->route()?->getName(),
             'url' => Str::limit($request->fullUrl(), 2048, ''),

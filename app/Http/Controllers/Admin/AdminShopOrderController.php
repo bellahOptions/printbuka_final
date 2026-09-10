@@ -104,9 +104,10 @@ class AdminShopOrderController extends Controller
                     body: "Order {$order->reference} — NGN " . number_format((float) $order->total, 0) . ' from ' . $order->customer_name,
                     type: 'shop_order_new',
                     data: [
-                        'order_id'  => $order->id,
-                        'reference' => $order->reference,
-                        'total'     => (float) $order->total,
+                        'order_id'   => $order->id,
+                        'reference'  => $order->reference,
+                        'total'      => (float) $order->total,
+                        'action_url' => route('admin.shop-orders.show', $order),
                     ],
                 ));
             } catch (\Throwable $e) {
