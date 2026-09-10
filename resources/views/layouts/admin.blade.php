@@ -265,6 +265,16 @@
                         </a>
                     @endif
 
+                    @if($admin?->canAdmin('inventory.view'))
+                        <a href="{{ route('admin.inventory.index') }}" class="{{ $navLink('admin.inventory.*') }}">
+                            <svg class="pb-nav-icon h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                            </svg>
+                            <span>Inventory</span>
+                        </a>
+                    @endif
+
                     @if($admin?->canAdmin('shop-products.manage'))
                         <a href="{{ route('admin.shop-products.index') }}" class="{{ $navLink('admin.shop-products.*') }}">
                             <svg class="pb-nav-icon h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

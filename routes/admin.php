@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminEmailTemplateController;
 use App\Http\Controllers\Admin\AdminPdfTemplateController;
 use App\Http\Controllers\Admin\AdminFinanceController;
+use App\Http\Controllers\Admin\AdminInventoryController;
 use App\Http\Controllers\Admin\AdminInvoiceController;
 use App\Http\Controllers\Admin\AdminLargeFormatController;
 use App\Http\Controllers\Admin\AdminMediaController;
@@ -511,6 +512,34 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::put('/policies/refund', [AdminPolicyController::class, 'updateRefund'])
             ->middleware('super.admin')
             ->name('policies.refund.update');
+
+        // ===== INVENTORY / STOCK MANAGEMENT =====
+        Route::prefix('inventory')->name('inventory.')->group(function (): void {
+            Route::get('/', [AdminInventoryController::class, 'index'])
+                ->middleware('admin.permission:inventory.view')
+                ->name('index');
+            Route::get('/create', [AdminInventoryController::class, 'create'])
+                ->middleware('admin.permission:inventory.manage')
+                ->name('create');
+            Route::post('/', [AdminInventoryController::class, 'store'])
+                ->middleware('admin.permission:inventory.manage')
+                ->name('store');
+            Route::get('/{inventoryItem}', [AdminInventoryController::class, 'show'])
+                ->middleware('admin.permission:inventory.view')
+                ->name('show');
+            Route::get('/{inventoryItem}/edit', [AdminInventoryController::class, 'edit'])
+                ->middleware('admin.permission:inventory.manage')
+                ->name('edit');
+            Route::put('/{inventoryItem}', [AdminInventoryController::class, 'update'])
+                ->middleware('admin.permission:inventory.manage')
+                ->name('update');
+            Route::delete('/{inventoryItem}', [AdminInventoryController::class, 'destroy'])
+                ->middleware('admin.permission:inventory.manage')
+                ->name('destroy');
+            Route::post('/{inventoryItem}/adjust-stock', [AdminInventoryController::class, 'adjustStock'])
+                ->middleware('admin.permission:inventory.manage')
+                ->name('adjust-stock');
+        });
 
         // ===== SHOP PRODUCTS =====
         Route::resource('shop-products', AdminShopProductController::class)

@@ -68,6 +68,10 @@ class PermissionCatalog
                 'shop-products.manage' => 'Manage shop products',
                 'shop-orders.view' => 'View shop orders',
             ],
+            'Inventory' => [
+                'inventory.view' => 'View stock/inventory levels and history',
+                'inventory.manage' => 'Manage inventory items and stock movements',
+            ],
             'System' => [
                 'admin.view' => 'Access the admin portal (required for any staff role)',
                 'products.manage' => 'Manage product catalog',
