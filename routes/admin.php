@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\AdminEmailTemplateController;
 use App\Http\Controllers\Admin\AdminPdfTemplateController;
 use App\Http\Controllers\Admin\AdminFinanceController;
 use App\Http\Controllers\Admin\AdminInventoryController;
+use App\Http\Controllers\Admin\AdminVendorController;
 use App\Http\Controllers\Admin\AdminInvoiceController;
 use App\Http\Controllers\Admin\AdminLargeFormatController;
 use App\Http\Controllers\Admin\AdminMediaController;
@@ -541,6 +542,31 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
             Route::post('/{inventoryItem}/adjust-stock', [AdminInventoryController::class, 'adjustStock'])
                 ->middleware('admin.permission:inventory.manage')
                 ->name('adjust-stock');
+        });
+
+        // ===== VENDOR DIRECTORY =====
+        Route::prefix('vendors')->name('vendors.')->group(function (): void {
+            Route::get('/', [AdminVendorController::class, 'index'])
+                ->middleware('admin.permission:vendors.view')
+                ->name('index');
+            Route::get('/create', [AdminVendorController::class, 'create'])
+                ->middleware('admin.permission:vendors.manage')
+                ->name('create');
+            Route::post('/', [AdminVendorController::class, 'store'])
+                ->middleware('admin.permission:vendors.manage')
+                ->name('store');
+            Route::get('/{vendor}', [AdminVendorController::class, 'show'])
+                ->middleware('admin.permission:vendors.view')
+                ->name('show');
+            Route::get('/{vendor}/edit', [AdminVendorController::class, 'edit'])
+                ->middleware('admin.permission:vendors.manage')
+                ->name('edit');
+            Route::put('/{vendor}', [AdminVendorController::class, 'update'])
+                ->middleware('admin.permission:vendors.manage')
+                ->name('update');
+            Route::delete('/{vendor}', [AdminVendorController::class, 'destroy'])
+                ->middleware('admin.permission:vendors.manage')
+                ->name('destroy');
         });
 
         // ===== SHOP PRODUCTS =====

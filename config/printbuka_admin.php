@@ -4,9 +4,9 @@ return [
     'roles' => [
         'super_admin'        => ['*'],
         'managing_director'  => ['*'],
-        'hr'                 => ['admin.view', 'orders.view', 'staff.view', 'staff.kyc', 'staff.queries', 'staff.evaluations', 'training.manage', 'announcements.view', 'blog.view', 'evaluations.view', 'customers.manage', 'payroll.manage', 'payroll.view', 'attendance.manage'],
-        'operations_manager' => ['admin.view', 'orders.view', 'orders.verify', 'orders.phase_comment', 'workflow.approve', 'sop.verify', 'invoices.manage', 'production.update', 'qc.update', 'delivery.update', 'payroll.view', 'shop-products.manage', 'shop-orders.view', 'pricelist.manage', 'large_format.manage', 'large_format.calculate', 'attendance.manage'],
-        'customer_service'   => ['admin.view', 'orders.view', 'orders.create', 'orders.intake', 'invoices.manage', 'delivery.update', 'client_review.update', 'sop.update', 'newsletters.manage', 'customers.manage', 'finance.view', 'finance.view_amounts', 'shop-orders.view', 'pricelist.manage', 'large_format.calculate'],
+        'hr'                 => ['admin.view', 'orders.view', 'staff.view', 'staff.kyc', 'staff.queries', 'staff.evaluations', 'training.manage', 'announcements.view', 'blog.view', 'evaluations.view', 'customers.manage', 'payroll.manage', 'payroll.view', 'attendance.manage', 'vendors.view', 'vendors.manage'],
+        'operations_manager' => ['admin.view', 'orders.view', 'orders.verify', 'orders.phase_comment', 'workflow.approve', 'sop.verify', 'invoices.manage', 'production.update', 'qc.update', 'delivery.update', 'payroll.view', 'shop-products.manage', 'shop-orders.view', 'pricelist.manage', 'large_format.manage', 'large_format.calculate', 'attendance.manage', 'vendors.view', 'vendors.manage'],
+        'customer_service'   => ['admin.view', 'orders.view', 'orders.create', 'orders.intake', 'invoices.manage', 'delivery.update', 'client_review.update', 'sop.update', 'newsletters.manage', 'customers.manage', 'finance.view', 'finance.view_amounts', 'shop-orders.view', 'pricelist.manage', 'large_format.calculate', 'vendors.view'],
         'personal_assistant' => ['admin.view', 'orders.view', 'orders.intake', 'design.update', 'design.upload', 'production.update', 'packaging.update', 'qc.update', 'delivery.update'],
         'designer'           => ['admin.view', 'orders.view', 'orders.phase_comment', 'design.update', 'design.upload'],
         'office_assistant'   => ['admin.view', 'orders.view'],
@@ -91,6 +91,7 @@ return [
         'site_settings.manage' => 'Site Settings',
         'customers.manage' => 'Customer Management',
         'training.manage' => 'Training Applications',
+        'vendors.manage' => 'Vendor Management',
     ],
 
     'job_statuses' => [

@@ -221,7 +221,7 @@
                     </a>
 
                     {{-- CRM --}}
-                    @if($admin?->canAdmin('customers.manage') || $admin?->canAdmin('invoices.manage') || $admin?->canAdmin('pricelist.manage') || $admin?->canAdmin('newsletters.manage'))
+                    @if($admin?->canAdmin('customers.manage') || $admin?->canAdmin('invoices.manage') || $admin?->canAdmin('pricelist.manage') || $admin?->canAdmin('newsletters.manage') || $admin?->canAdmin('vendors.view'))
                         <p class="pb-nav-group mt-3">CRM</p>
                     @endif
 
@@ -272,6 +272,16 @@
                                       d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                             </svg>
                             <span>Inventory</span>
+                        </a>
+                    @endif
+
+                    @if($admin?->canAdmin('vendors.view'))
+                        <a href="{{ route('admin.vendors.index') }}" class="{{ $navLink('admin.vendors.*') }}">
+                            <svg class="pb-nav-icon h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                      d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 11h.01M15 11h.01M9 7h.01M15 7h.01"/>
+                            </svg>
+                            <span>Vendors</span>
                         </a>
                     @endif
 
