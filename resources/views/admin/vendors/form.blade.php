@@ -217,11 +217,11 @@
                     </select>
                 </div>
 
-                <button type="submit" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black w-full">
+                <button type="submit" class="pb-btn pb-btn-md pb-btn-primary w-full">
                     <x-heroicon-o-check class="w-4 h-4" />
                     {{ $vendor ? 'Save Changes' : 'Add Vendor' }}
                 </button>
-                <a href="{{ route('admin.vendors.index') }}" class="btn btn-ghost font-black text-slate-500 w-full text-sm">
+                <a href="{{ route('admin.vendors.index') }}" class="pb-btn pb-btn-md pb-btn-ghost w-full">
                     Cancel
                 </a>
             </div>

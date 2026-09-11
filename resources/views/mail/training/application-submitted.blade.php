@@ -1,4 +1,4 @@
-@extends('mail.layouts.training')
+@extends('mail.layouts.base')
 
 @section('title', 'New PGTP Application')
 

@@ -8,12 +8,12 @@
                     <x-heroicon-o-magnifying-glass class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                     <input type="text" wire:model.live.debounce.300ms="search"
                            placeholder="Name, SKU, description…"
-                           class="input input-bordered border-slate-200 input-sm w-full pl-9" />
+                           class="pb-input w-full pl-9" />
                 </div>
             </div>
             <div>
                 <label class="text-xs font-bold uppercase text-slate-500 block mb-1">Status</label>
-                <select wire:model.live="status" class="select select-bordered border-slate-200 select-sm">
+                <select wire:model.live="status" class="pb-select">
                     <option value="">All Products</option>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
@@ -22,13 +22,13 @@
             </div>
             <div>
                 <label class="text-xs font-bold uppercase text-slate-500 block mb-1">Stock</label>
-                <select wire:model.live="stock" class="select select-bordered border-slate-200 select-sm">
+                <select wire:model.live="stock" class="pb-select">
                     <option value="">All Stock</option>
                     <option value="out">Out of Stock</option>
                 </select>
             </div>
             @if ($search !== '' || $status !== '' || $stock !== '')
-                <button type="button" wire:click="clearFilters" class="btn btn-sm btn-ghost font-black text-slate-400">
+                <button type="button" wire:click="clearFilters" class="pb-btn pb-btn-sm pb-btn-ghost">
                     <x-heroicon-o-x-mark class="w-4 h-4" /> Clear
                 </button>
             @endif
@@ -45,7 +45,7 @@
             </p>
             @if ($search === '' && $status === '' && $stock === '')
                 <a href="{{ route('admin.shop-products.create') }}"
-                   class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black">
+                   class="pb-btn pb-btn-md pb-btn-primary">
                     <x-heroicon-o-plus class="w-4 h-4" /> Add First Product
                 </a>
             @endif
@@ -81,17 +81,17 @@
                             {{-- Status badges --}}
                             <div class="flex flex-wrap items-center gap-1.5 shrink-0">
                                 @if ($product->is_active)
-                                    <span class="pb-badge-success text-xs">Active</span>
+                                    <span class="pb-badge pb-badge-success text-xs">Active</span>
                                 @else
-                                    <span class="pb-badge-neutral text-xs">Inactive</span>
+                                    <span class="pb-badge pb-badge-secondary text-xs">Inactive</span>
                                 @endif
                                 @if ($product->is_featured)
-                                    <span class="inline-flex items-center gap-1 text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                                    <span class="pb-badge pb-badge-warning text-xs">
                                         <x-heroicon-s-star class="w-3 h-3" /> Featured
                                     </span>
                                 @endif
                                 @if ($product->isOnSale())
-                                    <span class="pb-badge-info text-xs">Sale</span>
+                                    <span class="pb-badge pb-badge-info text-xs">Sale</span>
                                 @endif
                             </div>
                         </div>
@@ -149,12 +149,12 @@
                     {{-- Actions column --}}
                     <div class="flex flex-col items-end gap-2 shrink-0 self-center">
                         <a href="{{ route('admin.shop-products.edit', $product) }}"
-                           class="btn btn-sm bg-slate-900 border-0 text-white hover:bg-slate-700 font-black gap-1.5 w-full justify-center">
+                           class="pb-btn pb-btn-sm pb-btn-ink w-full">
                             <x-heroicon-o-pencil-square class="w-4 h-4" /> Edit
                         </a>
                         <div class="flex items-center gap-1 w-full">
                             <a href="{{ route('shop.show', $product) }}" target="_blank"
-                               class="btn btn-xs btn-ghost text-slate-400 hover:text-slate-700 flex-1 justify-center"
+                               class="pb-btn pb-btn-sm pb-btn-ghost flex-1"
                                title="View in shop">
                                 <x-heroicon-o-arrow-top-right-on-square class="w-3.5 h-3.5" />
                             </a>
@@ -163,7 +163,7 @@
                                   onsubmit="return confirm('Delete \'{{ addslashes($product->name) }}\'?\nThis cannot be undone.')">
                                 @csrf @method('DELETE')
                                 <button type="submit"
-                                        class="btn btn-xs btn-ghost text-red-400 hover:text-red-600 hover:bg-red-50 font-black w-full">
+                                        class="pb-btn pb-btn-sm pb-btn-ghost text-red-500 hover:text-red-600 hover:bg-red-50 w-full">
                                     <x-heroicon-o-trash class="w-3.5 h-3.5" />
                                 </button>
                             </form>
@@ -196,7 +196,7 @@
                 <span class="text-xs font-bold uppercase tracking-wide text-pink-600" wire:loading wire:target="loadMore">
                     Loading more products...
                 </span>
-                <button type="button" wire:click="loadMore" class="rounded-md border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:border-pink-400 hover:text-pink-700">
+                <button type="button" wire:click="loadMore" class="pb-btn pb-btn-md pb-btn-outline">
                     Load More
                 </button>
             </div>

@@ -9,11 +9,11 @@
             <span>/</span>
             <span class="font-semibold text-slate-700">Default Option Prices</span>
         </div>
-        <h1 class="mt-2 text-3xl font-black text-slate-950">Default option prices</h1>
-        <p class="mt-2 text-sm text-slate-500">Used as the fallback price list for any product that doesn't set its own option pricing.</p>
+        <h1 class="pb-page-title mt-2">Default option prices</h1>
+        <p class="pb-page-subtitle">Used as the fallback price list for any product that doesn't set its own option pricing.</p>
 
         @if (session('status'))
-            <div class="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-800">
+            <div class="mt-6 pb-alert pb-alert-success">
                 {{ session('status') }}
             </div>
         @endif
@@ -25,7 +25,7 @@
             @include('admin.pricelist._option-groups')
 
             <div class="flex justify-end">
-                <button type="submit" class="rounded-md bg-pink-600 px-6 py-3 text-sm font-black text-white transition hover:bg-pink-700">Save defaults</button>
+                <button type="submit" class="pb-btn pb-btn-md pb-btn-primary">Save defaults</button>
             </div>
         </form>
     </div>

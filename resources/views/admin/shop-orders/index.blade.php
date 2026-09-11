@@ -8,7 +8,7 @@
             <h1 class="pb-page-title">Shop Orders</h1>
             <p class="pb-page-subtitle">Manage and track all Paystack-paid product orders.</p>
         </div>
-        <a href="{{ route('admin.shop-products.index') }}" class="btn btn-sm btn-outline font-black border-slate-200 hover:border-pink-400 hover:text-pink-700 self-start">
+        <a href="{{ route('admin.shop-products.index') }}" class="pb-btn pb-btn-sm pb-btn-outline self-start">
             <x-heroicon-o-squares-2x2 class="w-4 h-4" /> Manage Products
         </a>
     </div>
@@ -49,7 +49,7 @@
 </div>
 
 @if(session('status'))
-    <div class="alert alert-success mb-5 font-bold">
+    <div class="pb-alert pb-alert-success mb-5">
         <x-heroicon-o-check-circle class="w-5 h-5" /> {{ session('status') }}
     </div>
 @endif

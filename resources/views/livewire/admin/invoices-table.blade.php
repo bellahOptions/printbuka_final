@@ -1,27 +1,27 @@
 <section class="mt-8 space-y-4">
     @if (session('status'))
-        <p class="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">{{ session('status') }}</p>
+        <div class="pb-alert pb-alert-success">{{ session('status') }}</div>
     @endif
     @if (session('warning'))
-        <p class="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">{{ session('warning') }}</p>
+        <div class="pb-alert pb-alert-warning">{{ session('warning') }}</div>
     @endif
 
-    <div class="rounded-md border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="pb-card p-4">
         <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <label class="w-full max-w-xl">
-                <span class="text-xs font-black uppercase tracking-wide text-slate-500">Search invoices</span>
+            <div class="pb-field w-full max-w-xl">
+                <label class="pb-label">Search invoices</label>
                 <input
                     type="text"
                     wire:model.live.debounce.300ms="search"
                     placeholder="Invoice no, order no, customer..."
-                    class="mt-2 h-11 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold"
+                    class="pb-input"
                 >
-            </label>
+            </div>
 
             <div class="flex flex-col gap-2 sm:flex-row sm:items-end">
-                <label>
-                    <span class="text-xs font-black uppercase tracking-wide text-slate-500">Batch action</span>
-                    <select wire:model.live="batchAction" class="mt-2 h-11 rounded-md border border-slate-200 px-3 text-sm font-semibold">
+                <div class="pb-field">
+                    <label class="pb-label">Batch action</label>
+                    <select wire:model.live="batchAction" class="pb-input">
                         <option value="">Select action</option>
                         <option value="mark_draft">Mark as Draft</option>
                         <option value="mark_paid">Mark as Paid</option>
@@ -29,11 +29,11 @@
                         <option value="mark_disputed">Mark as Disputed</option>
                         <option value="delete">Delete Selected</option>
                     </select>
-                </label>
+                </div>
                 <button
                     type="button"
                     wire:click="applyBatchAction"
-                    class="h-11 rounded-md bg-slate-900 px-4 text-sm font-black text-white transition hover:bg-pink-700"
+                    class="pb-btn pb-btn-md pb-btn-ink"
                 >
                     Apply
                 </button>
@@ -41,73 +41,73 @@
         </div>
 
         @error('batchAction')
-            <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p>
+            <p class="pb-field-error">{{ $message }}</p>
         @enderror
         @error('selected')
-            <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p>
+            <p class="pb-field-error">{{ $message }}</p>
         @enderror
     </div>
 
-    <div class="overflow-x-auto rounded-md border border-slate-200 bg-white shadow-sm">
-        <table class="w-full min-w-[1080px] text-left text-sm">
+    <div class="pb-table-wrapper">
+        <table class="pb-table min-w-[1080px]">
             <thead>
-                <tr class="border-b border-slate-200 bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
+                <tr>
                     @php
                         $loadedIds = $invoices->pluck('id')->map(fn ($id): int => (int) $id)->all();
                         $allLoadedSelected = $loadedIds !== [] && count(array_diff($loadedIds, $selected)) === 0;
                     @endphp
-                    <th class="px-4 py-4">
+                    <th>
                         <input type="checkbox" wire:click="toggleSelectLoadedSelection" class="h-4 w-4 rounded border-slate-300 text-pink-600" @checked($allLoadedSelected)>
                     </th>
-                    <th class="px-5 py-4">
+                    <th>
                         <button type="button" wire:click="sortBy('invoice_number')" class="inline-flex items-center gap-1">
                             Document
                             @if ($sortField === 'invoice_number')<span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>@endif
                         </button>
                     </th>
-                    <th class="px-5 py-4">Type</th>
-                    <th class="px-5 py-4">Job</th>
-                    <th class="px-5 py-4">Client</th>
-                    <th class="px-5 py-4">
+                    <th>Type</th>
+                    <th>Job</th>
+                    <th>Client</th>
+                    <th>
                         <button type="button" wire:click="sortBy('total_amount')" class="inline-flex items-center gap-1">
                             Total
                             @if ($sortField === 'total_amount')<span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>@endif
                         </button>
                     </th>
-                    <th class="px-5 py-4">
+                    <th>
                         <button type="button" wire:click="sortBy('status')" class="inline-flex items-center gap-1">
                             Status
                             @if ($sortField === 'status')<span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>@endif
                         </button>
                     </th>
-                    <th class="px-5 py-4 text-right">Actions</th>
+                    <th class="text-right">Actions</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody>
                 @forelse ($invoices as $invoice)
                     <tr wire:key="invoice-row-{{ $invoice->id }}">
-                        <td class="px-4 py-4">
+                        <td data-label="">
                             <input type="checkbox" value="{{ $invoice->id }}" wire:model.live="selected" class="h-4 w-4 rounded border-slate-300 text-pink-600">
                         </td>
-                        <td class="px-5 py-4 font-black">{{ $invoice->invoice_number }}</td>
-                        <td class="px-5 py-4">{{ $invoice->documentTypeLabel() }}</td>
-                        <td class="px-5 py-4">{{ $invoice->order?->job_order_number ?? 'No job' }}</td>
-                        <td class="px-5 py-4">{{ $invoice->order?->customer_name ?? 'Pending' }}</td>
-                        <td class="px-5 py-4">NGN {{ number_format((float) $invoice->total_amount, 2) }}</td>
-                        <td class="px-5 py-4">{{ str($invoice->status)->replace('_', ' ')->title() }}</td>
-                        <td class="px-5 py-4">
+                        <td data-label="Document" class="font-semibold">{{ $invoice->invoice_number }}</td>
+                        <td data-label="Type">{{ $invoice->documentTypeLabel() }}</td>
+                        <td data-label="Job">{{ $invoice->order?->job_order_number ?? 'No job' }}</td>
+                        <td data-label="Client">{{ $invoice->order?->customer_name ?? 'Pending' }}</td>
+                        <td data-label="Total">NGN {{ number_format((float) $invoice->total_amount, 2) }}</td>
+                        <td data-label="Status">{{ str($invoice->status)->replace('_', ' ')->title() }}</td>
+                        <td data-label="">
                             <div class="flex flex-wrap items-center justify-end gap-3">
-                                <a href="{{ route('admin.invoices.show', $invoice) }}" class="font-black text-pink-700">View</a>
-                                <a href="{{ route('admin.invoices.download', $invoice) }}" class="font-black text-slate-700">Download</a>
+                                <a href="{{ route('admin.invoices.show', $invoice) }}" class="font-semibold text-pink-700">View</a>
+                                <a href="{{ route('admin.invoices.download', $invoice) }}" class="font-semibold text-slate-700">Download</a>
                                 @if ($invoice->status !== 'paid')
-                                    <a href="{{ route('admin.invoices.edit', $invoice) }}" class="font-black text-pink-700">Edit</a>
+                                    <a href="{{ route('admin.invoices.edit', $invoice) }}" class="font-semibold text-pink-700">Edit</a>
                                 @endif
 
                                 @if ($invoice->status !== 'paid' && filled($invoice->order?->customer_email))
                                     <form action="{{ route('admin.invoices.send', $invoice) }}" method="POST" class="inline">
                                         @csrf
                                         @method('PATCH')
-                                        <button class="font-black text-cyan-700 transition hover:text-cyan-900">{{ $invoice->sent_at ? 'Resend' : 'Send' }}</button>
+                                        <button class="font-semibold text-cyan-700 transition hover:text-cyan-900">{{ $invoice->sent_at ? 'Resend' : 'Send' }}</button>
                                     </form>
                                 @endif
 
@@ -115,40 +115,44 @@
                                     <form action="{{ route('admin.invoices.mark-paid', $invoice) }}" method="POST" class="inline">
                                         @csrf
                                         @method('PATCH')
-                                        <button class="font-black text-emerald-700 transition hover:text-emerald-900">Mark Paid</button>
+                                        <button class="font-semibold text-emerald-700 transition hover:text-emerald-900">Mark Paid</button>
                                     </form>
                                 @endif
 
                                 <form action="{{ route('admin.invoices.destroy', $invoice) }}" method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button class="font-black text-slate-500 hover:text-red-700">Delete</button>
+                                    <button class="font-semibold text-slate-500 hover:text-red-700">Delete</button>
                                 </form>
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="px-5 py-10 text-center text-slate-500">No invoices matched your search.</td>
+                        <td colspan="8">
+                            <div class="pb-empty">
+                                <p class="pb-empty-title">No invoices matched your search.</p>
+                            </div>
+                        </td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
 
-    <p class="text-xs font-bold text-slate-400">
+    <p class="text-xs font-semibold text-slate-400">
         Showing {{ number_format($invoices->count()) }} of {{ number_format($totalCount) }} {{ Str::plural('invoice', $totalCount) }}
     </p>
 
     @if ($hasMore)
         <div class="flex flex-col items-center gap-3 py-4" wire:poll.visible="loadMore">
-            <span class="text-xs font-bold uppercase tracking-wide text-slate-400" wire:loading.remove wire:target="loadMore">
+            <span class="text-xs font-semibold uppercase tracking-wide text-slate-400" wire:loading.remove wire:target="loadMore">
                 Loading more invoices as you scroll...
             </span>
-            <span class="text-xs font-bold uppercase tracking-wide text-pink-600" wire:loading wire:target="loadMore">
+            <span class="text-xs font-semibold uppercase tracking-wide text-pink-600" wire:loading wire:target="loadMore">
                 Loading more invoices...
             </span>
-            <button type="button" wire:click="loadMore" class="rounded-md border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:border-pink-400 hover:text-pink-700">
+            <button type="button" wire:click="loadMore" class="pb-btn pb-btn-md pb-btn-outline">
                 Load More
             </button>
         </div>

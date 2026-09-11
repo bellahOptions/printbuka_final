@@ -77,54 +77,83 @@
             </a>
         </div>
 
+        @php
+            $shopFunnel = [
+                ['label' => 'Total Orders', 'value' => $shopOrderStats['total'], 'sub' => number_format($shopOrderStats['this_month']).' this month', 'bar' => 'bg-slate-400', 'icon' => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'],
+                ['label' => 'Received', 'value' => $shopOrderStats['order_received'], 'sub' => 'Awaiting processing', 'bar' => 'bg-sky-400', 'icon' => 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'],
+                ['label' => 'Processing', 'value' => $shopOrderStats['processing'], 'sub' => 'Being prepared', 'bar' => 'bg-amber-400', 'icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
+                ['label' => 'Dispatched', 'value' => $shopOrderStats['dispatched'], 'sub' => 'En route to customer', 'bar' => 'bg-violet-400', 'icon' => 'M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a2 2 0 104 0m-4 0a2 2 0 114 0m-6 0H5m10-8h3.28a1 1 0 01.948.684l1.35 4.05A1 1 0 0121 13.28V16a1 1 0 01-1 1h-1m-4-9v9'],
+                ['label' => 'Delivered', 'value' => $shopOrderStats['delivered'], 'sub' => 'Completed', 'bar' => 'bg-emerald-400', 'icon' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
+            ];
+        @endphp
         {{-- KPI row --}}
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-3">
-            <div class="pb-card p-4">
-                <p class="text-xs font-bold uppercase text-slate-400 mb-1">Total Orders</p>
-                <p class="text-2xl font-black text-slate-900">{{ number_format($shopOrderStats['total']) }}</p>
-                <p class="text-xs text-slate-400 mt-0.5">{{ number_format($shopOrderStats['this_month']) }} this month</p>
-            </div>
-            <div class="pb-card p-4 border-l-2 border-l-sky-400">
-                <p class="text-xs font-bold uppercase text-sky-600 mb-1">Received</p>
-                <p class="text-2xl font-black text-slate-900">{{ number_format($shopOrderStats['order_received']) }}</p>
-                <p class="text-xs text-slate-400 mt-0.5">Awaiting processing</p>
-            </div>
-            <div class="pb-card p-4 border-l-2 border-l-amber-400">
-                <p class="text-xs font-bold uppercase text-amber-600 mb-1">Processing</p>
-                <p class="text-2xl font-black text-slate-900">{{ number_format($shopOrderStats['processing']) }}</p>
-                <p class="text-xs text-slate-400 mt-0.5">Being prepared</p>
-            </div>
-            <div class="pb-card p-4 border-l-2 border-l-violet-400">
-                <p class="text-xs font-bold uppercase text-violet-600 mb-1">Dispatched</p>
-                <p class="text-2xl font-black text-slate-900">{{ number_format($shopOrderStats['dispatched']) }}</p>
-                <p class="text-xs text-slate-400 mt-0.5">En route to customer</p>
-            </div>
-            <div class="pb-card p-4 border-l-2 border-l-emerald-400">
-                <p class="text-xs font-bold uppercase text-emerald-600 mb-1">Delivered</p>
-                <p class="text-2xl font-black text-slate-900">{{ number_format($shopOrderStats['delivered']) }}</p>
-                <p class="text-xs text-slate-400 mt-0.5">Completed</p>
-            </div>
+            @foreach ($shopFunnel as $kpi)
+                <article class="pb-kpi-card">
+                    <div class="pb-kpi-accent-bar {{ $kpi['bar'] }}"></div>
+                    <div class="mt-1 flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="pb-stat-label">{{ $kpi['label'] }}</p>
+                            <p class="pb-stat-value">{{ number_format($kpi['value']) }}</p>
+                            <p class="mt-1 truncate text-xs text-slate-400">{{ $kpi['sub'] }}</p>
+                        </div>
+                        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100">
+                            <svg class="h-4.5 w-4.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="{{ $kpi['icon'] }}"/>
+                            </svg>
+                        </span>
+                    </div>
+                </article>
+            @endforeach
         </div>
 
         {{-- Revenue row --}}
-        <div class="grid sm:grid-cols-3 gap-3">
-            <div class="pb-card p-4 bg-gradient-to-br from-pink-50 to-white">
-                <p class="text-xs font-bold uppercase text-pink-600 mb-1">Shop Revenue (Month)</p>
-                <p class="text-xl font-black text-slate-900 truncate" title="₦{{ number_format($shopOrderStats['revenue_month'], 2) }}">{{ \App\Support\CompactNumber::currency((float) $shopOrderStats['revenue_month']) }}</p>
-                <p class="text-xs text-slate-400 mt-0.5">Paid orders this month</p>
-            </div>
-            <div class="pb-card p-4">
-                <p class="text-xs font-bold uppercase text-slate-400 mb-1">Total Shop Revenue</p>
-                <p class="text-xl font-black text-slate-900 truncate" title="₦{{ number_format($shopOrderStats['revenue_total'], 2) }}">{{ \App\Support\CompactNumber::currency((float) $shopOrderStats['revenue_total']) }}</p>
-                <p class="text-xs text-slate-400 mt-0.5">All time</p>
-            </div>
-            <div class="pb-card p-4 {{ $shopOrderStats['pending_dispatch'] > 0 ? 'border border-amber-200 bg-amber-50/50' : '' }}">
-                <p class="text-xs font-bold uppercase {{ $shopOrderStats['pending_dispatch'] > 0 ? 'text-amber-600' : 'text-slate-400' }} mb-1">Needs Action</p>
-                <p class="text-xl font-black {{ $shopOrderStats['pending_dispatch'] > 0 ? 'text-amber-700' : 'text-slate-900' }}">
-                    {{ number_format($shopOrderStats['pending_dispatch']) }}
-                </p>
-                <p class="text-xs text-slate-400 mt-0.5">Paid but not yet dispatched</p>
-            </div>
+        <div class="grid gap-3 sm:grid-cols-3">
+            <article class="pb-kpi-card">
+                <div class="pb-kpi-accent-bar bg-brand-500"></div>
+                <div class="mt-1 flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                        <p class="pb-stat-label">Shop Revenue (Month)</p>
+                        <p class="pb-stat-value truncate" title="₦{{ number_format($shopOrderStats['revenue_month'], 2) }}">{{ \App\Support\CompactNumber::currency((float) $shopOrderStats['revenue_month']) }}</p>
+                        <p class="mt-1 text-xs text-slate-400">Paid orders this month</p>
+                    </div>
+                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50">
+                        <svg class="h-4.5 w-4.5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </span>
+                </div>
+            </article>
+            <article class="pb-kpi-card">
+                <div class="pb-kpi-accent-bar bg-slate-400"></div>
+                <div class="mt-1 flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                        <p class="pb-stat-label">Total Shop Revenue</p>
+                        <p class="pb-stat-value truncate" title="₦{{ number_format($shopOrderStats['revenue_total'], 2) }}">{{ \App\Support\CompactNumber::currency((float) $shopOrderStats['revenue_total']) }}</p>
+                        <p class="mt-1 text-xs text-slate-400">All time</p>
+                    </div>
+                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100">
+                        <svg class="h-4.5 w-4.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </span>
+                </div>
+            </article>
+            <article class="pb-kpi-card {{ $shopOrderStats['pending_dispatch'] > 0 ? 'ring-1 ring-amber-200' : '' }}">
+                <div class="pb-kpi-accent-bar {{ $shopOrderStats['pending_dispatch'] > 0 ? 'bg-amber-400' : 'bg-slate-300' }}"></div>
+                <div class="mt-1 flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                        <p class="pb-stat-label {{ $shopOrderStats['pending_dispatch'] > 0 ? 'text-amber-600' : '' }}">Needs Action</p>
+                        <p class="pb-stat-value {{ $shopOrderStats['pending_dispatch'] > 0 ? 'text-amber-700' : '' }}">{{ number_format($shopOrderStats['pending_dispatch']) }}</p>
+                        <p class="mt-1 text-xs text-slate-400">Paid but not yet dispatched</p>
+                    </div>
+                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg {{ $shopOrderStats['pending_dispatch'] > 0 ? 'bg-amber-50' : 'bg-slate-100' }}">
+                        <svg class="h-4.5 w-4.5 {{ $shopOrderStats['pending_dispatch'] > 0 ? 'text-amber-600' : 'text-slate-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+                        </svg>
+                    </span>
+                </div>
+            </article>
         </div>
     </section>
     @endif
@@ -293,73 +322,65 @@
         </div>
 
         <div class="p-6 grid gap-5 lg:grid-cols-2">
-            {{-- Views bar chart --}}
+            {{-- Top products by views --}}
             @php $maxV = $productChartData->max('views') ?: 1; @endphp
-            <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
-                <p class="pb-stat-label mb-4">Top 10 products by views</p>
-                <div class="space-y-3">
-                    @forelse($productChartData as $item)
-                        <div>
-                            <div class="flex items-center justify-between text-xs mb-1">
-                                <span class="font-medium text-slate-700 truncate max-w-[200px]">{{ $item['name'] }}</span>
-                                <span class="font-bold text-brand-700 shrink-0 ml-2">{{ number_format($item['views']) }}</span>
-                            </div>
-                            <div class="pb-progress">
-                                <div class="pb-progress-primary" style="width:{{ min(100, max(2, ($item['views'] / $maxV) * 100)) }}%"></div>
+            <div class="rounded-xl border border-slate-200 bg-white">
+                <div class="border-b border-slate-100 px-4 py-3">
+                    <p class="pb-stat-label">Top products by views</p>
+                </div>
+                <div class="divide-y divide-slate-100">
+                    @forelse($productChartData as $index => $item)
+                        <div class="flex items-start gap-3 px-4 py-3">
+                            <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-black
+                                {{ $index === 0 && $item['views'] > 0 ? 'bg-amber-400 text-amber-950' : 'bg-slate-100 text-slate-500' }}">
+                                {{ $index + 1 }}
+                            </span>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="truncate text-sm font-semibold text-slate-800">{{ $item['name'] }}</span>
+                                    <span class="shrink-0 text-sm font-bold text-brand-700">{{ number_format($item['views']) }}</span>
+                                </div>
+                                <p class="mt-0.5 truncate text-xs text-slate-400">{{ $item['category'] }}</p>
+                                @if ($item['views'] > 0)
+                                    <div class="pb-progress mt-2">
+                                        <div class="pb-progress-primary" style="width:{{ min(100, ($item['views'] / $maxV) * 100) }}%"></div>
+                                    </div>
+                                @else
+                                    <p class="mt-2 text-[11px] font-medium uppercase tracking-wide text-slate-300">No views yet</p>
+                                @endif
                             </div>
                         </div>
                     @empty
-                        <p class="text-sm text-slate-400 text-center py-4">No product views yet.</p>
+                        <p class="px-4 py-8 text-center text-sm text-slate-400">No product views yet.</p>
                     @endforelse
                 </div>
             </div>
 
             {{-- Category breakdown --}}
-            @php $maxC = $productCategoryBreakdown->max('count') ?: 1; @endphp
-            <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
-                <p class="pb-stat-label mb-4">Products by category</p>
-                <div class="space-y-3">
-                    @forelse($productCategoryBreakdown as $cat)
-                        <div>
-                            <div class="flex items-center justify-between text-xs mb-1">
-                                <span class="font-medium text-slate-700">{{ $cat['name'] }}</span>
-                                <span class="font-bold text-cyan-700 shrink-0 ml-2">{{ $cat['count'] }}</span>
+            @php
+                $sortedCategories = $productCategoryBreakdown->sortByDesc('count')->values();
+                $maxC = $sortedCategories->max('count') ?: 1;
+            @endphp
+            <div class="rounded-xl border border-slate-200 bg-white">
+                <div class="border-b border-slate-100 px-4 py-3">
+                    <p class="pb-stat-label">Products by category</p>
+                </div>
+                <div class="divide-y divide-slate-100">
+                    @forelse($sortedCategories as $cat)
+                        <div class="px-4 py-3">
+                            <div class="mb-1.5 flex items-center justify-between gap-2">
+                                <span class="truncate text-sm font-semibold text-slate-800">{{ $cat['name'] }}</span>
+                                <span class="shrink-0 text-sm font-bold text-cyan-700">{{ $cat['count'] }}</span>
                             </div>
                             <div class="pb-progress">
                                 <div class="pb-progress-info" style="width:{{ min(100, max(2, ($cat['count'] / $maxC) * 100)) }}%"></div>
                             </div>
                         </div>
                     @empty
-                        <p class="text-sm text-slate-400 text-center py-4">No categories yet.</p>
+                        <p class="px-4 py-8 text-center text-sm text-slate-400">No categories yet.</p>
                     @endforelse
                 </div>
             </div>
-        </div>
-
-        {{-- Most viewed table --}}
-        <div class="border-t border-slate-100">
-            <table class="pb-table pb-table--cards w-full md:min-w-[460px]">
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Category</th>
-                        <th>Views</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($mostViewedProducts as $product)
-                        <tr>
-                            <td data-label="Product" class="font-medium text-slate-900">{{ $product->name }}</td>
-                            <td data-label="Category" class="text-slate-500">{{ $product->category?->name ?? 'Uncategorized' }}</td>
-                            <td data-label="Views" class="font-bold text-brand-700">{{ number_format((int)$product->view_count) }}</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="3" class="py-8 text-center text-sm text-slate-400">No views yet.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
         </div>
     </section>
 
@@ -382,26 +403,36 @@
             </div>
 
             <div class="p-6 grid gap-5 lg:grid-cols-2">
-                {{-- Activity bar --}}
+                {{-- Staff activity — ranked list --}}
                 @php $maxA = $staffChartData->max('activities') ?: 1; @endphp
-                <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
-                    <p class="pb-stat-label mb-4">Staff activity — last 7 days</p>
-                    <div class="space-y-3">
-                        @forelse($staffChartData as $staff)
-                            <div>
-                                <div class="flex items-center justify-between text-xs mb-1">
-                                    <span class="font-medium text-slate-700 truncate max-w-[160px]">{{ $staff['name'] }}</span>
-                                    <div class="flex items-center gap-2 shrink-0 ml-2">
-                                        <span class="text-slate-400 text-[10px]">{{ $staff['role'] }}</span>
-                                        <span class="font-bold text-violet-700">{{ $staff['activities'] }}</span>
+                <div class="rounded-xl border border-slate-200 bg-white">
+                    <div class="border-b border-slate-100 px-4 py-3">
+                        <p class="pb-stat-label">Staff activity — last 7 days</p>
+                    </div>
+                    <div class="divide-y divide-slate-100">
+                        @forelse($staffChartData as $index => $staff)
+                            <div class="flex items-start gap-3 px-4 py-3">
+                                <span class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-black
+                                    {{ $index === 0 && $staff['activities'] > 0 ? 'bg-amber-400 text-amber-950' : 'bg-slate-100 text-slate-500' }}">
+                                    {{ $index + 1 }}
+                                </span>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="truncate text-sm font-semibold text-slate-800">{{ $staff['name'] }}</span>
+                                        <span class="shrink-0 text-sm font-bold text-violet-700">{{ number_format($staff['activities']) }}</span>
                                     </div>
-                                </div>
-                                <div class="pb-progress">
-                                    <div class="pb-progress-purple" style="width:{{ min(100, max(2, ($staff['activities'] / $maxA) * 100)) }}%"></div>
+                                    <p class="mt-0.5 truncate text-xs text-slate-400">{{ $staff['role'] }}</p>
+                                    @if ($staff['activities'] > 0)
+                                        <div class="pb-progress mt-2">
+                                            <div class="pb-progress-purple" style="width:{{ min(100, ($staff['activities'] / $maxA) * 100) }}%"></div>
+                                        </div>
+                                    @else
+                                        <p class="mt-2 text-[11px] font-medium uppercase tracking-wide text-slate-300">No activity yet</p>
+                                    @endif
                                 </div>
                             </div>
                         @empty
-                            <p class="text-sm text-slate-400 text-center py-4">No activity data yet.</p>
+                            <p class="px-4 py-8 text-center text-sm text-slate-400">No activity data yet.</p>
                         @endforelse
                     </div>
                 </div>
@@ -411,48 +442,24 @@
                     $maxD      = $weeklyStaffActivity->max('total') ?: 1;
                     $dayLabels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
                 @endphp
-                <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-4">
-                    <p class="pb-stat-label mb-4">Daily activity trend (7 days)</p>
-                    <div class="flex items-end justify-between gap-1.5" style="min-height:100px">
+                <div class="rounded-xl border border-slate-200 bg-white">
+                    <div class="border-b border-slate-100 px-4 py-3">
+                        <p class="pb-stat-label">Daily activity trend (7 days)</p>
+                    </div>
+                    <div class="flex items-end justify-between gap-1.5 px-4 py-4" style="min-height:120px">
                         @forelse($weeklyStaffActivity as $day)
-                            <div class="flex flex-col items-center gap-1 flex-1">
-                                <span class="text-[9px] font-bold text-violet-600">{{ $day['total'] }}</span>
-                                <div class="w-full rounded-t overflow-hidden bg-violet-100" style="height:{{ max(8, ($day['total'] / $maxD) * 90) }}px">
+                            <div class="flex flex-1 flex-col items-center gap-1">
+                                <span class="text-[10px] font-bold text-violet-600">{{ $day['total'] }}</span>
+                                <div class="w-full max-w-8 overflow-hidden rounded-t bg-violet-100" style="height:{{ max(8, ($day['total'] / $maxD) * 90) }}px">
                                     <div class="h-full w-full bg-gradient-to-t from-violet-600 to-violet-400"></div>
                                 </div>
-                                <span class="text-[9px] text-slate-400">{{ $dayLabels[\Carbon\Carbon::parse($day['date'])->dayOfWeekIso - 1] ?? '' }}</span>
+                                <span class="text-[10px] text-slate-400">{{ $dayLabels[\Carbon\Carbon::parse($day['date'])->dayOfWeekIso - 1] ?? '' }}</span>
                             </div>
                         @empty
-                            <p class="text-sm text-slate-400 w-full text-center">No data this week.</p>
+                            <p class="w-full text-center text-sm text-slate-400">No data this week.</p>
                         @endforelse
                     </div>
                 </div>
-            </div>
-
-            {{-- Top staff table --}}
-            <div class="border-t border-slate-100">
-                <table class="pb-table pb-table--cards w-full md:min-w-[460px]">
-                    <thead>
-                        <tr>
-                            <th>Staff Member</th>
-                            <th>Role</th>
-                            <th>Activities (7 days)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($topStaff as $s)
-                            <tr>
-                                <td data-label="Staff Member" class="font-medium text-slate-900">{{ $s->displayName() }}</td>
-                                <td data-label="Role" class="text-slate-500">{{ config('printbuka_admin.role_labels.'.$s->role, $s->role) }}</td>
-                                <td data-label="Activities (7 days)" class="font-bold text-violet-700">{{ number_format((int)$s->staff_activities_count) }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="3" class="py-8 text-center text-sm text-slate-400">No staff data.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
             </div>
         </section>
     @endif

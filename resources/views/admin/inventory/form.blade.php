@@ -241,11 +241,11 @@
                     </div>
                 </label>
 
-                <button type="submit" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black w-full">
+                <button type="submit" class="pb-btn pb-btn-md pb-btn-primary w-full">
                     <x-heroicon-o-check class="w-4 h-4" />
                     {{ $item ? 'Save Changes' : 'Create Item' }}
                 </button>
-                <a href="{{ route('admin.inventory.index') }}" class="btn btn-ghost font-black text-slate-500 w-full text-sm">
+                <a href="{{ route('admin.inventory.index') }}" class="pb-btn pb-btn-md pb-btn-ghost w-full">
                     Cancel
                 </a>
             </div>

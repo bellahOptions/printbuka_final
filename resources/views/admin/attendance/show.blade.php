@@ -4,17 +4,19 @@
 @section('content')
 <div class="mx-auto max-w-3xl space-y-6">
 
-    <div>
-        <a href="{{ route('admin.attendance.team') }}" class="text-sm font-black text-pink-600 hover:text-pink-800">← Back to Team Attendance</a>
-        <h1 class="text-2xl font-black text-slate-950 mt-2">{{ $staff->displayName() }}</h1>
+    <div class="pb-page-header">
+        <div>
+            <a href="{{ route('admin.attendance.team') }}" class="text-sm font-black text-pink-600 hover:text-pink-800">← Back to Team Attendance</a>
+            <h1 class="pb-page-title mt-2">{{ $staff->displayName() }}</h1>
+        </div>
     </div>
 
     @if (session('status'))
-        <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-800">{{ session('status') }}</div>
+        <div class="pb-alert pb-alert-success">{{ session('status') }}</div>
     @endif
 
     @if ($overtimeThisMonthMinutes > 0)
-        <div class="rounded-xl border border-purple-200 bg-purple-50 p-4 text-sm font-bold text-purple-800">
+        <div class="pb-alert pb-alert-info">
             {{ intdiv($overtimeThisMonthMinutes, 60) }}h {{ $overtimeThisMonthMinutes % 60 }}m of overtime recorded this month.
         </div>
     @endif

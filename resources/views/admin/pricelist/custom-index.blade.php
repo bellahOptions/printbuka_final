@@ -10,59 +10,63 @@
             <span class="font-semibold text-slate-700">Custom Items</span>
         </div>
 
-        <div class="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div class="pb-page-header mt-2">
             <div>
-                <h1 class="text-3xl font-black text-slate-950">Custom price list items</h1>
-                <p class="mt-2 max-w-2xl text-sm text-slate-500">Freeform pricing lines not tied to the standard product/service structure — optionally linked to a service and/or a product.</p>
+                <h1 class="pb-page-title">Custom price list items</h1>
+                <p class="pb-page-subtitle max-w-2xl">Freeform pricing lines not tied to the standard product/service structure — optionally linked to a service and/or a product.</p>
             </div>
-            <a href="{{ route('admin.pricelist.custom.create') }}" class="rounded-md bg-pink-600 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700">
+            <a href="{{ route('admin.pricelist.custom.create') }}" class="pb-btn pb-btn-md pb-btn-primary">
                 + Add custom item
             </a>
         </div>
 
         @if (session('status'))
-            <div class="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-800">
+            <div class="mb-6 pb-alert pb-alert-success">
                 {{ session('status') }}
             </div>
         @endif
 
-        <div class="mt-8 overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm">
-            <table class="pb-table pb-table--cards w-full text-sm">
+        <div class="pb-table-wrapper">
+            <table class="pb-table pb-table--cards">
                 <thead>
                     <tr>
-                        <th class="px-4 py-3 text-left">Label</th>
-                        <th class="px-4 py-3 text-left">Service</th>
-                        <th class="px-4 py-3 text-left">Product</th>
-                        <th class="px-4 py-3 text-right">Price (₦)</th>
-                        <th class="px-4 py-3 text-right">Actions</th>
+                        <th>Label</th>
+                        <th>Service</th>
+                        <th>Product</th>
+                        <th class="text-right">Price (₦)</th>
+                        <th class="text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($items as $item)
-                        <tr class="border-t border-slate-100">
-                            <td data-label="Label" class="px-4 py-3 font-semibold text-slate-800">{{ $item->label }}</td>
-                            <td data-label="Service" class="px-4 py-3 text-slate-600">
+                        <tr>
+                            <td data-label="Label" class="font-semibold text-slate-800">{{ $item->label }}</td>
+                            <td data-label="Service">
                                 {{ $item->service_slug ? config("printbuka_services.services.{$item->service_slug}.name", $item->service_slug) : '—' }}
                             </td>
-                            <td data-label="Product" class="px-4 py-3 text-slate-600">
+                            <td data-label="Product">
                                 @if ($item->product)
                                     <a href="{{ route('admin.pricelist.products.edit', $item->product) }}" class="text-pink-600 hover:underline">{{ $item->product->name }}</a>
                                 @else
                                     —
                                 @endif
                             </td>
-                            <td data-label="Price (₦)" class="px-4 py-3 text-right font-semibold text-slate-800">₦{{ number_format((float) $item->price, 2) }}</td>
-                            <td class="px-4 py-3 text-right">
+                            <td data-label="Price (₦)" class="text-right font-semibold text-slate-800">₦{{ number_format((float) $item->price, 2) }}</td>
+                            <td class="text-right">
                                 <form action="{{ route('admin.pricelist.custom.destroy', $item) }}" method="POST" onsubmit="return confirm('Remove this custom price list item?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-sm font-bold text-rose-600 hover:text-rose-800">Delete</button>
+                                    <button type="submit" class="pb-btn pb-btn-sm pb-btn-destructive">Delete</button>
                                 </form>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-4 py-8 text-center text-sm text-slate-500">No custom price list items yet.</td>
+                            <td colspan="5">
+                                <div class="pb-empty">
+                                    <p class="pb-empty-title">No custom price list items yet.</p>
+                                </div>
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>

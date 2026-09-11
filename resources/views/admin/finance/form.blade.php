@@ -5,15 +5,17 @@
 @section('content')
     @php($isAutoIncome = (bool) ($isAutoIncome ?? false))
     <div class="mx-auto max-w-5xl">
-        <div class="rounded-md bg-slate-950 p-6 text-white lg:p-8">
-            <a href="{{ route('admin.finance.index') }}" class="text-sm font-black text-cyan-300">Finance</a>
-            <h1 class="mt-3 text-4xl">
-                {{ $isAutoIncome ? 'View auto income entry.' : ($entry->exists ? 'Edit expense entry.' : 'Add expense entry.') }}
-            </h1>
-            <p class="mt-2 text-sm text-slate-300">Income entries are generated automatically whenever an invoice is marked as paid.</p>
+        <div class="pb-page-header">
+            <div>
+                <a href="{{ route('admin.finance.index') }}" class="text-sm font-semibold text-brand-700 hover:text-brand-800">← Finance</a>
+                <h1 class="pb-page-title">
+                    {{ $isAutoIncome ? 'View auto income entry.' : ($entry->exists ? 'Edit expense entry.' : 'Add expense entry.') }}
+                </h1>
+                <p class="pb-page-subtitle">Income entries are generated automatically whenever an invoice is marked as paid.</p>
+            </div>
         </div>
 
-        <form action="{{ $entry->exists ? route('admin.finance.update', $entry) : route('admin.finance.store') }}" method="POST" class="mt-8 rounded-md border border-slate-200 bg-white p-6 shadow-sm" @if (! $entry->exists) data-idempotent-form @endif @unless ($isAutoIncome) data-confirm-amount="amount" data-confirm-label="this {{ $entry->exists ? 'updated' : 'new' }} expense entry" @endunless>
+        <form action="{{ $entry->exists ? route('admin.finance.update', $entry) : route('admin.finance.store') }}" method="POST" class="pb-card" @if (! $entry->exists) data-idempotent-form @endif @unless ($isAutoIncome) data-confirm-amount="amount" data-confirm-label="this {{ $entry->exists ? 'updated' : 'new' }} expense entry" @endunless>
             @csrf
             @if ($entry->exists) @method('PUT') @endif
             @if (! $entry->exists)
@@ -21,80 +23,82 @@
             @endif
             <input type="hidden" name="type" value="expense">
 
-            <div class="grid gap-5 sm:grid-cols-2">
-                <label class="text-sm font-black">
-                    Order
-                    <select name="order_id" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold" @disabled($isAutoIncome)>
-                        <option value="">No job</option>
-                        @foreach ($orders as $order)
-                            <option value="{{ $order->id }}" @selected((int) old('order_id', $entry->order_id) === $order->id)>
-                                {{ $order->job_order_number ?? $order->displayNumber() }} · {{ $order->customer_name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </label>
+            <div class="pb-card-content">
+                <div class="grid gap-5 sm:grid-cols-2">
+                    <div class="pb-field">
+                        <label class="pb-label">Order</label>
+                        <select name="order_id" class="pb-select w-full" @disabled($isAutoIncome)>
+                            <option value="">No job</option>
+                            @foreach ($orders as $order)
+                                <option value="{{ $order->id }}" @selected((int) old('order_id', $entry->order_id) === $order->id)>
+                                    {{ $order->job_order_number ?? $order->displayNumber() }} · {{ $order->customer_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                <label class="text-sm font-black">
-                    Date
-                    <input type="date" name="entry_date" value="{{ old('entry_date', $entry->entry_date?->format('Y-m-d')) }}" required class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold" @disabled($isAutoIncome)>
-                </label>
+                    <div class="pb-field">
+                        <label class="pb-label">Date</label>
+                        <input type="date" name="entry_date" value="{{ old('entry_date', $entry->entry_date?->format('Y-m-d')) }}" required class="pb-input w-full" @disabled($isAutoIncome)>
+                    </div>
 
-                <label class="text-sm font-black">
-                    Type
-                    <select name="type" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold" @disabled($isAutoIncome)>
-                        <option value="expense" @selected(old('type', $entry->type) === 'expense')>Expense</option>
-                        <option value="income" @selected(old('type', $entry->type) === 'income')>Income</option>
-                    </select>
-                </label>
+                    <div class="pb-field">
+                        <label class="pb-label">Type</label>
+                        <select name="type" class="pb-select w-full" @disabled($isAutoIncome)>
+                            <option value="expense" @selected(old('type', $entry->type) === 'expense')>Expense</option>
+                            <option value="income" @selected(old('type', $entry->type) === 'income')>Income</option>
+                        </select>
+                    </div>
 
-                <label class="text-sm font-black">
-                    Entry Type
-                    <select name="entry_type" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold" @disabled($isAutoIncome)>
-                        <option value="">Manual Entry</option>
-                        <option value="credit_from_ceo" @selected(old('entry_type', $entry->entry_type) === 'credit_from_ceo')>Credit from CEO</option>
-                    </select>
-                </label>
+                    <div class="pb-field">
+                        <label class="pb-label">Entry Type</label>
+                        <select name="entry_type" class="pb-select w-full" @disabled($isAutoIncome)>
+                            <option value="">Manual Entry</option>
+                            <option value="credit_from_ceo" @selected(old('entry_type', $entry->entry_type) === 'credit_from_ceo')>Credit from CEO</option>
+                        </select>
+                    </div>
 
-                <label class="text-sm font-black">
-                    Category
-                    <input name="category" value="{{ old('category', $entry->category) }}" required class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold" @disabled($isAutoIncome)>
-                </label>
+                    <div class="pb-field">
+                        <label class="pb-label">Category</label>
+                        <input name="category" value="{{ old('category', $entry->category) }}" required class="pb-input w-full" @disabled($isAutoIncome)>
+                    </div>
 
-                <label class="text-sm font-black sm:col-span-2">
-                    Description
-                    <input name="description" value="{{ old('description', $entry->description) }}" required class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold" @disabled($isAutoIncome)>
-                </label>
+                    <div class="pb-field sm:col-span-2">
+                        <label class="pb-label">Description</label>
+                        <input name="description" value="{{ old('description', $entry->description) }}" required class="pb-input w-full" @disabled($isAutoIncome)>
+                    </div>
 
-                <label class="text-sm font-black">
-                    Vendor / Payee
-                    <input name="payee" value="{{ old('payee', $entry->payee) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold" @disabled($isAutoIncome)>
-                </label>
+                    <div class="pb-field">
+                        <label class="pb-label">Vendor / Payee</label>
+                        <input name="payee" value="{{ old('payee', $entry->payee) }}" class="pb-input w-full" @disabled($isAutoIncome)>
+                    </div>
 
-                <label class="text-sm font-black">
-                    Amount
-                    <input type="number" min="0" step="0.01" name="amount" value="{{ old('amount', $entry->amount) }}" required class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold" @disabled($isAutoIncome)>
-                </label>
+                    <div class="pb-field">
+                        <label class="pb-label">Amount</label>
+                        <input type="number" min="0" step="0.01" name="amount" value="{{ old('amount', $entry->amount) }}" required class="pb-input w-full" @disabled($isAutoIncome)>
+                    </div>
 
-                <label class="text-sm font-black">
-                    Payment Method
-                    <input name="payment_method" value="{{ old('payment_method', $entry->payment_method) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold" @disabled($isAutoIncome)>
-                </label>
+                    <div class="pb-field">
+                        <label class="pb-label">Payment Method</label>
+                        <input name="payment_method" value="{{ old('payment_method', $entry->payment_method) }}" class="pb-input w-full" @disabled($isAutoIncome)>
+                    </div>
 
-                <label class="text-sm font-black sm:col-span-2">
-                    Notes
-                    <textarea name="notes" rows="4" data-rich-editor class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 font-semibold" @disabled($isAutoIncome)>{{ old('notes', $entry->notes) }}</textarea>
-                </label>
+                    <div class="pb-field sm:col-span-2">
+                        <label class="pb-label">Notes</label>
+                        <textarea name="notes" rows="4" data-rich-editor class="pb-textarea w-full" @disabled($isAutoIncome)>{{ old('notes', $entry->notes) }}</textarea>
+                    </div>
+                </div>
+
+                @if (! $isAutoIncome)
+                    <button class="pb-btn pb-btn-md pb-btn-primary mt-6">
+                        Save Expense Entry
+                    </button>
+                @else
+                    <a href="{{ route('admin.finance.index') }}" class="pb-btn pb-btn-md pb-btn-secondary mt-6">
+                        Back To Finance
+                    </a>
+                @endif
             </div>
-
-            @if (! $isAutoIncome)
-                <button class="mt-6 rounded-md bg-pink-600 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700">
-                    Save Expense Entry
-                </button>
-            @else
-                <a href="{{ route('admin.finance.index') }}" class="mt-6 inline-flex rounded-md bg-slate-900 px-5 py-3 text-sm font-black text-white transition hover:bg-slate-700">
-                    Back To Finance
-                </a>
-            @endif
         </form>
     </div>
 @endsection

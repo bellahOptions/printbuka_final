@@ -8,14 +8,14 @@
             <h1 class="pb-page-title text-xl font-black mb-2">Shop Products</h1>
         </div>
         <a href="{{ route('admin.shop-products.create') }}"
-           class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black gap-2 self-start">
+           class="pb-btn pb-btn-md pb-btn-primary self-start">
             <x-heroicon-o-plus class="w-4 h-4" /> Add Product
         </a>
     </div>
 </div>
 
 @if(session('status'))
-    <div class="alert alert-success mb-5 font-bold">
+    <div class="pb-alert pb-alert-success mb-5">
         <x-heroicon-o-check-circle class="w-5 h-5" /> {{ session('status') }}
     </div>
 @endif

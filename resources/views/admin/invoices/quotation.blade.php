@@ -4,49 +4,35 @@
 
 @section('content')
     <div class="mx-auto max-w-6xl space-y-6">
-        <!-- Hero Section -->
-        <div class="fade-in-up rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-8 text-white shadow-xl">
-            <div class="flex items-center gap-2 mb-4">
-                <a href="{{ route('admin.invoices.index') }}" class="group inline-flex items-center gap-2 text-sm font-black text-cyan-300 transition-colors hover:text-cyan-200">
-                    <svg class="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="pb-page-header">
+            <div>
+                <a href="{{ route('admin.invoices.index') }}" class="inline-flex items-center gap-1 text-sm font-semibold text-slate-500 hover:text-slate-700">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
                     Back to Invoices
                 </a>
-            </div>
-            <div class="flex items-start gap-4">
-                <div class="flex-1">
-                    <h1 class="text-4xl font-black tracking-tight lg:text-5xl">Create quotation</h1>
-                    <p class="mt-3 max-w-3xl text-base leading-relaxed text-slate-300">Generate a professional quote for new or existing customers. Choose to save, download, or send after save.</p>
-                </div>
-                <div class="hidden sm:block">
-                    <div class="rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 p-3 border border-cyan-500/20">
-                        <svg class="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                    </div>
-                </div>
+                <h1 class="pb-page-title">Create quotation</h1>
+                <p class="pb-page-subtitle">Generate a professional quote for new or existing customers. Choose to save, download, or send after save.</p>
             </div>
         </div>
 
         <!-- Error Summary -->
         @if ($errors->any())
-            <div class="fade-in-up rounded-xl border border-red-200 bg-red-50 p-4">
-                <div class="flex items-start gap-3">
-                    <svg class="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                    </svg>
-                    <div>
-                        <p class="text-sm font-black text-red-800">Please review the following issues:</p>
-                        <ul class="mt-2 space-y-1 text-sm font-semibold text-red-700">
-                            @foreach ($errors->all() as $error)
-                                <li class="flex items-center gap-2">
-                                    <span class="w-1 h-1 rounded-full bg-red-400"></span>
-                                    {{ $error }}
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
+            <div class="pb-alert pb-alert-error items-start">
+                <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <div>
+                    <p class="font-semibold">Please review the following issues:</p>
+                    <ul class="mt-2 space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <li class="flex items-center gap-2">
+                                <span class="w-1 h-1 rounded-full bg-red-400"></span>
+                                {{ $error }}
+                            </li>
+                        @endforeach
+                    </ul>
                 </div>
             </div>
         @endif
@@ -101,28 +87,16 @@
             @endphp
             
             <!-- Customer Section -->
-            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="p-2 rounded-xl bg-gradient-to-br from-pink-100 to-pink-50 border border-pink-200">
-                        <svg class="w-5 h-5 text-pink-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-black text-slate-950">Customer Information</h2>
-                        <p class="text-sm text-slate-500">Select existing or create new customer</p>
-                    </div>
+            <div class="pb-card p-6 lg:p-8">
+                <div class="mb-6">
+                    <h2 class="pb-section-title">Customer Information</h2>
+                    <p class="pb-section-subtitle">Select existing or create new customer</p>
                 </div>
-                
+
                 <div class="space-y-5">
                     <div>
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                            Existing Customer
-                        </label>
-                        <select id="quotation-customer-select" name="customer_id" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                        <label class="pb-label">Existing Customer</label>
+                        <select id="quotation-customer-select" name="customer_id" class="mt-2 pb-input">
                             <option value="">— Select a customer —</option>
                             @foreach ($customers as $customer)
                                 <option
@@ -143,7 +117,7 @@
                         <button
                             type="button"
                             id="quotation-toggle-new-customer"
-                            class="rounded-lg border border-cyan-200 bg-white px-3 py-2 text-xs font-black uppercase tracking-wide text-cyan-700 transition-colors hover:bg-cyan-50"
+                            class="pb-btn pb-btn-sm pb-btn-outline"
                             aria-expanded="false"
                             aria-controls="quotation-new-customer-form"
                         >
@@ -158,56 +132,36 @@
             </div>
 
             <!-- Customer Details Grid -->
-            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
+            <div class="pb-card p-6 lg:p-8">
                 <div class="grid gap-5 sm:grid-cols-2">
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                            </svg>
-                            Customer Name *
-                        </label>
-                        <input id="quotation-customer-name" name="customer_name" value="{{ old('customer_name') }}" required 
-                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                    <div class="pb-field">
+                        <label class="pb-label">Customer Name *</label>
+                        <input id="quotation-customer-name" name="customer_name" value="{{ old('customer_name') }}" required
+                               class="pb-input"
                                placeholder="Full name">
-                        @error('customer_name')<p class="mt-1.5 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                        @error('customer_name')<p class="pb-field-error">{{ $message }}</p>@enderror
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                            </svg>
-                            Customer Email
-                        </label>
+                    <div class="pb-field">
+                        <label class="pb-label">Customer Email</label>
                         <input id="quotation-customer-email" type="email" name="customer_email" value="{{ old('customer_email') }}"
-                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                               class="pb-input"
                                placeholder="email@example.com">
                         <p class="text-xs font-semibold text-slate-500">Optional. Required only when using "Save & Send".</p>
-                        @error('customer_email')<p class="mt-1.5 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                        @error('customer_email')<p class="pb-field-error">{{ $message }}</p>@enderror
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                            </svg>
-                            Customer Phone *
-                        </label>
-                        <input id="quotation-customer-phone" name="customer_phone" value="{{ old('customer_phone') }}" required 
-                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                    <div class="pb-field">
+                        <label class="pb-label">Customer Phone *</label>
+                        <input id="quotation-customer-phone" name="customer_phone" value="{{ old('customer_phone') }}" required
+                               class="pb-input"
                                placeholder="+234 XXX XXX XXXX">
-                        @error('customer_phone')<p class="mt-1.5 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                        @error('customer_phone')<p class="pb-field-error">{{ $message }}</p>@enderror
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                            </svg>
-                            Product
-                        </label>
-                        <select name="product_id" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    <div class="pb-field">
+                        <label class="pb-label">Product</label>
+                        <select name="product_id" class="pb-input">
                             <option value="">— Custom job —</option>
                             @foreach ($products as $product)
                                 <option value="{{ $product->id }}" @selected((int) old('product_id') === $product->id)>{{ $product->name }}</option>
@@ -218,44 +172,27 @@
             </div>
 
             <!-- Job Details Section -->
-            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="p-2 rounded-xl bg-gradient-to-br from-cyan-100 to-cyan-50 border border-cyan-200">
-                        <svg class="w-5 h-5 text-cyan-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-black text-slate-950">Job Specifications</h2>
-                        <p class="text-sm text-slate-500">Define the job details and pricing</p>
-                    </div>
+            <div class="pb-card p-6 lg:p-8">
+                <div class="mb-6">
+                    <h2 class="pb-section-title">Job Specifications</h2>
+                    <p class="pb-section-subtitle">Define the job details and pricing</p>
                 </div>
 
                 <div class="grid gap-5 sm:grid-cols-2">
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                            </svg>
-                            Job Type *
-                        </label>
-                        <select name="job_type" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    <div class="pb-field">
+                        <label class="pb-label">Job Type *</label>
+                        <select name="job_type" required class="pb-input">
                             <option value="">— Select job type —</option>
                             @foreach ($jobTypes as $jobType)
                                 <option @selected(old('job_type') === $jobType)>{{ $jobType }}</option>
                             @endforeach
                         </select>
-                        @error('job_type')<p class="mt-1.5 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                        @error('job_type')<p class="pb-field-error">{{ $message }}</p>@enderror
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
-                            </svg>
-                            Size / Format
-                        </label>
-                        <select name="size_format" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    <div class="pb-field">
+                        <label class="pb-label">Size / Format</label>
+                        <select name="size_format" class="pb-input">
                             <option value="">— Select size —</option>
                             @foreach ($sizes as $size)
                                 <option @selected(old('size_format') === $size)>{{ $size }}</option>
@@ -263,30 +200,20 @@
                         </select>
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>
-                            </svg>
-                            Tax (₦)
-                        </label>
-                        <input type="number" step="0.01" min="0" name="tax_amount" value="{{ old('tax_amount', 0) }}" 
-                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                    <div class="pb-field">
+                        <label class="pb-label">Tax (₦)</label>
+                        <input type="number" step="0.01" min="0" name="tax_amount" value="{{ old('tax_amount', 0) }}"
+                               class="pb-input"
                                placeholder="0.00">
-                        @error('tax_amount')<p class="mt-1.5 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                        @error('tax_amount')<p class="pb-field-error">{{ $message }}</p>@enderror
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            Discount (₦)
-                        </label>
-                        <input type="number" step="0.01" min="0" name="discount_amount" value="{{ old('discount_amount', 0) }}" 
-                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                    <div class="pb-field">
+                        <label class="pb-label">Discount (₦)</label>
+                        <input type="number" step="0.01" min="0" name="discount_amount" value="{{ old('discount_amount', 0) }}"
+                               class="pb-input"
                                placeholder="0.00">
-                        @error('discount_amount')<p class="mt-1.5 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                        @error('discount_amount')<p class="pb-field-error">{{ $message }}</p>@enderror
                     </div>
                 </div>
 
@@ -307,7 +234,7 @@
                 <div class="quotation-line-items-wrap mt-6 overflow-hidden rounded-xl border border-slate-200">
                     <div class="overflow-x-auto">
                         <table class="quotation-line-items-table w-full min-w-[980px]">
-                            <thead class="bg-slate-900 text-left text-xs font-black uppercase tracking-wide text-white">
+                            <thead class="bg-slate-900 text-left text-xs font-bold uppercase tracking-wide text-white">
                                 <tr>
                                     <th class="px-4 py-3">Item</th>
                                     <th class="px-4 py-3">Quantity</th>
@@ -325,7 +252,7 @@
                                                 <div class="grid gap-2 sm:grid-cols-2">
                                                     <div>
                                                         <p class="line-item-sub-label">Type</p>
-                                                        <select data-line-item-source name="line_items[{{ $index }}][source_type]" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                                                        <select data-line-item-source name="line_items[{{ $index }}][source_type]" class="pb-input">
                                                             <option value="custom" @selected(($item['source_type'] ?? 'custom') === 'custom')>Custom</option>
                                                             <option value="product" @selected(($item['source_type'] ?? '') === 'product')>Existing Product</option>
                                                             <option value="service" @selected(($item['source_type'] ?? '') === 'service')>Existing Service</option>
@@ -333,7 +260,7 @@
                                                     </div>
                                                     <div>
                                                         <p class="line-item-sub-label">Catalog Item</p>
-                                                        <select data-line-item-catalog name="line_items[{{ $index }}][catalog_item_key]" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                                                        <select data-line-item-catalog name="line_items[{{ $index }}][catalog_item_key]" class="pb-input">
                                                             <option value="">— Select catalog item —</option>
                                                             <optgroup label="Products">
                                                                 @foreach ($products as $product)
@@ -365,17 +292,17 @@
                                                     </div>
                                                 </div>
                                                 <input data-line-item-description name="line_items[{{ $index }}][description]" value="{{ (string) ($item['description'] ?? '') }}"
-                                                       class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                                                       class="pb-input"
                                                        placeholder="Description of item/service...">
                                                 <div class="grid gap-2 sm:grid-cols-3">
                                                     <input data-line-item-size list="quote-size-suggestions" name="line_items[{{ $index }}][size]" value="{{ (string) ($item['size'] ?? '') }}"
-                                                           class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                                                           class="pb-input"
                                                            placeholder="Size / Format">
                                                     <input data-line-item-color name="line_items[{{ $index }}][color]" value="{{ (string) ($item['color'] ?? '') }}"
-                                                           class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                                                           class="pb-input"
                                                            placeholder="Color">
                                                     <input data-line-item-finishing list="quote-finishing-suggestions" name="line_items[{{ $index }}][finishing]" value="{{ (string) ($item['finishing'] ?? '') }}"
-                                                           class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                                                           class="pb-input"
                                                            placeholder="Finishing">
                                                 </div>
                                             </div>
@@ -383,22 +310,22 @@
                                         <td class="line-item-cell line-item-cell--quantity px-4 py-3">
                                             <p class="line-item-mobile-label">Quantity</p>
                                             <input data-line-item-quantity type="number" min="1" step="1" name="line_items[{{ $index }}][quantity]" value="{{ (int) ($item['quantity'] ?? 1) }}"
-                                                   class="w-24 rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                                                   class="pb-input w-24">
                                         </td>
                                         <td class="line-item-cell line-item-cell--rate px-4 py-3">
                                             <p class="line-item-mobile-label">Rate</p>
-                                            <div class="flex w-32 items-center overflow-hidden rounded-lg border border-slate-300">
-                                                <span class="px-3 text-sm font-black text-slate-500">₦</span>
+                                            <div class="flex w-32 items-center overflow-hidden rounded-lg border border-slate-200">
+                                                <span class="px-3 text-sm font-bold text-slate-500">₦</span>
                                                 <input data-line-item-rate type="number" min="0" step="0.01" name="line_items[{{ $index }}][rate]" value="{{ (float) ($item['rate'] ?? 0) }}"
-                                                       class="w-full border-0 px-3 py-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-pink-500/20">
+                                                       class="w-full border-0 bg-transparent px-3 py-2.5 text-sm font-semibold text-slate-800 focus:ring-0">
                                             </div>
                                         </td>
-                                        <td class="line-item-cell line-item-cell--amount px-4 py-3 text-sm font-black text-slate-900">
+                                        <td class="line-item-cell line-item-cell--amount px-4 py-3 text-sm font-bold text-slate-900">
                                             <p class="line-item-mobile-label">Amount</p>
                                             <span data-line-item-amount>₦0.00</span>
                                         </td>
                                         <td class="line-item-cell line-item-cell--action px-4 py-3 text-right">
-                                            <button type="button" data-remove-line-item class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-black uppercase tracking-wide text-slate-500 transition-colors hover:border-red-200 hover:text-red-600">
+                                            <button type="button" data-remove-line-item class="pb-btn pb-btn-sm pb-btn-outline">
                                                 Remove
                                             </button>
                                         </td>
@@ -414,7 +341,7 @@
                 @error('line_items.*.quantity')<p class="mt-2 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
                 @error('line_items.*.rate')<p class="mt-2 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
 
-                <button type="button" id="add-quotation-line-item" class="mt-4 inline-flex items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-2.5 text-sm font-black text-emerald-700 transition-colors hover:bg-emerald-100">
+                <button type="button" id="add-quotation-line-item" class="mt-4 inline-flex items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                     </svg>
@@ -422,59 +349,59 @@
                 </button>
 
                 <div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <p class="text-xs font-black uppercase tracking-wide text-slate-500">Subtotal</p>
-                        <p id="quotation-subtotal-display" class="mt-2 text-lg font-black text-slate-900">₦0.00</p>
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                        <p class="pb-label">Subtotal</p>
+                        <p id="quotation-subtotal-display" class="mt-2 text-lg font-bold text-slate-900">₦0.00</p>
                     </div>
-                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <p class="text-xs font-black uppercase tracking-wide text-slate-500">Tax</p>
-                        <p id="quotation-tax-display" class="mt-2 text-lg font-black text-slate-900">₦0.00</p>
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                        <p class="pb-label">Tax</p>
+                        <p id="quotation-tax-display" class="mt-2 text-lg font-bold text-slate-900">₦0.00</p>
                     </div>
-                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <p class="text-xs font-black uppercase tracking-wide text-slate-500">Discount</p>
-                        <p id="quotation-discount-display" class="mt-2 text-lg font-black text-slate-900">₦0.00</p>
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                        <p class="pb-label">Discount</p>
+                        <p id="quotation-discount-display" class="mt-2 text-lg font-bold text-slate-900">₦0.00</p>
                     </div>
-                    <div class="rounded-xl border border-pink-200 bg-pink-50 p-4">
-                        <p class="text-xs font-black uppercase tracking-wide text-pink-700">Grand Total</p>
-                        <p id="quotation-total-display" class="mt-2 text-lg font-black text-pink-700">₦0.00</p>
+                    <div class="rounded-lg border border-pink-200 bg-pink-50 p-4">
+                        <p class="pb-label text-pink-700">Grand Total</p>
+                        <p id="quotation-total-display" class="mt-2 text-lg font-bold text-pink-700">₦0.00</p>
                     </div>
                 </div>
             </div>
 
             <!-- Additional Details -->
-            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
+            <div class="pb-card p-6 lg:p-8">
                 <div class="grid gap-5 sm:grid-cols-2">
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">
+                    <div class="pb-field">
+                        <label class="pb-label">
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
                             Due Date
                         </label>
                         <input type="datetime-local" name="due_at" value="{{ old('due_at', now()->addDays(7)->format('Y-m-d\\TH:i')) }}" 
-                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
-                        @error('due_at')<p class="mt-1.5 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                               class="pb-input">
+                        @error('due_at')<p class="pb-field-error">{{ $message }}</p>@enderror
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">
+                    <div class="pb-field">
+                        <label class="pb-label">
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                             Quotation Status
                         </label>
-                        <select name="invoice_status" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                        <select name="invoice_status" class="pb-input">
                             <option value="draft" @selected(old('invoice_status', 'draft') === 'draft')>Draft</option>
                             <option value="unpaid" @selected(old('invoice_status') === 'unpaid')>Unpaid</option>
                             <option value="paid" @selected(old('invoice_status') === 'paid')>Paid</option>
                             <option value="disputed" @selected(old('invoice_status') === 'disputed')>Disputed</option>
                         </select>
                         <p class="text-xs font-semibold text-slate-500">Set to Paid to mark this quotation as settled immediately.</p>
-                        @error('invoice_status')<p class="mt-1.5 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                        @error('invoice_status')<p class="pb-field-error">{{ $message }}</p>@enderror
                     </div>
 
-                    <div class="sm:col-span-2 space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">
+                    <div class="sm:col-span-2 pb-field">
+                        <label class="pb-label">
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -482,61 +409,61 @@
                             Delivery City
                         </label>
                         <input name="delivery_city" value="{{ old('delivery_city') }}" 
-                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                               class="pb-input"
                                placeholder="e.g., Lagos">
                     </div>
 
-                    <div class="sm:col-span-2 space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">
+                    <div class="sm:col-span-2 pb-field">
+                        <label class="pb-label">
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                             </svg>
                             Delivery Address
                         </label>
                         <input name="delivery_address" value="{{ old('delivery_address') }}" 
-                               class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                               class="pb-input"
                                placeholder="Full delivery address">
                     </div>
 
-                    <div class="sm:col-span-2 space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">
+                    <div class="sm:col-span-2 pb-field">
+                        <label class="pb-label">
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
                             Artwork / Brief Notes
                         </label>
                         <textarea name="artwork_notes" rows="4" data-rich-editor
-                                  class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none"
+                                  class="pb-textarea"
                                   placeholder="Describe artwork requirements, special instructions, etc.">{{ old('artwork_notes') }}</textarea>
                     </div>
 
-                    <div class="sm:col-span-2 space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">
+                    <div class="sm:col-span-2 pb-field">
+                        <label class="pb-label">
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                             </svg>
                             Internal Notes
                         </label>
                         <textarea name="internal_notes" rows="4" data-rich-editor
-                                  class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none"
+                                  class="pb-textarea bg-slate-50"
                                   placeholder="Private notes for staff only">{{ old('internal_notes') }}</textarea>
                     </div>
                 </div>
             </div>
 
             <!-- Save Options -->
-            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
-                <p class="text-sm font-black text-slate-900">Save Options</p>
+            <div class="pb-card p-6 lg:p-8">
+                <p class="text-sm font-bold text-slate-900">Save Options</p>
                 <p class="mt-1 text-xs text-slate-500">Quotations without an email can only be saved or downloaded.</p>
 
                 <div class="mt-6 flex flex-wrap items-center gap-3">
-                    <button type="submit" name="action" value="save" class="rounded-xl bg-slate-900 px-6 py-3 text-sm font-black text-white transition hover:bg-slate-800">
+                    <button type="submit" name="action" value="save" class="pb-btn pb-btn-md pb-btn-ink">
                         Save Quotation
                     </button>
-                    <button type="submit" name="action" value="save_download" class="rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-black text-slate-900 transition hover:bg-slate-50">
+                    <button type="submit" name="action" value="save_download" class="pb-btn pb-btn-md pb-btn-outline">
                         Save & Download
                     </button>
-                    <button type="submit" name="action" value="save_send" id="quotation-save-send-button" class="rounded-xl bg-pink-600 px-6 py-3 text-sm font-black text-white transition hover:bg-pink-700">
+                    <button type="submit" name="action" value="save_send" id="quotation-save-send-button" class="pb-btn pb-btn-md pb-btn-primary">
                         Save & Send
                     </button>
                     <a href="{{ route('admin.invoices.index') }}" class="text-sm font-semibold text-slate-500 hover:text-slate-700 transition-colors">Cancel</a>
@@ -553,7 +480,7 @@
                     <div class="grid gap-2 sm:grid-cols-2">
                         <div>
                             <p class="line-item-sub-label">Type</p>
-                            <select data-line-item-source class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                            <select data-line-item-source class="pb-input">
                                 <option value="custom" selected>Custom</option>
                                 <option value="product">Existing Product</option>
                                 <option value="service">Existing Service</option>
@@ -561,7 +488,7 @@
                         </div>
                         <div>
                             <p class="line-item-sub-label">Catalog Item</p>
-                            <select data-line-item-catalog class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                            <select data-line-item-catalog class="pb-input">
                                 <option value="">— Select catalog item —</option>
                                 <optgroup label="Products">
                                     @foreach ($products as $product)
@@ -591,17 +518,17 @@
                         </div>
                     </div>
                     <input data-line-item-description
-                           class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                           class="pb-input"
                            placeholder="Description of item/service...">
                     <div class="grid gap-2 sm:grid-cols-3">
                         <input data-line-item-size list="quote-size-suggestions"
-                               class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                               class="pb-input"
                                placeholder="Size / Format">
                         <input data-line-item-color
-                               class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                               class="pb-input"
                                placeholder="Color">
                         <input data-line-item-finishing list="quote-finishing-suggestions"
-                               class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                               class="pb-input"
                                placeholder="Finishing">
                     </div>
                 </div>
@@ -609,22 +536,22 @@
             <td class="line-item-cell line-item-cell--quantity px-4 py-3">
                 <p class="line-item-mobile-label">Quantity</p>
                 <input data-line-item-quantity type="number" min="1" step="1" value="1"
-                       class="w-24 rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                       class="pb-input w-24">
             </td>
             <td class="line-item-cell line-item-cell--rate px-4 py-3">
                 <p class="line-item-mobile-label">Rate</p>
-                <div class="flex w-32 items-center overflow-hidden rounded-lg border border-slate-300">
-                    <span class="px-3 text-sm font-black text-slate-500">₦</span>
+                <div class="flex w-32 items-center overflow-hidden rounded-lg border border-slate-200">
+                    <span class="px-3 text-sm font-bold text-slate-500">₦</span>
                     <input data-line-item-rate type="number" min="0" step="0.01" value="0"
-                           class="w-full border-0 px-3 py-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-pink-500/20">
+                           class="w-full border-0 bg-transparent px-3 py-2.5 text-sm font-semibold text-slate-800 focus:ring-0">
                 </div>
             </td>
-            <td class="line-item-cell line-item-cell--amount px-4 py-3 text-sm font-black text-slate-900">
+            <td class="line-item-cell line-item-cell--amount px-4 py-3 text-sm font-bold text-slate-900">
                 <p class="line-item-mobile-label">Amount</p>
                 <span data-line-item-amount>₦0.00</span>
             </td>
             <td class="line-item-cell line-item-cell--action px-4 py-3 text-right">
-                <button type="button" data-remove-line-item class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-black uppercase tracking-wide text-slate-500 transition-colors hover:border-red-200 hover:text-red-600">
+                <button type="button" data-remove-line-item class="pb-btn pb-btn-sm pb-btn-outline">
                     Remove
                 </button>
             </td>

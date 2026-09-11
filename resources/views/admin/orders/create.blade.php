@@ -4,55 +4,40 @@
 
 @section('content')
     <div class="mx-auto max-w-7xl space-y-6">
-        <!-- Hero Section -->
-        <div class="fade-in-up rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-8 text-white shadow-xl">
-            <div class="flex items-center gap-2 mb-4">
-                <a href="{{ route('admin.orders.index') }}" class="group inline-flex items-center gap-2 text-sm font-black text-cyan-300 transition-colors hover:text-cyan-200">
-                    <svg class="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                    Back to Job Tracker
-                </a>
-            </div>
-            <div class="flex items-start gap-4">
-                <div class="flex-1">
-                    <h1 class="text-4xl font-black tracking-tight lg:text-5xl">Create a new job</h1>
-                    <p class="mt-3 max-w-3xl text-base leading-relaxed text-slate-300">Log client brief, add order items, optionally create an invoice now.</p>
-                </div>
-                <div class="hidden sm:block">
-                    <div class="rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 p-3 border border-cyan-500/20">
-                        <svg class="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Error Summary -->
         @php
             $orderItems = old('order_items', [
                 ['description' => '', 'quantity' => 1, 'unit_price' => 0, 'size_format' => '', 'material_substrate' => '', 'finish_lamination' => '', 'artwork_notes' => ''],
             ]);
         @endphp
 
-        @if ($errors->any())
-            <div class="fade-in-up rounded-xl border border-red-200 bg-red-50 p-4">
-                <div class="flex items-start gap-3">
-                    <svg class="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        <div class="pb-page-header">
+            <div>
+                <a href="{{ route('admin.orders.index') }}" class="inline-flex items-center gap-1 text-sm font-semibold text-slate-500 hover:text-slate-700">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
-                    <div>
-                        <p class="text-sm font-black text-red-800">Please review the highlighted details:</p>
-                        <ul class="mt-2 space-y-1 text-sm font-semibold text-red-700">
-                            @foreach ($errors->all() as $error)
-                                <li class="flex items-center gap-2">
-                                    <span class="w-1 h-1 rounded-full bg-red-400"></span>
-                                    {{ $error }}
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
+                    Back to Job Tracker
+                </a>
+                <h1 class="pb-page-title">Create a new job</h1>
+                <p class="pb-page-subtitle">Log client brief, add order items, optionally create an invoice now.</p>
+            </div>
+        </div>
+
+        @if ($errors->any())
+            <div class="pb-alert pb-alert-error items-start">
+                <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <div>
+                    <p class="font-semibold">Please review the highlighted details:</p>
+                    <ul class="mt-2 space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <li class="flex items-center gap-2">
+                                <span class="w-1 h-1 rounded-full bg-red-400"></span>
+                                {{ $error }}
+                            </li>
+                        @endforeach
+                    </ul>
                 </div>
             </div>
         @endif
@@ -65,14 +50,9 @@
             <input type="hidden" name="job_type" value="Custom Order">
 
             <!-- Invoice Checkbox (first, controls rest of form) -->
-            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="p-2 rounded-xl bg-gradient-to-br from-amber-100 to-amber-50 border border-amber-200">
-                        <svg class="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                    <h2 class="text-lg font-black text-slate-950">Invoice & Pricing</h2>
+            <div class="pb-card p-6 lg:p-8">
+                <div class="mb-4">
+                    <h2 class="pb-section-title">Invoice & Pricing</h2>
                 </div>
                 <label class="flex items-start gap-3 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700">
                     <input type="hidden" name="generate_invoice" value="0">
@@ -87,28 +67,16 @@
             </div>
 
             <!-- Client Section -->
-            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="p-2 rounded-xl bg-gradient-to-br from-pink-100 to-pink-50 border border-pink-200">
-                        <svg class="w-5 h-5 text-pink-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-black text-slate-950">Client Information</h2>
-                        <p class="text-sm text-slate-500">Select existing or create new customer</p>
-                    </div>
+            <div class="pb-card p-6 lg:p-8">
+                <div class="mb-6">
+                    <h2 class="pb-section-title">Client Information</h2>
+                    <p class="pb-section-subtitle">Select existing or create new customer</p>
                 </div>
 
                 <div class="space-y-5">
                     <div>
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                            Existing Customer
-                        </label>
-                        <select id="job-customer-select" name="customer_id" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                        <label class="pb-label">Existing Customer</label>
+                        <select id="job-customer-select" name="customer_id" class="pb-input">
                             <option value="">— Select existing customer —</option>
                             @foreach ($customers as $customer)
                                 <option
@@ -129,7 +97,7 @@
                         <button
                             type="button"
                             id="job-toggle-new-customer"
-                            class="rounded-lg border border-cyan-200 bg-white px-3 py-2 text-xs font-black uppercase tracking-wide text-cyan-700 transition-colors hover:bg-cyan-50"
+                            class="pb-btn pb-btn-sm pb-btn-outline"
                             aria-expanded="false"
                             aria-controls="job-new-customer-form"
                         >
@@ -142,22 +110,22 @@
                     </div>
 
                     <div class="grid gap-5 sm:grid-cols-2 mt-4">
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Client Name *</label>
+                        <div class="pb-field">
+                            <label class="pb-label">Client Name *</label>
                             <input id="job-customer-name" name="customer_name" value="{{ old('customer_name') }}" required 
-                                   class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                                   class="pb-input"
                                    placeholder="Full name">
                         </div>
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Client Email *</label>
+                        <div class="pb-field">
+                            <label class="pb-label">Client Email *</label>
                             <input id="job-customer-email" type="email" name="customer_email" value="{{ old('customer_email') }}" required 
-                                   class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                                   class="pb-input"
                                    placeholder="email@example.com">
                         </div>
-                        <div class="space-y-1 sm:col-span-2">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Client Phone *</label>
+                        <div class="pb-field sm:col-span-2">
+                            <label class="pb-label">Client Phone *</label>
                             <input id="job-customer-phone" name="customer_phone" value="{{ old('customer_phone') }}" required 
-                                   class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20"
+                                   class="pb-input"
                                    placeholder="+234 XXX XXX XXXX">
                         </div>
                     </div>
@@ -165,59 +133,52 @@
             </div>
 
             <!-- Delivery Preference Section -->
-            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="p-2 rounded-xl bg-gradient-to-br from-amber-100 to-amber-50 border border-amber-200">
-                        <svg class="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-black text-slate-950">Delivery Preference</h2>
-                        <p class="text-sm text-slate-500">Choose how the client will receive the job</p>
-                    </div>
+            <div class="pb-card p-6 lg:p-8">
+                <div class="mb-6">
+                    <h2 class="pb-section-title">Delivery Preference</h2>
+                    <p class="pb-section-subtitle">Choose how the client will receive the job</p>
                 </div>
 
                 <div class="grid gap-3 sm:grid-cols-2 mb-4">
-                    <label class="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-slate-200 px-5 py-4 text-sm font-black transition-all duration-300 hover:border-pink-200 hover:bg-pink-50/30">
+                    <label class="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-slate-200 px-5 py-4 text-sm font-bold transition-all duration-300 hover:border-pink-200 hover:bg-pink-50/30">
                         <input id="delivery-preference-pickup" type="radio" name="delivery_preference" value="pickup" @checked(old('delivery_preference') === 'pickup') class="h-5 w-5 border-slate-300 text-pink-600 focus:ring-pink-500">
                         <div>
-                            <p class="font-black text-slate-900">Client Pickup</p>
+                            <p class="font-bold text-slate-900">Client Pickup</p>
                             <p class="text-xs text-slate-500 mt-0.5">Client will collect from office</p>
                         </div>
                     </label>
-                    <label class="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-slate-200 px-5 py-4 text-sm font-black transition-all duration-300 hover:border-pink-200 hover:bg-pink-50/30">
+                    <label class="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-slate-200 px-5 py-4 text-sm font-bold transition-all duration-300 hover:border-pink-200 hover:bg-pink-50/30">
                         <input id="delivery-preference-delivery" type="radio" name="delivery_preference" value="delivery" @checked(old('delivery_preference', 'delivery') === 'delivery') class="h-5 w-5 border-slate-300 text-pink-600 focus:ring-pink-500">
                         <div>
-                            <p class="font-black text-slate-900">Delivery</p>
+                            <p class="font-bold text-slate-900">Delivery</p>
                             <p class="text-xs text-slate-500 mt-0.5">Deliver to client address</p>
                         </div>
                     </label>
                 </div>
                 @error('delivery_preference')
-                    <p class="mb-4 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                    <p class="pb-field-error mb-4">{{ $message }}</p>
                 @enderror
 
                 <div id="delivery-fields" class="grid gap-5 sm:grid-cols-2">
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Delivery Method</label>
-                        <select id="delivery-method" name="delivery_method" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    <div class="pb-field">
+                        <label class="pb-label">Delivery Method</label>
+                        <select id="delivery-method" name="delivery_method" class="pb-input">
                             <option value="">— Select delivery method —</option>
                             @foreach ($deliveryMethods as $method)@continue($method === 'Client Pickup')<option value="{{ $method }}" @selected(old('delivery_method') === $method)>{{ $method }}</option>@endforeach
                         </select>
                     </div>
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Delivery City</label>
-                        <input id="delivery-city" name="delivery_city" value="{{ old('delivery_city') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="e.g., Lagos">
+                    <div class="pb-field">
+                        <label class="pb-label">Delivery City</label>
+                        <input id="delivery-city" name="delivery_city" value="{{ old('delivery_city') }}" class="pb-input" placeholder="e.g., Lagos">
                         @error('delivery_city')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                            <p class="pb-field-error">{{ $message }}</p>
                         @enderror
                     </div>
-                    <div class="space-y-1 sm:col-span-2">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Delivery Address</label>
-                        <input id="delivery-address" name="delivery_address" value="{{ old('delivery_address') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="Full delivery address">
+                    <div class="pb-field sm:col-span-2">
+                        <label class="pb-label">Delivery Address</label>
+                        <input id="delivery-address" name="delivery_address" value="{{ old('delivery_address') }}" class="pb-input" placeholder="Full delivery address">
                         @error('delivery_address')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                            <p class="pb-field-error">{{ $message }}</p>
                         @enderror
                     </div>
                 </div>
@@ -252,36 +213,29 @@
             </script>
 
             <!-- Job Brief Section -->
-            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="p-2 rounded-xl bg-gradient-to-br from-cyan-100 to-cyan-50 border border-cyan-200">
-                        <svg class="w-5 h-5 text-cyan-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-black text-slate-950">Job Brief</h2>
-                        <p class="text-sm text-slate-500">Define job specifications and requirements</p>
-                    </div>
+            <div class="pb-card p-6 lg:p-8">
+                <div class="mb-6">
+                    <h2 class="pb-section-title">Job Brief</h2>
+                    <p class="pb-section-subtitle">Define job specifications and requirements</p>
                 </div>
 
                 <div class="grid gap-5 sm:grid-cols-2">
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Priority *</label>
-                        <select name="priority" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    <div class="pb-field">
+                        <label class="pb-label">Priority *</label>
+                        <select name="priority" required class="pb-input">
                             @foreach ($priorities as $priority)<option @selected(old('priority', '🟡 Normal') === $priority)>{{ $priority }}</option>@endforeach
                         </select>
                     </div>
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Assigned Designer</label>
-                        <p class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-slate-600">Auto-assigned after job creation.</p>
+                    <div class="pb-field">
+                        <label class="pb-label">Assigned Designer</label>
+                        <p class="pb-input bg-slate-50 text-slate-600 flex items-center">Auto-assigned after job creation.</p>
                     </div>
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Brief Date</label>
-                        <p class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-slate-600">Set to job creation date/time.</p>
+                    <div class="pb-field">
+                        <label class="pb-label">Brief Date</label>
+                        <p class="pb-input bg-slate-50 text-slate-600 flex items-center">Set to job creation date/time.</p>
                     </div>
-                    <div class="space-y-1 sm:col-span-2">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Job Image Assets</label>
+                    <div class="pb-field sm:col-span-2">
+                        <label class="pb-label">Job Image Assets</label>
                         <livewire:uploads.secure-image-upload
                             input-name="job_asset_image_paths"
                             :multiple="true"
@@ -292,35 +246,28 @@
                         />
                         <p class="mt-2 text-xs text-slate-500">Upload image assets securely via Livewire (JPG, PNG, WEBP up to 5MB each).</p>
                         @error('job_asset_image_paths')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                            <p class="pb-field-error">{{ $message }}</p>
                         @enderror
                         @error('job_asset_image_paths.*')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                            <p class="pb-field-error">{{ $message }}</p>
                         @enderror
                     </div>
-                    <div class="space-y-1 sm:col-span-2">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Artwork Documents (PDF, SVG, ZIP)</label>
-                        <input type="file" name="job_asset_files[]" multiple accept=".pdf,.svg,.zip" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    <div class="pb-field sm:col-span-2">
+                        <label class="pb-label">Artwork Documents (PDF, SVG, ZIP)</label>
+                        <input type="file" name="job_asset_files[]" multiple accept=".pdf,.svg,.zip" class="pb-input">
                         <p class="mt-2 text-xs text-slate-500">Non-image assets (PDF, SVG, ZIP up to 20MB each).</p>
                         @error('job_asset_files.*')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                            <p class="pb-field-error">{{ $message }}</p>
                         @enderror
                     </div>
                 </div>
             </div>
 
             <!-- Order Items Section -->
-            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8" id="order-items-section">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="p-2 rounded-xl bg-gradient-to-br from-violet-100 to-violet-50 border border-violet-200">
-                        <svg class="w-5 h-5 text-violet-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-black text-slate-950">Order Items</h2>
-                        <p class="text-sm text-slate-500" id="order-items-hint">Add items with descriptions, quantities, and optional reference images. Unit price can be added when creating an invoice.</p>
-                    </div>
+            <div class="pb-card p-6 lg:p-8" id="order-items-section">
+                <div class="mb-6">
+                    <h2 class="pb-section-title">Order Items</h2>
+                    <p class="pb-section-subtitle" id="order-items-hint">Add items with descriptions, quantities, and optional reference images. Unit price can be added when creating an invoice.</p>
                 </div>
 
                 <div class="space-y-4">
@@ -342,89 +289,89 @@
                     <div id="order-items-rows" class="space-y-3">
                         @foreach ($orderItems as $index => $item)
                             <div class="order-item-row grid gap-3 sm:grid-cols-[4fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_auto] items-end rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                                <div class="space-y-1">
-                                    <label class="text-xs font-black text-slate-700">Description *</label>
+                                <div class="pb-field">
+                                    <label class="pb-label">Description *</label>
                                     <input type="text" name="order_items[{{ $index }}][description]" value="{{ $item['description'] ?? '' }}" required
-                                           class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="Add item details">
+                                           class="pb-input" placeholder="Add item details">
                                 </div>
-                                <div class="space-y-1">
-                                    <label class="text-xs font-black text-slate-700">Qty *</label>
+                                <div class="pb-field">
+                                    <label class="pb-label">Qty *</label>
                                     <input type="number" min="1" name="order_items[{{ $index }}][quantity]" value="{{ $item['quantity'] ?? 1 }}" required
-                                           class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                                           class="pb-input">
                                 </div>
-                                <div class="space-y-1" id="invoice-unit-price-field-{{ $index }}">
-                                    <label class="text-xs font-black text-slate-700">Unit Price (₦)</label>
+                                <div class="pb-field" id="invoice-unit-price-field-{{ $index }}">
+                                    <label class="pb-label">Unit Price (₦)</label>
                                     <div class="flex items-center gap-1">
                                         <span class="text-xs text-slate-500">₦</span>
                                         <input type="number" min="0" step="0.01" name="order_items[{{ $index }}][unit_price]" value="{{ $item['unit_price'] ?? 0 }}"
-                                               class="order-item-unit-price w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="0.00">
+                                               class="order-item-unit-price pb-input" placeholder="0.00">
                                     </div>
                                 </div>
-                                <div class="space-y-1">
-                                    <label class="text-xs font-black text-slate-700">Amount</label>
-                                    <p class="order-item-amount rounded-xl border border-slate-200 bg-slate-100 px-3 py-3 text-sm font-bold text-slate-700">
+                                <div class="pb-field">
+                                    <label class="pb-label">Amount</label>
+                                    <p class="order-item-amount pb-input bg-slate-100 font-bold flex items-center">
                                         ₦{{ number_format(((float)($item['unit_price'] ?? 0)) * ((int)($item['quantity'] ?? 1)), 2) }}
                                     </p>
                                 </div>
-                                <div class="space-y-1">
-                                    <label class="text-xs font-black text-slate-700">Size / Format</label>
-                                    <select name="order_items[{{ $index }}][size_format]" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                                <div class="pb-field">
+                                    <label class="pb-label">Size / Format</label>
+                                    <select name="order_items[{{ $index }}][size_format]" class="pb-input">
                                         <option value="">— Select —</option>
                                         @foreach ($sizes as $size)<option @selected(($item['size_format'] ?? '') === $size)>{{ $size }}</option>@endforeach
                                     </select>
                                 </div>
-                                <div class="space-y-1">
-                                    <label class="text-xs font-black text-slate-700">Material / Substrate</label>
-                                    <select name="order_items[{{ $index }}][material_substrate]" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                                <div class="pb-field">
+                                    <label class="pb-label">Material / Substrate</label>
+                                    <select name="order_items[{{ $index }}][material_substrate]" class="pb-input">
                                         <option value="">— Select —</option>
                                         @foreach ($materials as $material)<option @selected(($item['material_substrate'] ?? '') === $material)>{{ $material }}</option>@endforeach
                                     </select>
                                 </div>
-                                <div class="space-y-1">
-                                    <label class="text-xs font-black text-slate-700">Finish / Lamination</label>
-                                    <select name="order_items[{{ $index }}][finish_lamination]" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                                <div class="pb-field">
+                                    <label class="pb-label">Finish / Lamination</label>
+                                    <select name="order_items[{{ $index }}][finish_lamination]" class="pb-input">
                                         <option value="">— Select —</option>
                                         @foreach ($finishes as $finish)<option @selected(($item['finish_lamination'] ?? '') === $finish)>{{ $finish }}</option>@endforeach
                                     </select>
                                 </div>
-                                <div class="space-y-1">
-                                    <label class="text-xs font-black text-slate-700">Artwork Notes</label>
+                                <div class="pb-field">
+                                    <label class="pb-label">Artwork Notes</label>
                                     <input type="text" name="order_items[{{ $index }}][artwork_notes]" value="{{ $item['artwork_notes'] ?? '' }}"
-                                           class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="Optional notes">
+                                           class="pb-input" placeholder="Optional notes">
                                 </div>
-                                <div class="space-y-1">
-                                    <label class="text-xs font-black text-slate-700">Image</label>
+                                <div class="pb-field">
+                                    <label class="pb-label">Image</label>
                                     <input type="file" name="order_items[{{ $index }}][image]" accept="image/jpeg,image/png,image/webp"
-                                           class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                                           class="pb-input">
                                 </div>
                                 <div class="flex items-center justify-end">
-                                    <button type="button" class="remove-order-item-row inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-600 transition-colors hover:border-pink-300 hover:text-pink-700" aria-label="Remove item row">&times;</button>
+                                    <button type="button" class="remove-order-item-row pb-btn pb-btn-icon pb-btn-outline" aria-label="Remove item row">&times;</button>
                                 </div>
                             </div>
                         @endforeach
                     </div>
 
                     <div>
-                        <button type="button" id="add-order-item-row" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-black text-slate-900 transition-all duration-200 hover:border-pink-300 hover:bg-pink-50 hover:text-pink-700">
+                        <button type="button" id="add-order-item-row" class="pb-btn pb-btn-md pb-btn-outline">
                             + Add another item
                         </button>
                     </div>
                 </div>
-                @error('order_items')<p class="mt-2 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
-                @error('order_items.*.description')<p class="mt-2 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
-                @error('order_items.*.quantity')<p class="mt-2 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
-                @error('order_items.*.image')<p class="mt-2 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                @error('order_items')<p class="pb-field-error">{{ $message }}</p>@enderror
+                @error('order_items.*.description')<p class="pb-field-error">{{ $message }}</p>@enderror
+                @error('order_items.*.quantity')<p class="pb-field-error">{{ $message }}</p>@enderror
+                @error('order_items.*.image')<p class="pb-field-error">{{ $message }}</p>@enderror
             </div>
 
             <!-- Internal Notes -->
-            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
-                <div class="space-y-1">
-                    <label class="flex items-center gap-2 text-sm font-black text-slate-700">Internal Notes</label>
-                    <textarea name="internal_notes" rows="4" data-rich-editor class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Private notes for staff only">{{ old('internal_notes') }}</textarea>
+            <div class="pb-card p-6 lg:p-8">
+                <div class="pb-field">
+                    <label class="pb-label">Internal Notes</label>
+                    <textarea name="internal_notes" rows="4" data-rich-editor class="pb-textarea bg-slate-50" placeholder="Private notes for staff only">{{ old('internal_notes') }}</textarea>
                 </div>
             </div>
 
-            <button type="submit" class="btn-primary group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-pink-600 to-pink-700 px-6 py-4 text-sm font-black text-white shadow-lg shadow-pink-600/20 transition-all duration-300 hover:shadow-xl hover:shadow-pink-600/30 hover:scale-[1.02]">
+            <button type="submit" class="pb-btn pb-btn-lg pb-btn-primary w-full">
                 <span class="relative z-10 flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -561,54 +508,54 @@
                 const row = document.createElement('div');
                 row.className = 'order-item-row grid gap-3 sm:grid-cols-[4fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr_auto] items-end rounded-2xl border border-slate-200 bg-slate-50 p-4';
                 row.innerHTML = `
-                    <div class="space-y-1">
-                        <label class="text-xs font-black text-slate-700">Description *</label>
-                        <input type="text" name="order_items[0][description]" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="Add item details">
+                    <div class="pb-field">
+                        <label class="pb-label">Description *</label>
+                        <input type="text" name="order_items[0][description]" required class="pb-input" placeholder="Add item details">
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-xs font-black text-slate-700">Qty *</label>
-                        <input type="number" min="1" name="order_items[0][quantity]" value="1" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    <div class="pb-field">
+                        <label class="pb-label">Qty *</label>
+                        <input type="number" min="1" name="order_items[0][quantity]" value="1" required class="pb-input">
                     </div>
-                    <div class="space-y-1" id="invoice-unit-price-field-0">
-                        <label class="text-xs font-black text-slate-700">Unit Price (₦)</label>
+                    <div class="pb-field" id="invoice-unit-price-field-0">
+                        <label class="pb-label">Unit Price (₦)</label>
                         <input type="number" min="0" step="0.01" name="order_items[0][unit_price]" value="0"
-                               class="order-item-unit-price w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="0.00">
+                               class="order-item-unit-price pb-input" placeholder="0.00">
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-xs font-black text-slate-700">Amount</label>
-                        <p class="order-item-amount rounded-xl border border-slate-200 bg-slate-100 px-3 py-3 text-sm font-bold text-slate-700">₦0.00</p>
+                    <div class="pb-field">
+                        <label class="pb-label">Amount</label>
+                        <p class="order-item-amount pb-input bg-slate-100 font-bold flex items-center">₦0.00</p>
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-xs font-black text-slate-700">Size / Format</label>
-                        <select name="order_items[0][size_format]" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    <div class="pb-field">
+                        <label class="pb-label">Size / Format</label>
+                        <select name="order_items[0][size_format]" class="pb-input">
                             <option value="">— Select —</option>
                             @foreach ($sizes as $size)<option>{{ $size }}</option>@endforeach
                         </select>
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-xs font-black text-slate-700">Material / Substrate</label>
-                        <select name="order_items[0][material_substrate]" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    <div class="pb-field">
+                        <label class="pb-label">Material / Substrate</label>
+                        <select name="order_items[0][material_substrate]" class="pb-input">
                             <option value="">— Select —</option>
                             @foreach ($materials as $material)<option>{{ $material }}</option>@endforeach
                         </select>
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-xs font-black text-slate-700">Finish / Lamination</label>
-                        <select name="order_items[0][finish_lamination]" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    <div class="pb-field">
+                        <label class="pb-label">Finish / Lamination</label>
+                        <select name="order_items[0][finish_lamination]" class="pb-input">
                             <option value="">— Select —</option>
                             @foreach ($finishes as $finish)<option>{{ $finish }}</option>@endforeach
                         </select>
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-xs font-black text-slate-700">Artwork Notes</label>
-                        <input type="text" name="order_items[0][artwork_notes]" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="Optional notes">
+                    <div class="pb-field">
+                        <label class="pb-label">Artwork Notes</label>
+                        <input type="text" name="order_items[0][artwork_notes]" class="pb-input" placeholder="Optional notes">
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-xs font-black text-slate-700">Image</label>
-                        <input type="file" name="order_items[0][image]" accept="image/jpeg,image/png,image/webp" class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    <div class="pb-field">
+                        <label class="pb-label">Image</label>
+                        <input type="file" name="order_items[0][image]" accept="image/jpeg,image/png,image/webp" class="pb-input">
                     </div>
                     <div class="flex items-center justify-end">
-                        <button type="button" class="remove-order-item-row inline-flex h-11 w-11 items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-600 transition-colors hover:border-pink-300 hover:text-pink-700" aria-label="Remove item row">&times;</button>
+                        <button type="button" class="remove-order-item-row pb-btn pb-btn-icon pb-btn-outline" aria-label="Remove item row">&times;</button>
                     </div>
                 `;
                 return row;

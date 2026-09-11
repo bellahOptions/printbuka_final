@@ -14,46 +14,46 @@
 
 @section('content')
     <section class="space-y-6">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div class="pb-page-header">
             <div>
                 <p class="text-sm font-black uppercase tracking-wide text-pink-700">PGTP Applications</p>
-                <h1 class="mt-2 text-4xl font-black text-slate-950">Training submissions.</h1>
-                <p class="mt-2 text-sm font-semibold text-slate-600">Review applicants and send acceptance or rejection decisions.</p>
+                <h1 class="pb-page-title mt-2 text-4xl">Training submissions.</h1>
+                <p class="pb-page-subtitle">Review applicants and send acceptance or rejection decisions.</p>
             </div>
         </div>
 
         @if (session('status'))
-            <div class="rounded-md border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-800">
+            <div class="pb-alert pb-alert-success">
                 {{ session('status') }}
             </div>
         @endif
 
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             @foreach ([['Total', $stats['total'], 'text-slate-950'], ['Pending', $stats['pending'], 'text-amber-700'], ['Accepted', $stats['accepted'], 'text-emerald-700'], ['Rejected', $stats['rejected'], 'text-pink-700']] as [$label, $value, $class])
-                <div class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <p class="text-xs font-black uppercase tracking-wide text-slate-500">{{ $label }}</p>
-                    <p class="mt-2 text-3xl font-black {{ $class }}">{{ $value }}</p>
+                <div class="pb-stat-card">
+                    <p class="pb-stat-label">{{ $label }}</p>
+                    <p class="pb-stat-value {{ $class }}">{{ $value }}</p>
                 </div>
             @endforeach
         </div>
 
-        <form method="GET" action="{{ route('admin.training.index') }}" class="grid gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-[1fr_220px_220px_auto]">
-            <input type="search" name="search" value="{{ $search }}" placeholder="Search name, email, phone..." class="min-h-11 rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
-            <select name="status" class="min-h-11 rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+        <form method="GET" action="{{ route('admin.training.index') }}" class="pb-card grid gap-3 p-4 md:grid-cols-[1fr_220px_220px_auto]">
+            <input type="search" name="search" value="{{ $search }}" placeholder="Search name, email, phone..." class="pb-input">
+            <select name="status" class="pb-select">
                 <option value="">All statuses</option>
                 @foreach ($statuses as $value => $label)
                     <option value="{{ $value }}" @selected($status === $value)>{{ $label }}</option>
                 @endforeach
             </select>
-            <select name="skill" class="min-h-11 rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+            <select name="skill" class="pb-select">
                 <option value="">All skills</option>
                 @foreach ($skills as $skillOption)
                     <option value="{{ $skillOption }}" @selected($skill === $skillOption)>{{ $skillOption }}</option>
                 @endforeach
             </select>
             <div class="flex gap-2">
-                <button class="min-h-11 rounded-md bg-slate-950 px-5 text-sm font-black text-white transition hover:bg-pink-700">Filter</button>
-                <a href="{{ route('admin.training.index') }}" class="inline-flex min-h-11 items-center justify-center rounded-md border border-slate-200 px-4 text-sm font-black text-slate-700 transition hover:border-pink-300 hover:text-pink-700">Reset</a>
+                <button class="pb-btn pb-btn-ink">Filter</button>
+                <a href="{{ route('admin.training.index') }}" class="pb-btn pb-btn-outline">Reset</a>
             </div>
         </form>
 

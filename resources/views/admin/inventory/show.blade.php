@@ -19,7 +19,7 @@
             </p>
         </div>
         @if(auth()->user()?->canAdmin('inventory.manage'))
-            <a href="{{ route('admin.inventory.edit', $item) }}" class="btn btn-neutral font-black gap-2 self-start">
+            <a href="{{ route('admin.inventory.edit', $item) }}" class="pb-btn pb-btn-md pb-btn-secondary self-start">
                 <x-heroicon-o-pencil class="w-4 h-4" /> Edit Item
             </a>
         @endif
@@ -27,13 +27,13 @@
 </div>
 
 @if(session('status'))
-    <div class="alert alert-success mb-5 font-bold">
+    <div class="pb-alert pb-alert-success mb-5">
         <x-heroicon-o-check-circle class="w-5 h-5" /> {{ session('status') }}
     </div>
 @endif
 
 @if($errors->any())
-    <div class="alert alert-error mb-5 font-bold">
+    <div class="pb-alert pb-alert-error mb-5">
         <x-heroicon-o-exclamation-circle class="w-5 h-5" /> {{ $errors->first() }}
     </div>
 @endif
@@ -234,7 +234,7 @@
                             <textarea name="notes" rows="2" class="pb-textarea w-full"></textarea>
                         </div>
 
-                        <button type="submit" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black w-full">
+                        <button type="submit" class="pb-btn pb-btn-md pb-btn-primary w-full">
                             Record Movement
                         </button>
                     </form>
@@ -246,7 +246,7 @@
                       onsubmit="return confirm('Delete this inventory item and its stock history? This cannot be undone.');">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn btn-ghost text-red-600 font-black w-full">
+                    <button type="submit" class="pb-btn pb-btn-md pb-btn-destructive w-full">
                         <x-heroicon-o-trash class="w-4 h-4" /> Delete Item
                     </button>
                 </form>

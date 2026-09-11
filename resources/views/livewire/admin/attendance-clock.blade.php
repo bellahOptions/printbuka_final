@@ -1,7 +1,7 @@
 <div id="pb-attendance-clock">
 
     @if ($statusMessage)
-        <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-800">{{ $statusMessage }}</div>
+        <div class="pb-alert pb-alert-success mb-4">{{ $statusMessage }}</div>
     @endif
 
     <div class="pb-card p-6 text-center">
@@ -16,7 +16,7 @@
                     </p>
                 @endif
             @else
-                <p class="mb-4 rounded-xl border border-cyan-200 bg-cyan-50 p-3 text-xs font-bold text-cyan-800">
+                <p class="pb-alert pb-alert-info mb-4 text-xs">
                     You're set as working remotely today — no office check-in required.
                 </p>
             @endif
@@ -27,10 +27,10 @@
             </label>
 
             @error('clockIn')
-                <p class="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-bold text-red-800">{{ $message }}</p>
+                <p class="pb-alert pb-alert-error mb-4 text-xs">{{ $message }}</p>
             @enderror
             @error('photo')
-                <p class="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-bold text-red-800">{{ $message }}</p>
+                <p class="pb-alert pb-alert-error mb-4 text-xs">{{ $message }}</p>
             @enderror
 
             <p class="text-xs text-slate-400 mb-4" data-attendance-status></p>
@@ -47,10 +47,10 @@
             </label>
 
             @error('clockOut')
-                <p class="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-bold text-red-800">{{ $message }}</p>
+                <p class="pb-alert pb-alert-error mb-4 text-xs">{{ $message }}</p>
             @enderror
             @error('photo')
-                <p class="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-bold text-red-800">{{ $message }}</p>
+                <p class="pb-alert pb-alert-error mb-4 text-xs">{{ $message }}</p>
             @enderror
 
             <p class="text-xs text-slate-400 mb-4" data-attendance-status></p>
@@ -63,11 +63,11 @@
             <div class="mt-3 flex items-center justify-center gap-2">
                 <span class="pb-badge {{ $todayRecord->statusBadgeClass() }}">{{ $todayRecord->statusLabel() }}</span>
                 @if ($todayRecord->hasOvertime())
-                    <span class="pb-badge bg-purple-100 text-purple-800">+{{ $todayRecord->overtimeLabel() }} overtime</span>
+                    <span class="pb-badge pb-badge-purple">+{{ $todayRecord->overtimeLabel() }} overtime</span>
                 @endif
             </div>
             @if ($todayRecord->clock_out_within_geofence === false)
-                <div class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-bold text-amber-800">
+                <div class="pb-alert pb-alert-warning mt-4 text-xs">
                     You clocked out {{ $todayRecord->clock_out_distance_meters }}m from {{ $location?->name }} — flagged for review.
                 </div>
             @endif
@@ -88,7 +88,7 @@
                     <div class="flex items-center gap-1.5">
                         <span class="pb-badge {{ $record->statusBadgeClass() }}">{{ $record->statusLabel() }}</span>
                         @if ($record->hasOvertime())
-                            <span class="pb-badge bg-purple-100 text-purple-800 text-[10px]">+{{ $record->overtimeLabel() }}</span>
+                            <span class="pb-badge pb-badge-purple text-[10px]">+{{ $record->overtimeLabel() }}</span>
                         @endif
                     </div>
                 </div>

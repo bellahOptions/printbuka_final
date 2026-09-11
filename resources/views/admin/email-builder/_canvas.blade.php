@@ -22,7 +22,7 @@
     <div class="grid gap-4" style="grid-template-columns: 180px 1fr 300px;">
         {{-- Palette --}}
         <div class="pb-card p-3 space-y-2 h-fit">
-            <p class="text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Add block</p>
+            <p class="pb-label mb-1">Add block</p>
             <button type="button" class="pb-btn pb-btn-outline pb-btn-sm w-full justify-start" @click="addBlock('heading')">+ Heading</button>
             <button type="button" class="pb-btn pb-btn-outline pb-btn-sm w-full justify-start" @click="addBlock('paragraph')">+ Paragraph</button>
             <button type="button" class="pb-btn pb-btn-outline pb-btn-sm w-full justify-start" @click="addBlock('image')">+ Image</button>
@@ -42,7 +42,7 @@
                     >
                         <span class="block-drag-handle cursor-grab select-none text-slate-400 pt-0.5" title="Drag to reorder">⠿⠿</span>
                         <div class="flex-1 min-w-0 text-sm">
-                            <p class="text-[10px] font-black uppercase tracking-wide text-pink-600 mb-0.5" x-text="block.type"></p>
+                            <p class="text-[10px] font-semibold uppercase tracking-wide text-brand-600 mb-0.5" x-text="block.type"></p>
                             <p class="truncate text-slate-700" x-show="block.type === 'heading'" x-text="block.text"></p>
                             <p class="truncate text-slate-700" x-show="block.type === 'paragraph'" x-text="block.text"></p>
                             <p class="truncate text-slate-700" x-show="block.type === 'button'" x-text="'Button: ' + block.label"></p>
@@ -61,7 +61,7 @@
 
         {{-- Properties panel --}}
         <div class="pb-card p-4 h-fit" x-show="selected">
-            <p class="text-xs font-black uppercase tracking-wide text-slate-500 mb-3">Block settings</p>
+            <p class="pb-label mb-3">Block settings</p>
 
             <template x-if="selected?.type === 'heading'">
                 <div class="space-y-3">

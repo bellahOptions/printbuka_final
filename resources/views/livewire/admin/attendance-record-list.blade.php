@@ -1,18 +1,18 @@
-<div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-    <table class="w-full">
-        <thead class="border-b border-slate-200 bg-slate-50">
-            <tr class="text-xs font-black uppercase tracking-wide text-slate-500">
-                <th class="px-5 py-3.5 text-left">Date</th>
-                <th class="px-5 py-3.5 text-left">In / Out</th>
-                <th class="px-5 py-3.5 text-left">Status</th>
-                <th class="px-5 py-3.5 text-left">Correct</th>
+<div class="pb-table-wrapper">
+    <table class="pb-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>In / Out</th>
+                <th>Status</th>
+                <th>Correct</th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-slate-100">
+        <tbody>
             @forelse ($records as $record)
                 <tr wire:key="attendance-record-{{ $record->id }}">
-                    <td class="px-5 py-4 text-sm font-bold text-slate-800">{{ \Carbon\Carbon::parse($record->work_date)->format('D, M j Y') }}</td>
-                    <td class="px-5 py-4 text-sm text-slate-600">
+                    <td class="font-bold text-slate-800">{{ \Carbon\Carbon::parse($record->work_date)->format('D, M j Y') }}</td>
+                    <td class="text-sm text-slate-600">
                         {{ $record->clock_in_at?->format('h:i A') ?? '—' }} – {{ $record->clock_out_at?->format('h:i A') ?? '—' }}
                         @if ($record->clock_in_at && $record->corrected_by_id && $record->clock_in_within_geofence === null)
                             <p class="text-xs text-violet-700 mt-0.5">Manually entered by {{ $record->correctedBy?->displayName() }}</p>
@@ -21,13 +21,13 @@
                             <p class="text-xs text-amber-700 mt-0.5">{{ $record->flagged_reason }}</p>
                         @endif
                     </td>
-                    <td class="px-5 py-4">
+                    <td>
                         <span class="pb-badge {{ $record->statusBadgeClass() }}">{{ $record->statusLabel() }}</span>
                         @if ($record->hasOvertime())
-                            <span class="pb-badge bg-purple-100 text-purple-800">+{{ $record->overtimeLabel() }} OT</span>
+                            <span class="pb-badge pb-badge-purple">+{{ $record->overtimeLabel() }} OT</span>
                         @endif
                     </td>
-                    <td class="px-5 py-4">
+                    <td>
                         <form method="POST" action="{{ route('admin.attendance.correct', $record) }}" class="flex items-center gap-2">
                             @csrf
                             @method('PATCH')
@@ -41,7 +41,7 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="4" class="px-5 py-12 text-center text-sm text-slate-400 font-semibold">No attendance records yet.</td></tr>
+                <tr><td colspan="4" class="py-12 text-center text-sm text-slate-400 font-semibold">No attendance records yet.</td></tr>
             @endforelse
         </tbody>
     </table>
@@ -59,7 +59,7 @@
                 <span class="text-xs font-bold uppercase tracking-wide text-pink-600" wire:loading wire:target="loadMore">
                     Loading more records...
                 </span>
-                <button type="button" wire:click="loadMore" class="rounded-md border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:border-pink-400 hover:text-pink-700">
+                <button type="button" wire:click="loadMore" class="pb-btn pb-btn-outline">
                     Load More
                 </button>
             </div>

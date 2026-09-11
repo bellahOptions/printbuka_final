@@ -9,50 +9,51 @@
     >
         <a href="{{ route('admin.pricelist.index') }}" class="text-sm font-black text-pink-600 hover:text-pink-800">← Back to Pricelist</a>
 
-        <div class="mt-3">
-            <p class="text-sm font-black uppercase tracking-wide text-pink-700">Pricelist</p>
-            <h1 class="mt-2 text-4xl text-slate-950">Large format calculator.</h1>
-            <p class="mt-2 max-w-2xl text-sm text-slate-500">Pick a material, enter the size, and get an instant quote — updates as you type.</p>
+        <div class="pb-page-header mt-3">
+            <div>
+                <h1 class="pb-page-title">Large Format Calculator</h1>
+                <p class="pb-page-subtitle max-w-2xl">Pick a material, enter the size, and get an instant quote — updates as you type.</p>
+            </div>
         </div>
 
         @if ($rates->isEmpty())
-            <div class="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-800">
+            <div class="pb-alert pb-alert-warning">
                 No large-format materials configured yet. Ask a super admin, operations manager, or MD to set rates first.
             </div>
         @else
-            <div class="mt-8 rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
+            <div class="pb-card p-6">
                 <div class="grid gap-5 sm:grid-cols-2">
-                    <div class="space-y-1 sm:col-span-2">
-                        <label class="text-sm font-black text-slate-700">Material</label>
-                        <select x-model.number="materialId" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    <div class="pb-field sm:col-span-2">
+                        <label class="pb-label">Material</label>
+                        <select x-model.number="materialId" class="pb-select w-full">
                             <template x-for="material in materials" :key="material.id">
                                 <option :value="material.id" x-text="material.material + ' (₦' + material.rate.toLocaleString() + ' / sqft)'"></option>
                             </template>
                         </select>
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="text-sm font-black text-slate-700">Width</label>
+                    <div class="pb-field">
+                        <label class="pb-label">Width</label>
                         <input type="number" step="0.01" min="0" x-model.number="width"
-                            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                            class="pb-input w-full">
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-sm font-black text-slate-700">Height</label>
+                    <div class="pb-field">
+                        <label class="pb-label">Height</label>
                         <input type="number" step="0.01" min="0" x-model.number="height"
-                            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                            class="pb-input w-full">
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="text-sm font-black text-slate-700">Unit</label>
+                    <div class="pb-field">
+                        <label class="pb-label">Unit</label>
                         <div class="flex gap-2">
-                            <button type="button" @click="unit = 'ft'" :class="unit === 'ft' ? 'bg-pink-600 text-white' : 'bg-white text-slate-700 border border-slate-300'" class="flex-1 rounded-lg px-4 py-3 text-sm font-black transition">Feet</button>
-                            <button type="button" @click="unit = 'in'" :class="unit === 'in' ? 'bg-pink-600 text-white' : 'bg-white text-slate-700 border border-slate-300'" class="flex-1 rounded-lg px-4 py-3 text-sm font-black transition">Inches</button>
+                            <button type="button" @click="unit = 'ft'" :class="unit === 'ft' ? 'pb-btn-primary' : 'pb-btn-outline'" class="pb-btn pb-btn-md flex-1">Feet</button>
+                            <button type="button" @click="unit = 'in'" :class="unit === 'in' ? 'pb-btn-primary' : 'pb-btn-outline'" class="pb-btn pb-btn-md flex-1">Inches</button>
                         </div>
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-sm font-black text-slate-700">Quantity</label>
+                    <div class="pb-field">
+                        <label class="pb-label">Quantity</label>
                         <input type="number" step="1" min="1" x-model.number="quantity"
-                            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                            class="pb-input w-full">
                     </div>
                 </div>
 

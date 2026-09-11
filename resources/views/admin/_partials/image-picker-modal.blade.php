@@ -46,7 +46,7 @@
 
                 <div class="mt-4 text-center" x-show="nextCursor">
                     <button type="button" @click="loadImages(true)" :disabled="loading"
-                        class="rounded-lg border border-slate-300 px-4 py-2 text-xs font-black text-slate-700 hover:bg-slate-50 disabled:opacity-50">
+                        class="pb-btn pb-btn-sm pb-btn-outline">
                         <span x-show="!loading">Load more</span>
                         <span x-show="loading">Loading…</span>
                     </button>
@@ -71,11 +71,11 @@
                     </div>
                     <div class="mt-4 flex justify-end gap-2">
                         <button type="button" @click="destroyCropper()" :disabled="uploading"
-                            class="rounded-lg border border-slate-300 px-4 py-2 text-xs font-black text-slate-700 hover:bg-slate-50 disabled:opacity-50">
+                            class="pb-btn pb-btn-sm pb-btn-outline">
                             Choose Different Image
                         </button>
                         <button type="button" @click="uploadCropped()" :disabled="uploading"
-                            class="rounded-lg bg-pink-600 px-4 py-2 text-xs font-black text-white hover:bg-pink-700 disabled:opacity-50">
+                            class="pb-btn pb-btn-sm pb-btn-primary">
                             <span x-show="!uploading">Use This Image</span>
                             <span x-show="uploading">Uploading…</span>
                         </button>

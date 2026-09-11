@@ -5,9 +5,9 @@
 <div class="mx-auto max-w-6xl space-y-6">
 
     <div>
-        <a href="{{ route('admin.email-templates.index') }}" class="text-sm font-black text-pink-600 hover:text-pink-800">← Back to Email Templates</a>
-        <h1 class="text-2xl font-black text-slate-950 mt-2">{{ $entry['name'] }}</h1>
-        <p class="text-sm text-slate-500 mt-1">The line-item tables and computed figures in this email always stay accurate — only the intro, footer, and subject below are editable.</p>
+        <a href="{{ route('admin.email-templates.index') }}" class="text-sm font-semibold text-brand-600 hover:text-brand-800">← Back to Email Templates</a>
+        <h1 class="pb-page-title mt-2">{{ $entry['name'] }}</h1>
+        <p class="pb-page-subtitle">The line-item tables and computed figures in this email always stay accurate — only the intro, footer, and subject below are editable.</p>
     </div>
 
     <form method="POST" action="{{ route('admin.email-templates.update', $key) }}" class="space-y-6">
@@ -35,14 +35,14 @@
 
         <div class="pb-card p-5">
             <div class="flex items-center justify-between mb-3">
-                <p class="text-sm font-black text-slate-900">Live Preview</p>
-                <a href="#" id="open-full-preview" target="_blank" class="text-xs font-black text-pink-600 hover:text-pink-800">Open in new tab ↗</a>
+                <p class="pb-section-title text-sm">Live Preview</p>
+                <a href="#" id="open-full-preview" target="_blank" class="text-xs font-semibold text-brand-600 hover:text-brand-800">Open in new tab ↗</a>
             </div>
             <iframe id="template-preview-frame" class="w-full rounded-xl border border-slate-200" style="height: 420px;" title="Email preview"></iframe>
         </div>
 
         <div class="pb-card p-5">
-            <p class="text-sm font-black text-slate-900 mb-4">Intro — shown before the email's main content</p>
+            <p class="pb-section-title text-sm mb-4">Intro — shown before the email's main content</p>
             @include('admin.email-builder._canvas', [
                 'fieldName' => 'intro_blocks',
                 'blocks' => $template?->intro_blocks ?? [],
@@ -51,7 +51,7 @@
         </div>
 
         <div class="pb-card p-5">
-            <p class="text-sm font-black text-slate-900 mb-4">Footer — shown after the email's main content</p>
+            <p class="pb-section-title text-sm mb-4">Footer — shown after the email's main content</p>
             @include('admin.email-builder._canvas', [
                 'fieldName' => 'outro_blocks',
                 'blocks' => $template?->outro_blocks ?? [],

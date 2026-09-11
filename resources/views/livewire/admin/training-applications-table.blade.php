@@ -1,46 +1,46 @@
 @php
     $badgeClass = function (string $status): string {
         return match ($status) {
-            \App\Models\Training::STATUS_ACCEPTED => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-            \App\Models\Training::STATUS_REJECTED => 'bg-pink-50 text-pink-700 border-pink-200',
-            default => 'bg-amber-50 text-amber-700 border-amber-200',
+            \App\Models\Training::STATUS_ACCEPTED => 'pb-badge-success',
+            \App\Models\Training::STATUS_REJECTED => 'pb-badge-danger',
+            default => 'pb-badge-warning',
         };
     };
 @endphp
 
 <div class="space-y-4">
-    <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-        <table class="w-full min-w-[980px] text-left text-sm">
+    <div class="pb-table-wrapper">
+        <table class="pb-table min-w-[980px]">
             <thead>
-                <tr class="border-b border-slate-200 bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
-                    <th class="px-5 py-4">Applicant</th>
-                    <th class="px-5 py-4">Skill</th>
-                    <th class="px-5 py-4">Location</th>
-                    <th class="px-5 py-4">Status</th>
-                    <th class="px-5 py-4">Submitted</th>
-                    <th class="px-5 py-4"></th>
+                <tr>
+                    <th>Applicant</th>
+                    <th>Skill</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                    <th></th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody>
                 @forelse ($applications as $application)
-                    <tr wire:key="training-row-{{ $application->id }}" class="table-row-hover">
-                        <td class="px-5 py-4">
+                    <tr wire:key="training-row-{{ $application->id }}">
+                        <td>
                             <p class="font-black text-slate-950">{{ $application->fullName() }}</p>
                             <p class="mt-1 text-xs font-semibold text-slate-500">{{ $application->email }} · {{ $application->phone_whatsapp }}</p>
                         </td>
-                        <td class="px-5 py-4 font-bold text-slate-700">{{ $application->desired_skill }}</td>
-                        <td class="px-5 py-4 text-slate-600">{{ $application->city_state }}</td>
-                        <td class="px-5 py-4">
-                            <span class="inline-flex rounded-full border px-3 py-1 text-xs font-black uppercase {{ $badgeClass($application->status) }}">{{ $application->statusLabel() }}</span>
+                        <td class="font-bold text-slate-700">{{ $application->desired_skill }}</td>
+                        <td class="text-slate-600">{{ $application->city_state }}</td>
+                        <td>
+                            <span class="pb-badge {{ $badgeClass($application->status) }}">{{ $application->statusLabel() }}</span>
                         </td>
-                        <td class="px-5 py-4 text-slate-600">{{ $application->created_at?->format('M j, Y g:i A') }}</td>
-                        <td class="px-5 py-4 text-right">
+                        <td class="text-slate-600">{{ $application->created_at?->format('M j, Y g:i A') }}</td>
+                        <td class="text-right">
                             <a href="{{ route('admin.training.show', $application) }}" class="font-black text-pink-700 hover:text-pink-800">Review</a>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-5 py-12 text-center text-sm font-semibold text-slate-500">No training applications found.</td>
+                        <td colspan="6" class="py-12 text-center text-sm font-semibold text-slate-500">No training applications found.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -59,7 +59,7 @@
             <span class="text-xs font-bold uppercase tracking-wide text-pink-600" wire:loading wire:target="loadMore">
                 Loading more applications...
             </span>
-            <button type="button" wire:click="loadMore" class="rounded-md border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:border-pink-400 hover:text-pink-700">
+            <button type="button" wire:click="loadMore" class="pb-btn pb-btn-outline">
                 Load More
             </button>
         </div>

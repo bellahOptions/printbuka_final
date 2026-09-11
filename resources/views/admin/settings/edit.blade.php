@@ -4,41 +4,22 @@
 
 @section('content')
     <div class="mx-auto max-w-5xl space-y-6">
-        <!-- Hero Section -->
-        <div class="fade-in-up rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-8 text-white shadow-xl">
-            <div class="flex items-center gap-2 mb-4">
-                <a href="{{ route('admin.dashboard') }}" class="group inline-flex items-center gap-2 text-sm font-black text-cyan-300 transition-colors hover:text-cyan-200">
-                    <svg class="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                    </svg>
-                    Admin Dashboard
-                </a>
+        <!-- Page Header -->
+        <div class="pb-page-header">
+            <div>
+                <h1 class="pb-page-title">Site settings</h1>
+                <p class="pb-page-subtitle max-w-3xl">Manage notifications, announcements, contact details and maintenance mode.</p>
             </div>
-            <div class="flex items-start gap-4">
-                <div class="flex-1">
-                    <h1 class="text-4xl font-black tracking-tight lg:text-5xl">Site settings</h1>
-                    <p class="mt-3 max-w-3xl text-base leading-relaxed text-slate-300">Manage notifications, announcements, contact details and maintenance mode.</p>
-                </div>
-                <div class="hidden sm:block">
-                    <div class="rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 p-3 border border-cyan-500/20">
-                        <svg class="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
+            <a href="{{ route('admin.dashboard') }}" class="pb-btn pb-btn-md pb-btn-outline">← Dashboard</a>
         </div>
 
         <!-- Status Message -->
         @if (session('status'))
-            <div class="fade-in-up rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-                <div class="flex items-center gap-3">
-                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <p class="text-sm font-bold text-emerald-800">{{ session('status') }}</p>
-                </div>
+            <div class="pb-alert pb-alert-success fade-in-up">
+                <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                {{ session('status') }}
             </div>
         @endif
 
@@ -46,7 +27,7 @@
             @csrf
             @method('PUT')
 
-            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8 space-y-6">
+            <div class="pb-card p-6 lg:p-8 space-y-6">
                 <!-- Basic Settings -->
                 <div>
                     <div class="flex items-center gap-3 mb-6">
@@ -61,17 +42,17 @@
                         </div>
                     </div>
                     <div class="grid gap-5 sm:grid-cols-2">
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Site Name</label>
-                            <input name="site_name" value="{{ old('site_name', $settings['site_name'] ?? 'Printbuka') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="Printbuka">
+                        <div class="pb-field">
+                            <label class="pb-label">Site Name</label>
+                            <input name="site_name" value="{{ old('site_name', $settings['site_name'] ?? 'Printbuka') }}" class="pb-input w-full" placeholder="Printbuka">
                         </div>
-                        <div class="space-y-1">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Contact Email</label>
-                            <input type="email" name="contact_email" value="{{ old('contact_email', $settings['contact_email'] ?? 'sales@printbuka.com.ng') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="sales@printbuka.com.ng">
+                        <div class="pb-field">
+                            <label class="pb-label">Contact Email</label>
+                            <input type="email" name="contact_email" value="{{ old('contact_email', $settings['contact_email'] ?? 'sales@printbuka.com.ng') }}" class="pb-input w-full" placeholder="sales@printbuka.com.ng">
                         </div>
-                        <div class="space-y-1 sm:col-span-2">
-                            <label class="flex items-center gap-2 text-sm font-black text-slate-700">Contact Phone</label>
-                            <input name="contact_phone" value="{{ old('contact_phone', $settings['contact_phone'] ?? '') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="+234 XXX XXX XXXX">
+                        <div class="pb-field sm:col-span-2">
+                            <label class="pb-label">Contact Phone</label>
+                            <input name="contact_phone" value="{{ old('contact_phone', $settings['contact_phone'] ?? '') }}" class="pb-input w-full" placeholder="+234 XXX XXX XXXX">
                         </div>
                     </div>
                 </div>
@@ -97,9 +78,9 @@
                                 <p class="text-xs text-slate-500 mt-0.5">Site will be inaccessible to visitors</p>
                             </div>
                         </label>
-                        <div class="space-y-1">
-                            <label class="text-sm font-black text-slate-700">Maintenance Message</label>
-                            <textarea name="maintenance_message" rows="4" data-rich-editor class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Message shown to visitors during maintenance">{{ old('maintenance_message', $settings['maintenance_message'] ?? '') }}</textarea>
+                        <div class="pb-field">
+                            <label class="pb-label">Maintenance Message</label>
+                            <textarea name="maintenance_message" rows="4" data-rich-editor class="pb-textarea w-full" placeholder="Message shown to visitors during maintenance">{{ old('maintenance_message', $settings['maintenance_message'] ?? '') }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -142,18 +123,18 @@
                         </div>
                     </div>
                     <div class="space-y-4">
-                        <div class="space-y-1">
-                            <label class="text-sm font-black text-slate-700">Notification Message</label>
-                            <textarea name="notification_message" rows="3" data-rich-editor class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Short notification banner message">{{ old('notification_message', $settings['notification_message'] ?? '') }}</textarea>
+                        <div class="pb-field">
+                            <label class="pb-label">Notification Message</label>
+                            <textarea name="notification_message" rows="3" data-rich-editor class="pb-textarea w-full" placeholder="Short notification banner message">{{ old('notification_message', $settings['notification_message'] ?? '') }}</textarea>
                         </div>
-                        <div class="space-y-1">
-                            <label class="text-sm font-black text-slate-700">Announcement</label>
-                            <textarea name="announcement" rows="4" data-rich-editor class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Detailed announcement content">{{ old('announcement', $settings['announcement'] ?? '') }}</textarea>
+                        <div class="pb-field">
+                            <label class="pb-label">Announcement</label>
+                            <textarea name="announcement" rows="4" data-rich-editor class="pb-textarea w-full" placeholder="Detailed announcement content">{{ old('announcement', $settings['announcement'] ?? '') }}</textarea>
                         </div>
                         @if (auth()->user()?->role === 'super_admin')
-                            <div class="space-y-1">
-                                <label class="text-sm font-black text-slate-700">Important Action Email Recipients</label>
-                                <textarea name="important_action_notification_emails" rows="3" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="owner@example.com, finance@example.com">{{ old('important_action_notification_emails', $settings['important_action_notification_emails'] ?? '') }}</textarea>
+                            <div class="pb-field">
+                                <label class="pb-label">Important Action Email Recipients</label>
+                                <textarea name="important_action_notification_emails" rows="3" class="pb-textarea w-full" placeholder="owner@example.com, finance@example.com">{{ old('important_action_notification_emails', $settings['important_action_notification_emails'] ?? '') }}</textarea>
                                 <p class="text-xs font-bold text-slate-500">Comma, space, or line separated emails that receive important action alerts like invoice creation and staff access changes.</p>
                             </div>
                         @endif
@@ -174,21 +155,21 @@
                         </div>
                     </div>
                     <div class="grid gap-5 sm:grid-cols-2">
-                        <div class="space-y-1">
-                            <label class="text-sm font-black text-slate-700">Paper Types</label>
-                            <textarea name="paper_types" rows="4" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="One per line">{{ old('paper_types', $settings['paper_types'] ?? implode(PHP_EOL, config('printbuka_admin.materials', []))) }}</textarea>
+                        <div class="pb-field">
+                            <label class="pb-label">Paper Types</label>
+                            <textarea name="paper_types" rows="4" class="pb-textarea w-full" placeholder="One per line">{{ old('paper_types', $settings['paper_types'] ?? implode(PHP_EOL, config('printbuka_admin.materials', []))) }}</textarea>
                         </div>
-                        <div class="space-y-1">
-                            <label class="text-sm font-black text-slate-700">Paper Sizes</label>
-                            <textarea name="paper_sizes" rows="4" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="One per line">{{ old('paper_sizes', $settings['paper_sizes'] ?? implode(PHP_EOL, config('printbuka_admin.sizes', []))) }}</textarea>
+                        <div class="pb-field">
+                            <label class="pb-label">Paper Sizes</label>
+                            <textarea name="paper_sizes" rows="4" class="pb-textarea w-full" placeholder="One per line">{{ old('paper_sizes', $settings['paper_sizes'] ?? implode(PHP_EOL, config('printbuka_admin.sizes', []))) }}</textarea>
                         </div>
-                        <div class="space-y-1">
-                            <label class="text-sm font-black text-slate-700">Finishing Options</label>
-                            <textarea name="finishings" rows="4" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="One per line">{{ old('finishings', $settings['finishings'] ?? implode(PHP_EOL, config('printbuka_admin.finishes', []))) }}</textarea>
+                        <div class="pb-field">
+                            <label class="pb-label">Finishing Options</label>
+                            <textarea name="finishings" rows="4" class="pb-textarea w-full" placeholder="One per line">{{ old('finishings', $settings['finishings'] ?? implode(PHP_EOL, config('printbuka_admin.finishes', []))) }}</textarea>
                         </div>
-                        <div class="space-y-1">
-                            <label class="text-sm font-black text-slate-700">Paper Densities</label>
-                            <textarea name="paper_densities" rows="4" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="One per line">{{ old('paper_densities', $settings['paper_densities'] ?? implode(PHP_EOL, ['100gsm', '115gsm', '150gsm', '170gsm', '200gsm', '250gsm', '300gsm', '350gsm', 'Self Adhesive', 'Gift Item', 'Custom'])) }}</textarea>
+                        <div class="pb-field">
+                            <label class="pb-label">Paper Densities</label>
+                            <textarea name="paper_densities" rows="4" class="pb-textarea w-full" placeholder="One per line">{{ old('paper_densities', $settings['paper_densities'] ?? implode(PHP_EOL, ['100gsm', '115gsm', '150gsm', '170gsm', '200gsm', '250gsm', '300gsm', '350gsm', 'Self Adhesive', 'Gift Item', 'Custom'])) }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -206,9 +187,9 @@
                         </div>
                     </div>
                     <div class="grid gap-5 sm:grid-cols-2">
-                        <div class="space-y-1 sm:col-span-2">
-                            <label class="text-sm font-black text-slate-700">Pending Job Reminder Hours</label>
-                            <input type="number" min="1" max="240" name="pending_job_reminder_hours" value="{{ old('pending_job_reminder_hours', $settings['pending_job_reminder_hours'] ?? 24) }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" />
+                        <div class="pb-field sm:col-span-2">
+                            <label class="pb-label">Pending Job Reminder Hours</label>
+                            <input type="number" min="1" max="240" name="pending_job_reminder_hours" value="{{ old('pending_job_reminder_hours', $settings['pending_job_reminder_hours'] ?? 24) }}" class="pb-input w-full" />
                             <p class="text-xs font-bold text-slate-500">Staff reminder emails include jobs that have remained in a phase for at least this number of hours.</p>
                         </div>
                     </div>
@@ -233,9 +214,9 @@
                                 <p class="text-xs font-black uppercase tracking-wide text-slate-400 mb-3">Hero Slider (5 slides)</p>
                                 <div class="grid gap-5 sm:grid-cols-2">
                                     @for ($i = 1; $i <= 5; $i++)
-                                        <div class="space-y-1">
-                                            <label class="text-sm font-black text-slate-700">Hero Image {{ $i }}</label>
-                                            <input type="url" name="home_hero_image_{{ $i }}" value="{{ old('home_hero_image_'.$i, $settings['home_hero_image_'.$i] ?? '') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="https://...">
+                                        <div class="pb-field">
+                                            <label class="pb-label">Hero Image {{ $i }}</label>
+                                            <input type="url" name="home_hero_image_{{ $i }}" value="{{ old('home_hero_image_'.$i, $settings['home_hero_image_'.$i] ?? '') }}" class="pb-input w-full" placeholder="https://...">
                                         </div>
                                     @endfor
                                 </div>
@@ -244,9 +225,9 @@
                                 <p class="text-xs font-black uppercase tracking-wide text-slate-400 mb-3">Category Fallback Images (6, used when a category has no image)</p>
                                 <div class="grid gap-5 sm:grid-cols-2">
                                     @for ($i = 1; $i <= 6; $i++)
-                                        <div class="space-y-1">
-                                            <label class="text-sm font-black text-slate-700">Category Fallback {{ $i }}</label>
-                                            <input type="url" name="home_category_fallback_image_{{ $i }}" value="{{ old('home_category_fallback_image_'.$i, $settings['home_category_fallback_image_'.$i] ?? '') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="https://...">
+                                        <div class="pb-field">
+                                            <label class="pb-label">Category Fallback {{ $i }}</label>
+                                            <input type="url" name="home_category_fallback_image_{{ $i }}" value="{{ old('home_category_fallback_image_'.$i, $settings['home_category_fallback_image_'.$i] ?? '') }}" class="pb-input w-full" placeholder="https://...">
                                         </div>
                                     @endfor
                                 </div>
@@ -255,9 +236,9 @@
                                 <p class="text-xs font-black uppercase tracking-wide text-slate-400 mb-3">Promotional Banners (2)</p>
                                 <div class="grid gap-5 sm:grid-cols-2">
                                     @for ($i = 1; $i <= 2; $i++)
-                                        <div class="space-y-1">
-                                            <label class="text-sm font-black text-slate-700">Promo Banner {{ $i }}</label>
-                                            <input type="url" name="home_promo_image_{{ $i }}" value="{{ old('home_promo_image_'.$i, $settings['home_promo_image_'.$i] ?? '') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="https://...">
+                                        <div class="pb-field">
+                                            <label class="pb-label">Promo Banner {{ $i }}</label>
+                                            <input type="url" name="home_promo_image_{{ $i }}" value="{{ old('home_promo_image_'.$i, $settings['home_promo_image_'.$i] ?? '') }}" class="pb-input w-full" placeholder="https://...">
                                         </div>
                                     @endfor
                                 </div>
@@ -280,21 +261,21 @@
                             </div>
                         </div>
                         <div class="grid gap-5 sm:grid-cols-2 mb-8">
-                            <div class="space-y-1">
-                                <label class="text-sm font-black text-slate-700">Account Name</label>
-                                <input name="company_account_name" value="{{ old('company_account_name', $settings['company_account_name'] ?? '') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="Printbuka Limited">
+                            <div class="pb-field">
+                                <label class="pb-label">Account Name</label>
+                                <input name="company_account_name" value="{{ old('company_account_name', $settings['company_account_name'] ?? '') }}" class="pb-input w-full" placeholder="Printbuka Limited">
                             </div>
-                            <div class="space-y-1">
-                                <label class="text-sm font-black text-slate-700">Account Number</label>
-                                <input name="company_account_number" value="{{ old('company_account_number', $settings['company_account_number'] ?? '') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="0123456789">
+                            <div class="pb-field">
+                                <label class="pb-label">Account Number</label>
+                                <input name="company_account_number" value="{{ old('company_account_number', $settings['company_account_number'] ?? '') }}" class="pb-input w-full" placeholder="0123456789">
                             </div>
-                            <div class="space-y-1">
-                                <label class="text-sm font-black text-slate-700">Bank Name</label>
-                                <input name="company_account_bank_name" value="{{ old('company_account_bank_name', $settings['company_account_bank_name'] ?? '') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="GTBank">
+                            <div class="pb-field">
+                                <label class="pb-label">Bank Name</label>
+                                <input name="company_account_bank_name" value="{{ old('company_account_bank_name', $settings['company_account_bank_name'] ?? '') }}" class="pb-input w-full" placeholder="GTBank">
                             </div>
-                            <div class="space-y-1 sm:col-span-2">
-                                <label class="text-sm font-black text-slate-700">Account Note (Optional)</label>
-                                <textarea name="company_account_note" rows="3" data-rich-editor class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 resize-none" placeholder="Use your invoice number as payment reference">{{ old('company_account_note', $settings['company_account_note'] ?? '') }}</textarea>
+                            <div class="pb-field sm:col-span-2">
+                                <label class="pb-label">Account Note (Optional)</label>
+                                <textarea name="company_account_note" rows="3" data-rich-editor class="pb-textarea w-full" placeholder="Use your invoice number as payment reference">{{ old('company_account_note', $settings['company_account_note'] ?? '') }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -303,14 +284,11 @@
 
                 <!-- Form Actions -->
                 <div class="flex items-center gap-4 pt-4 border-t border-slate-200">
-                    <button type="submit" class="btn-primary group relative overflow-hidden rounded-xl bg-gradient-to-r from-pink-600 to-pink-700 px-8 py-4 text-sm font-black text-white shadow-lg shadow-pink-600/20 transition-all duration-300 hover:shadow-xl hover:shadow-pink-600/30 hover:scale-[1.02]">
-                        <span class="relative z-10 flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                            </svg>
-                            Save Settings
-                        </span>
-                        <div class="absolute inset-0 -translate-x-full group-hover:translate-x-0 transition-transform duration-500 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+                    <button type="submit" class="pb-btn pb-btn-lg pb-btn-primary">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Save Settings
                     </button>
                     <a href="{{ route('admin.dashboard') }}" class="text-sm font-semibold text-slate-500 hover:text-slate-700 transition-colors">Cancel</a>
                 </div>

@@ -12,9 +12,9 @@ class TrainingMailTemplateTest extends TestCase
             $contents = (string) file_get_contents($path);
 
             $this->assertStringContainsString(
-                "@extends('mail.layouts.training')",
+                "@extends('mail.layouts.base')",
                 $contents,
-                basename($path).' must extend the shared PGTP mail template.'
+                basename($path).' must extend the shared mail template.'
             );
         }
     }

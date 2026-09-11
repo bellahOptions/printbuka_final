@@ -1,24 +1,24 @@
-<div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-    <table class="w-full">
-        <thead class="border-b border-slate-200 bg-slate-50">
-            <tr class="text-xs font-black uppercase tracking-wide text-slate-500">
-                <th class="px-5 py-3.5 text-left">Ref</th>
-                <th class="px-5 py-3.5 text-left">Staff</th>
-                <th class="px-5 py-3.5 text-left">Subject</th>
-                <th class="px-5 py-3.5 text-left">Type</th>
-                <th class="px-5 py-3.5 text-left">Date</th>
-                <th class="px-5 py-3.5 text-left">Due</th>
-                <th class="px-5 py-3.5 text-left">Status</th>
-                <th class="px-5 py-3.5"></th>
+<div class="pb-table-wrapper">
+    <table class="pb-table">
+        <thead>
+            <tr>
+                <th>Ref</th>
+                <th>Staff</th>
+                <th>Subject</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th>Due</th>
+                <th>Status</th>
+                <th></th>
             </tr>
         </thead>
-        <tbody class="divide-y divide-slate-100">
+        <tbody>
             @forelse ($queries as $q)
-            <tr wire:key="staff-query-{{ $q->id }}" class="hover:bg-slate-50/70 transition">
-                <td class="px-5 py-4">
+            <tr wire:key="staff-query-{{ $q->id }}">
+                <td>
                     <span class="font-mono text-xs font-black text-pink-700">{{ $q->query_number }}</span>
                 </td>
-                <td class="px-5 py-4">
+                <td>
                     <div class="flex items-center gap-2.5">
                         <img src="{{ $q->staff?->profilePhotoUrl() }}" class="h-8 w-8 rounded-full object-cover" alt="">
                         <div>
@@ -27,25 +27,25 @@
                         </div>
                     </div>
                 </td>
-                <td class="px-5 py-4">
+                <td>
                     <p class="text-sm font-semibold text-slate-800">{{ Str::limit($q->subject, 40) }}</p>
                 </td>
-                <td class="px-5 py-4">
+                <td>
                     <span class="text-sm text-slate-600">{{ $q->typeLabel() }}</span>
                 </td>
-                <td class="px-5 py-4 text-sm text-slate-600">{{ $q->query_date->format('M j, Y') }}</td>
-                <td class="px-5 py-4 text-sm {{ $q->response_due_date && $q->response_due_date->isPast() && $q->status !== 'closed' ? 'text-red-600 font-black' : 'text-slate-600' }}">
+                <td class="text-sm text-slate-600">{{ $q->query_date->format('M j, Y') }}</td>
+                <td class="text-sm {{ $q->response_due_date && $q->response_due_date->isPast() && $q->status !== 'closed' ? 'text-red-600 font-black' : 'text-slate-600' }}">
                     {{ $q->response_due_date?->format('M j, Y') ?? '—' }}
                 </td>
-                <td class="px-5 py-4">
-                    <span class="rounded-full px-2.5 py-1 text-xs font-black {{ $q->statusBadgeClass() }}">{{ ucwords(str_replace('_', ' ', $q->status)) }}</span>
+                <td>
+                    <span class="pb-badge {{ $q->statusBadgeClass() }}">{{ ucwords(str_replace('_', ' ', $q->status)) }}</span>
                 </td>
-                <td class="px-5 py-4 text-right">
+                <td class="text-right">
                     <a href="{{ route('admin.staff-queries.show', $q) }}" class="text-sm font-black text-pink-600 hover:text-pink-800">View</a>
                 </td>
             </tr>
             @empty
-            <tr><td colspan="8" class="px-5 py-12 text-center text-sm text-slate-400 font-semibold">No queries found.</td></tr>
+            <tr><td colspan="8" class="py-12 text-center text-sm text-slate-400 font-semibold">No queries found.</td></tr>
             @endforelse
         </tbody>
     </table>
@@ -63,7 +63,7 @@
                 <span class="text-xs font-bold uppercase tracking-wide text-pink-600" wire:loading wire:target="loadMore">
                     Loading more queries...
                 </span>
-                <button type="button" wire:click="loadMore" class="rounded-md border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:border-pink-400 hover:text-pink-700">
+                <button type="button" wire:click="loadMore" class="pb-btn pb-btn-outline">
                     Load More
                 </button>
             </div>

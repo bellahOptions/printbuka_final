@@ -4,49 +4,34 @@
 
 @section('content')
     <div class="mx-auto max-w-6xl space-y-6">
-        <div class="fade-in-up rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-8 text-white shadow-xl">
-            <div class="mb-4 flex items-center gap-2">
-                <a href="{{ route('admin.invoices.index') }}" class="group inline-flex items-center gap-2 text-sm font-black text-cyan-300 transition-colors hover:text-cyan-200">
-                    <svg class="h-4 w-4 transition-transform duration-300 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="pb-page-header">
+            <div>
+                <a href="{{ route('admin.invoices.index') }}" class="inline-flex items-center gap-1 text-sm font-semibold text-slate-500 hover:text-slate-700">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
                     Back to Invoices
                 </a>
-            </div>
-            <div class="flex items-start gap-4">
-                <div class="flex-1">
-                    <h1 class="text-4xl font-black tracking-tight lg:text-5xl">Create invoice</h1>
-                    <p class="mt-3 max-w-3xl text-base leading-relaxed text-slate-300">
-                        Create invoices using only Printbuka catalog products/services. Choose whether to save, download, or send after save.
-                    </p>
-                </div>
-                <div class="hidden sm:block">
-                    <div class="rounded-xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 p-3">
-                        <svg class="h-8 w-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                    </div>
-                </div>
+                <h1 class="pb-page-title">Create invoice</h1>
+                <p class="pb-page-subtitle">Create invoices using only Printbuka catalog products/services. Choose whether to save, download, or send after save.</p>
             </div>
         </div>
 
         @if ($errors->any())
-            <div class="fade-in-up rounded-xl border border-red-200 bg-red-50 p-4">
-                <div class="flex items-start gap-3">
-                    <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                    </svg>
-                    <div>
-                        <p class="text-sm font-black text-red-800">Please review the following issues:</p>
-                        <ul class="mt-2 space-y-1 text-sm font-semibold text-red-700">
-                            @foreach ($errors->all() as $error)
-                                <li class="flex items-center gap-2">
-                                    <span class="h-1 w-1 rounded-full bg-red-400"></span>
-                                    {{ $error }}
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
+            <div class="pb-alert pb-alert-error items-start">
+                <svg class="mt-0.5 h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <div>
+                    <p class="font-semibold">Please review the following issues:</p>
+                    <ul class="mt-2 space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <li class="flex items-center gap-2">
+                                <span class="h-1 w-1 rounded-full bg-red-400"></span>
+                                {{ $error }}
+                            </li>
+                        @endforeach
+                    </ul>
                 </div>
             </div>
         @endif
@@ -72,28 +57,16 @@
                 }
             @endphp
 
-            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
-                <div class="mb-6 flex items-center gap-3">
-                    <div class="rounded-xl border border-pink-200 bg-gradient-to-br from-pink-100 to-pink-50 p-2">
-                        <svg class="h-5 w-5 text-pink-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-black text-slate-950">Customer Information</h2>
-                        <p class="text-sm text-slate-500">Select existing or create new customer</p>
-                    </div>
+            <div class="pb-card p-6 lg:p-8">
+                <div class="mb-6">
+                    <h2 class="pb-section-title">Customer Information</h2>
+                    <p class="pb-section-subtitle">Select existing or create new customer</p>
                 </div>
 
                 <div class="space-y-5">
                     <div>
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">
-                            <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-                            </svg>
-                            Existing Customer
-                        </label>
-                        <select id="invoice-customer-select" name="customer_id" class="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                        <label class="pb-label">Existing Customer</label>
+                        <select id="invoice-customer-select" name="customer_id" class="mt-2 pb-input">
                             <option value="">— Select a customer —</option>
                             @foreach ($customers as $customer)
                                 <option
@@ -114,7 +87,7 @@
                         <button
                             type="button"
                             id="invoice-toggle-new-customer"
-                            class="rounded-lg border border-cyan-200 bg-white px-3 py-2 text-xs font-black uppercase tracking-wide text-cyan-700 transition-colors hover:bg-cyan-50"
+                            class="pb-btn pb-btn-sm pb-btn-outline"
                             aria-expanded="false"
                             aria-controls="invoice-new-customer-form"
                         >
@@ -129,7 +102,7 @@
                     <div class="flex items-center justify-between rounded-xl border border-slate-200 bg-amber-50/70 px-4 py-3">
                         <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Need to create an order first?</p>
                         <div class="flex gap-2">
-                            <a href="{{ route('admin.orders.create') }}" class="rounded-lg border border-amber-200 bg-white px-3 py-2 text-xs font-black uppercase tracking-wide text-amber-700 transition-colors hover:bg-amber-50">
+                            <a href="{{ route('admin.orders.create') }}" class="pb-btn pb-btn-sm pb-btn-outline">
                                 Create Order
                             </a>
                         </div>
@@ -137,81 +110,74 @@
                 </div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
+            <div class="pb-card p-6 lg:p-8">
                 <div class="grid gap-5 sm:grid-cols-2">
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Customer Name *</label>
-                        <input id="invoice-customer-name" name="customer_name" value="{{ old('customer_name') }}" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="Full name">
-                        @error('customer_name')<p class="mt-1.5 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                    <div class="pb-field">
+                        <label class="pb-label">Customer Name *</label>
+                        <input id="invoice-customer-name" name="customer_name" value="{{ old('customer_name') }}" required class="pb-input" placeholder="Full name">
+                        @error('customer_name')<p class="pb-field-error">{{ $message }}</p>@enderror
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Customer Email</label>
-                        <input id="invoice-customer-email" type="email" name="customer_email" value="{{ old('customer_email') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="email@example.com">
+                    <div class="pb-field">
+                        <label class="pb-label">Customer Email</label>
+                        <input id="invoice-customer-email" type="email" name="customer_email" value="{{ old('customer_email') }}" class="pb-input" placeholder="email@example.com">
                         <p class="text-xs font-semibold text-slate-500">Optional. Required only when using "Save & Send".</p>
-                        @error('customer_email')<p class="mt-1.5 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                        @error('customer_email')<p class="pb-field-error">{{ $message }}</p>@enderror
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Customer Phone *</label>
-                        <input id="invoice-customer-phone" name="customer_phone" value="{{ old('customer_phone') }}" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="+234 XXX XXX XXXX">
-                        @error('customer_phone')<p class="mt-1.5 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                    <div class="pb-field">
+                        <label class="pb-label">Customer Phone *</label>
+                        <input id="invoice-customer-phone" name="customer_phone" value="{{ old('customer_phone') }}" required class="pb-input" placeholder="+234 XXX XXX XXXX">
+                        @error('customer_phone')<p class="pb-field-error">{{ $message }}</p>@enderror
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Size / Format</label>
-                        <select id="catalog-size-format" name="size_format" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    <div class="pb-field">
+                        <label class="pb-label">Size / Format</label>
+                        <select id="catalog-size-format" name="size_format" class="pb-input">
                             <option value="">— Auto / Default —</option>
                         </select>
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Material / Substrate</label>
-                        <select id="catalog-material-substrate" name="material_substrate" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    <div class="pb-field">
+                        <label class="pb-label">Material / Substrate</label>
+                        <select id="catalog-material-substrate" name="material_substrate" class="pb-input">
                             <option value="">— Auto / Default —</option>
                         </select>
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Paper Density</label>
-                        <select id="catalog-paper-density" name="paper_density" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    <div class="pb-field">
+                        <label class="pb-label">Paper Density</label>
+                        <select id="catalog-paper-density" name="paper_density" class="pb-input">
                             <option value="">— Auto / Default —</option>
                         </select>
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Finish / Lamination</label>
-                        <select id="catalog-finish-lamination" name="finish_lamination" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    <div class="pb-field">
+                        <label class="pb-label">Finish / Lamination</label>
+                        <select id="catalog-finish-lamination" name="finish_lamination" class="pb-input">
                             <option value="">— Auto / Default —</option>
                         </select>
                     </div>
 
-                    <div class="space-y-1 sm:col-span-2">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Delivery Method</label>
-                        <select id="catalog-delivery-method" name="delivery_method" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    <div class="pb-field sm:col-span-2">
+                        <label class="pb-label">Delivery Method</label>
+                        <select id="catalog-delivery-method" name="delivery_method" class="pb-input">
                             <option value="">— Auto / Default —</option>
                         </select>
                     </div>
                 </div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
-                <div class="mb-6 flex items-center gap-3">
-                    <div class="rounded-xl border border-cyan-200 bg-gradient-to-br from-cyan-100 to-cyan-50 p-2">
-                        <svg class="h-5 w-5 text-cyan-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-black text-slate-950">Catalog Item & Pricing</h2>
-                        <p class="text-sm text-slate-500">Choose only from Printbuka products/services</p>
-                    </div>
+            <div class="pb-card p-6 lg:p-8">
+                <div class="mb-6">
+                    <h2 class="pb-section-title">Catalog Item & Pricing</h2>
+                    <p class="pb-section-subtitle">Choose only from Printbuka products/services</p>
                 </div>
 
                 <div class="catalog-item-grid grid grid-cols-2 gap-4 sm:gap-5 sm:grid-cols-2">
-                    <div class="catalog-item-field catalog-item-field--item col-span-2 space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Product / Service *</label>
-                        <select id="catalog-item-select" name="catalog_item_key" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    <div class="catalog-item-field catalog-item-field--item col-span-2 pb-field">
+                        <label class="pb-label">Product / Service *</label>
+                        <select id="catalog-item-select" name="catalog_item_key" required class="pb-input">
                             <option value="">— Select product or service —</option>
                             <optgroup label="Products">
                                 @foreach ($products as $product)
@@ -238,69 +204,69 @@
                                 @endforeach
                             </optgroup>
                         </select>
-                        @error('catalog_item_key')<p class="mt-1.5 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                        @error('catalog_item_key')<p class="pb-field-error">{{ $message }}</p>@enderror
                     </div>
 
-                    <div class="catalog-item-field catalog-item-field--quantity space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Quantity *</label>
-                        <input id="catalog-quantity" type="number" min="1" name="quantity" value="{{ old('quantity', 1) }}" required class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
-                        @error('quantity')<p class="mt-1.5 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                    <div class="catalog-item-field catalog-item-field--quantity pb-field">
+                        <label class="pb-label">Quantity *</label>
+                        <input id="catalog-quantity" type="number" min="1" name="quantity" value="{{ old('quantity', 1) }}" required class="pb-input">
+                        @error('quantity')<p class="pb-field-error">{{ $message }}</p>@enderror
                     </div>
 
-                    <div class="catalog-item-field catalog-item-field--rate space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Unit Price (₦)</label>
-                        <div class="flex items-center overflow-hidden rounded-xl border border-slate-300 bg-slate-50">
-                            <span class="px-3 text-sm font-black text-slate-500">₦</span>
-                            <input id="catalog-unit-price-display" type="text" readonly class="w-full border-0 bg-transparent px-3 py-3.5 text-sm font-black text-slate-800 focus:ring-0">
+                    <div class="catalog-item-field catalog-item-field--rate pb-field">
+                        <label class="pb-label">Unit Price (₦)</label>
+                        <div class="flex items-center overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
+                            <span class="px-3 text-sm font-bold text-slate-500">₦</span>
+                            <input id="catalog-unit-price-display" type="text" readonly class="w-full border-0 bg-transparent px-3 py-3.5 text-sm font-bold text-slate-800 focus:ring-0">
                         </div>
                         <input id="catalog-unit-price" type="hidden" value="0">
                     </div>
 
-                    <div class="catalog-item-field catalog-item-field--amount col-span-2 space-y-1 sm:hidden">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Amount</label>
-                        <p id="catalog-mobile-amount" class="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-xl font-black text-slate-900">₦0.00</p>
+                    <div class="catalog-item-field catalog-item-field--amount col-span-2 pb-field sm:hidden">
+                        <label class="pb-label">Amount</label>
+                        <p id="catalog-mobile-amount" class="rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-xl font-bold text-slate-900">₦0.00</p>
                     </div>
 
-                    <div class="catalog-item-field space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Tax (₦)</label>
-                        <input id="catalog-tax" type="number" step="0.01" min="0" name="tax_amount" value="{{ old('tax_amount', 0) }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="0.00">
-                        @error('tax_amount')<p class="mt-1.5 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                    <div class="catalog-item-field pb-field">
+                        <label class="pb-label">Tax (₦)</label>
+                        <input id="catalog-tax" type="number" step="0.01" min="0" name="tax_amount" value="{{ old('tax_amount', 0) }}" class="pb-input" placeholder="0.00">
+                        @error('tax_amount')<p class="pb-field-error">{{ $message }}</p>@enderror
                     </div>
 
-                    <div class="catalog-item-field space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Discount (₦)</label>
-                        <input id="catalog-discount" type="number" step="0.01" min="0" name="discount_amount" value="{{ old('discount_amount', 0) }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="0.00">
-                        @error('discount_amount')<p class="mt-1.5 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                    <div class="catalog-item-field pb-field">
+                        <label class="pb-label">Discount (₦)</label>
+                        <input id="catalog-discount" type="number" step="0.01" min="0" name="discount_amount" value="{{ old('discount_amount', 0) }}" class="pb-input" placeholder="0.00">
+                        @error('discount_amount')<p class="pb-field-error">{{ $message }}</p>@enderror
                     </div>
                 </div>
 
                 <div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <p class="text-xs font-black uppercase tracking-wide text-slate-500">Item</p>
-                        <p id="catalog-item-name" class="mt-2 text-sm font-black text-slate-900">—</p>
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                        <p class="pb-label">Item</p>
+                        <p id="catalog-item-name" class="mt-2 text-sm font-bold text-slate-900">—</p>
                     </div>
-                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <p class="text-xs font-black uppercase tracking-wide text-slate-500">Subtotal</p>
-                        <p id="catalog-subtotal" class="mt-2 text-lg font-black text-slate-900">₦0.00</p>
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                        <p class="pb-label">Subtotal</p>
+                        <p id="catalog-subtotal" class="mt-2 text-lg font-bold text-slate-900">₦0.00</p>
                     </div>
-                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <p class="text-xs font-black uppercase tracking-wide text-slate-500">Adjustments</p>
-                        <p id="catalog-adjustments" class="mt-2 text-lg font-black text-slate-900">₦0.00</p>
+                    <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                        <p class="pb-label">Adjustments</p>
+                        <p id="catalog-adjustments" class="mt-2 text-lg font-bold text-slate-900">₦0.00</p>
                     </div>
-                    <div class="rounded-xl border border-pink-200 bg-pink-50 p-4">
-                        <p class="text-xs font-black uppercase tracking-wide text-pink-700">Invoice Total</p>
-                        <p id="catalog-total" class="mt-2 text-lg font-black text-pink-700">₦0.00</p>
+                    <div class="rounded-lg border border-pink-200 bg-pink-50 p-4">
+                        <p class="pb-label text-pink-700">Invoice Total</p>
+                        <p id="catalog-total" class="mt-2 text-lg font-bold text-pink-700">₦0.00</p>
                     </div>
                 </div>
 
                 <div class="mt-6 rounded-xl border border-slate-200">
                     <div class="border-b border-slate-200 bg-slate-50 px-4 py-3">
-                        <p class="text-sm font-black text-slate-900">Editable Invoice Items (Optional)</p>
+                        <p class="text-sm font-bold text-slate-900">Editable Invoice Items (Optional)</p>
                         <p class="text-xs text-slate-500">Add item rows to override catalog-generated invoice items.</p>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full min-w-[640px] text-left text-sm">
-                            <thead class="bg-white text-xs font-black uppercase tracking-wide text-slate-500">
+                        <table class="pb-table min-w-[640px]">
+                            <thead class="">
                                 <tr>
                                     <th class="px-4 py-3">Description</th>
                                     <th class="px-4 py-3">Qty</th>
@@ -313,18 +279,18 @@
                                 @foreach ($lineItems as $index => $item)
                                     <tr data-line-item-row>
                                         <td class="px-4 py-3">
-                                            <input name="line_items[{{ $index }}][description]" value="{{ $item['description'] }}" data-line-item-description class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800" placeholder="Item description">
+                                            <input name="line_items[{{ $index }}][description]" value="{{ $item['description'] }}" data-line-item-description class="pb-input" placeholder="Item description">
                                             <input type="hidden" name="line_items[{{ $index }}][source_type]" value="custom" data-line-item-source>
                                         </td>
                                         <td class="px-4 py-3">
-                                            <input type="number" min="1" step="1" name="line_items[{{ $index }}][quantity]" value="{{ $item['quantity'] }}" data-line-item-quantity class="w-24 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800">
+                                            <input type="number" min="1" step="1" name="line_items[{{ $index }}][quantity]" value="{{ $item['quantity'] }}" data-line-item-quantity class="pb-input w-24">
                                         </td>
                                         <td class="px-4 py-3">
-                                            <input type="number" min="0" step="0.01" name="line_items[{{ $index }}][rate]" value="{{ $item['rate'] }}" data-line-item-rate class="w-32 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800">
+                                            <input type="number" min="0" step="0.01" name="line_items[{{ $index }}][rate]" value="{{ $item['rate'] }}" data-line-item-rate class="pb-input w-32">
                                         </td>
-                                        <td class="px-4 py-3 font-black text-slate-900" data-line-item-amount>₦0.00</td>
+                                        <td class="px-4 py-3 font-bold text-slate-900" data-line-item-amount>₦0.00</td>
                                         <td class="px-4 py-3 text-right">
-                                            <button type="button" data-remove-line-item class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-black uppercase tracking-wide text-slate-500 hover:border-red-200 hover:text-red-600">Remove</button>
+                                            <button type="button" data-remove-line-item class="pb-btn pb-btn-sm pb-btn-outline">Remove</button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -332,66 +298,66 @@
                         </table>
                     </div>
                     <div class="border-t border-slate-200 px-4 py-3">
-                        <button type="button" id="add-invoice-line-item" class="rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-black uppercase tracking-wide text-emerald-700 hover:bg-emerald-100">Add Item Row</button>
+                        <button type="button" id="add-invoice-line-item" class="pb-btn pb-btn-sm pb-btn-secondary">Add Item Row</button>
                     </div>
                 </div>
-                @error('line_items')<p class="mt-2 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
-                @error('line_items.*.description')<p class="mt-2 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
-                @error('line_items.*.quantity')<p class="mt-2 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
-                @error('line_items.*.rate')<p class="mt-2 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                @error('line_items')<p class="pb-field-error">{{ $message }}</p>@enderror
+                @error('line_items.*.description')<p class="pb-field-error">{{ $message }}</p>@enderror
+                @error('line_items.*.quantity')<p class="pb-field-error">{{ $message }}</p>@enderror
+                @error('line_items.*.rate')<p class="pb-field-error">{{ $message }}</p>@enderror
             </div>
 
-            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
+            <div class="pb-card p-6 lg:p-8">
                 <div class="grid gap-5 sm:grid-cols-2">
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Due Date</label>
-                        <input type="datetime-local" name="due_at" value="{{ old('due_at', now()->addDays(7)->format('Y-m-d\\TH:i')) }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
-                        @error('due_at')<p class="mt-1.5 text-xs font-bold text-pink-700">{{ $message }}</p>@enderror
+                    <div class="pb-field">
+                        <label class="pb-label">Due Date</label>
+                        <input type="datetime-local" name="due_at" value="{{ old('due_at', now()->addDays(7)->format('Y-m-d\\TH:i')) }}" class="pb-input">
+                        @error('due_at')<p class="pb-field-error">{{ $message }}</p>@enderror
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Invoice Status</label>
-                        <select name="invoice_status" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20">
+                    <div class="pb-field">
+                        <label class="pb-label">Invoice Status</label>
+                        <select name="invoice_status" class="pb-input">
                             @foreach ($invoiceStatuses as $value)
                                 <option value="{{ $value }}" @selected(old('invoice_status', 'draft') === $value)>{{ str($value)->replace('_', ' ')->title() }}</option>
                             @endforeach
                         </select>
                     </div>
 
-                    <div class="sm:col-span-2 space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Delivery City</label>
-                        <input name="delivery_city" value="{{ old('delivery_city') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="e.g., Lagos">
+                    <div class="sm:col-span-2 pb-field">
+                        <label class="pb-label">Delivery City</label>
+                        <input name="delivery_city" value="{{ old('delivery_city') }}" class="pb-input" placeholder="e.g., Lagos">
                     </div>
 
-                    <div class="sm:col-span-2 space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Delivery Address</label>
-                        <input name="delivery_address" value="{{ old('delivery_address') }}" class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="Full delivery address">
+                    <div class="sm:col-span-2 pb-field">
+                        <label class="pb-label">Delivery Address</label>
+                        <input name="delivery_address" value="{{ old('delivery_address') }}" class="pb-input" placeholder="Full delivery address">
                     </div>
 
-                    <div class="sm:col-span-2 space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Artwork / Brief Notes</label>
-                        <textarea name="artwork_notes" rows="4" data-rich-editor class="w-full resize-none rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="Describe artwork requirements, special instructions, etc.">{{ old('artwork_notes') }}</textarea>
+                    <div class="sm:col-span-2 pb-field">
+                        <label class="pb-label">Artwork / Brief Notes</label>
+                        <textarea name="artwork_notes" rows="4" data-rich-editor class="pb-textarea" placeholder="Describe artwork requirements, special instructions, etc.">{{ old('artwork_notes') }}</textarea>
                     </div>
 
-                    <div class="sm:col-span-2 space-y-1">
-                        <label class="flex items-center gap-2 text-sm font-black text-slate-700">Internal Notes</label>
-                        <textarea name="internal_notes" rows="4" data-rich-editor class="w-full resize-none rounded-xl border border-slate-300 bg-slate-50 px-4 py-3.5 text-sm font-semibold text-slate-800 placeholder-slate-400 transition-all duration-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20" placeholder="Private notes for staff only">{{ old('internal_notes') }}</textarea>
+                    <div class="sm:col-span-2 pb-field">
+                        <label class="pb-label">Internal Notes</label>
+                        <textarea name="internal_notes" rows="4" data-rich-editor class="pb-textarea bg-slate-50" placeholder="Private notes for staff only">{{ old('internal_notes') }}</textarea>
                     </div>
                 </div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm lg:p-8">
-                <p class="text-sm font-black text-slate-900">Save Options</p>
+            <div class="pb-card p-6 lg:p-8">
+                <p class="text-sm font-bold text-slate-900">Save Options</p>
                 <p class="mt-1 text-xs text-slate-500">Invoices without an email can only be saved or downloaded.</p>
 
                 <div class="mt-6 flex flex-wrap items-center gap-3">
-                    <button type="submit" name="action" value="save" class="rounded-xl bg-slate-900 px-6 py-3 text-sm font-black text-white transition hover:bg-slate-800">
+                    <button type="submit" name="action" value="save" class="pb-btn pb-btn-md pb-btn-ink">
                         Save Invoice
                     </button>
-                    <button type="submit" name="action" value="save_download" class="rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-black text-slate-900 transition hover:bg-slate-50">
+                    <button type="submit" name="action" value="save_download" class="pb-btn pb-btn-md pb-btn-outline">
                         Save & Download
                     </button>
-                    <button type="submit" name="action" value="save_send" id="invoice-save-send-button" class="rounded-xl bg-pink-600 px-6 py-3 text-sm font-black text-white transition hover:bg-pink-700">
+                    <button type="submit" name="action" value="save_send" id="invoice-save-send-button" class="pb-btn pb-btn-md pb-btn-primary">
                         Save & Send
                     </button>
                     <a href="{{ route('admin.invoices.index') }}" class="text-sm font-semibold text-slate-500 transition-colors hover:text-slate-700">Cancel</a>
@@ -768,18 +734,18 @@
                 row.setAttribute('data-line-item-row', '');
                 row.innerHTML = `
                     <td class="px-4 py-3">
-                        <input data-line-item-description class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800" placeholder="Item description">
+                        <input data-line-item-description class="pb-input" placeholder="Item description">
                         <input type="hidden" value="custom" data-line-item-source>
                     </td>
                     <td class="px-4 py-3">
-                        <input type="number" min="1" step="1" value="1" data-line-item-quantity class="w-24 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800">
+                        <input type="number" min="1" step="1" value="1" data-line-item-quantity class="pb-input w-24">
                     </td>
                     <td class="px-4 py-3">
-                        <input type="number" min="0" step="0.01" value="0" data-line-item-rate class="w-32 rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-800">
+                        <input type="number" min="0" step="0.01" value="0" data-line-item-rate class="pb-input w-32">
                     </td>
-                    <td class="px-4 py-3 font-black text-slate-900" data-line-item-amount>₦0.00</td>
+                    <td class="px-4 py-3 font-bold text-slate-900" data-line-item-amount>₦0.00</td>
                     <td class="px-4 py-3 text-right">
-                        <button type="button" data-remove-line-item class="rounded-lg border border-slate-200 px-3 py-2 text-xs font-black uppercase tracking-wide text-slate-500 hover:border-red-200 hover:text-red-600">Remove</button>
+                        <button type="button" data-remove-line-item class="pb-btn pb-btn-sm pb-btn-outline">Remove</button>
                     </td>
                 `;
                 lineItemsBody.appendChild(row);

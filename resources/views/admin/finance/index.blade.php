@@ -6,12 +6,12 @@
     @php
         $netIncome = (float) $income - (float) $expenses;
         $profitMargin = $income > 0 ? ($netIncome / $income) * 100 : 0;
-        
+
         // Prepare chart data
         $monthlyData = $entries->groupBy(function($entry) {
             return $entry->entry_date->format('M');
         });
-        
+
         $chartLabels = $monthlyData->keys()->toArray();
         $incomeData = $monthlyData->map(function($month) {
             return $month->where('type', 'income')->where('status', '!=', 'refunded')->sum('amount');
@@ -19,7 +19,7 @@
         $expenseData = $monthlyData->map(function($month) {
             return $month->where('type', 'expense')->sum('amount');
         })->values()->toArray();
-        
+
         // Category breakdown
         $categoryData = $entries->where('type', 'expense')->groupBy('category')->map(function($group) {
             return $group->sum('amount');
@@ -27,121 +27,119 @@
     @endphp
 
     <div class="mx-auto max-w-7xl space-y-6">
-        <!-- Hero Section -->
-        <div class="fade-in-up rounded-2xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-8 text-white shadow-xl">
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div class="flex-1">
-                    <div class="flex items-center gap-3 mb-3">
-                        <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                        </span>
-                        <p class="text-sm font-black uppercase tracking-wider text-emerald-300">Financial Overview</p>
-                    </div>
-                    <h1 class="text-4xl font-black tracking-tight lg:text-5xl">Cash Flow Dashboard</h1>
-                    <p class="mt-3 max-w-3xl text-base leading-relaxed text-slate-300">Track income, expenses, and financial performance with real-time insights.</p>
+        {{-- Header --}}
+        <div class="animate-fade-in-up pb-page-header">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="pb-status-dot pb-status-online"><span></span><span></span></span>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Financial Overview</p>
                 </div>
-                @if (auth()->user()?->canAdmin('finance.view'))
-                    <a href="{{ route('admin.finance.create') }}" class="btn-primary group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-pink-600 to-pink-700 px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-pink-600/20 transition-all duration-300 hover:shadow-xl hover:shadow-pink-600/30 hover:scale-105">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                        </svg>
-                        Add New Entry
-                        <div class="absolute inset-0 -translate-x-full group-hover:translate-x-0 transition-transform duration-500 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                    </a>
-                @endif
+                <h1 class="pb-page-title">Cash Flow Dashboard</h1>
+                <p class="pb-page-subtitle max-w-2xl">Track income, expenses, and financial performance with real-time insights.</p>
             </div>
+            @if (auth()->user()?->canAdmin('finance.view'))
+                <a href="{{ route('admin.finance.create') }}" class="pb-btn pb-btn-md pb-btn-primary self-start">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Add New Entry
+                </a>
+            @endif
         </div>
 
         <!-- KPI Cards -->
-        <div class="fade-in-up section-delay-1 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="group rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white to-emerald-50/30 p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-emerald-200">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="p-3 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50">
-                        <svg class="w-6 h-6 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="animate-fade-in-up delay-100 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <article class="pb-kpi-card">
+                <div class="pb-kpi-accent-bar bg-emerald-500"></div>
+                <div class="flex items-start justify-between gap-3 mt-1">
+                    <div>
+                        <p class="pb-stat-label">Total Income</p>
+                        <p class="pb-stat-value text-emerald-700 truncate" title="₦{{ number_format((float) $income, 2) }}">{{ \App\Support\CompactNumber::currency((float) $income) }}</p>
+                        <p class="mt-2 text-xs text-slate-500">All time revenue</p>
+                    </div>
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100">
+                        <svg class="w-5 h-5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
-                    </div>
-                    <span class="text-xs font-black uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2 py-1 rounded-full">+{{ number_format($income > 0 ? (($income - ($income * 0.1)) / $income) * 100 : 0, 1) }}%</span>
-                </div>
-                <p class="text-sm font-black uppercase tracking-wider text-slate-500">Total Income</p>
-                <p class="mt-2 text-3xl font-black text-slate-950 truncate" title="₦{{ number_format((float) $income, 2) }}">{{ \App\Support\CompactNumber::currency((float) $income) }}</p>
-                <p class="mt-2 text-xs text-slate-500">All time revenue</p>
-            </div>
-
-            <div class="group rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white to-pink-50/30 p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-pink-200">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="p-3 rounded-xl bg-gradient-to-br from-pink-100 to-pink-50">
-                        <svg class="w-6 h-6 text-pink-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-black uppercase tracking-wider text-pink-700 bg-pink-100 px-2 py-1 rounded-full">Outflow</span>
-                </div>
-                <p class="text-sm font-black uppercase tracking-wider text-slate-500">Total Expenses</p>
-                <p class="mt-2 text-3xl font-black text-slate-950 truncate" title="₦{{ number_format((float) $expenses, 2) }}">{{ \App\Support\CompactNumber::currency((float) $expenses) }}</p>
-                <p class="mt-2 text-xs text-slate-500">Operational costs</p>
-            </div>
-
-            <div class="group rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white {{ $netIncome >= 0 ? 'to-cyan-50/30' : 'to-red-50/30' }} p-6 shadow-sm transition-all duration-300 hover:shadow-xl {{ $netIncome >= 0 ? 'hover:border-cyan-200' : 'hover:border-red-200' }}">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="p-3 rounded-xl bg-gradient-to-br {{ $netIncome >= 0 ? 'from-cyan-100 to-cyan-50' : 'from-red-100 to-red-50' }}">
-                        <svg class="w-6 h-6 {{ $netIncome >= 0 ? 'text-cyan-700' : 'text-red-700' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                        </svg>
-                    </div>
-                    <span class="text-xs font-black uppercase tracking-wider {{ $netIncome >= 0 ? 'text-cyan-700 bg-cyan-100' : 'text-red-700 bg-red-100' }} px-2 py-1 rounded-full">
-                        {{ $profitMargin >= 0 ? '+' : '' }}{{ number_format($profitMargin, 1) }}%
                     </span>
                 </div>
-                <p class="text-sm font-black uppercase tracking-wider text-slate-500">Net Income</p>
-                <p class="mt-2 text-3xl font-black {{ $netIncome >= 0 ? 'text-cyan-700' : 'text-red-700' }} truncate" title="₦{{ number_format($netIncome, 2) }}">{{ \App\Support\CompactNumber::currency($netIncome) }}</p>
-                <p class="mt-2 text-xs text-slate-500">Profit margin</p>
-            </div>
+            </article>
 
-            <div class="group rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white to-purple-50/30 p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-purple-200">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="p-3 rounded-xl bg-gradient-to-br from-purple-100 to-purple-50">
-                        <svg class="w-6 h-6 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <article class="pb-kpi-card">
+                <div class="pb-kpi-accent-bar bg-brand-500"></div>
+                <div class="flex items-start justify-between gap-3 mt-1">
+                    <div>
+                        <p class="pb-stat-label">Total Expenses</p>
+                        <p class="pb-stat-value text-brand-700 truncate" title="₦{{ number_format((float) $expenses, 2) }}">{{ \App\Support\CompactNumber::currency((float) $expenses) }}</p>
+                        <p class="mt-2 text-xs text-slate-500">Operational costs</p>
+                    </div>
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-100">
+                        <svg class="w-5 h-5 text-brand-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                        </svg>
+                    </span>
+                </div>
+            </article>
+
+            <article class="pb-kpi-card">
+                <div class="pb-kpi-accent-bar {{ $netIncome >= 0 ? 'bg-cyan-500' : 'bg-red-500' }}"></div>
+                <div class="flex items-start justify-between gap-3 mt-1">
+                    <div>
+                        <p class="pb-stat-label">Net Income</p>
+                        <p class="pb-stat-value {{ $netIncome >= 0 ? 'text-cyan-700' : 'text-red-700' }} truncate" title="₦{{ number_format($netIncome, 2) }}">{{ \App\Support\CompactNumber::currency($netIncome) }}</p>
+                        <p class="mt-2 text-xs text-slate-500">{{ $profitMargin >= 0 ? '+' : '' }}{{ number_format($profitMargin, 1) }}% profit margin</p>
+                    </div>
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg {{ $netIncome >= 0 ? 'bg-cyan-100' : 'bg-red-100' }}">
+                        <svg class="w-5 h-5 {{ $netIncome >= 0 ? 'text-cyan-700' : 'text-red-700' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </span>
+                </div>
+            </article>
+
+            <article class="pb-kpi-card">
+                <div class="pb-kpi-accent-bar bg-violet-500"></div>
+                <div class="flex items-start justify-between gap-3 mt-1">
+                    <div>
+                        <p class="pb-stat-label">Total Entries</p>
+                        <p class="pb-stat-value">{{ $entries->count() }}</p>
+                        <p class="mt-2 text-xs text-slate-500">Transactions recorded</p>
+                    </div>
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-violet-100">
+                        <svg class="w-5 h-5 text-violet-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                         </svg>
-                    </div>
-                    <span class="text-xs font-black uppercase tracking-wider text-purple-700 bg-purple-100 px-2 py-1 rounded-full">{{ $entries->count() }}</span>
+                    </span>
                 </div>
-                <p class="text-sm font-black uppercase tracking-wider text-slate-500">Total Entries</p>
-                <p class="mt-2 text-3xl font-black text-slate-950">{{ $entries->count() }}</p>
-                <p class="mt-2 text-xs text-slate-500">Transactions recorded</p>
-            </div>
+            </article>
         </div>
 
         <!-- Status Message -->
         @if (session('status'))
-            <div class="fade-in-up rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-                <div class="flex items-center gap-3">
-                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <p class="text-sm font-bold text-emerald-800">{{ session('status') }}</p>
-                </div>
+            <div class="animate-fade-in-up pb-alert pb-alert-success">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                {{ session('status') }}
             </div>
         @endif
 
         <!-- Charts Section -->
-        <div class="fade-in-up section-delay-2 grid gap-6 lg:grid-cols-2">
+        <div class="animate-fade-in-up delay-200 grid gap-6 lg:grid-cols-2">
             <!-- Cash Flow Chart -->
-            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
+            <div class="pb-card pb-card-content">
                 <div class="flex items-center justify-between mb-6">
                     <div>
-                        <h2 class="text-lg font-black text-slate-950">Cash Flow Analysis</h2>
-                        <p class="text-sm text-slate-500">Monthly income vs expenses</p>
+                        <h2 class="pb-section-title">Cash Flow Analysis</h2>
+                        <p class="pb-section-subtitle">Monthly income vs expenses</p>
                     </div>
                     <div class="flex items-center gap-3">
-                        <span class="flex items-center gap-1.5 text-xs font-semibold">
+                        <span class="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
                             <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
                             Income
                         </span>
-                        <span class="flex items-center gap-1.5 text-xs font-semibold">
-                            <span class="w-3 h-3 rounded-full bg-pink-500"></span>
+                        <span class="flex items-center gap-1.5 text-xs font-semibold text-slate-600">
+                            <span class="w-3 h-3 rounded-full bg-brand-500"></span>
                             Expenses
                         </span>
                     </div>
@@ -152,12 +150,10 @@
             </div>
 
             <!-- Expense Categories Chart -->
-            <div class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h2 class="text-lg font-black text-slate-950">Expense Breakdown</h2>
-                        <p class="text-sm text-slate-500">By category</p>
-                    </div>
+            <div class="pb-card pb-card-content">
+                <div class="mb-6">
+                    <h2 class="pb-section-title">Expense Breakdown</h2>
+                    <p class="pb-section-subtitle">By category</p>
                 </div>
                 <div class="relative h-80">
                     <canvas id="categoryChart"></canvas>
@@ -166,45 +162,45 @@
         </div>
 
         <!-- Quick Stats -->
-        <div class="fade-in-up section-delay-3 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="rounded-xl border border-slate-200/60 bg-white p-5">
-                <p class="text-xs font-black uppercase tracking-wider text-slate-500">Average Transaction</p>
-                <p class="mt-2 text-2xl font-black text-slate-950">₦{{ number_format($entries->avg('amount') ?? 0, 2) }}</p>
-            </div> 
-            <div class="rounded-xl border border-slate-200/60 bg-white p-5">
-                <p class="text-xs font-black uppercase tracking-wider text-slate-500">Largest Income</p>
-                <p class="mt-2 text-2xl font-black text-emerald-700">₦{{ number_format($entries->where('type', 'income')->where('status', '!=', 'refunded')->max('amount') ?? 0, 2) }}</p>
+        <div class="animate-fade-in-up delay-300 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="pb-stat-card">
+                <p class="pb-stat-label">Average Transaction</p>
+                <p class="mt-2 text-2xl font-bold text-slate-900">₦{{ number_format($entries->avg('amount') ?? 0, 2) }}</p>
             </div>
-            <div class="rounded-xl border border-slate-200/60 bg-white p-5">
-                <p class="text-xs font-black uppercase tracking-wider text-slate-500">Largest Expense</p>
-                <p class="mt-2 text-2xl font-black text-pink-700">₦{{ number_format($entries->where('type', 'expense')->max('amount') ?? 0, 2) }}</p>
+            <div class="pb-stat-card">
+                <p class="pb-stat-label">Largest Income</p>
+                <p class="mt-2 text-2xl font-bold text-emerald-700">₦{{ number_format($entries->where('type', 'income')->where('status', '!=', 'refunded')->max('amount') ?? 0, 2) }}</p>
             </div>
-            <div class="rounded-xl border border-slate-200/60 bg-white p-5">
+            <div class="pb-stat-card">
+                <p class="pb-stat-label">Largest Expense</p>
+                <p class="mt-2 text-2xl font-bold text-brand-700">₦{{ number_format($entries->where('type', 'expense')->max('amount') ?? 0, 2) }}</p>
+            </div>
+            <div class="pb-stat-card">
                 @php
                     $monthIncome = $entries->where('entry_date', '>=', now()->startOfMonth())->where('type', 'income')->where('status', '!=', 'refunded')->sum('amount');
                     $monthExpense = $entries->where('entry_date', '>=', now()->startOfMonth())->where('type', 'expense')->sum('amount');
                 @endphp
-                <p class="text-xs font-black uppercase tracking-wider text-slate-500">This Month</p>
-                <p class="mt-2 text-2xl font-black {{ ($monthIncome - $monthExpense) >= 0 ? 'text-emerald-700' : 'text-red-700' }}">
+                <p class="pb-stat-label">This Month</p>
+                <p class="mt-2 text-2xl font-bold {{ ($monthIncome - $monthExpense) >= 0 ? 'text-emerald-700' : 'text-red-700' }}">
                     ₦{{ number_format($monthIncome - $monthExpense, 2) }}
                 </p>
             </div>
         </div>
 
         <!-- Transactions Table -->
-        <div class="fade-in-up section-delay-4 rounded-2xl border border-slate-200/60 bg-white shadow-sm overflow-hidden">
-            <div class="flex items-center justify-between px-6 py-5 border-b border-slate-200">
+        <div class="animate-fade-in-up delay-400 pb-card overflow-hidden">
+            <div class="border-b border-slate-100 p-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 class="text-lg font-black text-slate-950">Recent Transactions</h2>
-                    <p class="text-sm text-slate-500">All financial entries</p>
+                    <h2 class="pb-card-title">Recent Transactions</h2>
+                    <p class="pb-card-description">All financial entries</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <select class="text-sm rounded-lg border border-slate-300 px-3 py-2 font-semibold" id="filterType" name="type">
+                    <select class="pb-select" id="filterType" name="type">
                         <option value="">All Types</option>
                         <option value="income">Income Only</option>
                         <option value="expense">Expenses Only</option>
                     </select>
-                    <a href="{{ route('admin.finance.report-form') }}" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-800 transition hover:border-pink-300 hover:text-pink-700">
+                    <a href="{{ route('admin.finance.report-form') }}" class="pb-btn pb-btn-md pb-btn-outline">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
@@ -212,42 +208,10 @@
                     </a>
                 </div>
             </div>
-            
+
             <livewire:admin.finance-entries-table :filters="$filters" />
         </div>
     </div>
-
-    <style>
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .fade-in-up {
-            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-            opacity: 0;
-        }
-        
-        .section-delay-1 { animation-delay: 0.05s; }
-        .section-delay-2 { animation-delay: 0.1s; }
-        .section-delay-3 { animation-delay: 0.15s; }
-        .section-delay-4 { animation-delay: 0.2s; }
-        
-        .btn-primary {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
-    </style>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -331,12 +295,12 @@
             const categoryCtx = document.getElementById('categoryChart').getContext('2d');
             const categoryLabels = {!! json_encode($categoryData->keys()->toArray()) !!};
             const categoryValues = {!! json_encode($categoryData->values()->toArray()) !!};
-            
+
             const colors = [
                 '#ec4899', '#06b6d4', '#10b981', '#f59e0b', '#6366f1',
                 '#8b5cf6', '#ef4444', '#14b8a6', '#f97316', '#3b82f6'
             ];
-            
+
             new Chart(categoryCtx, {
                 type: 'doughnut',
                 data: {
@@ -384,12 +348,12 @@
             filterSelect.addEventListener('change', function() {
                 const filterValue = this.value;
                 const rows = document.querySelectorAll('tbody tr');
-                
+
                 rows.forEach(row => {
                     if (row.cells.length > 1) {
                         const typeCell = row.cells[1];
                         const typeText = typeCell.textContent.trim().toLowerCase();
-                        
+
                         if (!filterValue || typeText.includes(filterValue)) {
                             row.style.display = '';
                         } else {

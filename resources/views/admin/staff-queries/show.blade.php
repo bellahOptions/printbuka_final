@@ -8,25 +8,27 @@
 
 <div class="mx-auto max-w-3xl space-y-6">
 
-    <div>
-        <a href="{{ route('admin.staff-queries.index') }}" class="text-sm font-black text-pink-600 hover:text-pink-800">← Back to Queries</a>
-        <div class="mt-3 flex items-center gap-4">
-            <h1 class="text-2xl font-black text-slate-950">{{ $query->query_number }}</h1>
-            <span class="rounded-full px-3 py-1 text-xs font-black {{ $query->statusBadgeClass() }}">{{ ucwords(str_replace('_', ' ', $query->status)) }}</span>
+    <div class="pb-page-header">
+        <div>
+            <a href="{{ route('admin.staff-queries.index') }}" class="text-sm font-black text-pink-600 hover:text-pink-800">← Back to Queries</a>
+            <div class="mt-3 flex items-center gap-4">
+                <h1 class="pb-page-title">{{ $query->query_number }}</h1>
+                <span class="pb-badge {{ $query->statusBadgeClass() }}">{{ ucwords(str_replace('_', ' ', $query->status)) }}</span>
+            </div>
         </div>
     </div>
 
     @if (session('status'))
-        <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-bold text-emerald-800">{{ session('status') }}</div>
+        <div class="pb-alert pb-alert-success">{{ session('status') }}</div>
     @endif
     @if ($errors->any())
-        <div class="rounded-xl border border-pink-200 bg-pink-50 p-4">
-            @foreach ($errors->all() as $e)<p class="text-sm font-semibold text-pink-700">{{ $e }}</p>@endforeach
+        <div class="pb-alert pb-alert-error">
+            @foreach ($errors->all() as $e)<p>{{ $e }}</p>@endforeach
         </div>
     @endif
 
     {{-- Query Details --}}
-    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="pb-card p-6">
         <div class="grid gap-x-8 gap-y-4 sm:grid-cols-2">
             <div>
                 <p class="text-xs font-black uppercase tracking-wide text-slate-400">Staff Member</p>
@@ -68,9 +70,9 @@
 
     {{-- Staff Response --}}
     @if ($query->staff_response)
-    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <div class="pb-card p-6">
         <div class="flex items-center gap-3 mb-4">
-            <h2 class="text-base font-black text-slate-950">Staff Response</h2>
+            <h2 class="pb-section-title">Staff Response</h2>
             <span class="text-xs text-slate-500">{{ $query->staff_responded_at?->format('M j, Y g:i A') }}</span>
         </div>
         <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm text-slate-800 leading-relaxed">{{ $query->staff_response }}</div>
@@ -81,20 +83,20 @@
         <p class="text-sm text-amber-700 mb-4">Please provide your formal response to this query.</p>
         <form method="POST" action="{{ route('admin.staff-queries.respond', $query) }}">
             @csrf
-            <textarea name="staff_response" rows="5" required data-rich-editor placeholder="Write your formal response here..." class="w-full rounded-xl border border-amber-300 px-4 py-3 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-100 focus:outline-none mb-3"></textarea>
-            <button type="submit" class="rounded-xl bg-amber-600 px-6 py-2.5 text-sm font-black text-white hover:bg-amber-700">Submit Response</button>
+            <textarea name="staff_response" rows="5" required data-rich-editor placeholder="Write your formal response here..." class="pb-textarea w-full mb-3"></textarea>
+            <button type="submit" class="pb-btn pb-btn-primary">Submit Response</button>
         </form>
     </div>
     @else
-    <div class="rounded-2xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
+    <div class="pb-card p-5">
         <p class="text-sm font-semibold text-slate-400 text-center">No response submitted yet.</p>
     </div>
     @endif
 
     {{-- Resolution --}}
     @if ($query->status === 'closed')
-    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 class="text-base font-black text-slate-950 mb-3">Resolution</h2>
+    <div class="pb-card p-6">
+        <h2 class="pb-section-title mb-3">Resolution</h2>
         <div class="grid gap-4 sm:grid-cols-2">
             <div>
                 <p class="text-xs font-black uppercase tracking-wide text-slate-400">Resolved By</p>
@@ -113,12 +115,12 @@
         @endif
     </div>
     @elseif ($isHr && $query->staff_response)
-    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 class="text-base font-black text-slate-950 mb-4">Close Query</h2>
+    <div class="pb-card p-6">
+        <h2 class="pb-section-title mb-4">Close Query</h2>
         <form method="POST" action="{{ route('admin.staff-queries.close', $query) }}">
             @csrf
-            <textarea name="resolution_notes" rows="3" data-rich-editor placeholder="Resolution notes (optional)..." class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-pink-400 focus:ring-2 focus:ring-pink-100 focus:outline-none mb-3"></textarea>
-            <button type="submit" class="rounded-xl bg-slate-900 px-6 py-2.5 text-sm font-black text-white hover:bg-slate-700">Close Query</button>
+            <textarea name="resolution_notes" rows="3" data-rich-editor placeholder="Resolution notes (optional)..." class="pb-textarea w-full mb-3"></textarea>
+            <button type="submit" class="pb-btn pb-btn-ink">Close Query</button>
         </form>
     </div>
     @endif

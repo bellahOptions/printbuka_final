@@ -1,28 +1,28 @@
 <section class="mt-8 space-y-4">
     @if (session('status'))
-        <p class="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">{{ session('status') }}</p>
+        <div class="pb-alert pb-alert-success">{{ session('status') }}</div>
     @endif
     @if (session('warning'))
-        <p class="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">{{ session('warning') }}</p>
+        <div class="pb-alert pb-alert-warning">{{ session('warning') }}</div>
     @endif
 
-    <div class="rounded-md border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="pb-card p-4">
         <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-            <label class="w-full max-w-xl">
-                <span class="text-xs font-black uppercase tracking-wide text-slate-500">Search orders</span>
+            <div class="pb-field w-full max-w-xl">
+                <label class="pb-label">Search orders</label>
                 <input
                     type="text"
                     wire:model.live.debounce.300ms="search"
                     placeholder="Order no, invoice no, customer, status..."
-                    class="mt-2 h-11 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold"
+                    class="pb-input"
                 >
-            </label>
+            </div>
 
             <div class="w-full max-w-md space-y-2">
                 <div class="flex flex-col gap-2 sm:flex-row sm:items-end">
-                    <label class="grow">
-                        <span class="text-xs font-black uppercase tracking-wide text-slate-500">Batch action</span>
-                        <select wire:model.live="batchAction" class="mt-2 h-11 w-full rounded-md border border-slate-200 px-3 text-sm font-semibold">
+                    <div class="pb-field grow">
+                        <label class="pb-label">Batch action</label>
+                        <select wire:model.live="batchAction" class="pb-input">
                             <option value="">Select action</option>
                             <option value="priority_urgent">Set Priority: Urgent</option>
                             <option value="priority_normal">Set Priority: Normal</option>
@@ -36,159 +36,163 @@
                                 <option value="conclude">Conclude Job(s)</option>
                             @endif
                         </select>
-                    </label>
+                    </div>
                     <button
                         type="button"
                         wire:click="applyBatchAction"
                         @if ($batchAction === 'conclude')
                             wire:confirm="Conclude the selected job(s)? This locks them from further edits, auto-settles their invoice, and emails the client and staff. This cannot be undone."
                         @endif
-                        class="h-11 rounded-md bg-slate-900 px-4 text-sm font-black text-white transition hover:bg-pink-700"
+                        class="pb-btn pb-btn-md pb-btn-ink"
                     >
                         Apply
                     </button>
                 </div>
 
                 @if ($batchAction === 'status')
-                    <label class="block">
-                        <span class="text-xs font-black uppercase tracking-wide text-slate-500">Target status</span>
-                        <select wire:model.live="targetStatus" class="mt-2 h-11 w-full rounded-md border border-slate-200 px-3 text-sm font-semibold">
+                    <div class="pb-field">
+                        <label class="pb-label">Target status</label>
+                        <select wire:model.live="targetStatus" class="pb-input">
                             <option value="">Choose status</option>
                             @foreach ($statusOptions as $statusOption)
                                 <option value="{{ $statusOption }}">{{ $statusOption }}</option>
                             @endforeach
                         </select>
-                    </label>
+                    </div>
                 @endif
 
                 @if ($batchAction === 'payment_status')
-                    <label class="block">
-                        <span class="text-xs font-black uppercase tracking-wide text-slate-500">Target payment status</span>
-                        <select wire:model.live="targetPaymentStatus" class="mt-2 h-11 w-full rounded-md border border-slate-200 px-3 text-sm font-semibold">
+                    <div class="pb-field">
+                        <label class="pb-label">Target payment status</label>
+                        <select wire:model.live="targetPaymentStatus" class="pb-input">
                             <option value="">Choose payment status</option>
                             @foreach ($paymentStatusOptions as $paymentStatusOption)
                                 <option value="{{ $paymentStatusOption }}">{{ $paymentStatusOption }}</option>
                             @endforeach
                         </select>
-                    </label>
+                    </div>
                 @endif
             </div>
         </div>
 
         @error('batchAction')
-            <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p>
+            <p class="pb-field-error">{{ $message }}</p>
         @enderror
         @error('selected')
-            <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p>
+            <p class="pb-field-error">{{ $message }}</p>
         @enderror
         @error('targetStatus')
-            <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p>
+            <p class="pb-field-error">{{ $message }}</p>
         @enderror
         @error('targetPaymentStatus')
-            <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p>
+            <p class="pb-field-error">{{ $message }}</p>
         @enderror
     </div>
 
-    <div class="overflow-x-auto rounded-md border border-slate-200 bg-white shadow-sm">
-        <table class="w-full min-w-[1080px] text-left text-sm">
+    <div class="pb-table-wrapper">
+        <table class="pb-table min-w-[1080px]">
             <thead>
-                <tr class="border-b border-slate-200 bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
+                <tr>
                     @php
                         $loadedIds = $orders->pluck('id')->map(fn ($id): int => (int) $id)->all();
                         $allLoadedSelected = $loadedIds !== [] && count(array_diff($loadedIds, $selected)) === 0;
                     @endphp
-                    <th class="px-4 py-4">
+                    <th>
                         <input type="checkbox" wire:click="toggleSelectLoadedSelection" class="h-4 w-4 rounded border-slate-300 text-pink-600" @checked($allLoadedSelected)>
                     </th>
-                    <th class="px-5 py-4">
+                    <th>
                         <button type="button" wire:click="sortBy('job_order_number')" class="inline-flex items-center gap-1">
                             Job Order / Invoice #
                             @if ($sortField === 'job_order_number')<span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>@endif
                         </button>
                     </th>
-                    <th class="px-5 py-4">
+                    <th>
                         <button type="button" wire:click="sortBy('customer_name')" class="inline-flex items-center gap-1">
                             Client
                             @if ($sortField === 'customer_name')<span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>@endif
                         </button>
                     </th>
-                    <th class="px-5 py-4">
+                    <th>
                         <button type="button" wire:click="sortBy('channel')" class="inline-flex items-center gap-1">
                             Channel
                             @if ($sortField === 'channel')<span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>@endif
                         </button>
                     </th>
-                    <th class="px-5 py-4">
+                    <th>
                         <button type="button" wire:click="sortBy('priority')" class="inline-flex items-center gap-1">
                             Priority
                             @if ($sortField === 'priority')<span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>@endif
                         </button>
                     </th>
-                    <th class="px-5 py-4">
+                    <th>
                         <button type="button" wire:click="sortBy('payment_status')" class="inline-flex items-center gap-1">
                             Payment Status
                             @if ($sortField === 'payment_status')<span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>@endif
                         </button>
                     </th>
-                    <th class="px-5 py-4">
+                    <th>
                         <button type="button" wire:click="sortBy('status')" class="inline-flex items-center gap-1">
                             Status
                             @if ($sortField === 'status')<span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>@endif
                         </button>
                     </th>
-                    <th class="px-5 py-4 text-right">Manage</th>
+                    <th class="text-right">Manage</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody>
                 @forelse ($orders as $order)
-                    <tr wire:key="order-row-{{ $order->id }}" class="transition hover:bg-slate-50/70">
-                        <td class="px-4 py-4">
+                    <tr wire:key="order-row-{{ $order->id }}">
+                        <td data-label="">
                             <input type="checkbox" value="{{ $order->id }}" wire:model.live="selected" class="h-4 w-4 rounded border-slate-300 text-pink-600">
                         </td>
-                        <td class="px-5 py-4">
-                            <span class="block font-black text-slate-900">{{ $order->job_order_number ?? $order->displayNumber() }}</span>
+                        <td data-label="Job Order / Invoice #">
+                            <span class="block font-semibold text-slate-900">{{ $order->job_order_number ?? $order->displayNumber() }}</span>
                             <span class="text-xs font-semibold text-slate-500">{{ $order->invoice?->invoice_number ?? 'Invoice Pending' }}</span>
                         </td>
-                        <td class="px-5 py-4">
+                        <td data-label="Client">
                             <span class="block font-bold text-slate-900">{{ $order->customer_name }}</span>
                             <span class="text-xs text-slate-500">{{ $order->customer_phone }} · {{ $order->customer_email }}</span>
                         </td>
-                        <td class="px-5 py-4 text-slate-600">{{ $order->channel ?? 'Online' }}</td>
-                        <td class="px-5 py-4">
-                            <span class="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-black {{ $order->priorityBadgeClass() }}">{{ $order->priorityLabel() }}</span>
+                        <td data-label="Channel">{{ $order->channel ?? 'Online' }}</td>
+                        <td data-label="Priority">
+                            <span class="pb-badge {{ $order->priorityBadgeClass() }}">{{ $order->priorityLabel() }}</span>
                         </td>
-                        <td class="px-5 py-4">
-                            <span class="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-black {{ $order->paymentStatusBadgeClass() }}">{{ $order->payment_status ?: 'Pending' }}</span>
+                        <td data-label="Payment Status">
+                            <span class="pb-badge {{ $order->paymentStatusBadgeClass() }}">{{ $order->payment_status ?: 'Pending' }}</span>
                         </td>
-                        <td class="px-5 py-4">
-                            <span class="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-black {{ $order->statusBadgeClass() }}">{{ $order->status }}</span>
+                        <td data-label="Status">
+                            <span class="pb-badge {{ $order->statusBadgeClass() }}">{{ $order->status }}</span>
                         </td>
-                        <td class="px-5 py-4 text-right">
-                            <a href="{{ route('admin.orders.show', $order) }}" class="font-black text-pink-700 hover:text-pink-800">Manage</a>
+                        <td data-label="" class="text-right">
+                            <a href="{{ route('admin.orders.show', $order) }}" class="font-semibold text-pink-700 hover:text-pink-800">Manage</a>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="px-5 py-10 text-center text-slate-500">No jobs matched your search.</td>
+                        <td colspan="8">
+                            <div class="pb-empty">
+                                <p class="pb-empty-title">No jobs matched your search.</p>
+                            </div>
+                        </td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
 
-    <p class="text-xs font-bold text-slate-400">
+    <p class="text-xs font-semibold text-slate-400">
         Showing {{ number_format($orders->count()) }} of {{ number_format($totalCount) }} {{ Str::plural('job', $totalCount) }}
     </p>
 
     @if ($hasMore)
         <div class="flex flex-col items-center gap-3 py-4" wire:poll.visible="loadMore">
-            <span class="text-xs font-bold uppercase tracking-wide text-slate-400" wire:loading.remove wire:target="loadMore">
+            <span class="text-xs font-semibold uppercase tracking-wide text-slate-400" wire:loading.remove wire:target="loadMore">
                 Loading more jobs as you scroll...
             </span>
-            <span class="text-xs font-bold uppercase tracking-wide text-pink-600" wire:loading wire:target="loadMore">
+            <span class="text-xs font-semibold uppercase tracking-wide text-pink-600" wire:loading wire:target="loadMore">
                 Loading more jobs...
             </span>
-            <button type="button" wire:click="loadMore" class="rounded-md border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:border-pink-400 hover:text-pink-700">
+            <button type="button" wire:click="loadMore" class="pb-btn pb-btn-md pb-btn-outline">
                 Load More
             </button>
         </div>

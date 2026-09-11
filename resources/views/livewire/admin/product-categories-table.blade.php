@@ -1,35 +1,35 @@
 <div>
-    <div class="overflow-x-auto rounded-md border border-slate-200 bg-white shadow-sm">
-        <table class="w-full min-w-[760px] text-left text-sm">
+    <div class="pb-table-wrapper">
+        <table class="pb-table min-w-[760px]">
             <thead>
-                <tr class="border-b border-slate-200 bg-slate-50 text-xs font-black uppercase tracking-wide text-slate-500">
-                    <th class="px-5 py-4">Name</th>
-                    <th class="px-5 py-4">Parent</th>
-                    <th class="px-5 py-4">Tag</th>
-                    <th class="px-5 py-4">Products</th>
-                    <th class="px-5 py-4">Status</th>
-                    <th class="px-5 py-4"></th>
+                <tr>
+                    <th>Name</th>
+                    <th>Parent</th>
+                    <th>Tag</th>
+                    <th>Products</th>
+                    <th>Status</th>
+                    <th></th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody>
                 @forelse ($categories as $category)
                     <tr wire:key="product-category-row-{{ $category->id }}">
-                        <td class="px-5 py-4 font-black">{{ $category->name }}</td>
-                        <td class="px-5 py-4">{{ $category->parent?->name ?? 'Top-level' }}</td>
-                        <td class="px-5 py-4">{{ $category->tag }}</td>
-                        <td class="px-5 py-4">{{ $category->products_count }}</td>
-                        <td class="px-5 py-4">{{ $category->is_active ? 'Active' : 'Hidden' }}</td>
-                        <td class="px-5 py-4 text-right">
-                            <a href="{{ route('admin.product-categories.edit', $category) }}" class="font-black text-pink-700">Edit</a>
+                        <td class="font-black text-slate-900">{{ $category->name }}</td>
+                        <td>{{ $category->parent?->name ?? 'Top-level' }}</td>
+                        <td>{{ $category->tag }}</td>
+                        <td>{{ $category->products_count }}</td>
+                        <td>{{ $category->is_active ? 'Active' : 'Hidden' }}</td>
+                        <td class="text-right whitespace-nowrap">
+                            <a href="{{ route('admin.product-categories.edit', $category) }}" class="pb-btn pb-btn-sm pb-btn-ghost">Edit</a>
                             <form action="{{ route('admin.product-categories.destroy', $category) }}" method="POST" class="inline">
                                 @csrf @method('DELETE')
-                                <button class="ml-4 font-black text-slate-500 hover:text-red-700">Delete</button>
+                                <button class="pb-btn pb-btn-sm pb-btn-ghost text-red-500 hover:text-red-600 hover:bg-red-50">Delete</button>
                             </form>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-5 py-10 text-center text-slate-500">No categories yet.</td>
+                        <td colspan="6" class="pb-empty">No categories yet.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -48,7 +48,7 @@
             <span class="text-xs font-bold uppercase tracking-wide text-pink-600" wire:loading wire:target="loadMore">
                 Loading more categories...
             </span>
-            <button type="button" wire:click="loadMore" class="rounded-md border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:border-pink-400 hover:text-pink-700">
+            <button type="button" wire:click="loadMore" class="pb-btn pb-btn-md pb-btn-outline">
                 Load More
             </button>
         </div>

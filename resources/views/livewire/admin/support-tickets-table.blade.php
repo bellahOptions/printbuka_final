@@ -1,49 +1,47 @@
-<div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
-    <div class="overflow-x-auto">
-        <table class="table w-full">
-            <thead>
-                <tr class="border-b border-slate-200">
-                    <th class="font-black text-slate-500">Ticket #</th>
-                    <th class="font-black text-slate-500">Subject</th>
-                    <th class="font-black text-slate-500">Priority</th>
-                    <th class="font-black text-slate-500">Status</th>
-                    <th class="font-black text-slate-500">Assigned To</th>
-                    <th class="font-black text-slate-500">Updated</th>
-                    <th class="font-black text-slate-500 text-right">Manage</th>
+<div class="pb-table-wrapper">
+    <table class="pb-table">
+        <thead>
+            <tr>
+                <th>Ticket #</th>
+                <th>Subject</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Assigned To</th>
+                <th>Updated</th>
+                <th class="text-right">Manage</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($tickets as $ticket)
+                <tr wire:key="ticket-row-{{ $ticket->id }}">
+                    <td class="font-mono text-xs font-black text-slate-700">{{ $ticket->ticket_number }}</td>
+                    <td>
+                        <p class="font-bold text-slate-900">{{ Str::limit($ticket->subject, 50) }}</p>
+                        <p class="text-xs font-semibold text-slate-400">{{ ucfirst($ticket->category) }}</p>
+                    </td>
+                    <td>
+                        <span class="pb-badge {{ match ($ticket->getPriorityColor()) { 'error' => 'pb-badge-danger', 'warning' => 'pb-badge-warning', 'success' => 'pb-badge-success', default => 'pb-badge-info' } }} capitalize">{{ $ticket->priority }}</span>
+                    </td>
+                    <td>
+                        <span class="pb-badge {{ match ($ticket->getStatusColor()) { 'error' => 'pb-badge-danger', 'warning' => 'pb-badge-warning', 'success' => 'pb-badge-success', default => 'pb-badge-info' } }} capitalize">{{ str_replace('_', ' ', $ticket->status) }}</span>
+                    </td>
+                    <td>
+                        <p class="text-sm font-semibold text-slate-700">
+                            {{ $ticket->assignedStaff?->displayName() ?? 'Unassigned' }}
+                        </p>
+                    </td>
+                    <td class="text-sm font-semibold text-slate-500">{{ $ticket->updated_at->diffForHumans() }}</td>
+                    <td class="text-right">
+                        <a href="{{ route('admin.support.show', $ticket) }}" class="pb-btn pb-btn-sm pb-btn-outline">Open</a>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                @forelse ($tickets as $ticket)
-                    <tr wire:key="ticket-row-{{ $ticket->id }}">
-                        <td class="font-mono text-xs font-black text-slate-700">{{ $ticket->ticket_number }}</td>
-                        <td>
-                            <p class="font-bold text-slate-900">{{ Str::limit($ticket->subject, 50) }}</p>
-                            <p class="text-xs font-semibold text-slate-400">{{ ucfirst($ticket->category) }}</p>
-                        </td>
-                        <td>
-                            <span class="badge badge-{{ $ticket->getPriorityColor() }} badge-sm capitalize">{{ $ticket->priority }}</span>
-                        </td>
-                        <td>
-                            <span class="badge badge-{{ $ticket->getStatusColor() }} badge-sm capitalize">{{ str_replace('_', ' ', $ticket->status) }}</span>
-                        </td>
-                        <td>
-                            <p class="text-sm font-semibold text-slate-700">
-                                {{ $ticket->assignedStaff?->displayName() ?? 'Unassigned' }}
-                            </p>
-                        </td>
-                        <td class="text-sm font-semibold text-slate-500">{{ $ticket->updated_at->diffForHumans() }}</td>
-                        <td class="text-right">
-                            <a href="{{ route('admin.support.show', $ticket) }}" class="btn btn-xs btn-outline border-slate-200 hover:border-pink-400 hover:text-pink-700 font-black">Open</a>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="7" class="py-12 text-center text-sm font-semibold text-slate-500">No tickets yet.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+            @empty
+                <tr>
+                    <td colspan="7" class="py-12 text-center text-sm font-semibold text-slate-500">No tickets yet.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
 
     <div class="border-t border-slate-100 px-6 py-4 space-y-3">
         <p class="text-xs font-bold text-slate-400">
@@ -58,7 +56,7 @@
                 <span class="text-xs font-bold uppercase tracking-wide text-pink-600" wire:loading wire:target="loadMore">
                     Loading more tickets...
                 </span>
-                <button type="button" wire:click="loadMore" class="rounded-md border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:border-pink-400 hover:text-pink-700">
+                <button type="button" wire:click="loadMore" class="pb-btn pb-btn-outline">
                     Load More
                 </button>
             </div>

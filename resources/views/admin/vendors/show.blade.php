@@ -21,7 +21,7 @@
             </p>
         </div>
         @if(auth()->user()?->canAdmin('vendors.manage'))
-            <a href="{{ route('admin.vendors.edit', $vendor) }}" class="btn btn-neutral font-black gap-2 self-start">
+            <a href="{{ route('admin.vendors.edit', $vendor) }}" class="pb-btn pb-btn-md pb-btn-secondary self-start">
                 <x-heroicon-o-pencil class="w-4 h-4" /> Edit Vendor
             </a>
         @endif
@@ -29,7 +29,7 @@
 </div>
 
 @if(session('status'))
-    <div class="alert alert-success mb-5 font-bold">
+    <div class="pb-alert pb-alert-success mb-5">
         <x-heroicon-o-check-circle class="w-5 h-5" /> {{ session('status') }}
     </div>
 @endif
@@ -160,7 +160,7 @@
                       onsubmit="return confirm('Delete this vendor? This cannot be undone.');">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn btn-ghost text-red-600 font-black w-full">
+                    <button type="submit" class="pb-btn pb-btn-md pb-btn-destructive w-full">
                         <x-heroicon-o-trash class="w-4 h-4" /> Delete Vendor
                     </button>
                 </form>

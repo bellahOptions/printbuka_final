@@ -16,17 +16,15 @@
             /* ₦ pinned to DejaVu Sans — Helvetica Neue lacks this glyph */
             .naira { font-family: 'DejaVu Sans', sans-serif; font-weight: bold; }
             .brand-header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
+                width: 100%;
+                border-collapse: collapse;
                 padding-bottom: 16px;
                 border-bottom: 3px solid #db2777;
                 margin-bottom: 24px;
             }
-            .brand-left {
-                display: flex;
-                align-items: center;
-                gap: 14px;
+            .brand-header td {
+                vertical-align: middle;
+                padding: 0;
             }
             .brand-name {
                 font-size: 22px;
@@ -60,17 +58,17 @@
                 font-weight: 600;
             }
             .info-bar {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
+                width: 100%;
+                border-collapse: collapse;
                 margin-bottom: 24px;
-                padding: 14px 18px;
                 background: #f8fafc;
                 border-radius: 10px;
                 border: 1px solid #e2e8f0;
             }
             .info-item {
-                flex: 1 0 140px;
+                width: 25%;
+                padding: 14px 9px;
+                vertical-align: top;
             }
             .info-item .label {
                 font-size: 9px;
@@ -171,11 +169,19 @@
                 margin-top: 32px;
                 padding-top: 14px;
                 border-top: 1px solid #e2e8f0;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
                 font-size: 10px;
                 color: #94a3b8;
+            }
+            .footer table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            .footer td {
+                padding: 0;
+                vertical-align: middle;
+            }
+            .footer .right {
+                text-align: right;
             }
             .footer strong {
                 color: #475569;
@@ -184,27 +190,32 @@
     </head>
     <body>
         {!! $introHtml ?? '' !!}
-        <div class="brand-header">
-            <div class="brand-left">
-                <div>
+        <table class="brand-header">
+            <tr>
+                <td class="brand-left">
                     <div class="brand-name">Print<span>buka</span></div>
                     <div class="brand-tagline">Your Print Partner</div>
-                </div>
-            </div>
-            <div class="brand-right">
-                <div class="doc-title">JOB LOG</div>
-                <div class="doc-ref">{{ $order->job_order_number }}</div>
-            </div>
-        </div>
-        <div class="info-bar">
-            <div class="info-item"><span class="label">Client</span><span class="value">{{ $order->customer_name }}</span></div>
-            <div class="info-item"><span class="label">Job Type</span><span class="value">{{ $order->job_type }}</span></div>
-            <div class="info-item"><span class="label">Quantity</span><span class="value">{{ $order->quantity }}</span></div>
-            <div class="info-item"><span class="label">Status</span><span class="value">{{ $order->status }}</span></div>
-            <div class="info-item"><span class="label">Payment</span><span class="value">{{ $order->payment_status }}</span></div>
-            <div class="info-item"><span class="label">Delivery</span><span class="value">{{ $order->actual_delivery_at?->format('M j, Y') ?? 'Pending' }}</span></div>
-            <div class="info-item"><span class="label">Total Amount</span><span class="value"><span class="naira">&#8358;</span>{{ number_format((float) $order->total_price, 2) }}</span></div>
-        </div>
+                </td>
+                <td class="brand-right">
+                    <div class="doc-title">JOB LOG</div>
+                    <div class="doc-ref">{{ $order->job_order_number }}</div>
+                </td>
+            </tr>
+        </table>
+        <table class="info-bar">
+            <tr>
+                <td class="info-item"><span class="label">Client</span><span class="value">{{ $order->customer_name }}</span></td>
+                <td class="info-item"><span class="label">Job Type</span><span class="value">{{ $order->job_type }}</span></td>
+                <td class="info-item"><span class="label">Quantity</span><span class="value">{{ $order->quantity }}</span></td>
+                <td class="info-item"><span class="label">Status</span><span class="value">{{ $order->status }}</span></td>
+            </tr>
+            <tr>
+                <td class="info-item"><span class="label">Payment</span><span class="value">{{ $order->payment_status }}</span></td>
+                <td class="info-item"><span class="label">Delivery</span><span class="value">{{ $order->actual_delivery_at?->format('M j, Y') ?? 'Pending' }}</span></td>
+                <td class="info-item"><span class="label">Total Amount</span><span class="value"><span class="naira">&#8358;</span>{{ number_format((float) $order->total_price, 2) }}</span></td>
+                <td class="info-item"></td>
+            </tr>
+        </table>
 
         <div class="section">
             <h2 class="section-title">Staff Activity Log</h2>
@@ -260,8 +271,12 @@
         </div>
         {!! $outroHtml ?? '' !!}
         <div class="footer">
-            <span>Generated by <strong>{{ $generatedBy?->displayName() ?? 'System' }}</strong></span>
-            <span>{{ now()->format('M j, Y h:i A') }}</span>
+            <table>
+                <tr>
+                    <td>Generated by <strong>{{ $generatedBy?->displayName() ?? 'System' }}</strong></td>
+                    <td class="right">{{ now()->format('M j, Y h:i A') }}</td>
+                </tr>
+            </table>
         </div>
     </body>
 </html>

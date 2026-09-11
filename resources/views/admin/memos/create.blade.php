@@ -4,14 +4,16 @@
 @section('content')
 <div class="mx-auto max-w-6xl space-y-6">
 
-    <div>
-        <a href="{{ route('admin.memos.index') }}" class="text-sm font-black text-pink-600 hover:text-pink-800">← Back to Memos</a>
-        <h1 class="text-2xl font-black text-slate-950 mt-2">Compose Memo</h1>
-        <p class="text-sm text-slate-500 mt-1">Build the memo below, choose who receives it, then send.</p>
+    <div class="pb-page-header">
+        <div>
+            <a href="{{ route('admin.memos.index') }}" class="text-sm font-black text-pink-600 hover:text-pink-800">← Back to Memos</a>
+            <h1 class="pb-page-title mt-2">Compose Memo</h1>
+            <p class="pb-page-subtitle">Build the memo below, choose who receives it, then send.</p>
+        </div>
     </div>
 
     @if ($errors->any())
-        <div class="rounded-xl border border-pink-200 bg-pink-50 p-4 text-sm font-bold text-pink-800">
+        <div class="pb-alert pb-alert-error">
             <ul class="list-disc pl-4 space-y-1">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>

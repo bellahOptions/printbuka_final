@@ -4,16 +4,16 @@
 
 @section('content')
     <div class="mx-auto max-w-7xl">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div class="pb-page-header">
             <div>
-                <p class="text-sm font-black uppercase tracking-wide text-pink-700">Product Management</p>
-                <h1 class="mt-2 text-4xl text-slate-950">Products.</h1>
+                <h1 class="pb-page-title">Products</h1>
+                <p class="pb-page-subtitle">Product Management</p>
             </div>
-            <a href="{{ route('admin.products.create') }}" class="rounded-md bg-pink-600 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700">Create Product</a>
+            <a href="{{ route('admin.products.create') }}" class="pb-btn pb-btn-md pb-btn-primary self-start">Create Product</a>
         </div>
 
         @if (request()->user()?->role === 'super_admin')
-            <div class="mt-6 rounded-md border border-red-200 bg-red-50 p-5">
+            <div class="pb-card border-red-200 bg-red-50 p-5 mb-6">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div class="max-w-2xl">
                         <p class="text-sm font-black uppercase tracking-wide text-red-700">Process & Technology Manager Cleanup</p>
@@ -25,23 +25,25 @@
                     <form method="POST" action="{{ route('admin.products.seeded.destroy') }}" class="w-full max-w-lg space-y-3">
                         @csrf
                         @method('DELETE')
-                        <label class="block text-xs font-black uppercase tracking-wide text-slate-600" for="seeded-products-confirmation">Type DELETE SEEDED PRODUCTS</label>
-                        <input
-                            id="seeded-products-confirmation"
-                            name="confirmation"
-                            type="text"
-                            autocomplete="off"
-                            class="w-full rounded-md border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-slate-900 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100"
-                            placeholder="DELETE SEEDED PRODUCTS"
-                        >
-                        @error('confirmation')
-                            <p class="text-sm font-semibold text-red-700">{{ $message }}</p>
-                        @enderror
+                        <div class="pb-field">
+                            <label class="pb-label" for="seeded-products-confirmation">Type DELETE SEEDED PRODUCTS</label>
+                            <input
+                                id="seeded-products-confirmation"
+                                name="confirmation"
+                                type="text"
+                                autocomplete="off"
+                                class="pb-input w-full border-red-200 focus:border-red-500 focus:ring-red-100"
+                                placeholder="DELETE SEEDED PRODUCTS"
+                            >
+                            @error('confirmation')
+                                <p class="pb-field-error">{{ $message }}</p>
+                            @enderror
+                        </div>
                         <label class="flex items-start gap-3 rounded-md border border-red-200 bg-white/80 p-3 text-sm text-slate-700">
                             <input type="checkbox" name="include_legacy_catalog" value="1" class="mt-1 rounded border-red-300 text-red-600 focus:ring-red-500">
                             <span>Legacy production cleanup: also remove unmarked products currently in the catalog.</span>
                         </label>
-                        <button type="submit" class="rounded-md bg-red-600 px-5 py-3 text-sm font-black text-white transition hover:bg-red-700">Remove seeded products</button>
+                        <button type="submit" class="pb-btn pb-btn-md pb-btn-destructive">Remove seeded products</button>
                     </form>
                 </div>
             </div>

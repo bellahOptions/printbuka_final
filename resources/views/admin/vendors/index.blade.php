@@ -10,7 +10,7 @@
         </div>
         @if(auth()->user()?->canAdmin('vendors.manage'))
             <a href="{{ route('admin.vendors.create') }}"
-               class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black gap-2 self-start">
+               class="pb-btn pb-btn-md pb-btn-primary self-start">
                 <x-heroicon-o-plus class="w-4 h-4" /> Add Vendor
             </a>
         @endif
@@ -18,7 +18,7 @@
 </div>
 
 @if(session('status'))
-    <div class="alert alert-success mb-5 font-bold">
+    <div class="pb-alert pb-alert-success mb-5">
         <x-heroicon-o-check-circle class="w-5 h-5" /> {{ session('status') }}
     </div>
 @endif
@@ -123,11 +123,11 @@
             <option value="rating" @selected($filters['sort'] === 'rating')>Highest Rated</option>
         </select>
     </div>
-    <button type="submit" class="btn btn-neutral font-black gap-2">
+    <button type="submit" class="pb-btn pb-btn-md pb-btn-secondary">
         <x-heroicon-o-magnifying-glass class="w-4 h-4" /> Search
     </button>
     @if($filters['search'] !== '' || $filters['vendorType'] !== '' || $filters['category'] !== '' || $filters['status'] !== '' || $filters['sort'] !== 'name')
-        <a href="{{ route('admin.vendors.index') }}" class="btn btn-ghost font-black text-slate-500">Clear</a>
+        <a href="{{ route('admin.vendors.index') }}" class="pb-btn pb-btn-md pb-btn-ghost">Clear</a>
     @endif
     @if($filters['status'] !== '')
         <input type="hidden" name="status" value="{{ $filters['status'] }}" />
@@ -189,9 +189,9 @@
                             @endif
                         </td>
                         <td class="text-right whitespace-nowrap">
-                            <a href="{{ route('admin.vendors.show', $vendor) }}" class="btn btn-ghost btn-sm font-bold">View</a>
+                            <a href="{{ route('admin.vendors.show', $vendor) }}" class="pb-btn pb-btn-sm pb-btn-ghost">View</a>
                             @if(auth()->user()?->canAdmin('vendors.manage'))
-                                <a href="{{ route('admin.vendors.edit', $vendor) }}" class="btn btn-ghost btn-sm font-bold">Edit</a>
+                                <a href="{{ route('admin.vendors.edit', $vendor) }}" class="pb-btn pb-btn-sm pb-btn-ghost">Edit</a>
                             @endif
                         </td>
                     </tr>

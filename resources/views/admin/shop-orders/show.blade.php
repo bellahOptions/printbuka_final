@@ -27,9 +27,9 @@
         </div>
         @php
             $payConfig = match($order->payment_status) {
-                'paid'   => ['class' => 'pb-badge-success', 'label' => 'Paid'],
-                'failed' => ['class' => 'pb-badge-danger',  'label' => 'Payment Failed'],
-                default  => ['class' => 'pb-badge-warning', 'label' => 'Payment Pending'],
+                'paid'   => ['class' => 'pb-badge pb-badge-success', 'label' => 'Paid'],
+                'failed' => ['class' => 'pb-badge pb-badge-danger',  'label' => 'Payment Failed'],
+                default  => ['class' => 'pb-badge pb-badge-warning', 'label' => 'Payment Pending'],
             };
         @endphp
         <span class="{{ $payConfig['class'] }} text-sm font-black">{{ $payConfig['label'] }}</span>
@@ -37,12 +37,12 @@
 </div>
 
 @if(session('status'))
-    <div class="alert alert-success mb-5 font-bold">
+    <div class="pb-alert pb-alert-success mb-5">
         <x-heroicon-o-check-circle class="w-5 h-5" /> {{ session('status') }}
     </div>
 @endif
 @if(session('error'))
-    <div class="alert alert-error mb-5 font-bold">{{ session('error') }}</div>
+    <div class="pb-alert pb-alert-error mb-5">{{ session('error') }}</div>
 @endif
 
 {{-- Order Status Timeline --}}
@@ -116,7 +116,7 @@
             @method('PATCH')
             <div class="flex-1 min-w-[180px]">
                 <label class="text-xs font-bold uppercase text-slate-500 block mb-1">Advance to Status</label>
-                <select name="fulfillment_status" class="select select-bordered border-slate-200 select-sm w-full">
+                <select name="fulfillment_status" class="pb-select w-full">
                     @foreach($fulfillSteps as $step)
                         <option value="{{ $step['key'] }}" {{ $order->fulfillment_status === $step['key'] ? 'selected' : '' }}>
                             {{ $step['label'] }}
@@ -124,7 +124,7 @@
                     @endforeach
                 </select>
             </div>
-            <button type="submit" class="btn btn-sm bg-slate-900 border-0 text-white hover:bg-slate-700 font-black">
+            <button type="submit" class="pb-btn pb-btn-sm pb-btn-ink">
                 <x-heroicon-o-arrow-path class="w-4 h-4" /> Update & Notify Customer
             </button>
         </form>
@@ -140,7 +140,7 @@
         <div class="pb-card">
             <div class="p-5 border-b border-slate-100 flex items-center justify-between">
                 <h2 class="font-black text-slate-950 text-base">Items Ordered</h2>
-                <span class="pb-badge-neutral text-xs">{{ $order->items->count() }} item{{ $order->items->count() !== 1 ? 's' : '' }}</span>
+                <span class="pb-badge pb-badge-secondary text-xs">{{ $order->items->count() }} item{{ $order->items->count() !== 1 ? 's' : '' }}</span>
             </div>
             <div class="divide-y divide-slate-100">
                 @foreach($order->items as $item)
@@ -251,11 +251,11 @@
                 @if($order->user_id)
                     <div>
                         <p class="text-xs font-bold uppercase text-slate-400">Account</p>
-                        <span class="pb-badge-success text-xs mt-0.5">Registered Customer</span>
+                        <span class="pb-badge pb-badge-success text-xs mt-0.5">Registered Customer</span>
                     </div>
                 @else
                     <div>
-                        <span class="pb-badge-neutral text-xs">Guest Order</span>
+                        <span class="pb-badge pb-badge-secondary text-xs">Guest Order</span>
                     </div>
                 @endif
             </div>

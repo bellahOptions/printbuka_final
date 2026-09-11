@@ -20,15 +20,15 @@
                         <span>/</span>
                         <span class="text-slate-700 font-medium">{{ $product->exists ? 'Edit Product' : 'Create Product' }}</span>
                     </div>
-                    <h1 class="text-3xl font-bold text-slate-900">{{ $product->exists ? 'Edit Product' : 'Create New Product' }}</h1>
-                    <p class="mt-1 text-sm text-slate-500">
+                    <h1 class="pb-page-title">{{ $product->exists ? 'Edit Product' : 'Create New Product' }}</h1>
+                    <p class="pb-page-subtitle">
                         {{ $product->exists ? 'Update product details, pricing, and options.' : 'Add a new product to your catalog.' }}
                     </p>
                 </div>
                 <div class="flex gap-3">
                     @if($product->exists)
-                        <a href="{{ route('products.show', $product) }}" class="btn btn-outline btn-pink-600">
-                            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="{{ route('products.show', $product) }}" class="pb-btn pb-btn-md pb-btn-outline self-start">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                             </svg>
@@ -40,7 +40,7 @@
         </div>
 
         {{-- Main Form Card --}}
-        <div class="card bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+        <div class="pb-card overflow-hidden">
             <form action="{{ $product->exists ? route('admin.products.update', $product) : route('admin.products.store') }}" method="POST" enctype="multipart/form-data" class="p-6 sm:p-8">
                 @csrf
                 @if ($product->exists) @method('PUT') @endif
@@ -53,28 +53,24 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                         </div>
-                        <h2 class="text-lg font-bold text-slate-900">Basic Information</h2>
+                        <h2 class="pb-section-title">Basic Information</h2>
                     </div>
-                    
+
                     <div class="grid gap-5 sm:grid-cols-2">
                         {{-- Product Name --}}
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text font-semibold text-slate-700">Product Name *</span>
-                            </label>
-                            <input type="text" name="name" value="{{ old('name', $product->name) }}" 
-                                class="input input-bordered w-full focus:input-primary @error('name') input-error @enderror"
+                        <div class="pb-field">
+                            <label class="pb-label">Product Name *</label>
+                            <input type="text" name="name" value="{{ old('name', $product->name) }}"
+                                class="pb-input w-full @error('name') pb-input-error @enderror"
                                 placeholder="e.g., Premium Business Cards" required />
-                            @error('name') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                            @error('name') <span class="pb-field-error">{{ $message }}</span> @enderror
                         </div>
 
                         {{-- Category --}}
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text font-semibold text-slate-700">Category</span>
-                            </label>
-                            <select name="product_category_id" id="product-category-select" 
-                                class="select select-bordered w-full focus:select-primary">
+                        <div class="pb-field">
+                            <label class="pb-label">Category</label>
+                            <select name="product_category_id" id="product-category-select"
+                                class="pb-select w-full">
                                 <option value="">Unassigned</option>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}" @selected((int) old('product_category_id', $product->product_category_id) === $category->id)>
@@ -82,16 +78,14 @@
                                     </option>
                                 @endforeach
                             </select>
-                            @error('product_category_id') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                            @error('product_category_id') <span class="pb-field-error">{{ $message }}</span> @enderror
                         </div>
 
                         {{-- Service Type --}}
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text font-semibold text-slate-700">Service Bucket *</span>
-                            </label>
+                        <div class="pb-field">
+                            <label class="pb-label">Service Bucket *</label>
                             <select name="service_type"
-                                class="select select-bordered w-full focus:select-primary @error('service_type') select-error @enderror"
+                                class="pb-select w-full @error('service_type') pb-input-error @enderror"
                                 required>
                                 @foreach ($serviceOptions as $serviceKey => $serviceLabel)
                                     <option value="{{ $serviceKey }}" @selected(old('service_type', $product->service_type ?? 'print') === $serviceKey)>
@@ -99,28 +93,22 @@
                                     </option>
                                 @endforeach
                             </select>
-                            <label class="label">
-                                <span class="label-text-alt text-slate-500">This links the product to a service flow (print, gift, DTF, UV DTF, engraving, etc.).</span>
-                            </label>
-                            @error('service_type') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                            <p class="text-xs text-slate-400 mt-1">This links the product to a service flow (print, gift, DTF, UV DTF, engraving, etc.).</p>
+                            @error('service_type') <span class="pb-field-error">{{ $message }}</span> @enderror
                         </div>
 
                         {{-- MOQ --}}
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text font-semibold text-slate-700">Minimum Order Quantity (MOQ) *</span>
-                            </label>
-                            <input type="number" min="1" name="moq" value="{{ old('moq', $product->moq) }}" 
-                                class="input input-bordered w-full focus:input-primary @error('moq') input-error @enderror"
+                        <div class="pb-field">
+                            <label class="pb-label">Minimum Order Quantity (MOQ) *</label>
+                            <input type="number" min="1" name="moq" value="{{ old('moq', $product->moq) }}"
+                                class="pb-input w-full @error('moq') pb-input-error @enderror"
                                 placeholder="100" required />
-                            @error('moq') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                            @error('moq') <span class="pb-field-error">{{ $message }}</span> @enderror
                         </div>
 
                         {{-- Price --}}
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text font-semibold text-slate-700">Base Price (₦)</span>
-                            </label>
+                        <div class="pb-field">
+                            <label class="pb-label">Base Price (₦)</label>
                             @if ($product->exists)
                                 <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
                                     <p class="text-lg font-black text-slate-900">₦{{ number_format((float) $product->price, 2) }}</p>
@@ -139,25 +127,21 @@
                         </div>
 
                         {{-- Short Description --}}
-                        <div class="form-control w-full sm:col-span-2">
-                            <label class="label">
-                                <span class="label-text font-semibold text-slate-700">Short Description *</span>
-                            </label>
-                            <input type="text" name="short_description" value="{{ old('short_description', $product->short_description) }}" 
-                                class="input input-bordered w-full focus:input-primary @error('short_description') input-error @enderror"
+                        <div class="pb-field sm:col-span-2">
+                            <label class="pb-label">Short Description *</label>
+                            <input type="text" name="short_description" value="{{ old('short_description', $product->short_description) }}"
+                                class="pb-input w-full @error('short_description') pb-input-error @enderror"
                                 placeholder="Brief description for product listings" required />
-                            @error('short_description') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                            @error('short_description') <span class="pb-field-error">{{ $message }}</span> @enderror
                         </div>
 
                         {{-- Full Description --}}
-                        <div class="form-control w-full sm:col-span-2">
-                            <label class="label">
-                                <span class="label-text font-semibold text-slate-700">Full Description *</span>
-                            </label>
+                        <div class="pb-field sm:col-span-2">
+                            <label class="pb-label">Full Description *</label>
                             <textarea name="description" rows="5" data-rich-editor
-                                class="textarea textarea-bordered w-full focus:textarea-primary @error('description') textarea-error @enderror"
+                                class="pb-textarea w-full @error('description') pb-input-error @enderror"
                                 placeholder="Detailed product description including features, benefits, and specifications..." required>{{ old('description', $product->description) }}</textarea>
-                            @error('description') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                            @error('description') <span class="pb-field-error">{{ $message }}</span> @enderror
                         </div>
                     </div>
                 </div>
@@ -170,14 +154,12 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                             </svg>
                         </div>
-                        <h2 class="text-lg font-bold text-slate-900">Product Images</h2>
+                        <h2 class="pb-section-title">Product Images</h2>
                     </div>
 
                     <div class="grid gap-5 sm:grid-cols-2">
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text font-semibold text-slate-700">Featured Image</span>
-                            </label>
+                        <div class="pb-field">
+                            <label class="pb-label">Featured Image</label>
                             <livewire:uploads.secure-image-upload
                                 :key="'product-featured-image-'.($product->id ?: 'create')"
                                 input-name="featured_image_path"
@@ -187,17 +169,13 @@
                                 :multiple="false"
                                 :initial-path="old('featured_image_path')"
                             />
-                            <label class="label">
-                                <span class="label-text-alt text-slate-500">One image for product cards and main product display.</span>
-                            </label>
-                            @error('featured_image') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
-                            @error('featured_image_path') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                            <p class="text-xs text-slate-400 mt-1">One image for product cards and main product display.</p>
+                            @error('featured_image') <span class="pb-field-error">{{ $message }}</span> @enderror
+                            @error('featured_image_path') <span class="pb-field-error">{{ $message }}</span> @enderror
                         </div>
 
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text font-semibold text-slate-700">Additional Images</span>
-                            </label>
+                        <div class="pb-field">
+                            <label class="pb-label">Additional Images</label>
                             <livewire:uploads.secure-image-upload
                                 :key="'product-gallery-images-'.($product->id ?: 'create')"
                                 input-name="additional_image_paths"
@@ -207,13 +185,11 @@
                                 :multiple="true"
                                 :initial-paths="old('additional_image_paths', [])"
                             />
-                            <label class="label">
-                                <span class="label-text-alt text-slate-500">Upload multiple gallery images (up to 12).</span>
-                            </label>
-                            @error('additional_images') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
-                            @error('additional_images.*') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
-                            @error('additional_image_paths') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
-                            @error('additional_image_paths.*') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                            <p class="text-xs text-slate-400 mt-1">Upload multiple gallery images (up to 12).</p>
+                            @error('additional_images') <span class="pb-field-error">{{ $message }}</span> @enderror
+                            @error('additional_images.*') <span class="pb-field-error">{{ $message }}</span> @enderror
+                            @error('additional_image_paths') <span class="pb-field-error">{{ $message }}</span> @enderror
+                            @error('additional_image_paths.*') <span class="pb-field-error">{{ $message }}</span> @enderror
                         </div>
                     </div>
 
@@ -223,9 +199,9 @@
                                 <p class="text-xs font-black uppercase tracking-wide text-slate-500 mb-3">Current Featured Image</p>
                                 @if ($product->featuredImageUrl())
                                     <img src="{{ $product->featuredImageUrl() }}" alt="{{ $product->name }}" class="h-40 w-full rounded-lg border border-slate-200 object-cover bg-white" />
-                                    <label class="label cursor-pointer justify-start gap-3 mt-2">
+                                    <label class="flex cursor-pointer items-center gap-3 mt-2">
                                         <input type="checkbox" name="remove_featured_image" value="1" class="checkbox checkbox-sm" @checked(old('remove_featured_image'))>
-                                        <span class="label-text text-sm text-slate-700">Remove featured image</span>
+                                        <span class="text-sm text-slate-700">Remove featured image</span>
                                     </label>
                                 @else
                                     <p class="text-sm font-semibold text-slate-500">No featured image uploaded yet.</p>
@@ -236,9 +212,9 @@
                                 <div class="flex items-center justify-between gap-3 mb-3">
                                     <p class="text-xs font-black uppercase tracking-wide text-slate-500">Current Gallery Images</p>
                                     @if (!empty($product->additional_images))
-                                        <label class="label cursor-pointer justify-start gap-2 m-0 p-0">
+                                        <label class="flex cursor-pointer items-center gap-2">
                                             <input type="checkbox" name="remove_additional_images" value="1" class="checkbox checkbox-sm" @checked(old('remove_additional_images'))>
-                                            <span class="label-text text-xs text-slate-700">Clear gallery</span>
+                                            <span class="text-xs text-slate-700">Clear gallery</span>
                                         </label>
                                     @endif
                                 </div>
@@ -265,64 +241,56 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                             </svg>
                         </div>
-                        <h2 class="text-lg font-bold text-slate-900">Product Specifications</h2>
+                        <h2 class="pb-section-title">Product Specifications</h2>
                     </div>
 
                     <div class="grid gap-5 sm:grid-cols-2">
                         {{-- Paper Type --}}
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text font-semibold text-slate-700">Paper Type *</span>
-                            </label>
-                            <select name="paper_type" class="select select-bordered w-full focus:select-primary @error('paper_type') select-error @enderror" required>
+                        <div class="pb-field">
+                            <label class="pb-label">Paper Type *</label>
+                            <select name="paper_type" class="pb-select w-full @error('paper_type') pb-input-error @enderror" required>
                                 <option value="">Select paper type</option>
                                 @foreach ($paperTypeOptions as $paperType)
                                     <option value="{{ $paperType }}" @selected(old('paper_type', $product->paper_type) === $paperType)>{{ $paperType }}</option>
                                 @endforeach
                             </select>
-                            @error('paper_type') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                            @error('paper_type') <span class="pb-field-error">{{ $message }}</span> @enderror
                         </div>
 
                         {{-- Paper Size --}}
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text font-semibold text-slate-700">Paper Size *</span>
-                            </label>
-                            <select name="paper_size" class="select select-bordered w-full focus:select-primary @error('paper_size') select-error @enderror" required>
+                        <div class="pb-field">
+                            <label class="pb-label">Paper Size *</label>
+                            <select name="paper_size" class="pb-select w-full @error('paper_size') pb-input-error @enderror" required>
                                 <option value="">Select paper size</option>
                                 @foreach ($paperSizeOptions as $paperSize)
                                     <option value="{{ $paperSize }}" @selected(old('paper_size', $product->paper_size) === $paperSize)>{{ $paperSize }}</option>
                                 @endforeach
                             </select>
-                            @error('paper_size') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                            @error('paper_size') <span class="pb-field-error">{{ $message }}</span> @enderror
                         </div>
 
                         {{-- Finishing --}}
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text font-semibold text-slate-700">Finishing *</span>
-                            </label>
-                            <select name="finishing" class="select select-bordered w-full focus:select-primary @error('finishing') select-error @enderror" required>
+                        <div class="pb-field">
+                            <label class="pb-label">Finishing *</label>
+                            <select name="finishing" class="pb-select w-full @error('finishing') pb-input-error @enderror" required>
                                 <option value="">Select finishing</option>
                                 @foreach ($finishingOptions as $finishing)
                                     <option value="{{ $finishing }}" @selected(old('finishing', $product->finishing) === $finishing)>{{ $finishing }}</option>
                                 @endforeach
                             </select>
-                            @error('finishing') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                            @error('finishing') <span class="pb-field-error">{{ $message }}</span> @enderror
                         </div>
 
                         {{-- Paper Density --}}
-                        <div class="form-control w-full">
-                            <label class="label">
-                                <span class="label-text font-semibold text-slate-700">Paper Density *</span>
-                            </label>
-                            <select name="paper_density" class="select select-bordered w-full focus:select-primary @error('paper_density') select-error @enderror" required>
+                        <div class="pb-field">
+                            <label class="pb-label">Paper Density *</label>
+                            <select name="paper_density" class="pb-select w-full @error('paper_density') pb-input-error @enderror" required>
                                 <option value="">Select paper density</option>
                                 @foreach ($paperDensityOptions as $paperDensity)
                                     <option value="{{ $paperDensity }}" @selected(old('paper_density', $product->paper_density) === $paperDensity)>{{ $paperDensity }}</option>
                                 @endforeach
                             </select>
-                            @error('paper_density') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                            @error('paper_density') <span class="pb-field-error">{{ $message }}</span> @enderror
                         </div>
                     </div>
                 </div>
@@ -343,11 +311,11 @@
 
                 {{-- Form Actions --}}
                 <div class="flex flex-wrap gap-3 justify-end pt-4 border-t border-slate-100">
-                    <a href="{{ route('admin.products.index') }}" class="btn btn-outline btn-slate-600">
+                    <a href="{{ route('admin.products.index') }}" class="pb-btn pb-btn-md pb-btn-outline">
                         Cancel
                     </a>
-                    <button type="submit" class="btn bg-pink-600 hover:bg-pink-700 border-0 text-white shadow-md shadow-pink-200">
-                        <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button type="submit" class="pb-btn pb-btn-md pb-btn-primary">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
                         {{ $product->exists ? 'Update Product' : 'Create Product' }}

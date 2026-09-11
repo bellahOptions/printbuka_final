@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="mx-auto max-w-7xl space-y-6">
-        <section class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
+        <section class="pb-card p-6">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                     <p class="text-sm font-black uppercase tracking-wide text-gray-700">Today's Task</p>
@@ -20,23 +20,23 @@
 
         <section class="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
             <div class="space-y-6">
-                <section class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
+                <section class="pb-card p-6">
                     <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                             <p class="text-sm font-black uppercase tracking-wide text-pink-700">Your tasks</p>
                             <h2 class="mt-2 text-2xl font-black text-slate-950">Tasks due today</h2>
                         </div>
-                        <a href="{{ route('admin.tasks.index') }}" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-black text-slate-800 hover:border-pink-300 hover:text-pink-700">Refresh</a>
+                        <a href="{{ route('admin.tasks.index') }}" class="pb-btn pb-btn-md pb-btn-outline">Refresh</a>
                     </div>
 
                     @if ($todayTasks->isEmpty())
-                        <div class="mt-6 rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm font-semibold text-slate-600">
-                            No tasks scheduled for today yet. Check back once your HOD assigns work to you.
+                        <div class="pb-empty mt-6">
+                            <p class="pb-empty-title">No tasks scheduled for today yet. Check back once your HOD assigns work to you.</p>
                         </div>
                     @else
                         <div class="mt-6 space-y-4">
                             @foreach ($todayTasks as $todo)
-                                <article class="rounded-3xl border border-slate-200 p-5 shadow-sm">
+                                <article class="pb-card p-5">
                                     <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                         <div class="space-y-3">
                                             <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
@@ -50,7 +50,7 @@
                                                     };
                                                 @endphp
                                                 <span class="font-black uppercase tracking-[0.2em] text-gray-700">{{ $statusLabel }}</span>
-                                                <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">Due {{ $todo->due_date->format('M j, Y') }}</span>
+                                                <span class="pb-badge pb-badge-secondary">Due {{ $todo->due_date->format('M j, Y') }}</span>
                                             </div>
                                             <h3 class="text-xl font-black text-slate-950">{{ $todo->task }}</h3>
                                             <p class="text-sm leading-6 text-slate-600">Assigned by {{ $todo->assigner?->displayName() ?? 'System' }}</p>
@@ -70,27 +70,27 @@
                                                     <form method="POST" action="{{ route('admin.tasks.mark-working', $todo) }}">
                                                         @csrf
                                                         @method('PATCH')
-                                                        <button type="submit" class="inline-flex items-center justify-center rounded-full bg-gray-600 px-5 py-3 text-sm font-black text-white transition hover:bg-gray-700">Working on it</button>
+                                                        <button type="submit" class="pb-btn pb-btn-md pb-btn-secondary">Working on it</button>
                                                     </form>
                                                     <form method="POST" action="{{ route('admin.tasks.mark-done', $todo) }}">
                                                         @csrf
                                                         @method('PATCH')
-                                                        <button type="submit" class="inline-flex items-center justify-center rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700">Mark as done</button>
+                                                        <button type="submit" class="pb-btn pb-btn-md pb-btn-primary">Mark as done</button>
                                                     </form>
                                                 </div>
                                             @elseif ($todo->status === 'working_on_it')
                                                 <div class="flex flex-wrap items-center gap-3">
-                                                    <span class="rounded-full bg-gray-100 px-4 py-2 text-sm font-black text-gray-800">Working on it</span>
+                                                    <span class="pb-badge pb-badge-secondary">Working on it</span>
                                                     <form method="POST" action="{{ route('admin.tasks.mark-done', $todo) }}">
                                                         @csrf
                                                         @method('PATCH')
-                                                        <button type="submit" class="inline-flex items-center justify-center rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700">Mark as done</button>
+                                                        <button type="submit" class="pb-btn pb-btn-md pb-btn-primary">Mark as done</button>
                                                     </form>
                                                 </div>
                                             @elseif (in_array($todo->status, ['completed', 'review_requested'], true))
-                                                <span class="rounded-full bg-amber-100 px-4 py-2 text-sm font-black text-amber-800">Awaiting review</span>
+                                                <span class="pb-badge pb-badge-warning">Awaiting review</span>
                                             @elseif ($todo->status === 'reviewed')
-                                                <span class="rounded-full bg-emerald-100 px-4 py-2 text-sm font-black text-emerald-800">Reviewed{{ $todo->review_rating ? ' · '.$todo->review_rating.'/5' : '' }}</span>
+                                                <span class="pb-badge pb-badge-success">Reviewed{{ $todo->review_rating ? ' · '.$todo->review_rating.'/5' : '' }}</span>
                                             @endif
                                         </div>
                                     </div>
@@ -101,32 +101,32 @@
                 </section>
 
                 @if ($canReview)
-                    <section class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
+                    <section class="pb-card p-6">
                         <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                             <div>
                                 <p class="text-sm font-black uppercase tracking-wide text-gray-700">Review queue</p>
                                 <h2 class="mt-2 text-2xl font-black text-slate-950">Tasks awaiting approval</h2>
                             </div>
                         <div class="flex flex-wrap items-center gap-3">
-                            <span class="rounded-full bg-pink-50 px-4 py-2 text-sm font-black text-pink-700">{{ number_format($reviewTasks->count()) }} pending</span>
+                            <span class="pb-badge pb-badge-primary">{{ number_format($reviewTasks->count()) }} pending</span>
                             @if ($workingOnCount > 0)
-                                <span class="rounded-full bg-gray-50 px-4 py-2 text-sm font-black text-gray-700">{{ number_format($workingOnCount) }} working</span>
+                                <span class="pb-badge pb-badge-secondary">{{ number_format($workingOnCount) }} working</span>
                             @endif
                         </div>
                     </div>
                         @if ($reviewTasks->isEmpty())
-                            <div class="mt-6 rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm font-semibold text-slate-600">
-                                No tasks are waiting for review right now.
+                            <div class="pb-empty mt-6">
+                                <p class="pb-empty-title">No tasks are waiting for review right now.</p>
                             </div>
                         @else
                             <div class="mt-6 space-y-4">
                                 @foreach ($reviewTasks as $todo)
-                                    <article class="rounded-3xl border border-slate-200 p-5 shadow-sm">
+                                    <article class="pb-card p-5">
                                         <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                             <div class="space-y-3">
                                                 <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
                                                     <span class="font-black uppercase tracking-[0.2em] text-gray-700">Completed</span>
-                                                    <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">Assigned to {{ $todo->assignee?->displayName() ?? 'Staff' }}</span>
+                                                    <span class="pb-badge pb-badge-secondary">Assigned to {{ $todo->assignee?->displayName() ?? 'Staff' }}</span>
                                                 </div>
                                                 <h3 class="text-xl font-black text-slate-950">{{ $todo->task }}</h3>
                                                 <p class="text-sm leading-6 text-slate-600">Assigned by {{ $todo->assigner?->displayName() ?? 'System' }}</p>
@@ -141,8 +141,8 @@
                                                 <form method="POST" action="{{ route('admin.tasks.approve', $todo) }}" class="space-y-2">
                                                     @csrf
                                                     @method('PATCH')
-                                                    <label class="block text-xs font-black uppercase tracking-wide text-slate-600">Rating</label>
-                                                    <select name="review_rating" required class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+                                                    <label class="pb-label">Rating</label>
+                                                    <select name="review_rating" required class="pb-select w-full">
                                                         <option value="">Select rating</option>
                                                         <option value="5">5 - Outstanding</option>
                                                         <option value="4">4 - Very Good</option>
@@ -150,8 +150,8 @@
                                                         <option value="2">2 - Needs improvement</option>
                                                         <option value="1">1 - Warning</option>
                                                     </select>
-                                                    <textarea name="review_comments" rows="3" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-100" placeholder="Optional manager comment"></textarea>
-                                                    <button type="submit" class="inline-flex w-full items-center justify-center rounded-full bg-emerald-600 px-5 py-3 text-sm font-black text-white transition hover:bg-emerald-700">Finalize review</button>
+                                                    <textarea name="review_comments" rows="3" class="pb-textarea w-full" placeholder="Optional manager comment"></textarea>
+                                                    <button type="submit" class="pb-btn pb-btn-md pb-btn-success w-full">Finalize review</button>
                                                 </form>
                                             </div>
                                         </div>
@@ -164,44 +164,44 @@
             </div>
 
                 @if ($canAssign)
-                    <section class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
+                    <section class="pb-card p-6">
                         <p class="text-sm font-black uppercase tracking-wide text-gray-700">Assign new task</p>
                         <form method="POST" action="{{ route('admin.tasks.store') }}" class="mt-5 space-y-4">
                             @csrf
-                            <div>
-                                <label class="block text-sm font-black text-slate-800">Staff assignees</label>
-                                <select name="user_ids[]" multiple required size="6" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+                            <div class="pb-field">
+                                <label class="pb-label">Staff assignees</label>
+                                <select name="user_ids[]" multiple required size="6" class="pb-select w-full">
                                     @foreach ($assignableStaff as $staff)
                                         <option value="{{ $staff->id }}">{{ $staff->displayName() }} · {{ $staff->role }}</option>
                                     @endforeach
                                 </select>
                                 <p class="mt-2 text-xs font-semibold text-slate-500">Hold Ctrl/Cmd to select multiple staff members.</p>
                             </div>
-                            <div>
-                                <label class="block text-sm font-black text-slate-800">Task</label>
-                                <input name="task" required type="text" maxlength="500" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-100" />
+                            <div class="pb-field">
+                                <label class="pb-label">Task</label>
+                                <input name="task" required type="text" maxlength="500" class="pb-input w-full" />
                             </div>
-                            <div>
-                                <label class="block text-sm font-black text-slate-800">Priority</label>
-                                <select name="priority" required class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+                            <div class="pb-field">
+                                <label class="pb-label">Priority</label>
+                                <select name="priority" required class="pb-select w-full">
                                     <option value="medium" selected>Normal</option>
                                     <option value="high">Urgent</option>
                                     <option value="low">Low</option>
                                 </select>
                             </div>
-                            <div>
-                                <label class="block text-sm font-black text-slate-800">Due date</label>
-                                <input name="due_date" type="date" value="{{ today()->toDateString() }}" required class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-100" />
+                            <div class="pb-field">
+                                <label class="pb-label">Due date</label>
+                                <input name="due_date" type="date" value="{{ today()->toDateString() }}" required class="pb-input w-full" />
                             </div>
-                            <div>
-                                <label class="block text-sm font-black text-slate-800">Order reference (optional)</label>
-                                <input name="order_id" type="text" pattern="\d*" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-100" placeholder="Order ID" />
+                            <div class="pb-field">
+                                <label class="pb-label">Order reference (optional)</label>
+                                <input name="order_id" type="text" pattern="\d*" class="pb-input w-full" placeholder="Order ID" />
                             </div>
-                            <div>
-                                <label class="block text-sm font-black text-slate-800">Notes</label>
-                                <textarea name="notes" rows="3" data-rich-editor class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-100" placeholder="Optional task details"></textarea>
+                            <div class="pb-field">
+                                <label class="pb-label">Notes</label>
+                                <textarea name="notes" rows="3" data-rich-editor class="pb-textarea w-full" placeholder="Optional task details"></textarea>
                             </div>
-                            <button type="submit" class="inline-flex w-full items-center justify-center rounded-full bg-pink-600 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700">Assign task</button>
+                            <button type="submit" class="pb-btn pb-btn-md pb-btn-primary w-full">Assign task</button>
                         </form>
                     </section>
                 @endif
@@ -209,34 +209,34 @@
         </section>
 
         @if ($canAssign && $assignedTasks->isNotEmpty())
-            <section class="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
+            <section class="pb-card p-6">
                 <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <p class="text-sm font-black uppercase tracking-wide text-gray-700">Assigned by you</p>
                         <h2 class="mt-2 text-2xl font-black text-slate-950">Tasks you've assigned</h2>
                     </div>
-                    <span class="rounded-full bg-slate-100 px-4 py-2 text-sm font-black text-slate-700">{{ number_format($assignedTasks->count()) }} total</span>
+                    <span class="pb-badge pb-badge-secondary">{{ number_format($assignedTasks->count()) }} total</span>
                 </div>
-                <div class="mt-6 overflow-x-auto">
-                    <table class="w-full text-sm">
+                <div class="mt-6 pb-table-wrapper">
+                    <table class="pb-table">
                         <thead>
-                            <tr class="border-b border-slate-100 text-left text-xs font-black uppercase tracking-wide text-slate-500">
-                                <th class="pb-3 pr-4">Task</th>
-                                <th class="pb-3 pr-4">Assigned to</th>
-                                <th class="pb-3 pr-4">Due</th>
-                                <th class="pb-3 pr-4">Status</th>
-                                <th class="pb-3">Order</th>
+                            <tr>
+                                <th>Task</th>
+                                <th>Assigned to</th>
+                                <th>Due</th>
+                                <th>Status</th>
+                                <th>Order</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100">
+                        <tbody>
                             @foreach ($assignedTasks as $todo)
                                 @php
-                                    $statusColor = match ($todo->status) {
-                                        'pending'         => 'bg-slate-100 text-slate-700',
-                                        'working_on_it'   => 'bg-blue-100 text-blue-700',
-                                        'completed', 'review_requested' => 'bg-amber-100 text-amber-700',
-                                        'reviewed'        => 'bg-emerald-100 text-emerald-700',
-                                        default           => 'bg-slate-100 text-slate-600',
+                                    $statusBadge = match ($todo->status) {
+                                        'pending'         => 'pb-badge-secondary',
+                                        'working_on_it'   => 'pb-badge-info',
+                                        'completed', 'review_requested' => 'pb-badge-warning',
+                                        'reviewed'        => 'pb-badge-success',
+                                        default           => 'pb-badge-secondary',
                                     };
                                     $statusLabel = match ($todo->status) {
                                         'pending'         => 'Pending',
@@ -248,25 +248,25 @@
                                     $isOverdue = $todo->due_date?->isPast() && ! in_array($todo->status, ['reviewed'], true);
                                 @endphp
                                 <tr class="group">
-                                    <td class="py-3 pr-4 font-semibold text-slate-900 max-w-xs">
-                                        <span class="line-clamp-2">{{ $todo->task }}</span>
+                                    <td class="max-w-xs">
+                                        <span class="line-clamp-2 font-semibold text-slate-900">{{ $todo->task }}</span>
                                         @if ($todo->notes)
                                             <span class="block text-xs text-slate-400 mt-0.5 line-clamp-1">{{ $todo->notes }}</span>
                                         @endif
                                     </td>
-                                    <td class="py-3 pr-4 text-slate-700 whitespace-nowrap">
+                                    <td class="whitespace-nowrap">
                                         {{ $todo->assignee?->displayName() ?? '—' }}
                                     </td>
-                                    <td class="py-3 pr-4 whitespace-nowrap {{ $isOverdue ? 'text-red-600 font-semibold' : 'text-slate-600' }}">
+                                    <td class="whitespace-nowrap {{ $isOverdue ? 'text-red-600 font-semibold' : '' }}">
                                         {{ $todo->due_date?->format('M j, Y') ?? '—' }}
                                         @if ($isOverdue)
                                             <span class="ml-1 text-xs">overdue</span>
                                         @endif
                                     </td>
-                                    <td class="py-3 pr-4 whitespace-nowrap">
-                                        <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-black {{ $statusColor }}">{{ $statusLabel }}</span>
+                                    <td class="whitespace-nowrap">
+                                        <span class="pb-badge {{ $statusBadge }}">{{ $statusLabel }}</span>
                                     </td>
-                                    <td class="py-3 text-slate-500">
+                                    <td>
                                         @if ($todo->order)
                                             <a href="{{ route('admin.orders.show', $todo->order) }}" class="font-semibold text-pink-700 hover:underline">
                                                 {{ $todo->order->job_order_number ?? $todo->order->displayNumber() }}

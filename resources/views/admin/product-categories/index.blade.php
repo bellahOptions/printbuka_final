@@ -4,12 +4,17 @@
 
 @section('content')
     <div class="mx-auto max-w-7xl">
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <div><p class="text-sm font-black uppercase tracking-wide text-pink-700">Product Category Management</p><h1 class="mt-2 text-4xl text-slate-950">Categories.</h1></div>
-                <a href="{{ route('admin.product-categories.create') }}" class="rounded-md bg-pink-600 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700">Create Category</a>
+            <div class="pb-page-header">
+                <div>
+                    <h1 class="pb-page-title">Categories</h1>
+                    <p class="pb-page-subtitle">Product Category Management</p>
+                </div>
+                <a href="{{ route('admin.product-categories.create') }}" class="pb-btn pb-btn-md pb-btn-primary self-start">Create Category</a>
             </div>
-            @if (session('status'))<p class="mt-6 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800">{{ session('status') }}</p>@endif
-            <div class="mt-8">
+            @if (session('status'))
+                <div class="pb-alert pb-alert-success mb-6">{{ session('status') }}</div>
+            @endif
+            <div>
                 <livewire:admin.product-categories-table />
             </div>
     </div>

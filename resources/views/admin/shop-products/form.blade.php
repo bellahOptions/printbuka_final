@@ -17,7 +17,7 @@
 </div>
 
 @if($errors->any())
-    <div class="alert alert-error mb-6">
+    <div class="pb-alert pb-alert-error mb-6">
         <x-heroicon-o-exclamation-circle class="w-5 h-5 shrink-0" />
         <ul class="list-disc ml-3 text-sm font-bold space-y-0.5">
             @foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach
@@ -43,35 +43,35 @@
                         <x-heroicon-o-document-text class="w-4 h-4 text-pink-500" /> Basic Information
                     </h2>
                     <div class="space-y-4">
-                        <div>
-                            <label class="text-xs font-bold uppercase text-slate-500 block mb-1.5">Product Name <span class="text-red-500">*</span></label>
+                        <div class="pb-field">
+                            <label class="pb-label">Product Name <span class="text-red-500">*</span></label>
                             <input type="text" name="name" value="{{ old('name', $product?->name) }}"
                                    id="product-name"
-                                   class="input input-bordered border-slate-200 w-full @error('name') input-error @enderror"
+                                   class="pb-input w-full @error('name') pb-input-error @enderror"
                                    placeholder="e.g. Custom Branded Mug" required />
-                            @error('name')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
+                            @error('name')<p class="pb-field-error">{{ $message }}</p>@enderror
                         </div>
-                        <div>
-                            <label class="text-xs font-bold uppercase text-slate-500 block mb-1.5">
+                        <div class="pb-field">
+                            <label class="pb-label">
                                 Slug (URL)
                                 <span class="text-slate-400 normal-case font-medium ml-1">— auto-generated from name</span>
                             </label>
                             <input type="text" name="slug" id="product-slug" value="{{ old('slug', $product?->slug) }}"
-                                   class="input input-bordered border-slate-200 w-full font-mono text-sm"
+                                   class="pb-input w-full font-mono text-sm"
                                    placeholder="auto-generated-from-name" />
                         </div>
-                        <div>
-                            <label class="text-xs font-bold uppercase text-slate-500 block mb-1.5">Short Description</label>
+                        <div class="pb-field">
+                            <label class="pb-label">Short Description</label>
                             <input type="text" name="short_description"
                                    value="{{ old('short_description', $product?->short_description) }}"
-                                   class="input input-bordered border-slate-200 w-full"
+                                   class="pb-input w-full"
                                    placeholder="One-line summary shown in listings (max 500 chars)"
                                    maxlength="500" />
                         </div>
-                        <div>
-                            <label class="text-xs font-bold uppercase text-slate-500 block mb-1.5">Full Description</label>
+                        <div class="pb-field">
+                            <label class="pb-label">Full Description</label>
                             <textarea name="description" rows="5" data-rich-editor
-                                      class="textarea textarea-bordered border-slate-200 w-full"
+                                      class="pb-textarea w-full"
                                       placeholder="Detailed product information, dimensions, materials…">{{ old('description', $product?->description) }}</textarea>
                         </div>
                     </div>
@@ -86,32 +86,32 @@
                         <x-heroicon-o-banknotes class="w-4 h-4 text-emerald-500" /> Pricing & SKU
                     </h2>
                     <div class="grid sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-xs font-bold uppercase text-slate-500 block mb-1.5">Regular Price (NGN) <span class="text-red-500">*</span></label>
+                        <div class="pb-field">
+                            <label class="pb-label">Regular Price (NGN) <span class="text-red-500">*</span></label>
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">₦</span>
                                 <input type="number" name="price" value="{{ old('price', $product?->price) }}"
                                        step="0.01" min="0"
-                                       class="input input-bordered border-slate-200 w-full pl-8 @error('price') input-error @enderror"
+                                       class="pb-input w-full pl-8 @error('price') pb-input-error @enderror"
                                        placeholder="0.00" required />
                             </div>
-                            @error('price')<p class="text-xs text-red-500 mt-1">{{ $message }}</p>@enderror
+                            @error('price')<p class="pb-field-error">{{ $message }}</p>@enderror
                         </div>
-                        <div>
-                            <label class="text-xs font-bold uppercase text-slate-500 block mb-1.5">Sale Price (NGN)</label>
+                        <div class="pb-field">
+                            <label class="pb-label">Sale Price (NGN)</label>
                             <div class="relative">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">₦</span>
                                 <input type="number" name="sale_price" value="{{ old('sale_price', $product?->sale_price) }}"
                                        step="0.01" min="0"
-                                       class="input input-bordered border-slate-200 w-full pl-8"
+                                       class="pb-input w-full pl-8"
                                        placeholder="Leave blank — no sale" />
                             </div>
                             <p class="text-xs text-slate-400 mt-1">Must be less than regular price to activate "On Sale" badge</p>
                         </div>
-                        <div class="sm:col-span-2">
-                            <label class="text-xs font-bold uppercase text-slate-500 block mb-1.5">SKU</label>
+                        <div class="pb-field sm:col-span-2">
+                            <label class="pb-label">SKU</label>
                             <input type="text" name="sku" value="{{ old('sku', $product?->sku) }}"
-                                   class="input input-bordered border-slate-200 w-full font-mono"
+                                   class="pb-input w-full font-mono"
                                    placeholder="{{ $product ? 'Leave blank to keep current' : 'Auto-generated if left blank (PBK-YYYY-NNNNN)' }}" />
                         </div>
                     </div>
@@ -135,11 +135,11 @@
                         </div>
                     </label>
                     <div x-show="manageStock" x-transition class="pl-1">
-                        <label class="text-xs font-bold uppercase text-slate-500 block mb-1.5">Stock Quantity</label>
+                        <label class="pb-label">Stock Quantity</label>
                         <input type="number" name="stock_quantity"
                                value="{{ old('stock_quantity', $product?->stock_quantity ?? 0) }}"
                                min="0"
-                               class="input input-bordered border-slate-200 w-full max-w-xs" />
+                               class="pb-input w-full max-w-xs" />
                         <p class="text-xs text-slate-400 mt-1">Product-level stock — option-level stock is set below</p>
                     </div>
                     <div x-show="!manageStock" class="text-sm text-slate-400 italic">
@@ -160,7 +160,7 @@
                             <p class="text-xs text-slate-400 max-w-sm">Add selectable variants (Color, Size, Material) that customers choose at checkout. Price modifiers are added to the base price.</p>
                         </div>
                         <button type="button" @click="addGroup()"
-                                class="btn btn-sm btn-outline font-black border-violet-200 text-violet-700 hover:border-violet-500 hover:bg-violet-50 shrink-0">
+                                class="pb-btn pb-btn-sm pb-btn-outline shrink-0">
                             <x-heroicon-o-plus class="w-4 h-4" /> Add Group
                         </button>
                     </div>
@@ -173,7 +173,7 @@
                                     <input type="hidden" :name="`option_groups[${gi}][id]`" :value="group.id ?? ''" />
                                     <input type="text" :name="`option_groups[${gi}][name]`" x-model="group.name"
                                            placeholder="Group name, e.g. Color, Size, Material"
-                                           class="input input-bordered border-slate-200 input-sm flex-1 font-bold"
+                                           class="pb-input h-8 flex-1 text-xs font-bold"
                                            required />
                                     <label class="flex items-center gap-2 cursor-pointer shrink-0">
                                         <input type="checkbox" :name="`option_groups[${gi}][is_required]`" value="1"
@@ -181,7 +181,7 @@
                                         <span class="text-xs font-bold text-slate-600">Required</span>
                                     </label>
                                     <button type="button" @click="groups.splice(gi, 1)"
-                                            class="btn btn-xs btn-ghost text-red-400 hover:text-red-600 hover:bg-red-50 shrink-0"
+                                            class="pb-btn pb-btn-sm pb-btn-ghost text-red-500 hover:text-red-600 hover:bg-red-50 shrink-0"
                                             title="Remove group">
                                         <x-heroicon-o-trash class="w-4 h-4" />
                                     </button>
@@ -197,7 +197,7 @@
                                                        :name="`option_groups[${gi}][options][${oi}][name]`"
                                                        x-model="option.name"
                                                        placeholder="e.g. Red, Large, Matte"
-                                                       class="input input-bordered border-slate-200 input-sm flex-1 min-w-[120px]"
+                                                       class="pb-input h-8 flex-1 min-w-[120px] text-xs"
                                                        required />
                                                 <div class="flex items-center gap-1.5 shrink-0">
                                                     <span class="text-xs font-bold text-slate-500">+₦</span>
@@ -205,7 +205,7 @@
                                                            :name="`option_groups[${gi}][options][${oi}][price_modifier]`"
                                                            x-model="option.price_modifier"
                                                            placeholder="0"
-                                                           class="input input-bordered border-slate-200 input-sm w-24"
+                                                           class="pb-input h-8 w-24 text-xs"
                                                            title="Price modifier (add to base price)" />
                                                 </div>
                                                 <label class="flex items-center gap-1.5 shrink-0 cursor-pointer" title="Mark as available">
@@ -216,7 +216,7 @@
                                                     <span class="text-xs text-slate-500 font-bold">Avail.</span>
                                                 </label>
                                                 <button type="button" @click="group.options.splice(oi, 1)"
-                                                        class="btn btn-xs btn-ghost text-red-400 hover:text-red-600 hover:bg-red-50 shrink-0">
+                                                        class="pb-btn pb-btn-sm pb-btn-ghost text-red-500 hover:text-red-600 hover:bg-red-50 shrink-0">
                                                     <x-heroicon-o-x-mark class="w-3.5 h-3.5" />
                                                 </button>
                                             </div>
@@ -227,7 +227,7 @@
                                                            :name="`option_groups[${gi}][options][${oi}][stock_quantity]`"
                                                            x-model="option.stock_quantity"
                                                            placeholder="∞ unlimited"
-                                                           class="input input-bordered border-slate-200 input-sm w-28"
+                                                           class="pb-input h-8 w-28 text-xs"
                                                            title="Leave blank for unlimited stock" />
                                                 </div>
                                                 <div class="flex items-center gap-2 flex-1 min-w-[200px]">
@@ -236,14 +236,14 @@
                                                            :name="`option_groups[${gi}][options][${oi}][image]`"
                                                            x-model="option.image"
                                                            placeholder="Cloudinary ID or URL (optional)"
-                                                           class="input input-bordered border-slate-200 input-sm w-full" />
+                                                           class="pb-input h-8 w-full text-xs" />
                                                 </div>
                                             </div>
                                         </div>
                                     </template>
                                     <button type="button"
                                             @click="group.options.push({ id: null, name: '', price_modifier: 0, is_available: true, stock_quantity: null, image: '' })"
-                                            class="btn btn-xs btn-ghost text-violet-600 hover:text-violet-800 hover:bg-violet-50 font-black w-full border border-dashed border-violet-200 mt-1">
+                                            class="pb-btn pb-btn-sm pb-btn-ghost w-full border border-dashed border-violet-200 text-violet-600 hover:bg-violet-50 mt-1">
                                         <x-heroicon-o-plus class="w-3 h-3" /> Add option
                                     </button>
                                 </div>
@@ -324,12 +324,12 @@
                         </label>
                     </div>
                     <button type="submit"
-                            class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black w-full mb-2">
+                            class="pb-btn pb-btn-md pb-btn-primary w-full mb-2">
                         <x-heroicon-o-check class="w-4 h-4" />
                         {{ $product ? 'Save Changes' : 'Create Product' }}
                     </button>
                     <a href="{{ route('admin.shop-products.index') }}"
-                       class="btn btn-ghost font-black text-slate-500 w-full text-sm">
+                       class="pb-btn pb-btn-md pb-btn-ghost w-full">
                         Cancel
                     </a>
                 </div>
@@ -441,7 +441,7 @@
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-100">
                     <a href="{{ route('shop.show', $product->slug) }}" target="_blank"
-                       class="btn btn-xs btn-ghost text-slate-500 hover:text-pink-600 font-black w-full">
+                       class="pb-btn pb-btn-sm pb-btn-ghost w-full">
                         <x-heroicon-o-arrow-top-right-on-square class="w-3.5 h-3.5" /> View on site
                     </a>
                 </div>
