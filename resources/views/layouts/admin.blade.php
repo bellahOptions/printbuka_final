@@ -221,7 +221,7 @@
                     </a>
 
                     {{-- CRM --}}
-                    @if($admin?->canAdmin('customers.manage') || $admin?->canAdmin('invoices.manage') || $admin?->canAdmin('pricelist.manage') || $admin?->canAdmin('newsletters.manage') || $admin?->canAdmin('vendors.view'))
+                    @if($admin?->canAdmin('customers.manage') || $admin?->canAdmin('invoices.manage') || $admin?->canAdmin('pricelist.manage') || $admin?->canAdmin('newsletters.manage') || $admin?->canAdmin('vendors.view') || $admin?->canAdmin('blog.manage') || $admin?->canAdmin('advertisements.manage'))
                         <p class="pb-nav-group mt-3">CRM</p>
                     @endif
 
@@ -242,6 +242,26 @@
                                       d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                             </svg>
                             <span>Newsletters</span>
+                        </a>
+                    @endif
+
+                    @if($admin?->canAdmin('blog.manage'))
+                        <a href="{{ route('admin.blog.index') }}" class="{{ $navLink('admin.blog.*') }}">
+                            <svg class="pb-nav-icon h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                      d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m-8 12h10a2 2 0 002-2V9a2 2 0 00-2-2h-2.343M11 18l6-6m-6-4h2m-2 4h2m-6 6V8m0 4h2"/>
+                            </svg>
+                            <span>Blog</span>
+                        </a>
+                    @endif
+
+                    @if($admin?->canAdmin('advertisements.manage'))
+                        <a href="{{ route('admin.advertisements.index') }}" class="{{ $navLink('admin.advertisements.*') }}">
+                            <svg class="pb-nav-icon h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                      d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592L5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
+                            </svg>
+                            <span>Advertisements</span>
                         </a>
                     @endif
 

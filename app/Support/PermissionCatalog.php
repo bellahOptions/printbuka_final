@@ -60,6 +60,7 @@ class PermissionCatalog
             'Marketing & Customers' => [
                 'blog.view' => 'View blog posts',
                 'blog.manage' => 'Manage blog posts',
+                'advertisements.manage' => 'Manage site advertisements',
                 'newsletters.manage' => 'Manage newsletters',
                 'announcements.view' => 'View announcements',
                 'customers.manage' => 'Manage customers',

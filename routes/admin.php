@@ -204,13 +204,13 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::post('/media', [AdminMediaController::class, 'store'])
             ->name('media.store');
         Route::get('/advertisements', [AdminAdvertisementController::class, 'index'])
-            ->middleware('super.admin')
+            ->middleware('admin.permission:advertisements.manage')
             ->name('advertisements.index');
         Route::post('/advertisements', [AdminAdvertisementController::class, 'store'])
-            ->middleware('super.admin')
+            ->middleware('admin.permission:advertisements.manage')
             ->name('advertisements.store');
         Route::delete('/advertisements/{advertisement}', [AdminAdvertisementController::class, 'destroy'])
-            ->middleware('super.admin')
+            ->middleware('admin.permission:advertisements.manage')
             ->name('advertisements.destroy');
         Route::get('/finance/{finance}', [AdminFinanceController::class, 'show'])
             ->middleware('admin.permission:finance.view')
