@@ -14,6 +14,7 @@ use App\Services\InvoiceLifecycleService;
 use App\Services\InvoiceService;
 use App\Services\QuoteCsvImportService;
 use App\Support\IdempotencyGuard;
+use App\Support\RolePushNotifier;
 use App\Support\PdfTemplateOverrides;
 use App\Support\ProductOptionPricing;
 use App\Support\ReferenceCode;
@@ -148,6 +149,13 @@ class AdminInvoiceController extends Controller
         app(ImportantActionNotifier::class)->notify(
             $invoice->documentTypeLabel().' created',
             $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was created by '.$request->user()?->displayName().'.'
+        );
+        RolePushNotifier::send(
+            permission: 'finance.view',
+            title: $invoice->documentTypeLabel().' Created',
+            body: $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was created by '.$request->user()?->displayName().'.',
+            type: 'invoice_created',
+            data: ['category' => 'finance', 'severity' => 'major', 'invoice_id' => $invoice->id, 'action_url' => route('admin.invoices.show', $invoice)],
         );
 
         if ($submissionAction === 'save_download') {
@@ -385,6 +393,13 @@ class AdminInvoiceController extends Controller
         app(ImportantActionNotifier::class)->notify(
             $invoice->documentTypeLabel().' created',
             $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was created by '.$request->user()?->displayName().'.'
+        );
+        RolePushNotifier::send(
+            permission: 'finance.view',
+            title: $invoice->documentTypeLabel().' Created',
+            body: $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was created by '.$request->user()?->displayName().'.',
+            type: 'invoice_created',
+            data: ['category' => 'finance', 'severity' => 'major', 'invoice_id' => $invoice->id, 'action_url' => route('admin.invoices.show', $invoice)],
         );
 
         if ($submissionAction === 'save_send') {
@@ -793,6 +808,13 @@ class AdminInvoiceController extends Controller
         $invoice->documentTypeLabel() . ' updated',
         $invoice->documentTypeLabel() . ' ' . $invoice->invoice_number . ' was updated by ' . $request->user()?->displayName() . '.'
     );
+    RolePushNotifier::send(
+        permission: 'finance.view',
+        title: $invoice->documentTypeLabel().' Updated',
+        body: $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was updated by '.$request->user()?->displayName().'.',
+        type: 'invoice_updated',
+        data: ['category' => 'finance', 'severity' => 'minor', 'invoice_id' => $invoice->id, 'action_url' => route('admin.invoices.show', $invoice)],
+    );
 
     return redirect()
         ->route('admin.invoices.index')
@@ -912,6 +934,14 @@ class AdminInvoiceController extends Controller
             $invoiceLifecycleService->handleStatusChange($invoice->fresh(['order.product']), $previousStatus);
         }
 
+        RolePushNotifier::send(
+            permission: 'finance.view',
+            title: 'Payment Recorded',
+            body: '₦'.number_format($thisAmount, 2).' payment recorded on '.$invoice->documentTypeLabel().' '.$invoice->invoice_number.' by '.$request->user()?->displayName().' — '.$paymentStatus.'.',
+            type: 'invoice_payment_recorded',
+            data: ['category' => 'finance', 'severity' => 'major', 'invoice_id' => $invoice->id, 'amount' => $thisAmount, 'action_url' => route('admin.invoices.show', $invoice)],
+        );
+
         return back()->with('status', 'Payment of ₦'.number_format($thisAmount, 2).' recorded ('
             .number_format($pctPaid, 1).'% of invoice). Status: '.$paymentStatus.'.');
     }
@@ -951,6 +981,14 @@ class AdminInvoiceController extends Controller
         ])->save();
 
         $invoiceLifecycleService->handleStatusChange($invoice->fresh(['order.product']), $previousStatus);
+
+        RolePushNotifier::send(
+            permission: 'finance.view',
+            title: $invoice->documentTypeLabel().' Marked Paid',
+            body: $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was marked as paid.',
+            type: 'invoice_marked_paid',
+            data: ['category' => 'finance', 'severity' => 'major', 'invoice_id' => $invoice->id, 'action_url' => route('admin.invoices.show', $invoice)],
+        );
 
         return back()->with('status', $invoice->fresh('order')->documentTypeLabel().' marked as paid.');
     }
@@ -1131,6 +1169,13 @@ class AdminInvoiceController extends Controller
         app(ImportantActionNotifier::class)->notify(
             $invoice->documentTypeLabel().' created',
             $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was created by '.$request->user()?->displayName().'.'
+        );
+        RolePushNotifier::send(
+            permission: 'finance.view',
+            title: $invoice->documentTypeLabel().' Created',
+            body: $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was created by '.$request->user()?->displayName().'.',
+            type: 'invoice_created',
+            data: ['category' => 'finance', 'severity' => 'major', 'invoice_id' => $invoice->id, 'action_url' => route('admin.invoices.show', $invoice)],
         );
 
         if ($submissionAction === 'save_send') {

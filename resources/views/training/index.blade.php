@@ -10,7 +10,7 @@
             [
                 'title' => 'Graphic Design',
                 'description' => 'Build sharp layouts, brand assets, print-ready files, and campaign visuals using industry design tools.',
-                'accent' => 'bg-pink-50 text-pink-700 border-pink-100',
+                'accent' => 'bg-brand-50 text-brand-700 border-brand-100',
                 'icon' => 'M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42',
             ],
             [
@@ -65,14 +65,14 @@
                     <p class="mb-5 w-max rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-wide text-cyan-200">
                         Printbuka Graduate Trainee Program
                     </p>
-                    <h1 class="max-w-4xl text-4xl font-black leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+                    <h1 class="pb-display max-w-4xl text-4xl leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
                         Start a career in print, design, and production.
                     </h1>
                     <p class="mt-6 max-w-2xl text-lg font-semibold leading-8 text-slate-300">
                         A free 6-month practical program for fresh graduates and SSCE holders ready to build real, in-demand skills with mentors inside a working print business.
                     </p>
                     <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-                        <a href="{{ route('training.apply') }}" class="inline-flex items-center justify-center rounded-lg bg-pink-600 px-7 py-3.5 text-sm font-black text-white shadow-lg shadow-pink-950/30 transition hover:bg-pink-700">
+                        <a href="{{ route('training.apply') }}" class="inline-flex items-center justify-center rounded-lg bg-brand-600 px-7 py-3.5 text-sm font-black text-white shadow-lg shadow-brand-950/30 transition hover:bg-brand-700">
                             Apply Now
                         </a>
                         <a href="#tracks" class="inline-flex items-center justify-center rounded-lg border border-white/15 bg-white/10 px-7 py-3.5 text-sm font-black text-white transition hover:bg-white/15">
@@ -115,8 +115,8 @@
                         @endforeach
                     </div>
 
-                    <div class="mt-5 rounded-lg border border-pink-100 bg-pink-50 p-4">
-                        <p data-countdown-status class="text-sm font-bold leading-6 text-pink-800">
+                    <div class="mt-5 rounded-lg border border-brand-100 bg-brand-50 p-4">
+                        <p data-countdown-status class="text-sm font-bold leading-6 text-brand-800">
                             The next cohort is open. Submit your application before the timer reaches zero.
                         </p>
                     </div>
@@ -129,7 +129,7 @@
                 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     @foreach ($benefits as $benefit)
                         <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                            <p class="text-4xl font-black text-pink-600">{{ $benefit['value'] }}</p>
+                            <p class="text-4xl font-black text-brand-600">{{ $benefit['value'] }}</p>
                             <h3 class="mt-3 text-lg font-black text-slate-950">{{ $benefit['label'] }}</h3>
                             <p class="mt-2 text-sm font-semibold leading-6 text-slate-600">{{ $benefit['copy'] }}</p>
                         </div>
@@ -140,7 +140,7 @@
 
         <section class="py-16">
             <div class="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-                <p class="text-sm font-black uppercase tracking-wide text-pink-600">Your career can start here</p>
+                <p class="text-sm font-black uppercase tracking-wide text-brand-600">Your career can start here</p>
                 <h2 class="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
                     Real skills, real mentors, real production work.
                 </h2>
@@ -177,7 +177,7 @@
         <section class="py-16">
             <div class="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
                 <div>
-                    <p class="text-sm font-black uppercase tracking-wide text-pink-600">Who should apply</p>
+                    <p class="text-sm font-black uppercase tracking-wide text-brand-600">Who should apply</p>
                     <h2 class="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Built for hungry beginners.</h2>
                     <p class="mt-4 text-base font-semibold leading-7 text-slate-600">
                         You do not need years of experience. You need commitment, curiosity, discipline, and the willingness to practise until your work becomes strong.
@@ -215,7 +215,7 @@
                     <div class="grid gap-3 sm:grid-cols-3">
                         @foreach ([['01', 'Apply', 'Submit your application before the deadline.'], ['02', 'Train', 'Learn through guided practice and production tasks.'], ['03', 'Launch', 'Graduate with stronger skills and clearer direction.']] as [$step, $title, $copy])
                             <div class="rounded-lg border border-white/10 bg-white/5 p-5">
-                                <p class="text-sm font-black text-pink-300">{{ $step }}</p>
+                                <p class="text-sm font-black text-brand-300">{{ $step }}</p>
                                 <h3 class="mt-3 text-lg font-black">{{ $title }}</h3>
                                 <p class="mt-2 text-sm font-semibold leading-6 text-slate-300">{{ $copy }}</p>
                             </div>
@@ -253,7 +253,7 @@
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
                     <div>
-                        <p class="text-sm font-black uppercase tracking-wide text-pink-600">Frequently Asked Questions</p>
+                        <p class="text-sm font-black uppercase tracking-wide text-brand-600">Frequently Asked Questions</p>
                         <h2 class="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Answers before you apply.</h2>
                         <p class="mt-4 text-base font-semibold leading-7 text-slate-600">
                             A few quick details about cost, location, duration, and what comes after the program.
@@ -265,7 +265,7 @@
                             <details class="group rounded-lg border border-slate-200 bg-white p-5 shadow-sm" @if ($loop->first) open @endif>
                                 <summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-left text-base font-black text-slate-950">
                                     <span>{{ $faq['question'] }}</span>
-                                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xl leading-none text-pink-600 transition group-open:rotate-45">+</span>
+                                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xl leading-none text-brand-600 transition group-open:rotate-45">+</span>
                                 </summary>
                                 <p class="mt-4 text-sm font-semibold leading-7 text-slate-600">{{ $faq['answer'] }}</p>
                             </details>
@@ -277,12 +277,12 @@
 
         <section class="bg-white py-16">
             <div class="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
-                <p class="text-sm font-black uppercase tracking-wide text-pink-600">Applications are open</p>
+                <p class="text-sm font-black uppercase tracking-wide text-brand-600">Applications are open</p>
                 <h2 class="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">Ready to build a skill you can use?</h2>
                 <p class="mt-4 text-base font-semibold leading-7 text-slate-600">
                     The deadline is May 29, 2026. Apply now and take the first serious step toward a practical career in print, design, and customer experience.
                 </p>
-                <a href="{{ route('training.apply') }}" class="mt-8 inline-flex items-center justify-center rounded-lg bg-pink-600 px-8 py-3.5 text-sm font-black text-white transition hover:bg-pink-700">
+                <a href="{{ route('training.apply') }}" class="mt-8 inline-flex items-center justify-center rounded-lg bg-brand-600 px-8 py-3.5 text-sm font-black text-white transition hover:bg-brand-700">
                     Apply Before Deadline
                 </a>
             </div>

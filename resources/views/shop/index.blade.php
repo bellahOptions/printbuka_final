@@ -10,8 +10,9 @@
        
         <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 flex flex-col lg:flex-row lg:items-center gap-12">
             <div class="flex-1">
+                <p class="pb-eyebrow mb-3 text-brand-400">Fixed Prices, Instant Checkout</p>
                 <h1 class="text-4xl sm:text-5xl font-black text-white leading-tight mb-4">
-                    Printbuka <span class="text-[#EC268F]">Shop</span>
+                    Printbuka <span class="pb-display-italic text-4xl sm:text-5xl">Shop</span>
                 </h1>
                 <p class="text-slate-400 text-lg max-w-lg leading-relaxed mb-8">
                     Branded gifts, print merchandise and accessories — fixed prices, no quoting needed. Pay securely via Paystack and get it delivered nationwide.
@@ -38,7 +39,7 @@
                     <livewire:product.search />
                     <div class="mt-4 flex flex-wrap gap-2">
                         <a href="{{ route('shop.index') }}"
-                           class="text-xs font-bold px-3 py-1.5 rounded-full border transition-colors {{ !request()->anyFilled(['featured','on_sale','search']) ? 'bg-[#EC268F] border-[#EC268F] text-white' : 'border-white/20 text-slate-300 hover:border-pink-400 hover:text-white' }}">
+                           class="text-xs font-bold px-3 py-1.5 rounded-full border transition-colors {{ !request()->anyFilled(['featured','on_sale','search']) ? 'bg-brand-600 border-brand-600 text-white' : 'border-white/20 text-slate-300 hover:border-brand-400 hover:text-white' }}">
                             All Products
                         </a>
                         <a href="{{ route('shop.index', ['featured' => 1]) }}"
@@ -46,7 +47,7 @@
                             <x-heroicon-s-star class="w-3.5 h-3.5" /> Featured
                         </a>
                         <a href="{{ route('shop.index', ['on_sale' => 1]) }}"
-                           class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border transition-colors {{ request()->boolean('on_sale') ? 'bg-pink-600 border-pink-600 text-white' : 'border-white/20 text-slate-300 hover:border-pink-400 hover:text-white' }}">
+                           class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border transition-colors {{ request()->boolean('on_sale') ? 'bg-brand-600 border-brand-600 text-white' : 'border-white/20 text-slate-300 hover:border-brand-400 hover:text-white' }}">
                             <x-heroicon-s-fire class="w-3.5 h-3.5" /> On Sale
                         </a>
                     </div>
@@ -69,9 +70,9 @@
                             </span>
                         @endif
                         @if(request()->boolean('on_sale'))
-                            <span class="inline-flex items-center gap-1 bg-pink-100 text-pink-700 text-xs font-black px-2.5 py-1 rounded-full">
+                            <span class="inline-flex items-center gap-1 bg-brand-100 text-brand-700 text-xs font-black px-2.5 py-1 rounded-full">
                                 On Sale
-                                <a href="{{ route('shop.index', array_diff_key(request()->query(), ['on_sale' => ''])) }}" class="ml-0.5 hover:text-pink-900">&times;</a>
+                                <a href="{{ route('shop.index', array_diff_key(request()->query(), ['on_sale' => ''])) }}" class="ml-0.5 hover:text-brand-900">&times;</a>
                             </span>
                         @endif
                         @if(request()->filled('search'))
@@ -80,7 +81,7 @@
                                 <a href="{{ route('shop.index', array_diff_key(request()->query(), ['search' => ''])) }}" class="ml-0.5 hover:text-slate-900">&times;</a>
                             </span>
                         @endif
-                        <a href="{{ route('shop.index') }}" class="text-xs font-bold text-slate-400 hover:text-pink-600 transition-colors">Clear all</a>
+                        <a href="{{ route('shop.index') }}" class="text-xs font-bold text-slate-400 hover:text-brand-600 transition-colors">Clear all</a>
                     @endif
                 </div>
 
@@ -120,16 +121,14 @@
             <div class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-slate-950 via-[#1a002e] to-slate-950 px-10 py-12 text-center">
                 
                 <div class="relative">
-                    <h2 class="text-3xl font-black text-white mb-3">Can't find what you need?</h2>
+                    <p class="pb-eyebrow mb-3 text-brand-400">Need Something Custom?</p>
+                    <h2 class="pb-display text-3xl text-white mb-3">Can't find what you need?</h2>
                     <p class="text-slate-400 max-w-lg mx-auto mb-8 leading-relaxed">Our custom print catalog has hundreds more options — business cards, flyers, banners, branded packaging and specialist services.</p>
                     <div class="flex flex-wrap justify-center gap-3">
-                        <a href="{{ route('products.index') }}"
-                           class="inline-flex items-center gap-2 bg-[#EC268F] hover:bg-pink-700 text-white text-sm font-black px-7 py-3.5 rounded-xl transition-colors">
+                        <a href="{{ route('products.index') }}" class="pb-cta-primary">
                             Browse Print Catalog
                         </a>
-                        <a href="{{ route('services.index') }}"
-                           class="inline-flex items-center gap-2 text-white text-sm font-black px-7 py-3.5 rounded-xl transition-colors"
-                           style="border: 1px solid rgba(255,255,255,0.25);">
+                        <a href="{{ route('services.index') }}" class="pb-cta border border-white/25 text-white hover:bg-white/10">
                             View Services
                         </a>
                     </div>

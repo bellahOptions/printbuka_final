@@ -9,8 +9,8 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
 @endphp
 
 {{-- ===== TOP INFO BAR ===== --}}
-<div class="hidden md:block bg-slate-950 text-slate-300 text-xs font-semibold">
-    <div class="mx-auto max-w-7xl px-6 py-2 flex items-center justify-between">
+<div class="hidden md:block bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-slate-300 text-xs font-semibold">
+    <div class="pb-container py-2 flex items-center justify-between">
         <div class="flex items-center gap-6">
             <a href="{{ route('services.index') }}" class="hover:text-white transition">Services</a>
             <a href="{{ route('orders.track') }}" class="hover:text-white transition">Track Order</a>
@@ -52,22 +52,22 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
                         {{-- Products dropdown --}}
                         <li>
                             <details class="group">
-                                <summary class="rounded-lg hover:text-pink-600 hover:bg-pink-50 cursor-pointer">
+                                <summary class="rounded-lg hover:text-brand-600 hover:bg-brand-50 cursor-pointer">
                                     All Products
                                     <svg class="w-3 h-3" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
                                 </summary>
                                 <ul class="bg-white rounded-2xl shadow-2xl shadow-slate-900/10 border border-slate-100 p-4 w-[680px] -left-24 z-50">
                                     <li class="list-none">
                                         <div class="grid grid-cols-[1fr_1.4fr] gap-5 p-2">
-                                            <div class="bg-base-200 rounded-xl p-5">
-                                                <p class="text-xs font-black uppercase tracking-wide text-pink-600 mb-2">Product Categories</p>
-                                                <h3 class="text-xl font-black text-slate-950 leading-snug mb-3">Print, brand and gift from one place.</h3>
+                                            <div class="rounded-xl bg-gradient-to-br from-brand-50 via-brand-50 to-white p-5 border border-brand-100">
+                                                <p class="pb-eyebrow mb-2">Product Categories</p>
+                                                <h3 class="pb-display text-2xl leading-snug mb-3">Print, brand and gift from one place.</h3>
                                                 <p class="text-xs text-slate-500 leading-relaxed mb-4">Business printing, packaging, event materials and branded gifts — all in one print shop.</p>
-                                                <a href="{{ route('categories.index') }}" class="btn btn-sm bg-pink-600 border-0 text-white hover:bg-pink-700 font-black">View Categories</a>
+                                                <a href="{{ route('categories.index') }}" class="pb-cta-primary h-9 px-4 text-xs">View Categories</a>
                                             </div>
                                             @php
                                                 $menuAccentClasses = [
-                                                    ['label' => 'text-pink-600', 'card' => 'hover:border-pink-300 hover:bg-pink-50'],
+                                                    ['label' => 'text-brand-600', 'card' => 'hover:border-brand-300 hover:bg-brand-50'],
                                                     ['label' => 'text-cyan-600', 'card' => 'hover:border-cyan-300 hover:bg-cyan-50'],
                                                     ['label' => 'text-emerald-600', 'card' => 'hover:border-emerald-300 hover:bg-emerald-50'],
                                                     ['label' => 'text-amber-600', 'card' => 'hover:border-amber-300 hover:bg-amber-50'],
@@ -87,8 +87,8 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
                                                         <p class="text-xs text-slate-500 mt-1">{{ \Illuminate\Support\Str::limit($categorySummary, 56) }}</p>
                                                     </a>
                                                 @empty
-                                                    <a href="{{ route('categories.index') }}" class="block rounded-xl border border-slate-200 p-4 hover:border-pink-300 hover:bg-pink-50 transition col-span-2">
-                                                        <p class="text-xs font-black text-pink-600 uppercase mb-1">Categories</p>
+                                                    <a href="{{ route('categories.index') }}" class="block rounded-xl border border-slate-200 p-4 hover:border-brand-300 hover:bg-brand-50 transition col-span-2">
+                                                        <p class="text-xs font-black text-brand-600 uppercase mb-1">Categories</p>
                                                         <p class="font-black text-slate-950 text-sm">Browse all categories</p>
                                                         <p class="text-xs text-slate-500 mt-1">Explore currently available products by category.</p>
                                                     </a>
@@ -100,15 +100,15 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
                                         @if(($shopNavProducts ?? collect())->isNotEmpty())
                                             <div class="border-t border-slate-100 mt-2 pt-4 px-2 pb-1">
                                                 <div class="flex items-center justify-between mb-3">
-                                                    <p class="text-xs font-black uppercase tracking-wide text-pink-600 flex items-center gap-1">
+                                                    <p class="text-xs font-black uppercase tracking-wide text-brand-600 flex items-center gap-1">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                                                         Shop — Buy Now
                                                     </p>
-                                                    <a href="{{ route('shop.index') }}" class="text-xs font-black text-slate-500 hover:text-pink-600 transition">View all →</a>
+                                                    <a href="{{ route('shop.index') }}" class="text-xs font-black text-slate-500 hover:text-brand-600 transition">View all →</a>
                                                 </div>
                                                 <div class="grid grid-cols-3 gap-3">
                                                     @foreach(($shopNavProducts ?? collect())->take(3) as $shopItem)
-                                                        <a href="{{ route('shop.show', $shopItem) }}" class="flex items-center gap-2 rounded-xl border border-slate-200 p-2 hover:border-pink-300 hover:bg-pink-50 transition group">
+                                                        <a href="{{ route('shop.show', $shopItem) }}" class="flex items-center gap-2 rounded-xl border border-slate-200 p-2 hover:border-brand-300 hover:bg-brand-50 transition group">
                                                             @if($shopItem->featuredImageUrl())
                                                                 <img src="{{ $shopItem->featuredImageUrl() }}" alt="{{ $shopItem->name }}"
                                                                      class="w-10 h-10 rounded-lg object-cover shrink-0 border border-slate-100"
@@ -119,8 +119,8 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
                                                                 </div>
                                                             @endif
                                                             <div class="min-w-0">
-                                                                <p class="text-xs font-black text-slate-900 truncate group-hover:text-pink-700">{{ $shopItem->name }}</p>
-                                                                <p class="text-xs font-bold text-pink-600">NGN {{ number_format($shopItem->currentPrice(), 0) }}</p>
+                                                                <p class="text-xs font-black text-slate-900 truncate group-hover:text-brand-700">{{ $shopItem->name }}</p>
+                                                                <p class="text-xs font-bold text-brand-600">NGN {{ number_format($shopItem->currentPrice(), 0) }}</p>
                                                             </div>
                                                         </a>
                                                     @endforeach
@@ -133,24 +133,24 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
                         </li>
 
                         <li>
-                            <a href="{{ route('shop.index') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50 flex items-center gap-1">
+                            <a href="{{ route('shop.index') }}" class="rounded-lg hover:text-brand-600 hover:bg-brand-50 flex items-center gap-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                                 Shop
                             </a>
                         </li>
-                        <li><a href="{{ route('services.index') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50">Services</a></li>
-                        <li><a href="{{ route('partners.create') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50">Become a Partner</a></li>
-                        <li><a href="{{ route('blog') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50">Blog</a></li>
+                        <li><a href="{{ route('services.index') }}" class="rounded-lg hover:text-brand-600 hover:bg-brand-50">Services</a></li>
+                        <li><a href="{{ route('partners.create') }}" class="rounded-lg hover:text-brand-600 hover:bg-brand-50">Become a Partner</a></li>
+                        <li><a href="{{ route('blog') }}" class="rounded-lg hover:text-brand-600 hover:bg-brand-50">Blog</a></li>
                     @endif
 
                     @if ($isCustomer)
-                        <li><a href="{{ route('user.invoices.index') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50">Invoices & Receipts</a></li>
-                        <li><a href="{{ route('support.index') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50">Support</a></li>
+                        <li><a href="{{ route('user.invoices.index') }}" class="rounded-lg hover:text-brand-600 hover:bg-brand-50">Invoices & Receipts</a></li>
+                        <li><a href="{{ route('support.index') }}" class="rounded-lg hover:text-brand-600 hover:bg-brand-50">Support</a></li>
                     @endif
 
                     @auth
                         @if (! $isCustomer)
-                            <li><a href="{{ route('admin.dashboard') }}" class="rounded-lg hover:text-pink-600 hover:bg-pink-50">Admin Dashboard</a></li>
+                            <li><a href="{{ route('admin.dashboard') }}" class="rounded-lg hover:text-brand-600 hover:bg-brand-50">Admin Dashboard</a></li>
                         @endif
                     @endauth
                 </ul>
@@ -162,10 +162,10 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
                 <div class="hidden lg:flex dropdown dropdown-end">
                     <button tabindex="0" class="btn btn-sm btn-ghost border border-slate-200 bg-slate-50 hover:bg-white text-slate-500 hover:text-slate-800 font-bold gap-2 px-4">
                         Search products
-                        <kbd class="kbd kbd-xs text-pink-600 bg-pink-50 border-pink-200">/</kbd>
+                        <kbd class="kbd kbd-xs text-brand-600 bg-brand-50 border-brand-200">/</kbd>
                     </button>
                     <div tabindex="0" class="dropdown-content z-50 mt-2 w-[400px] bg-white rounded-2xl shadow-2xl shadow-slate-900/10 border border-slate-100 p-4">
-                        <p class="text-xs font-black uppercase tracking-wide text-pink-600 mb-3">Quick Search</p>
+                        <p class="text-xs font-black uppercase tracking-wide text-brand-600 mb-3">Quick Search</p>
                         <livewire:product.search variant="nav" />
                     </div>
                 </div>
@@ -175,7 +175,7 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
                     
                     {{-- User Dropdown Menu --}}
                     <div class="dropdown dropdown-end">
-                        <label tabindex="0" class="btn btn-ghost btn-sm gap-2 font-bold text-slate-700 hover:text-pink-600">
+                        <label tabindex="0" class="btn btn-ghost btn-sm gap-2 font-bold text-slate-700 hover:text-brand-600">
                             <div class="avatar">
                                 <div class="w-7 rounded-full">
                                     <img src="{{ $profileImg }}" alt="{{ $username }}" 
@@ -198,7 +198,7 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
                             @if ($isCustomer)
                                 {{-- Edit Profile Link --}}
                                 <li>
-                                    <a href="{{ route('profile.edit') }}" class="gap-3 text-slate-700 hover:text-pink-600 hover:bg-pink-50">
+                                    <a href="{{ route('profile.edit') }}" class="gap-3 text-slate-700 hover:text-brand-600 hover:bg-brand-50">
                                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                         </svg>
@@ -208,7 +208,7 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
                                 
                                 {{-- Support/Tickets Link --}}
                                 <li>
-                                    <a href="{{ route('support.index') }}" class="gap-3 text-slate-700 hover:text-pink-600 hover:bg-pink-50">
+                                    <a href="{{ route('support.index') }}" class="gap-3 text-slate-700 hover:text-brand-600 hover:bg-brand-50">
                                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         </svg>
@@ -217,7 +217,7 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
                                 </li>
                             @else
                                 <li>
-                                    <a href="{{ route('admin.dashboard') }}" class="gap-3 text-slate-700 hover:text-pink-600 hover:bg-pink-50">
+                                    <a href="{{ route('admin.dashboard') }}" class="gap-3 text-slate-700 hover:text-brand-600 hover:bg-brand-50">
                                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                                         </svg>
@@ -244,8 +244,8 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
                         </ul>
                     </div>
                 @else
-                    <a href="{{ route('login') }}" class="btn btn-ghost btn-sm font-bold text-slate-700 hover:text-pink-600 hidden sm:inline-flex">Sign In</a>
-                    <a href="{{ route('register') }}" class="btn btn-sm bg-pink-600 border-0 text-white hover:bg-pink-700 font-black">Create Account</a>
+                    <a href="{{ route('login') }}" class="hidden h-11 items-center rounded-xl px-4 text-sm font-bold text-slate-700 transition hover:bg-slate-100 hover:text-brand-700 sm:inline-flex">Sign In</a>
+                    <a href="{{ route('register') }}" class="pb-cta-primary text-xs sm:text-sm">Create Account</a>
                 @endauth
             </div>
 
@@ -265,20 +265,20 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
 
         <ul class="menu menu-lg gap-1 p-0 font-bold text-slate-700">
             @if (! auth()->check() || $isCustomer)
-                <li><a href="{{ route('products.index') }}" class="hover:text-pink-600 hover:bg-pink-50">All Products</a></li>
-                <li><a href="{{ route('shop.index') }}" class="hover:text-pink-600 hover:bg-pink-50">Shop — Buy Now</a></li>
-                <li><a href="{{ route('categories.index') }}" class="hover:text-pink-600 hover:bg-pink-50">Categories</a></li>
-                <li><a href="{{ route('services.index') }}" class="hover:text-pink-600 hover:bg-pink-50">Services</a></li>
-                <li><a href="{{ route('orders.track') }}" class="hover:text-pink-600 hover:bg-pink-50">Track Order</a></li>
-                <li><a href="{{ route('partners.create') }}" class="hover:text-pink-600 hover:bg-pink-50">Become a Partner</a></li>
-                <li><a href="{{ route('blog') }}" class="hover:text-pink-600 hover:bg-pink-50">Blog</a></li>
+                <li><a href="{{ route('products.index') }}" class="hover:text-brand-600 hover:bg-brand-50">All Products</a></li>
+                <li><a href="{{ route('shop.index') }}" class="hover:text-brand-600 hover:bg-brand-50">Shop — Buy Now</a></li>
+                <li><a href="{{ route('categories.index') }}" class="hover:text-brand-600 hover:bg-brand-50">Categories</a></li>
+                <li><a href="{{ route('services.index') }}" class="hover:text-brand-600 hover:bg-brand-50">Services</a></li>
+                <li><a href="{{ route('orders.track') }}" class="hover:text-brand-600 hover:bg-brand-50">Track Order</a></li>
+                <li><a href="{{ route('partners.create') }}" class="hover:text-brand-600 hover:bg-brand-50">Become a Partner</a></li>
+                <li><a href="{{ route('blog') }}" class="hover:text-brand-600 hover:bg-brand-50">Blog</a></li>
                 @if ($isCustomer)
-                    <li><a href="{{ route('support.index') }}" class="hover:text-pink-600 hover:bg-pink-50">Support</a></li>
+                    <li><a href="{{ route('support.index') }}" class="hover:text-brand-600 hover:bg-brand-50">Support</a></li>
                 @endif
             @elseif (auth()->check())
-                <li><a href="{{ route('admin.dashboard') }}" class="hover:text-pink-600 hover:bg-pink-50">Admin Dashboard</a></li>
-                <li><a href="{{ route('admin.orders.index') }}" class="hover:text-pink-600 hover:bg-pink-50">Manage Jobs</a></li>
-                <li><a href="{{ route('admin.profile.edit') }}" class="hover:text-pink-600 hover:bg-pink-50">Profile</a></li>
+                <li><a href="{{ route('admin.dashboard') }}" class="hover:text-brand-600 hover:bg-brand-50">Admin Dashboard</a></li>
+                <li><a href="{{ route('admin.orders.index') }}" class="hover:text-brand-600 hover:bg-brand-50">Manage Jobs</a></li>
+                <li><a href="{{ route('admin.profile.edit') }}" class="hover:text-brand-600 hover:bg-brand-50">Profile</a></li>
             @endif
         </ul>
 
@@ -286,17 +286,17 @@ $isCustomer = auth()->check() && (auth()->user()->role ?? null) === 'customer';
 
         @auth
             @if ($isCustomer)
-                <a href="{{ route('profile.edit') }}" class="btn btn-outline btn-block font-black border-slate-200 hover:border-pink-400 hover:text-pink-700 mb-3">My Profile</a>
+                <a href="{{ route('profile.edit') }}" class="btn btn-outline btn-block font-black border-slate-200 hover:border-brand-400 hover:text-brand-700 mb-3">My Profile</a>
             @else
-                <a href="{{ route('admin.profile.edit') }}" class="btn btn-outline btn-block font-black border-slate-200 hover:border-pink-400 hover:text-pink-700 mb-3">Admin Profile</a>
+                <a href="{{ route('admin.profile.edit') }}" class="btn btn-outline btn-block font-black border-slate-200 hover:border-brand-400 hover:text-brand-700 mb-3">Admin Profile</a>
             @endif
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
-                <button type="submit" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black btn-block">Logout</button>
+                <button type="submit" class="btn bg-brand-600 border-0 text-white hover:bg-brand-700 font-black btn-block">Logout</button>
             </form>
         @else
-            <a href="{{ route('login') }}" class="btn btn-outline btn-block font-black border-slate-200 hover:border-pink-400 hover:text-pink-700 mb-3">Sign In</a>
-            <a href="{{ route('register') }}" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black btn-block">Create Account</a>
+            <a href="{{ route('login') }}" class="btn btn-outline btn-block font-black border-slate-200 hover:border-brand-400 hover:text-brand-700 mb-3">Sign In</a>
+            <a href="{{ route('register') }}" class="btn bg-brand-600 border-0 text-white hover:bg-brand-700 font-black btn-block">Create Account</a>
         @endauth
 
         <div class="mt-6 text-xs text-slate-400 space-y-1">

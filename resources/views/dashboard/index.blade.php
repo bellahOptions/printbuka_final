@@ -10,8 +10,8 @@
                 <div class="card-body p-6 sm:p-8">
                     <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <div class="badge badge-ghost bg-cyan-500/20 text-cyan-300 border-0 mb-3">Customer Dashboard</div>
-                            <h1 class="text-3xl font-bold lg:text-4xl">Welcome back, {{ auth()->user()->first_name }}!</h1>
+                            <p class="pb-eyebrow mb-3 text-cyan-300">Customer Dashboard</p>
+                            <h1 class="pb-display text-3xl lg:text-4xl text-white">Welcome back, {{ auth()->user()->first_name }}!</h1>
                             <p class="mt-2 max-w-2xl text-sm text-slate-300">Manage your Printbuka account, track orders, and access exclusive print deals from one dashboard.</p>
                         </div>
                             {{--
@@ -32,13 +32,13 @@
             <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {{-- Total Spent Card --}}
                 <div class="stat bg-white rounded-2xl shadow-md border border-slate-100 p-5 transition hover:shadow-lg">
-                    <div class="stat-figure text-pink-500">
+                    <div class="stat-figure text-brand-500">
                         <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
                     <div class="stat-title text-slate-500">Total Spent</div>
-                    <div class="stat-value text-2xl text-slate-900">â‚¦{{ number_format($totalSpent, 2) }}</div>
+                    <div class="pb-price stat-value text-2xl">₦{{ number_format($totalSpent, 2) }}</div>
                     <div class="stat-desc text-slate-400">Lifetime orders value</div>
                 </div>
 
@@ -86,12 +86,12 @@
                     <div class="card-body p-6">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <div>
-                                <div class="badge bg-pink-100 text-pink-700 border-0 mb-2">Order History</div>
+                                <div class="badge bg-brand-100 text-brand-700 border-0 mb-2">Order History</div>
                                 <h2 class="text-2xl font-bold text-slate-900">Recent Orders</h2>
                                 <p class="text-sm text-slate-500 mt-1">Track your latest print jobs</p>
                             </div>
-                            <a href="{{ route('products.index') }}" class="btn btn-primary bg-pink-600 hover:bg-pink-700 border-0 text-white shadow-md">
-                                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <a href="{{ route('products.index') }}" class="pb-cta-primary">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                 </svg>
                                 New Order
@@ -102,20 +102,20 @@
                             @forelse ($recentOrders as $order)
                                 <div class="flex sm:grid sm:grid-cols-1 sm:flex-col items-center justify-between p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition">
                                     <div class="flex items-center gap-4 sm:w-full">
-                                        <div class="h-12 w-12 rounded-lg bg-pink-100 flex items-center justify-center">
-                                            <svg class="h-6 w-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <div class="h-12 w-12 rounded-lg bg-brand-100 flex items-center justify-center">
+                                            <svg class="h-6 w-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                                             </svg>
                                         </div>
                                         <div>
                                             <h3 class="font-bold text-slate-900">
-                                                <a href="{{ route('orders.show', $order) }}" class="hover:text-pink-600 transition">
+                                                <a href="{{ route('orders.show', $order) }}" class="hover:text-brand-600 transition">
                                                     Order {{ $order->displayNumber() }}
                                                 </a>
                                             </h3>
                                             <p class="text-sm text-slate-500">
                                                 {{ $order->created_at ? $order->created_at->format('M d, Y') : 'Date not set' }} 
-                                                â€¢ {{ $order->quantity ?? 1 }} item(s)
+                                                • {{ $order->quantity ?? 1 }} item(s)
                                             </p>
                                             @if($order->product)
                                                 <p class="text-xs text-slate-400 mt-1">{{ $order->product->name ?? 'Product' }}</p>
@@ -123,7 +123,7 @@
                                         </div>
                                     </div>
                                     <div class="text-right">
-                                        <p class="font-bold text-slate-900">â‚¦{{ number_format($order->total_price ?? 0, 2) }}</p>
+                                        <p class="pb-price font-bold">₦{{ number_format($order->total_price ?? 0, 2) }}</p>
                                         <span class="badge badge-sm 
                                             @if($order->status === 'completed') badge-success 
                                             @elseif($order->status === 'processing') badge-warning 
@@ -141,14 +141,14 @@
                                         </svg>
                                     </div>
                                     <p class="text-slate-500">No orders yet</p>
-                                    <a href="{{ route('products.index') }}" class="btn btn-sm btn-outline border-pink-600 text-pink-600 hover:bg-pink-600 hover:text-white mt-3">Start Shopping</a>
+                                    <a href="{{ route('products.index') }}" class="pb-cta-outline mt-3">Start Shopping</a>
                                 </div>
                             @endforelse
                         </div>
 
                         @if($orders > 5)
                             <div class="mt-4 text-center">
-                                <a href="{{ route('orders.index') }}" class="link link-hover text-pink-600 font-semibold">View All Orders â†’</a>
+                                <a href="{{ route('orders.index') }}" class="link link-hover text-brand-600 font-semibold">View All Orders →</a>
                             </div>
                         @endif
                     </div>
@@ -167,14 +167,14 @@
                         </div>
                         
                         <div class="space-y-3">
-                            <a href="{{ route('profile.edit') }}" class="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-pink-300 hover:bg-pink-50 transition group">
-                                <span class="font-semibold text-slate-700 group-hover:text-pink-700">Edit Profile</span>
-                                <svg class="h-4 w-4 text-slate-400 group-hover:text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <a href="{{ route('profile.edit') }}" class="flex items-center justify-between p-3 rounded-xl border border-slate-200 hover:border-brand-300 hover:bg-brand-50 transition group">
+                                <span class="font-semibold text-slate-700 group-hover:text-brand-700">Edit Profile</span>
+                                <svg class="h-4 w-4 text-slate-400 group-hover:text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                 </svg>
                             </a>
                             
-                            <a href="{{ route('products.index') }}" class="flex items-center justify-between p-3 rounded-xl bg-pink-600 text-white hover:bg-pink-700 transition shadow-md">
+                            <a href="{{ route('products.index') }}" class="flex items-center justify-between p-3 rounded-xl bg-brand-600 text-white hover:bg-brand-700 transition shadow-md">
                                 <span class="font-semibold">Browse Full Catalog</span>
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -215,7 +215,7 @@
 
             {{-- Services Showcase --}}
             <div class="mt-8">
-                <div class="card bg-gradient-to-r from-pink-50 to-cyan-50 rounded-2xl shadow-sm border border-pink-100">
+                <div class="card bg-gradient-to-r from-brand-50 to-cyan-50 rounded-2xl shadow-sm border border-brand-100">
                     <div class="card-body p-6">
                         <div class="text-center mb-4">
                             <h3 class="text-lg font-bold text-slate-900">Our Printing Services</h3>
@@ -224,7 +224,7 @@
                         <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
                             <div class="text-center">
                                 <div class="h-10 w-10 mx-auto bg-white rounded-full flex items-center justify-center shadow-sm">
-                                    <svg class="h-5 w-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="h-5 w-5 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                     </svg>
                                 </div>

@@ -6,7 +6,7 @@
     <main class="bg-[#f4fbfb] px-4 py-16 text-slate-900 sm:px-6 lg:px-8">
         <section class="mx-auto max-w-6xl space-y-8">
             <div class="rounded-md bg-slate-950 p-6 text-white lg:p-8">
-                <h1 class="mt-3 text-4xl">Edit profile.</h1>
+                <h1 class="pb-display mt-3 text-4xl">Edit profile.</h1>
                 <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-300">
                     Update your profile details.
                 </p>
@@ -24,27 +24,27 @@
                     <div class="grid gap-5 sm:grid-cols-2">
                         <label class="text-sm font-black">First Name
                             <input name="first_name" value="{{ old('first_name', $user->first_name) }}" required class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
-                            @error('first_name') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
+                            @error('first_name') <p class="mt-2 text-xs font-semibold text-brand-700">{{ $message }}</p> @enderror
                         </label>
                         <label class="text-sm font-black">Last Name
                             <input name="last_name" value="{{ old('last_name', $user->last_name) }}" required class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
-                            @error('last_name') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
+                            @error('last_name') <p class="mt-2 text-xs font-semibold text-brand-700">{{ $message }}</p> @enderror
                         </label>
                         <label class="text-sm font-black">Phone
                             <input name="phone" value="{{ old('phone', $user->phone) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
-                            @error('phone') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
+                            @error('phone') <p class="mt-2 text-xs font-semibold text-brand-700">{{ $message }}</p> @enderror
                         </label>
                         <label class="text-sm font-black">Company Name
                             <input name="companyName" value="{{ old('companyName', $user->companyName) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
-                            @error('companyName') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
+                            @error('companyName') <p class="mt-2 text-xs font-semibold text-brand-700">{{ $message }}</p> @enderror
                         </label>
                         <label class="text-sm font-black">Address
                             <input name="address" value="{{ old('address', $user->address) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
-                            @error('address') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
+                            @error('address') <p class="mt-2 text-xs font-semibold text-brand-700">{{ $message }}</p> @enderror
                         </label>
                         <label class="text-sm font-black">Date of Birth
                             <input type="date" name="date_of_birth" value="{{ old('date_of_birth', $user->date_of_birth?->format('Y-m-d')) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
-                            @error('date_of_birth') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
+                            @error('date_of_birth') <p class="mt-2 text-xs font-semibold text-brand-700">{{ $message }}</p> @enderror
                         </label>
 
                         <label class="text-sm font-black sm:col-span-2">Registered Email
@@ -53,7 +53,7 @@
                     </div>
 
                     <div class="space-y-5 rounded-md border border-slate-200 bg-slate-50 p-5">
-                        <p class="text-sm font-black uppercase tracking-wide text-pink-700">Profile Image</p>
+                        <p class="text-sm font-black uppercase tracking-wide text-brand-700">Profile Image</p>
                         @if ($user->getProfilePhotoUrlAttribute())
                             <img src=" {{ $user->getProfilePhotoUrlAttribute() }}" alt="{{ $user->displayName() }}" class="h-28 w-28 rounded-full border border-slate-200 object-cover">
                         @else
@@ -72,11 +72,11 @@
                                     :initial-path="old('photo_upload_path')"
                                 />
                             </div>
-                            @error('photo') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
-                            @error('photo_upload_path') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
+                            @error('photo') <p class="mt-2 text-xs font-semibold text-brand-700">{{ $message }}</p> @enderror
+                            @error('photo_upload_path') <p class="mt-2 text-xs font-semibold text-brand-700">{{ $message }}</p> @enderror
                         </div>
                         <label class="flex items-center gap-3 text-sm font-bold text-slate-700">
-                            <input type="checkbox" name="remove_photo" value="1" class="h-5 w-5 rounded border-slate-300 text-pink-600">
+                            <input type="checkbox" name="remove_photo" value="1" class="h-5 w-5 rounded border-slate-300 text-brand-600">
                             Remove current photo
                         </label>
                     </div>
@@ -87,11 +87,11 @@
                     <div class="mt-4 grid gap-5 sm:grid-cols-3">
                         <label class="text-sm font-black">Current Password
                             <input type="password" name="current_password" autocomplete="current-password" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
-                            @error('current_password') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
+                            @error('current_password') <p class="mt-2 text-xs font-semibold text-brand-700">{{ $message }}</p> @enderror
                         </label>
                         <label class="text-sm font-black">New Password
                             <input type="password" name="password" autocomplete="new-password" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
-                            @error('password') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
+                            @error('password') <p class="mt-2 text-xs font-semibold text-brand-700">{{ $message }}</p> @enderror
                         </label>
                         <label class="text-sm font-black">Confirm Password
                             <input type="password" name="password_confirmation" autocomplete="new-password" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
@@ -99,7 +99,7 @@
                     </div>
                 </div>
 
-                <button class="mt-6 rounded-md bg-pink-600 px-5 py-3 text-sm font-black text-white transition hover:bg-pink-700">Save Profile</button>
+                <button class="mt-6 rounded-md bg-brand-600 px-5 py-3 text-sm font-black text-white transition hover:bg-brand-700">Save Profile</button>
             </form>
 
             <section class="rounded-md border border-slate-200 bg-white p-6 shadow-sm">
@@ -119,30 +119,30 @@
                         @csrf
                         <label class="text-sm font-black">Label
                             <input name="label" value="{{ old('label') }}" placeholder="Home, Office, Warehouse" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
-                            @error('label') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
+                            @error('label') <p class="mt-2 text-xs font-semibold text-brand-700">{{ $message }}</p> @enderror
                         </label>
                         <label class="text-sm font-black">Recipient Name
                             <input name="recipient_name" value="{{ old('recipient_name', $user->displayName()) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
-                            @error('recipient_name') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
+                            @error('recipient_name') <p class="mt-2 text-xs font-semibold text-brand-700">{{ $message }}</p> @enderror
                         </label>
                         <label class="text-sm font-black">Phone
                             <input name="phone" value="{{ old('phone', $user->phone) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
-                            @error('phone') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
+                            @error('phone') <p class="mt-2 text-xs font-semibold text-brand-700">{{ $message }}</p> @enderror
                         </label>
                         <label class="text-sm font-black">City
                             <input name="city" value="{{ old('city') }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
-                            @error('city') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
+                            @error('city') <p class="mt-2 text-xs font-semibold text-brand-700">{{ $message }}</p> @enderror
                         </label>
                         <label class="text-sm font-black sm:col-span-2">Street Address
                             <input name="street_address" value="{{ old('street_address') }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
-                            @error('street_address') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
+                            @error('street_address') <p class="mt-2 text-xs font-semibold text-brand-700">{{ $message }}</p> @enderror
                         </label>
                         <label class="text-sm font-black sm:col-span-2">Landmark (Optional)
                             <input name="landmark" value="{{ old('landmark') }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
-                            @error('landmark') <p class="mt-2 text-xs font-semibold text-pink-700">{{ $message }}</p> @enderror
+                            @error('landmark') <p class="mt-2 text-xs font-semibold text-brand-700">{{ $message }}</p> @enderror
                         </label>
                         <label class="flex items-center gap-3 text-sm font-bold text-slate-700 sm:col-span-2">
-                            <input type="checkbox" name="is_default" value="1" @checked(old('is_default')) class="h-5 w-5 rounded border-slate-300 text-pink-600">
+                            <input type="checkbox" name="is_default" value="1" @checked(old('is_default')) class="h-5 w-5 rounded border-slate-300 text-brand-600">
                             Set as default delivery address
                         </label>
                         <div class="sm:col-span-2">
@@ -186,11 +186,11 @@
                                     <input name="landmark" value="{{ old('landmark', $deliveryAddress->landmark) }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 font-semibold">
                                 </label>
                                 <label class="flex items-center gap-3 text-sm font-bold text-slate-700 sm:col-span-2">
-                                    <input type="checkbox" name="is_default" value="1" @checked(old('is_default', $deliveryAddress->is_default)) class="h-5 w-5 rounded border-slate-300 text-pink-600">
+                                    <input type="checkbox" name="is_default" value="1" @checked(old('is_default', $deliveryAddress->is_default)) class="h-5 w-5 rounded border-slate-300 text-brand-600">
                                     Set as default delivery address
                                 </label>
                                 <div class="sm:col-span-2">
-                                    <button type="submit" class="rounded-md bg-pink-600 px-4 py-2 text-sm font-black text-white transition hover:bg-pink-700">Save Address</button>
+                                    <button type="submit" class="rounded-md bg-brand-600 px-4 py-2 text-sm font-black text-white transition hover:bg-brand-700">Save Address</button>
                                 </div>
                             </form>
 
@@ -205,7 +205,7 @@
                                 <form action="{{ route('profile.addresses.destroy', $deliveryAddress) }}" method="POST" onsubmit="return confirm('Delete this delivery address?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="rounded-md border border-pink-200 bg-pink-50 px-4 py-2 text-sm font-black text-pink-700 transition hover:bg-pink-100">Delete</button>
+                                    <button type="submit" class="rounded-md border border-brand-200 bg-brand-50 px-4 py-2 text-sm font-black text-brand-700 transition hover:bg-brand-100">Delete</button>
                                 </form>
                             </div>
                         </article>

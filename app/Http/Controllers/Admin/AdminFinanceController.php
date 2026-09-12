@@ -8,6 +8,7 @@ use App\Models\FinanceEntry;
 use App\Models\Order;
 use App\Support\IdempotencyGuard;
 use App\Support\PdfTemplateOverrides;
+use App\Support\RolePushNotifier;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -273,11 +274,19 @@ class AdminFinanceController extends Controller
         $validated = $this->validatedManualExpense($request);
         $validated['amount'] = round((float) $validated['amount'], 2);
 
-        FinanceEntry::query()->create([
+        $entry = FinanceEntry::query()->create([
             ...$validated,
             'idempotency_key' => $idempotencyKey,
             'user_id' => $request->user()->id,
         ]);
+
+        RolePushNotifier::send(
+            permission: 'finance.view',
+            title: ucfirst($entry->type).' Entry Added',
+            body: $entry->category.' — ₦'.number_format((float) $entry->amount, 2).' recorded by '.$request->user()->displayName().'.',
+            type: 'finance_entry_created',
+            data: ['category' => 'finance', 'severity' => 'minor', 'entry_id' => $entry->id, 'action_url' => route('admin.finance.show', $entry)],
+        );
 
         if ($request->input('type') === 'income') {
             return redirect()->route('admin.finance.index')
@@ -327,6 +336,14 @@ class AdminFinanceController extends Controller
             'refunded_by_id' => $request->user()->id,
             'refunded_at' => now(),
         ]);
+
+        RolePushNotifier::send(
+            permission: 'finance.view',
+            title: 'Income Entry Refunded',
+            body: $finance->category.' — ₦'.number_format((float) $finance->amount, 2).' marked refunded by '.$request->user()->displayName().'.',
+            type: 'finance_entry_refunded',
+            data: ['category' => 'finance', 'severity' => 'major', 'entry_id' => $finance->id, 'action_url' => route('admin.finance.show', $finance)],
+        );
 
         return back()->with('status', 'Income entry marked as refunded — excluded from income totals.');
     }

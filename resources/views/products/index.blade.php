@@ -9,7 +9,7 @@
     $placeholder = asset('img/product-placeholder.svg');
 
     $colorMap = [
-        'pink' => ['badge' => 'bg-pink-100 text-pink-700', 'hover' => 'hover:border-pink-300 hover:bg-pink-50'],
+        'pink' => ['badge' => 'bg-brand-100 text-brand-700', 'hover' => 'hover:border-brand-300 hover:bg-brand-50'],
         'cyan' => ['badge' => 'bg-cyan-100 text-cyan-700', 'hover' => 'hover:border-cyan-300 hover:bg-cyan-50'],
         'emerald' => ['badge' => 'bg-emerald-100 text-emerald-700', 'hover' => 'hover:border-emerald-300 hover:bg-emerald-50'],
         'amber' => ['badge' => 'bg-amber-100 text-amber-700', 'hover' => 'hover:border-amber-300 hover:bg-amber-50'],
@@ -19,7 +19,7 @@
 @endphp
 
 <main class="bg-base-100 text-base-content">
-    {{-- Compact dark header â€” gets users to the catalog faster --}}
+    {{-- Compact dark header — gets users to the catalog faster --}}
     <section class="bg-slate-950 py-10">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <nav class="flex items-center gap-1.5 text-xs font-bold text-slate-500 mb-5">
@@ -29,14 +29,15 @@
             </nav>
             <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
                 <div>
-                    <h1 class="text-3xl sm:text-4xl font-black text-white leading-tight">Browse All Products</h1>
+                    <p class="pb-eyebrow mb-2 text-brand-400">Full Catalog</p>
+                    <h1 class="pb-display text-3xl sm:text-4xl text-white leading-tight">Browse All Products</h1>
                     <p class="text-slate-400 text-sm mt-2">
-                        <span class="font-black text-pink-400">{{ $activeProductCount }}</span> products across every category â€” filtered, sorted and ready to order.
+                        <span class="font-black text-brand-400">{{ $activeProductCount }}</span> products across every category — filtered, sorted and ready to order.
                     </p>
                 </div>
                 <div class="flex flex-wrap gap-2 shrink-0">
-                    <a href="#categories" class="btn btn-sm btn-outline text-white border-white/25 hover:bg-white hover:text-slate-950 hover:border-white font-black">Categories</a>
-                    <a href="{{ route('shop.index') }}" class="btn btn-sm bg-pink-600 border-0 text-white hover:bg-pink-700 font-black">Shop Now</a>
+                    <a href="#categories" class="pb-cta border border-white/25 text-white hover:bg-white hover:text-slate-950 hover:border-white">Categories</a>
+                    <a href="{{ route('shop.index') }}" class="pb-cta-primary">Shop Now</a>
                 </div>
             </div>
             <livewire:product.search />
@@ -47,20 +48,20 @@
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
             <div class="mb-6">
-                <div class="badge badge-outline border-pink-300 text-pink-700 font-black mb-3">Full Catalog</div>
-                <h2 class="text-3xl font-black text-slate-950">All products with smart filters and infinite loading.</h2>
+                <p class="pb-eyebrow mb-2">Full Catalog</p>
+                <h2 class="pb-display text-3xl">All products with smart filters and infinite loading.</h2>
             </div>
 
             <form method="GET" action="{{ route('products.index') }}" class="mb-8 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
                 <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-                    <label class="form-control">
-                        <span class="label-text text-xs font-bold uppercase text-slate-500">Search</span>
-                        <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" placeholder="Product name or keyword" class="input input-bordered border-slate-200 w-full" />
+                    <label class="pb-field">
+                        <span class="pb-label">Search</span>
+                        <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" placeholder="Product name or keyword" class="pb-input" />
                     </label>
 
-                    <label class="form-control">
-                        <span class="label-text text-xs font-bold uppercase text-slate-500">Category</span>
-                        <select name="category" class="select select-bordered border-slate-200 w-full">
+                    <label class="pb-field">
+                        <span class="pb-label">Category</span>
+                        <select name="category" class="pb-select">
                             <option value="">All Categories</option>
                             @foreach($filterCategories as $filterCategory)
                                 <option value="{{ $filterCategory->slug }}" @selected(($filters['category'] ?? '') === $filterCategory->slug)>
@@ -70,9 +71,9 @@
                         </select>
                     </label>
 
-                    <label class="form-control">
-                        <span class="label-text text-xs font-bold uppercase text-slate-500">Sort By</span>
-                        <select name="sort" class="select select-bordered border-slate-200 w-full">
+                    <label class="pb-field">
+                        <span class="pb-label">Sort By</span>
+                        <select name="sort" class="pb-select">
                             <option value="name_asc" @selected(($filters['sort'] ?? '') === 'name_asc')>Name (A-Z)</option>
                             <option value="name_desc" @selected(($filters['sort'] ?? '') === 'name_desc')>Name (Z-A)</option>
                             <option value="price_low_high" @selected(($filters['sort'] ?? '') === 'price_low_high')>Price (Low to High)</option>
@@ -82,20 +83,20 @@
                         </select>
                     </label>
 
-                    <label class="form-control">
-                        <span class="label-text text-xs font-bold uppercase text-slate-500">Min Price (NGN)</span>
-                        <input type="number" min="0" step="1" name="min_price" value="{{ $filters['min_price'] ?? '' }}" class="input input-bordered border-slate-200 w-full" />
+                    <label class="pb-field">
+                        <span class="pb-label">Min Price (NGN)</span>
+                        <input type="number" min="0" step="1" name="min_price" value="{{ $filters['min_price'] ?? '' }}" class="pb-input" />
                     </label>
 
-                    <label class="form-control">
-                        <span class="label-text text-xs font-bold uppercase text-slate-500">Max Price (NGN)</span>
-                        <input type="number" min="0" step="1" name="max_price" value="{{ $filters['max_price'] ?? '' }}" class="input input-bordered border-slate-200 w-full" />
+                    <label class="pb-field">
+                        <span class="pb-label">Max Price (NGN)</span>
+                        <input type="number" min="0" step="1" name="max_price" value="{{ $filters['max_price'] ?? '' }}" class="pb-input" />
                     </label>
                 </div>
 
                 <div class="mt-4 flex flex-wrap gap-3">
-                    <button type="submit" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black">Apply Filters</button>
-                    <a href="{{ route('products.index') }}" class="btn btn-outline border-slate-300 hover:border-slate-400 font-black">Reset</a>
+                    <button type="submit" class="pb-cta-primary h-10 px-5 text-sm">Apply Filters</button>
+                    <a href="{{ route('products.index') }}" class="pb-cta-outline h-10 px-5 text-sm">Reset</a>
                 </div>
             </form>
 
@@ -107,11 +108,11 @@
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
                 <div>
-                    <div class="badge badge-outline border-pink-300 text-pink-700 font-black mb-3">Categories</div>
-                    <h2 class="text-4xl font-black text-slate-950">Quick category browse.</h2>
+                    <p class="pb-eyebrow mb-2">Categories</p>
+                    <h2 class="pb-display text-3xl sm:text-4xl">Quick category browse.</h2>
                     <p class="text-slate-500 mt-2 max-w-xl">Swipe across categories, then explore the full category directory.</p>
                 </div>
-                <a href="{{ route('categories.index') }}" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black shrink-0">Explore Categories</a>
+                <a href="{{ route('categories.index') }}" class="pb-cta-primary shrink-0">Explore Categories</a>
             </div>
 
             @if($categories->isNotEmpty())
@@ -153,7 +154,7 @@
         </div>
     </section>
 
-    {{-- ===== SHOP PRODUCTS â€” instant buy strip ===== --}}
+    {{-- ===== SHOP PRODUCTS — instant buy strip ===== --}}
     @if(($shopProducts ?? collect())->isNotEmpty())
     <section class="py-16 border-t border-slate-100 bg-white">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -162,12 +163,12 @@
                 <div>
                     <div class="badge badge-outline text-emerald-700 border-emerald-400 font-black mb-3 inline-flex items-center gap-1">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                        Shop â€” Instant Checkout
+                        Shop — Instant Checkout
                     </div>
-                    <h2 class="text-3xl font-black text-slate-950">Fixed-price items. <span class="text-pink-600">Buy now, no quote needed.</span></h2>
-                    <p class="text-slate-500 mt-2 max-w-xl">These products have a set price â€” choose your options and pay securely via Paystack.</p>
+                    <h2 class="pb-display text-3xl">Fixed-price items. <span class="pb-display-italic text-3xl">Buy now, no quote needed.</span></h2>
+                    <p class="text-slate-500 mt-2 max-w-xl">These products have a set price — choose your options and pay securely via Paystack.</p>
                 </div>
-                <a href="{{ route('shop.index') }}" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black shrink-0">View All Shop Products</a>
+                <a href="{{ route('shop.index') }}" class="pb-cta-primary shrink-0">View All Shop Products</a>
             </div>
 
             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -184,17 +185,17 @@
                         <div class="p-4 flex flex-col justify-between flex-1 min-w-0">
                             <div>
                                 <h3 class="font-black text-slate-950 text-sm leading-snug">
-                                    <a href="{{ route('shop.show', $shopItem) }}" class="hover:text-pink-600 transition">{{ $shopItem->name }}</a>
+                                    <a href="{{ route('shop.show', $shopItem) }}" class="hover:text-brand-600 transition">{{ $shopItem->name }}</a>
                                 </h3>
                                 <div class="flex items-center gap-2 mt-2">
-                                    <span class="text-base font-black text-pink-600">NGN {{ number_format($shopItem->currentPrice(), 0) }}</span>
+                                    <span class="text-base font-black text-brand-600">NGN {{ number_format($shopItem->currentPrice(), 0) }}</span>
                                     @if($shopItem->isOnSale())
                                         <span class="text-xs font-bold text-slate-400 line-through">{{ number_format((float)$shopItem->price, 0) }}</span>
                                     @endif
                                 </div>
                             </div>
                             <a href="{{ route('shop.show', $shopItem) }}"
-                               class="btn btn-xs bg-pink-600 border-0 text-white hover:bg-pink-700 font-black mt-3 w-fit">
+                               class="pb-cta-primary h-8 px-3 text-xs mt-3 w-fit">
                                 Buy Now
                             </a>
                         </div>
@@ -206,15 +207,15 @@
     @endif
 
     <section class="bg-slate-950 py-14">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="pb-container">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
                 <div>
-                    <p class="text-white font-black text-2xl">Can't find what you're looking for?</p>
+                    <p class="pb-display text-2xl text-white">Can't find what you're looking for?</p>
                     <p class="text-slate-400 text-sm mt-1">Our team handles custom jobs. Tell us what you need and we will help you out.</p>
                 </div>
                 <div class="flex flex-wrap gap-3 shrink-0">
-                    <a href="{{ route('services.index') }}" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black">View Services</a>
-                    <a href="{{ route('services.index') }}" class="btn btn-outline text-white border-white/25 hover:bg-white hover:text-slate-950 font-black">View Services</a>
+                    <a href="{{ route('services.index') }}" class="pb-cta-primary">View Services</a>
+                    <a href="{{ route('support.create') }}" class="pb-cta border border-white/25 text-white hover:bg-white hover:text-slate-950">Talk to Us</a>
                 </div>
             </div>
         </div>

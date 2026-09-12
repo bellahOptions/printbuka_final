@@ -5,7 +5,7 @@
 <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
 
     <nav class="flex items-center gap-1.5 text-xs font-bold text-slate-400 mb-8">
-        <a href="{{ route('shop.cart') }}" class="hover:text-pink-600">Cart</a>
+        <a href="{{ route('shop.cart') }}" class="hover:text-brand-600">Cart</a>
         <span>/</span>
         <span class="text-slate-700">Checkout</span>
     </nav>
@@ -31,25 +31,25 @@
             <div class="card bg-white border border-slate-200 shadow-sm">
                 <div class="card-body p-6">
                     <h2 class="font-black text-slate-950 text-lg mb-5 flex items-center gap-2">
-                        <x-heroicon-o-user class="w-5 h-5 text-pink-600" /> Contact Information
+                        <x-heroicon-o-user class="w-5 h-5 text-brand-600" /> Contact Information
                     </h2>
                     <div class="grid sm:grid-cols-2 gap-4">
-                        <label class="form-control">
-                            <span class="label-text font-bold text-xs uppercase text-slate-500">Full Name *</span>
+                        <label class="pb-field">
+                            <span class="pb-label">Full Name *</span>
                             <input type="text" name="customer_name" value="{{ old('customer_name', $user?->name) }}"
-                                   class="input input-bordered border-slate-200 @error('customer_name') input-error @enderror"
+                                   class="pb-input @error('customer_name') pb-input-error @enderror"
                                    placeholder="Your full name" required />
                         </label>
-                        <label class="form-control">
-                            <span class="label-text font-bold text-xs uppercase text-slate-500">Email *</span>
+                        <label class="pb-field">
+                            <span class="pb-label">Email *</span>
                             <input type="email" name="customer_email" value="{{ old('customer_email', $user?->email) }}"
-                                   class="input input-bordered border-slate-200 @error('customer_email') input-error @enderror"
+                                   class="pb-input @error('customer_email') pb-input-error @enderror"
                                    placeholder="your@email.com" required />
                         </label>
-                        <label class="form-control sm:col-span-2">
-                            <span class="label-text font-bold text-xs uppercase text-slate-500">Phone Number</span>
+                        <label class="pb-field sm:col-span-2">
+                            <span class="pb-label">Phone Number</span>
                             <input type="tel" name="customer_phone" value="{{ old('customer_phone', $user?->phone) }}"
-                                   class="input input-bordered border-slate-200"
+                                   class="pb-input"
                                    placeholder="+234 800 000 0000" />
                         </label>
                     </div>
@@ -60,37 +60,37 @@
             <div class="card bg-white border border-slate-200 shadow-sm">
                 <div class="card-body p-6">
                     <h2 class="font-black text-slate-950 text-lg mb-5 flex items-center gap-2">
-                        <x-heroicon-o-truck class="w-5 h-5 text-pink-600" /> Delivery Information
+                        <x-heroicon-o-truck class="w-5 h-5 text-brand-600" /> Delivery Information
                     </h2>
                     <div class="grid sm:grid-cols-2 gap-4">
-                        <label class="form-control sm:col-span-2">
-                            <span class="label-text font-bold text-xs uppercase text-slate-500">Recipient Name *</span>
+                        <label class="pb-field sm:col-span-2">
+                            <span class="pb-label">Recipient Name *</span>
                             <input type="text" name="shipping_name" value="{{ old('shipping_name', $user?->name) }}"
-                                   class="input input-bordered border-slate-200 @error('shipping_name') input-error @enderror"
+                                   class="pb-input @error('shipping_name') pb-input-error @enderror"
                                    placeholder="Name on delivery" required />
                         </label>
-                        <label class="form-control sm:col-span-2">
-                            <span class="label-text font-bold text-xs uppercase text-slate-500">Street Address *</span>
+                        <label class="pb-field sm:col-span-2">
+                            <span class="pb-label">Street Address *</span>
                             <input type="text" name="shipping_address" value="{{ old('shipping_address') }}"
-                                   class="input input-bordered border-slate-200 @error('shipping_address') input-error @enderror"
+                                   class="pb-input @error('shipping_address') pb-input-error @enderror"
                                    placeholder="House number, street name" required />
                         </label>
-                        <label class="form-control">
-                            <span class="label-text font-bold text-xs uppercase text-slate-500">City *</span>
+                        <label class="pb-field">
+                            <span class="pb-label">City *</span>
                             <input type="text" name="shipping_city" value="{{ old('shipping_city') }}"
-                                   class="input input-bordered border-slate-200 @error('shipping_city') input-error @enderror"
+                                   class="pb-input @error('shipping_city') pb-input-error @enderror"
                                    placeholder="Lagos" required />
                         </label>
-                        <label class="form-control">
-                            <span class="label-text font-bold text-xs uppercase text-slate-500">State *</span>
+                        <label class="pb-field">
+                            <span class="pb-label">State *</span>
                             <input type="text" name="shipping_state" value="{{ old('shipping_state') }}"
-                                   class="input input-bordered border-slate-200 @error('shipping_state') input-error @enderror"
+                                   class="pb-input @error('shipping_state') pb-input-error @enderror"
                                    placeholder="Lagos State" required />
                         </label>
-                        <label class="form-control sm:col-span-2">
-                            <span class="label-text font-bold text-xs uppercase text-slate-500">Delivery Notes</span>
+                        <label class="pb-field sm:col-span-2">
+                            <span class="pb-label">Delivery Notes</span>
                             <textarea name="shipping_notes" rows="2"
-                                      class="textarea textarea-bordered border-slate-200"
+                                      class="pb-textarea"
                                       placeholder="Landmarks, access instructions, etc.">{{ old('shipping_notes') }}</textarea>
                         </label>
                     </div>
@@ -101,7 +101,7 @@
             <div class="card bg-white border border-slate-200 shadow-sm">
                 <div class="card-body p-6">
                     <h2 class="font-black text-slate-950 text-lg mb-4 flex items-center gap-2">
-                        <x-heroicon-o-credit-card class="w-5 h-5 text-pink-600" /> Payment
+                        <x-heroicon-o-credit-card class="w-5 h-5 text-brand-600" /> Payment
                     </h2>
                     <div class="flex items-center gap-3 rounded-xl bg-slate-50 border border-slate-200 p-4">
                         <x-heroicon-o-lock-closed class="w-5 h-5 text-emerald-600 shrink-0" />
@@ -113,7 +113,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black btn-lg w-full">
+            <button type="submit" class="pb-cta-primary w-full h-12 text-base">
                 <x-heroicon-o-lock-closed class="w-5 h-5" />
                 Pay NGN {{ number_format($subtotal, 0) }} with Paystack
             </button>
@@ -142,8 +142,8 @@
                                     <p class="text-xs text-slate-400 font-bold">{{ $opt->group?->name }}: {{ $opt->name }}</p>
                                 @endforeach
                                 <div class="flex justify-between mt-1">
-                                    <span class="text-xs text-slate-400">Ã— {{ $item['quantity'] }}</span>
-                                    <span class="text-sm font-black text-slate-900">NGN {{ number_format($item['line_total'], 0) }}</span>
+                                    <span class="text-xs text-slate-400">× {{ $item['quantity'] }}</span>
+                                    <span class="pb-price font-black text-sm text-slate-900">NGN {{ number_format($item['line_total'], 0) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -161,11 +161,11 @@
                     </div>
                     <div class="flex justify-between pt-2 border-t border-slate-200">
                         <span class="font-black text-slate-900">Total</span>
-                        <span class="text-xl font-black text-pink-600">NGN {{ number_format($subtotal, 0) }}</span>
+                        <span class="pb-price text-xl text-brand-600">NGN {{ number_format($subtotal, 0) }}</span>
                     </div>
                 </div>
 
-                <a href="{{ route('shop.cart') }}" class="btn btn-ghost font-black text-slate-500 w-full mt-3 btn-sm">â† Edit Cart</a>
+                <a href="{{ route('shop.cart') }}" class="pb-cta text-slate-500 hover:bg-slate-100 w-full mt-3 h-9 text-xs">← Edit Cart</a>
             </div>
         </div>
 

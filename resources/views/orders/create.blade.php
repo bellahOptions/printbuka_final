@@ -32,8 +32,8 @@
     <main class="bg-slate-50 py-12 text-slate-900">
         <section class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.75fr_1.25fr] lg:px-8">
             <aside class="h-fit rounded-md bg-slate-950 p-6 text-white lg:sticky lg:top-28">
-                <p class="text-sm font-black uppercase tracking-wide text-cyan-300">{{ $serviceType === 'gift' ? 'Gift Order' : 'Print Order' }}</p>
-                <h1 class="mt-3 text-4xl leading-tight">{{ $product->name }}</h1>
+                <p class="pb-eyebrow text-cyan-300">{{ $serviceType === 'gift' ? 'Gift Order' : 'Print Order' }}</p>
+                <h1 class="pb-display mt-3 text-4xl leading-tight text-white">{{ $product->name }}</h1>
                 <p class="mt-4 text-sm leading-7 text-slate-300">{{ $product->short_description }}</p>
 
                 <div class="mt-6 space-y-3 rounded-md bg-white p-5 text-slate-950">
@@ -53,8 +53,8 @@
             </aside>
 
             <section class="rounded-md border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-                <p class="text-sm font-black uppercase tracking-wide text-pink-700">Order Details</p>
-                <h2 class="mt-2 text-4xl text-slate-950">Tell us what to prepare.</h2>
+                <p class="pb-eyebrow">Order Details</p>
+                <h2 class="pb-display mt-2 text-4xl">Tell us what to prepare.</h2>
                 <p class="mt-3 text-sm leading-6 text-slate-600">We will review your request, confirm artwork and delivery details, then guide you through payment and production.</p>
 
                 <form action="{{ route('orders.store', $product) }}" method="POST" enctype="multipart/form-data" class="mt-8 space-y-6">
@@ -68,12 +68,12 @@
                             type="number"
                             min="{{ old('is_sample') ? 1 : $product->moq }}"
                             value="{{ old('quantity', old('is_sample') ? 1 : $product->moq) }}"
-                            class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
+                            class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
                             required
                         />
                         <p id="quantity-rule-hint" class="mt-2 text-xs font-bold text-slate-500">{{ old('is_sample') ? 'Sample orders must be between 1 and 2 units.' : 'Minimum order quantity is '.$product->moq.'.' }}</p>
                         @error('quantity')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                            <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -81,14 +81,14 @@
                         <p class="text-sm font-black uppercase tracking-wide text-cyan-700">Fulfilment Speed</p>
                         <div class="mt-4 space-y-3">
                             <label class="flex items-start gap-3 rounded-md border border-slate-200 bg-white p-4 text-sm font-semibold text-slate-700">
-                                <input id="is_express" name="is_express" type="checkbox" value="1" @checked(old('is_express')) class="mt-0.5 h-4 w-4 rounded border-slate-300 text-pink-600 focus:ring-pink-500" />
+                                <input id="is_express" name="is_express" type="checkbox" value="1" @checked(old('is_express')) class="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
                                 <span>
                                     Express order (+ NGN {{ number_format((float) ($expressSurcharge ?? 0), 2) }})
                                     <span class="mt-1 block text-xs font-bold text-slate-500">Express delivery target is 48 hours from confirmed payment.</span>
                                 </span>
                             </label>
                             <label class="flex items-start gap-3 rounded-md border border-slate-200 bg-white p-4 text-sm font-semibold text-slate-700">
-                                <input id="is_sample" name="is_sample" type="checkbox" value="1" @checked(old('is_sample')) class="mt-0.5 h-4 w-4 rounded border-slate-300 text-pink-600 focus:ring-pink-500" />
+                                <input id="is_sample" name="is_sample" type="checkbox" value="1" @checked(old('is_sample')) class="mt-0.5 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
                                 <span>
                                     Sample order (+ NGN {{ number_format((float) ($sampleSurcharge ?? 5000), 2) }})
                                     <span class="mt-1 block text-xs font-bold text-slate-500">Sample orders are auto-express and can only be 1 or 2 units.</span>
@@ -96,10 +96,10 @@
                             </label>
                         </div>
                         @error('is_express')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                            <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p>
                         @enderror
                         @error('is_sample')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                            <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -108,35 +108,35 @@
                         <p class="mt-2 text-xs font-bold text-slate-500">Option prices are calculated live. Delivery is added once; product options are calculated per MOQ batch.</p>
                         <div class="mt-5 grid gap-5 sm:grid-cols-2">
                             <label for="size_format" class="text-sm font-black text-slate-800">Size / Format
-                                <select id="size_format" name="size_format" data-price-group="sizes" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+                                <select id="size_format" name="size_format" data-price-group="sizes" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100">
                                     @foreach ($sizeOptions as $option)
                                         <option value="{{ $option['label'] }}" @selected(old('size_format') === $option['label'])>{{ $option['label'] }}{{ (float) $option['price'] > 0 ? ' + NGN '.number_format((float) $option['price'], 2) : '' }}</option>
                                     @endforeach
                                 </select>
                             </label>
                             <label for="material_substrate" class="text-sm font-black text-slate-800">Material Type
-                                <select id="material_substrate" name="material_substrate" data-price-group="materials" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+                                <select id="material_substrate" name="material_substrate" data-price-group="materials" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100">
                                     @foreach ($materialOptions as $option)
                                         <option value="{{ $option['label'] }}" @selected(old('material_substrate') === $option['label'])>{{ $option['label'] }}{{ (float) $option['price'] > 0 ? ' + NGN '.number_format((float) $option['price'], 2) : '' }}</option>
                                     @endforeach
                                 </select>
                             </label>
                             <label for="paper_density" class="text-sm font-black text-slate-800">Paper Density
-                                <select id="paper_density" name="paper_density" data-price-group="densities" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+                                <select id="paper_density" name="paper_density" data-price-group="densities" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100">
                                     @foreach ($densityOptions as $option)
                                         <option value="{{ $option['label'] }}" @selected(old('paper_density') === $option['label'])>{{ $option['label'] }}{{ (float) $option['price'] > 0 ? ' + NGN '.number_format((float) $option['price'], 2) : '' }}</option>
                                     @endforeach
                                 </select>
                             </label>
                             <label for="finish_lamination" class="text-sm font-black text-slate-800">Finish / Lamination
-                                <select id="finish_lamination" name="finish_lamination" data-price-group="finishes" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+                                <select id="finish_lamination" name="finish_lamination" data-price-group="finishes" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100">
                                     @foreach ($finishOptions as $option)
                                         <option value="{{ $option['label'] }}" @selected(old('finish_lamination') === $option['label'])>{{ $option['label'] }}{{ (float) $option['price'] > 0 ? ' + NGN '.number_format((float) $option['price'], 2) : '' }}</option>
                                     @endforeach
                                 </select>
                             </label>
                             <label for="delivery_method" class="text-sm font-black text-slate-800">Delivery
-                                <select id="delivery_method" name="delivery_method" data-price-group="deliveries" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" required>
+                                <select id="delivery_method" name="delivery_method" data-price-group="deliveries" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100" required>
                                     @foreach ($deliveryOptions as $option)
                                         <option value="{{ $option['label'] }}" @selected(old('delivery_method') === $option['label'])>{{ $option['label'] }}{{ (float) $option['price'] > 0 ? ' + NGN '.number_format((float) $option['price'], 2) : '' }}</option>
                                     @endforeach
@@ -145,8 +145,8 @@
                         </div>
 
                         <div class="mt-5 rounded-md bg-slate-950 p-5 text-white">
-                            <p class="text-xs font-black uppercase tracking-wide text-cyan-300">Live Estimate</p>
-                            <p class="mt-2 text-4xl font-black" id="live-order-total">NGN {{ number_format($product->price, 2) }}</p>
+                            <p class="pb-eyebrow text-cyan-300">Live Estimate</p>
+                            <p class="pb-price mt-2 text-4xl text-white" id="live-order-total">NGN {{ number_format($product->price, 2) }}</p>
                             <div class="mt-4 grid gap-3 text-sm font-bold text-slate-200 sm:grid-cols-2">
                                 <p>MOQ batches: <span id="live-order-batches">1</span></p>
                                 <p>Production per batch: <span id="live-production-price">NGN {{ number_format($product->price, 2) }}</span></p>
@@ -161,35 +161,35 @@
                     <div class="grid gap-5 sm:grid-cols-2">
                         <div>
                             <label for="customer_name" class="text-sm font-black text-slate-800">First & Last Name</label>
-                            <input id="customer_name" name="customer_name" type="text" value="{{ $authenticatedCustomer ? $authenticatedCustomer->displayName() : old('customer_name') }}" @readonly($authenticatedCustomer) class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 {{ $authenticatedCustomer ? 'bg-slate-100 text-slate-500' : '' }}" required />
+                            <input id="customer_name" name="customer_name" type="text" value="{{ $authenticatedCustomer ? $authenticatedCustomer->displayName() : old('customer_name') }}" @readonly($authenticatedCustomer) class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 {{ $authenticatedCustomer ? 'bg-slate-100 text-slate-500' : '' }}" required />
                             @error('customer_name')
-                                <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                                <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p>
                             @enderror
                         </div>
                         <div>
                             <label for="customer_phone" class="text-sm font-black text-slate-800">Phone number</label>
-                            <input id="customer_phone" name="customer_phone" type="text" value="{{ $authenticatedCustomer ? $authenticatedCustomer->phone : old('customer_phone') }}" @readonly($authenticatedCustomer) class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 {{ $authenticatedCustomer ? 'bg-slate-100 text-slate-500' : '' }}" required />
+                            <input id="customer_phone" name="customer_phone" type="text" value="{{ $authenticatedCustomer ? $authenticatedCustomer->phone : old('customer_phone') }}" @readonly($authenticatedCustomer) class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 {{ $authenticatedCustomer ? 'bg-slate-100 text-slate-500' : '' }}" required />
                             @error('customer_phone')
-                                <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                                <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p>
                             @enderror
                         </div>
                     </div>
 
                     <div>
                         <label for="customer_email" class="text-sm font-black text-slate-800">Email address</label>
-                        <input id="customer_email" name="customer_email" type="email" value="{{ $authenticatedCustomer ? $authenticatedCustomer->email : old('customer_email') }}" @readonly($authenticatedCustomer) class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 {{ $authenticatedCustomer ? 'bg-slate-100 text-slate-500' : '' }}" required />
+                        <input id="customer_email" name="customer_email" type="email" value="{{ $authenticatedCustomer ? $authenticatedCustomer->email : old('customer_email') }}" @readonly($authenticatedCustomer) class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 {{ $authenticatedCustomer ? 'bg-slate-100 text-slate-500' : '' }}" required />
                         @if ($authenticatedCustomer)
                             <p class="mt-2 text-xs font-bold text-slate-500">Using your verified account details. Update your profile if these details need to change.</p>
                         @endif
                         @error('customer_email')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                            <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p>
                         @enderror
                     </div>
 
                     @if ($authenticatedUser)
                         <div>
                             <label for="delivery_address_id" class="text-sm font-black text-slate-800">Saved delivery addresses</label>
-                            <select id="delivery_address_id" name="delivery_address_id" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100">
+                            <select id="delivery_address_id" name="delivery_address_id" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100">
                                 <option value="">Enter delivery details manually</option>
                                 @foreach ($savedAddresses as $savedAddress)
                                     <option value="{{ $savedAddress->id }}" @selected((string) $selectedSavedAddressId === (string) $savedAddress->id)>
@@ -206,7 +206,7 @@
                                 <p class="mt-2 text-xs font-bold text-slate-500">Select any saved address or switch to manual entry.</p>
                             @endif
                             @error('delivery_address_id')
-                                <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                                <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p>
                             @enderror
                         </div>
                     @endif
@@ -214,25 +214,25 @@
                     <div class="grid gap-5 sm:grid-cols-2">
                         <div>
                             <label for="delivery_city" class="text-sm font-black text-slate-800">Delivery city</label>
-                            <input id="delivery_city" name="delivery_city" type="text" value="{{ old('delivery_city') }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" />
+                            <input id="delivery_city" name="delivery_city" type="text" value="{{ old('delivery_city') }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100" />
                             @error('delivery_city')
-                                <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                                <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p>
                             @enderror
                         </div>
                         <div>
                             <label for="delivery_address" class="text-sm font-black text-slate-800">Delivery address</label>
-                            <input id="delivery_address" name="delivery_address" type="text" value="{{ old('delivery_address') }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" />
+                            <input id="delivery_address" name="delivery_address" type="text" value="{{ old('delivery_address') }}" class="mt-2 min-h-12 w-full rounded-md border border-slate-200 px-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100" />
                             @error('delivery_address')
-                                <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                                <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p>
                             @enderror
                         </div>
                     </div>
 
                     <div>
                         <label for="artwork_notes" class="text-sm font-black text-slate-800">{{ $serviceType === 'gift' ? 'Branding and gift notes' : 'Artwork and print notes' }}</label>
-                        <textarea id="artwork_notes" name="artwork_notes" rows="5" class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" placeholder="Tell us about logo placement, colours, artwork files, delivery deadline or anything the production team should know.">{{ old('artwork_notes') }}</textarea>
+                        <textarea id="artwork_notes" name="artwork_notes" rows="5" class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100" placeholder="Tell us about logo placement, colours, artwork files, delivery deadline or anything the production team should know.">{{ old('artwork_notes') }}</textarea>
                         @error('artwork_notes')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                            <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p>
                         @enderror
                     </div>
 
@@ -251,29 +251,29 @@
                         </div>
                         <p class="mt-2 text-xs font-bold text-slate-500">Upload up to 5 images only: JPG, PNG or WebP. Maximum 5MB per image. PDFs, SVGs, archives and executable files are blocked for security.</p>
                         @error('job_asset_files')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                            <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p>
                         @enderror
                         @error('job_asset_files.*')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                            <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p>
                         @enderror
                         @error('job_asset_image_paths')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                            <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p>
                         @enderror
                         @error('job_asset_image_paths.*')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                            <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div>
                         <label for="asset_drive_links" class="text-sm font-black text-slate-800">External Drive Links (For PDF, SVG, ZIP Files)</label>
-                        <textarea id="asset_drive_links" name="asset_drive_links" rows="4" class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" placeholder="Paste one link per line (Google Drive, OneDrive, MediaFire, Dropbox, WeTransfer, Mega).">{{ old('asset_drive_links') }}</textarea>
+                        <textarea id="asset_drive_links" name="asset_drive_links" rows="4" class="mt-2 w-full rounded-md border border-slate-200 px-4 py-3 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100" placeholder="Paste one link per line (Google Drive, OneDrive, MediaFire, Dropbox, WeTransfer, Mega).">{{ old('asset_drive_links') }}</textarea>
                         <p class="mt-2 text-xs font-bold text-slate-500">Document and ZIP uploads are blocked for security. Share non-image files with external links.</p>
                         @error('asset_drive_links')
-                            <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p>
+                            <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <button type="submit" class="min-h-12 w-full rounded-md bg-pink-600 px-5 text-sm font-black text-white transition hover:bg-pink-700">Submit Order Request</button>
+                    <button type="submit" class="pb-cta-primary w-full h-12 text-base">Submit Order Request</button>
                 </form>
             </section>
         </section>

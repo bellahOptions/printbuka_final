@@ -8,7 +8,7 @@
 <main class="min-h-screen bg-gradient-to-br from-slate-50 to-white py-12">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="mb-6 flex items-center gap-2 text-sm text-slate-500">
-            <a href="{{ route('products.index') }}" class="hover:text-pink-600 transition">Products</a>
+            <a href="{{ route('products.index') }}" class="hover:text-brand-600 transition">Products</a>
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
             </svg>
@@ -19,10 +19,10 @@
             <div class="p-8">
                 <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                     <div>
-                        <div class="mb-3 inline-flex rounded-full bg-pink-500/20 px-3 py-1 text-xs font-bold text-pink-300">
+                        <div class="mb-3 inline-flex rounded-full bg-brand-500/20 px-3 py-1 text-xs font-bold text-brand-300">
                             {{ $category->tag ?? 'Category' }}
                         </div>
-                        <h1 class="text-3xl font-black lg:text-4xl">{{ $category->name }}</h1>
+                        <h1 class="pb-display text-3xl lg:text-4xl text-white">{{ $category->name }}</h1>
                         <p class="mt-2 max-w-2xl text-sm text-slate-300">{{ $category->description }}</p>
                         <p class="mt-4 text-sm text-slate-400">{{ $activeProductCount }} products available</p>
                     </div>

@@ -21,7 +21,7 @@
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(236,72,153,0.32),transparent_34%),radial-gradient(circle_at_80%_10%,rgba(34,211,238,0.22),transparent_30%)]"></div>
             <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="max-w-4xl">
-                    <h1 class="mt-6 text-4xl font-black leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+                    <h1 class="pb-display mt-6 text-4xl leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
                         {{ $registrationClosed ? 'PGTP registration has closed.' : 'Apply for the next PGTP cohort.' }}
                     </h1>
                     <p class="mt-5 max-w-2xl text-lg font-semibold leading-8 text-slate-300">
@@ -34,14 +34,14 @@
         <section class="py-14">
             <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[0.78fr_1.22fr] lg:px-8">
                 <aside class="h-fit rounded-lg border border-slate-200 bg-white p-6 shadow-sm lg:sticky lg:top-28">
-                    <p class="text-sm font-black uppercase tracking-wide text-pink-600">Application checklist</p>
+                    <p class="text-sm font-black uppercase tracking-wide text-brand-600">Application checklist</p>
                     <h2 class="mt-3 text-3xl font-black tracking-tight text-slate-950">Before you submit</h2>
                     <p class="mt-4 text-sm font-semibold leading-7 text-slate-600">
                         Use an email and WhatsApp number you can access. Shortlisted applicants may be contacted for screening.
                     </p>
 
-                    <div class="mt-6 rounded-lg border border-pink-100 bg-pink-50 p-4" data-countdown data-deadline="{{ $deadline->toIso8601String() }}">
-                        <p class="text-xs font-black uppercase tracking-wide text-pink-700">Time left to apply</p>
+                    <div class="mt-6 rounded-lg border border-brand-100 bg-brand-50 p-4" data-countdown data-deadline="{{ $deadline->toIso8601String() }}">
+                        <p class="text-xs font-black uppercase tracking-wide text-brand-700">Time left to apply</p>
                         <div class="mt-3 grid grid-cols-4 gap-2 text-center">
                             @foreach (['days' => 'Days', 'hours' => 'Hrs', 'minutes' => 'Mins', 'seconds' => 'Secs'] as $key => $label)
                                 <div class="rounded-md bg-white p-2 shadow-sm">
@@ -50,7 +50,7 @@
                                 </div>
                             @endforeach
                         </div>
-                        <p data-countdown-status class="mt-3 text-xs font-bold leading-5 text-pink-800">
+                        <p data-countdown-status class="mt-3 text-xs font-bold leading-5 text-brand-800">
                             Submit before {{ $deadline->format('F j, Y g:i A') }}.
                         </p>
                     </div>
@@ -80,14 +80,14 @@
 
                 <section class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
                     @if ($registrationClosed)
-                        <div class="rounded-lg border border-pink-100 bg-pink-50 p-6 sm:p-8">
-                            <p class="text-sm font-black uppercase tracking-wide text-pink-700">Registration closed</p>
+                        <div class="rounded-lg border border-brand-100 bg-brand-50 p-6 sm:p-8">
+                            <p class="text-sm font-black uppercase tracking-wide text-brand-700">Registration closed</p>
                             <h2 class="mt-3 text-3xl font-black tracking-tight text-slate-950">This PGTP application window has ended.</h2>
                             <p class="mt-4 text-base font-semibold leading-7 text-slate-700">
                                 Applications for this cohort closed on {{ $deadline->format('F j, Y') }}. Thank you for your interest in the Printbuka Graduate Trainee Program.
                             </p>
                             @if (session('closed'))
-                                <div class="mt-5 rounded-md border border-pink-200 bg-white p-4 text-sm font-bold text-pink-800">
+                                <div class="mt-5 rounded-md border border-brand-200 bg-white p-4 text-sm font-bold text-brand-800">
                                     {{ session('closed') }}
                                 </div>
                             @endif
@@ -95,7 +95,7 @@
                                 <a href="{{ route('training') }}" class="inline-flex min-h-12 items-center justify-center rounded-md bg-slate-950 px-5 text-sm font-black text-white transition hover:bg-slate-800">
                                     Back to Training Page
                                 </a>
-                                <a href="{{ route('home') }}" class="inline-flex min-h-12 items-center justify-center rounded-md border border-slate-200 bg-white px-5 text-sm font-black text-slate-800 transition hover:border-pink-300 hover:text-pink-700">
+                                <a href="{{ route('home') }}" class="inline-flex min-h-12 items-center justify-center rounded-md border border-slate-200 bg-white px-5 text-sm font-black text-slate-800 transition hover:border-brand-300 hover:text-brand-700">
                                     Visit Printbuka
                                 </a>
                             </div>
@@ -110,7 +110,7 @@
                     </div>
 
                     @if ($errors->any())
-                        <div class="mb-6 rounded-md border border-pink-200 bg-pink-50 p-4 text-sm font-bold text-pink-800">
+                        <div class="mb-6 rounded-md border border-brand-200 bg-brand-50 p-4 text-sm font-bold text-brand-800">
                             Please check the highlighted fields and try again.
                         </div>
                     @endif
@@ -131,44 +131,44 @@
                                     <label for="first_name" class="text-sm font-black text-slate-800">First name *</label>
                                     <div class="relative mt-2">
                                         <x-training.field-icon name="user" />
-                                        <input id="first_name" name="first_name" type="text" value="{{ old('first_name') }}" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 @error('first_name') border-pink-400 @enderror" required data-live-required data-helper="first-name-helper" />
+                                        <input id="first_name" name="first_name" type="text" value="{{ old('first_name') }}" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 @error('first_name') border-brand-400 @enderror" required data-live-required data-helper="first-name-helper" />
                                     </div>
                                     <p id="first-name-helper" class="mt-2 text-xs font-semibold text-slate-500">Use your legal first name.</p>
-                                    @error('first_name') <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p> @enderror
+                                    @error('first_name') <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p> @enderror
                                 </div>
 
                                 <div>
                                     <label for="last_name" class="text-sm font-black text-slate-800">Last name *</label>
                                     <div class="relative mt-2">
                                         <x-training.field-icon name="user" />
-                                        <input id="last_name" name="last_name" type="text" value="{{ old('last_name') }}" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 @error('last_name') border-pink-400 @enderror" required data-live-required data-helper="last-name-helper" />
+                                        <input id="last_name" name="last_name" type="text" value="{{ old('last_name') }}" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 @error('last_name') border-brand-400 @enderror" required data-live-required data-helper="last-name-helper" />
                                     </div>
                                     <p id="last-name-helper" class="mt-2 text-xs font-semibold text-slate-500">Use your surname or family name.</p>
-                                    @error('last_name') <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p> @enderror
+                                    @error('last_name') <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p> @enderror
                                 </div>
 
                                 <div>
                                     <label for="date_of_birth" class="text-sm font-black text-slate-800">Date of birth *</label>
                                     <div class="relative mt-2">
                                         <x-training.field-icon name="calendar" />
-                                        <input id="date_of_birth" name="date_of_birth" type="date" value="{{ old('date_of_birth') }}" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 @error('date_of_birth') border-pink-400 @enderror" required data-age-helper="dob-helper" />
+                                        <input id="date_of_birth" name="date_of_birth" type="date" value="{{ old('date_of_birth') }}" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 @error('date_of_birth') border-brand-400 @enderror" required data-age-helper="dob-helper" />
                                     </div>
                                     <p id="dob-helper" class="mt-2 text-xs font-semibold text-slate-500">Applicants must be at least 14 years old.</p>
-                                    @error('date_of_birth') <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p> @enderror
+                                    @error('date_of_birth') <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p> @enderror
                                 </div>
 
                                 <div>
                                     <label for="gender" class="text-sm font-black text-slate-800">Gender</label>
                                     <div class="relative mt-2">
                                         <x-training.field-icon name="users" />
-                                        <select id="gender" name="gender" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 @error('gender') border-pink-400 @enderror">
+                                        <select id="gender" name="gender" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 @error('gender') border-brand-400 @enderror">
                                             <option value="">Select one</option>
                                             @foreach (['Female', 'Male', 'Prefer not to say'] as $gender)
                                                 <option value="{{ $gender }}" @selected(old('gender') === $gender)>{{ $gender }}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    @error('gender') <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p> @enderror
+                                    @error('gender') <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p> @enderror
                                 </div>
                             </div>
                         </div>
@@ -180,10 +180,10 @@
                                     <label for="phone_whatsapp" class="text-sm font-black text-slate-800">Phone / WhatsApp *</label>
                                     <div class="relative mt-2">
                                         <x-training.field-icon name="phone" />
-                                        <input id="phone_whatsapp" name="phone_whatsapp" type="tel" value="{{ old('phone_whatsapp') }}" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 @error('phone_whatsapp') border-pink-400 @enderror" required data-phone-helper="phone-helper" />
+                                        <input id="phone_whatsapp" name="phone_whatsapp" type="tel" value="{{ old('phone_whatsapp') }}" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 @error('phone_whatsapp') border-brand-400 @enderror" required data-phone-helper="phone-helper" />
                                     </div>
                                     <p id="phone-helper" class="mt-2 text-xs font-semibold text-slate-500">Enter a reachable WhatsApp number, including country code if outside Nigeria.</p>
-                                    @error('phone_whatsapp') <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p> @enderror
+                                    @error('phone_whatsapp') <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p> @enderror
                                 </div>
 
                                 <div>
@@ -194,20 +194,20 @@
                                     <label for="city_state" class="text-sm font-black text-slate-800">City / State *</label>
                                     <div class="relative mt-2">
                                         <x-training.field-icon name="map" />
-                                        <input id="city_state" name="city_state" type="text" value="{{ old('city_state') }}" placeholder="Lagos, Lagos State" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 @error('city_state') border-pink-400 @enderror" required data-live-required data-helper="city-helper" />
+                                        <input id="city_state" name="city_state" type="text" value="{{ old('city_state') }}" placeholder="Lagos, Lagos State" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 @error('city_state') border-brand-400 @enderror" required data-live-required data-helper="city-helper" />
                                     </div>
                                     <p id="city-helper" class="mt-2 text-xs font-semibold text-slate-500">Example: Ikeja, Lagos State.</p>
-                                    @error('city_state') <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p> @enderror
+                                    @error('city_state') <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p> @enderror
                                 </div>
 
                                 <div class="sm:col-span-2">
                                     <label for="contact_address" class="text-sm font-black text-slate-800">Contact address *</label>
                                     <div class="relative mt-2">
                                         <x-training.field-icon name="home" class="pointer-events-none absolute left-3 top-3 text-slate-400" />
-                                        <textarea id="contact_address" name="contact_address" rows="3" class="w-full rounded-md border border-slate-200 py-3 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 @error('contact_address') border-pink-400 @enderror" required data-live-required data-helper="address-helper">{{ old('contact_address') }}</textarea>
+                                        <textarea id="contact_address" name="contact_address" rows="3" class="w-full rounded-md border border-slate-200 py-3 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 @error('contact_address') border-brand-400 @enderror" required data-live-required data-helper="address-helper">{{ old('contact_address') }}</textarea>
                                     </div>
                                     <p id="address-helper" class="mt-2 text-xs font-semibold text-slate-500">Share enough detail for contact or screening follow-up.</p>
-                                    @error('contact_address') <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p> @enderror
+                                    @error('contact_address') <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p> @enderror
                                 </div>
                             </div>
                         </div>
@@ -219,7 +219,7 @@
                                     <label for="educational_qualification" class="text-sm font-black text-slate-800">Educational qualification *</label>
                                     <div class="relative mt-2">
                                         <x-training.field-icon name="graduation" />
-                                        <select id="educational_qualification" name="educational_qualification" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 @error('educational_qualification') border-pink-400 @enderror" required data-live-required data-helper="qualification-helper">
+                                        <select id="educational_qualification" name="educational_qualification" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 @error('educational_qualification') border-brand-400 @enderror" required data-live-required data-helper="qualification-helper">
                                             <option value="">Select qualification</option>
                                             @foreach (['SSCE', 'OND', 'NCE', 'HND', 'Bachelor degree', 'Master degree', 'Other'] as $qualification)
                                                 <option value="{{ $qualification }}" @selected(old('educational_qualification') === $qualification)>{{ $qualification }}</option>
@@ -227,14 +227,14 @@
                                         </select>
                                     </div>
                                     <p id="qualification-helper" class="mt-2 text-xs font-semibold text-slate-500">Select your highest completed qualification.</p>
-                                    @error('educational_qualification') <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p> @enderror
+                                    @error('educational_qualification') <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p> @enderror
                                 </div>
 
                                 <div>
                                     <label for="desired_skill" class="text-sm font-black text-slate-800">Desired skill *</label>
                                     <div class="relative mt-2">
                                         <x-training.field-icon name="target" />
-                                        <select id="desired_skill" name="desired_skill" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 @error('desired_skill') border-pink-400 @enderror" required data-skill-helper="skill-helper">
+                                        <select id="desired_skill" name="desired_skill" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 @error('desired_skill') border-brand-400 @enderror" required data-skill-helper="skill-helper">
                                             <option value="">Select a track</option>
                                             @foreach ($desiredSkills as $skill)
                                                 <option value="{{ $skill }}" @selected(old('desired_skill') === $skill)>{{ $skill }}</option>
@@ -242,56 +242,56 @@
                                         </select>
                                     </div>
                                     <p id="skill-helper" class="mt-2 text-xs font-semibold text-slate-500">Pick the track you are most ready to commit to.</p>
-                                    @error('desired_skill') <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p> @enderror
+                                    @error('desired_skill') <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p> @enderror
                                 </div>
 
                                 <div>
                                     <label for="employment_status" class="text-sm font-black text-slate-800">Current status</label>
                                     <div class="relative mt-2">
                                         <x-training.field-icon name="briefcase" />
-                                        <select id="employment_status" name="employment_status" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 @error('employment_status') border-pink-400 @enderror">
+                                        <select id="employment_status" name="employment_status" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 @error('employment_status') border-brand-400 @enderror">
                                             <option value="">Select one</option>
                                             @foreach (['Student', 'Fresh graduate', 'Unemployed', 'Employed', 'Self-employed'] as $status)
                                                 <option value="{{ $status }}" @selected(old('employment_status') === $status)>{{ $status }}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    @error('employment_status') <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p> @enderror
+                                    @error('employment_status') <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p> @enderror
                                 </div>
 
                                 <div>
                                     <label for="experience_level" class="text-sm font-black text-slate-800">Experience level</label>
                                     <div class="relative mt-2">
                                         <x-training.field-icon name="target" />
-                                        <select id="experience_level" name="experience_level" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 @error('experience_level') border-pink-400 @enderror">
+                                        <select id="experience_level" name="experience_level" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 @error('experience_level') border-brand-400 @enderror">
                                             <option value="">Select one</option>
                                             @foreach (['Beginner', 'Some practice', 'Intermediate', 'Already working in this area'] as $level)
                                                 <option value="{{ $level }}" @selected(old('experience_level') === $level)>{{ $level }}</option>
                                             @endforeach
                                         </select>
                                     </div>
-                                    @error('experience_level') <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p> @enderror
+                                    @error('experience_level') <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p> @enderror
                                 </div>
 
                                 <div>
                                     <label for="has_laptop" class="text-sm font-black text-slate-800">Do you have a laptop? *</label>
                                     <div class="relative mt-2">
                                         <x-training.field-icon name="laptop" />
-                                        <select id="has_laptop" name="has_laptop" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 @error('has_laptop') border-pink-400 @enderror" required data-laptop-helper="laptop-helper">
+                                        <select id="has_laptop" name="has_laptop" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 @error('has_laptop') border-brand-400 @enderror" required data-laptop-helper="laptop-helper">
                                             <option value="">Select one</option>
                                             <option value="1" @selected(old('has_laptop') === '1')>Yes</option>
                                             <option value="0" @selected(old('has_laptop') === '0')>No</option>
                                         </select>
                                     </div>
                                     <p id="laptop-helper" class="mt-2 text-xs font-semibold text-slate-500">Some tracks may require regular practice outside class hours.</p>
-                                    @error('has_laptop') <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p> @enderror
+                                    @error('has_laptop') <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p> @enderror
                                 </div>
 
                                 <div>
                                     <label for="availability" class="text-sm font-black text-slate-800">Availability *</label>
                                     <div class="relative mt-2">
                                         <x-training.field-icon name="clock" />
-                                        <select id="availability" name="availability" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 @error('availability') border-pink-400 @enderror" required data-live-required data-helper="availability-helper">
+                                        <select id="availability" name="availability" class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 @error('availability') border-brand-400 @enderror" required data-live-required data-helper="availability-helper">
                                             <option value="">Select one</option>
                                             @foreach (['Weekdays', 'Weekends', 'Flexible', 'Not sure yet'] as $availability)
                                                 <option value="{{ $availability }}" @selected(old('availability') === $availability)>{{ $availability }}</option>
@@ -299,7 +299,7 @@
                                         </select>
                                     </div>
                                     <p id="availability-helper" class="mt-2 text-xs font-semibold text-slate-500">Tell us when you can consistently attend training.</p>
-                                    @error('availability') <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p> @enderror
+                                    @error('availability') <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p> @enderror
                                 </div>
                             </div>
                         </div>
@@ -311,29 +311,29 @@
                                     <label for="portfolio_url" class="text-sm font-black text-slate-800">Portfolio or social link *</label>
                                     <div class="relative mt-2">
                                         <x-training.field-icon name="link" />
-                                        <input id="portfolio_url" name="portfolio_url" type="url" value="{{ old('portfolio_url') }}" placeholder="https://..." class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 @error('portfolio_url') border-pink-400 @enderror" required data-url-helper="portfolio-helper" />
+                                        <input id="portfolio_url" name="portfolio_url" type="url" value="{{ old('portfolio_url') }}" placeholder="https://..." class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 @error('portfolio_url') border-brand-400 @enderror" required data-url-helper="portfolio-helper" />
                                     </div>
                                     <p id="portfolio-helper" class="mt-2 text-xs font-semibold text-slate-500">Add Instagram, Behance, LinkedIn, or any page that shows your work.</p>
-                                    @error('portfolio_url') <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p> @enderror
+                                    @error('portfolio_url') <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p> @enderror
                                 </div>
 
                                 <div>
                                     <label for="motivation" class="text-sm font-black text-slate-800">Why do you want to join this program? *</label>
                                     <div class="relative mt-2">
                                         <x-training.field-icon name="message" class="pointer-events-none absolute left-3 top-3 text-slate-400" />
-                                        <textarea id="motivation" name="motivation" rows="5" class="w-full rounded-md border border-slate-200 py-3 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 @error('motivation') border-pink-400 @enderror" placeholder="Tell us about your interest, goals, and what you hope to do with this skill." required data-min-length="40" data-max-length="2000" data-helper="motivation-helper">{{ old('motivation') }}</textarea>
+                                        <textarea id="motivation" name="motivation" rows="5" class="w-full rounded-md border border-slate-200 py-3 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 @error('motivation') border-brand-400 @enderror" placeholder="Tell us about your interest, goals, and what you hope to do with this skill." required data-min-length="40" data-max-length="2000" data-helper="motivation-helper">{{ old('motivation') }}</textarea>
                                     </div>
                                     <p id="motivation-helper" class="mt-2 text-xs font-semibold text-slate-500">Aim for at least 40 characters. <span data-character-count-for="motivation">0</span>/2000</p>
-                                    @error('motivation') <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p> @enderror
+                                    @error('motivation') <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p> @enderror
                                 </div>
 
                                 <div>
                                     <label for="referral_source" class="text-sm font-black text-slate-800">How did you hear about PGTP?</label>
                                     <div class="relative mt-2">
                                         <x-training.field-icon name="megaphone" />
-                                        <input id="referral_source" name="referral_source" type="text" value="{{ old('referral_source') }}" placeholder="Instagram, friend, website, WhatsApp..." class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 @error('referral_source') border-pink-400 @enderror" />
+                                        <input id="referral_source" name="referral_source" type="text" value="{{ old('referral_source') }}" placeholder="Instagram, friend, website, WhatsApp..." class="min-h-12 w-full rounded-md border border-slate-200 py-2 pl-11 pr-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 @error('referral_source') border-brand-400 @enderror" />
                                     </div>
-                                    @error('referral_source') <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p> @enderror
+                                    @error('referral_source') <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p> @enderror
                                 </div>
                             </div>
                         </div>
@@ -341,7 +341,7 @@
                         @if ($showTurnstile)
                             <div>
                                 <div class="cf-turnstile" data-sitekey="{{ \App\Support\Turnstile::siteKey() }}"></div>
-                                @error('cf-turnstile-response') <p class="mt-2 text-sm font-semibold text-pink-700">{{ $message }}</p> @enderror
+                                @error('cf-turnstile-response') <p class="mt-2 text-sm font-semibold text-brand-700">{{ $message }}</p> @enderror
                             </div>
                         @elseif (app()->environment('public'))
                             <div class="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-800">
@@ -349,7 +349,7 @@
                             </div>
                         @endif
 
-                        <button type="submit" class="min-h-12 w-full rounded-md bg-pink-600 px-5 text-sm font-black text-white transition hover:bg-pink-700">
+                        <button type="submit" class="min-h-12 w-full rounded-md bg-brand-600 px-5 text-sm font-black text-white transition hover:bg-brand-700">
                             Submit Application
                         </button>
                     </form>
@@ -369,7 +369,7 @@
             const helperClasses = {
                 neutral: 'mt-2 text-xs font-semibold text-slate-500',
                 valid: 'mt-2 text-xs font-semibold text-emerald-700',
-                invalid: 'mt-2 text-xs font-semibold text-pink-700',
+                invalid: 'mt-2 text-xs font-semibold text-brand-700',
             };
 
             const setHelper = (element, message, state = 'neutral') => {
@@ -382,7 +382,7 @@
             };
 
             const setFieldState = (field, isValid) => {
-                field.classList.toggle('border-pink-400', !isValid);
+                field.classList.toggle('border-brand-400', !isValid);
                 field.classList.toggle('border-emerald-300', isValid);
             };
 

@@ -5,9 +5,9 @@
 <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
 
     <nav class="flex items-center gap-1.5 text-xs font-bold text-slate-400 mb-8">
-        <a href="{{ route('home') }}" class="hover:text-pink-600">Home</a>
+        <a href="{{ route('home') }}" class="hover:text-brand-600">Home</a>
         <span>/</span>
-        <a href="{{ route('shop.index') }}" class="hover:text-pink-600">Shop</a>
+        <a href="{{ route('shop.index') }}" class="hover:text-brand-600">Shop</a>
         <span>/</span>
         <span class="text-slate-700">Cart</span>
     </nav>
@@ -23,11 +23,11 @@
     <h1 class="text-3xl font-black text-slate-950 mb-8">Your Cart</h1>
 
     @if(empty($cartItems))
-        <div class="card bg-white border border-slate-200 p-16 text-center">
-            <x-heroicon-o-shopping-cart class="w-16 h-16 text-slate-200 mx-auto mb-4" />
-            <p class="text-xl font-black text-slate-700">Your cart is empty.</p>
-            <p class="text-slate-400 mt-1">Add some products to get started.</p>
-            <a href="{{ route('shop.index') }}" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black mt-6">Back to Shop</a>
+        <div class="pb-empty">
+            <x-heroicon-o-shopping-cart class="w-12 h-12 pb-empty-icon" />
+            <p class="pb-empty-title text-base">Your cart is empty.</p>
+            <p class="pb-empty-body">Add some products to get started.</p>
+            <a href="{{ route('shop.index') }}" class="pb-cta-primary mt-2">Back to Shop</a>
         </div>
     @else
         <div class="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
@@ -56,7 +56,7 @@
                                     {{-- Details --}}
                                     <div class="flex-1 min-w-0">
                                         <h3 class="font-black text-slate-950 text-base leading-snug">
-                                            <a href="{{ route('shop.show', $item['product']) }}" class="hover:text-pink-600">{{ $item['product']->name }}</a>
+                                            <a href="{{ route('shop.show', $item['product']) }}" class="hover:text-brand-600">{{ $item['product']->name }}</a>
                                         </h3>
 
                                         @if($item['selected_options']->isNotEmpty())
@@ -83,8 +83,8 @@
                                             </div>
 
                                             <div class="text-right">
-                                                <p class="text-xs text-slate-400 font-bold">NGN {{ number_format($item['unit_price'], 0) }} Ã— {{ $item['quantity'] }}</p>
-                                                <p class="text-lg font-black text-pink-600">NGN {{ number_format($item['line_total'], 0) }}</p>
+                                                <p class="text-xs text-slate-400 font-bold">NGN {{ number_format($item['unit_price'], 0) }} × {{ $item['quantity'] }}</p>
+                                                <p class="pb-price text-lg text-brand-600">NGN {{ number_format($item['line_total'], 0) }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -104,10 +104,10 @@
                     @endforeach
 
                     <div class="flex flex-wrap gap-3">
-                        <button type="submit" class="btn btn-outline font-black border-slate-300 hover:border-slate-500">Update Cart</button>
+                        <button type="submit" class="pb-cta-outline">Update Cart</button>
                         <form action="{{ route('shop.cart.clear') }}" method="POST">
                             @csrf
-                            <button type="submit" class="btn btn-ghost text-slate-400 hover:text-red-500 font-black">Clear Cart</button>
+                            <button type="submit" class="pb-cta text-slate-500 hover:bg-red-50 hover:text-red-600">Clear Cart</button>
                         </form>
                     </div>
                 </form>
@@ -121,8 +121,8 @@
                     <div class="space-y-3 mb-5">
                         @foreach($cartItems as $item)
                             <div class="flex justify-between text-sm">
-                                <span class="text-slate-600 font-bold">{{ $item['product']->name }} Ã— {{ $item['quantity'] }}</span>
-                                <span class="font-black text-slate-900">NGN {{ number_format($item['line_total'], 0) }}</span>
+                                <span class="text-slate-600 font-bold">{{ $item['product']->name }} × {{ $item['quantity'] }}</span>
+                                <span class="pb-price font-black text-sm text-slate-900">NGN {{ number_format($item['line_total'], 0) }}</span>
                             </div>
                         @endforeach
                     </div>
@@ -130,16 +130,16 @@
                     <div class="border-t border-slate-200 pt-4">
                         <div class="flex justify-between">
                             <span class="font-black text-slate-900">Total</span>
-                            <span class="text-xl font-black text-pink-600">NGN {{ number_format($total, 0) }}</span>
+                            <span class="pb-price text-xl text-brand-600">NGN {{ number_format($total, 0) }}</span>
                         </div>
                         <p class="text-xs text-slate-400 mt-1">Shipping calculated at checkout</p>
                     </div>
 
-                    <a href="{{ route('shop.checkout') }}" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black w-full mt-5 btn-lg">
+                    <a href="{{ route('shop.checkout') }}" class="pb-cta-primary w-full mt-5 h-12 text-base">
                         Proceed to Checkout
                         <x-heroicon-o-arrow-right class="w-5 h-5" />
                     </a>
-                    <a href="{{ route('shop.index') }}" class="btn btn-ghost font-black text-slate-500 w-full mt-2">Continue Shopping</a>
+                    <a href="{{ route('shop.index') }}" class="pb-cta text-slate-500 hover:bg-slate-100 w-full mt-2">Continue Shopping</a>
                 </div>
             </div>
 

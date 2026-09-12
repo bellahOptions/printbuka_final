@@ -7,7 +7,7 @@
 <style>
 .svc-slide { position:absolute; inset:0; transition: opacity 1s ease-in-out; }
 .svc-dot   { width:8px; height:8px; border-radius:9999px; background:rgba(255,255,255,0.35); transition: all .3s; cursor:pointer; }
-.svc-dot.active { background:#EC268F; width:24px; }
+.svc-dot.active { background:var(--color-brand-600); width:24px; }
 </style>
 @endpush
 
@@ -34,24 +34,24 @@
                 {{-- Dark overlay --}}
                 <div class="absolute inset-0 bg-slate-950/80"></div>
                 {{-- Pink accent gradient --}}
-                <div class="absolute inset-0 bg-gradient-to-br from-[#EC268F]/20 via-transparent to-cyan-900/15"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-[var(--color-brand-600)]/20 via-transparent to-cyan-900/15"></div>
             </div>
         @endforeach
 
         {{-- Content --}}
         <div class="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-16">
             <div class="max-w-3xl">
-                <p class="text-xs font-black uppercase tracking-widest text-[#EC268F] mb-4">Our Services</p>
-                <h1 class="text-5xl sm:text-6xl font-black text-white leading-[1.05] mb-6">
+                <p class="text-xs font-black uppercase tracking-widest text-brand-600 mb-4">Our Services</p>
+                <h1 class="pb-display text-5xl sm:text-6xl text-white leading-[1.05] mb-6">
                     Print Services Built<br>
-                    for <span class="text-[#EC268F]">Business Results</span>
+                    for <span class="text-brand-600">Business Results</span>
                 </h1>
                 <p class="text-slate-300 text-xl leading-relaxed mb-10 max-w-2xl">
                     From direct image printing to laser engraving — clear pricing, file checks, production tracking and dependable delivery. No guesswork, no surprises.
                 </p>
                 <div class="flex flex-wrap gap-4 mb-14">
                     <a href="#services"
-                       class="inline-flex items-center gap-2 bg-[#EC268F] hover:bg-pink-700 text-white font-black px-8 py-4 rounded-xl transition-colors text-sm shadow-lg shadow-pink-900/30">
+                       class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-black px-8 py-4 rounded-xl transition-colors text-sm shadow-lg shadow-brand-900/30">
                         <x-heroicon-o-squares-2x2 class="w-5 h-5" />
                         Browse All Services
                     </a>
@@ -113,8 +113,8 @@
                 @endphp
                 @foreach($trustItems as $t)
                     <div class="flex items-start gap-3">
-                        <div class="w-9 h-9 rounded-lg bg-pink-100 flex items-center justify-center shrink-0 mt-0.5">
-                            <x-dynamic-component :component="'heroicon-o-'.$t['icon']" class="w-5 h-5 text-[#EC268F]" />
+                        <div class="w-9 h-9 rounded-lg bg-brand-100 flex items-center justify-center shrink-0 mt-0.5">
+                            <x-dynamic-component :component="'heroicon-o-'.$t['icon']" class="w-5 h-5 text-brand-600" />
                         </div>
                         <div>
                             <p class="text-sm font-black text-slate-900">{{ $t['title'] }}</p>
@@ -131,7 +131,7 @@
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
             <div class="text-center mb-14">
-                <span class="inline-block bg-pink-100 text-[#EC268F] text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-4">Service Catalog</span>
+                <span class="inline-block bg-brand-100 text-brand-600 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-4">Service Catalog</span>
                 <h2 class="text-4xl font-black text-slate-950 leading-tight mb-3">Choose Your Service</h2>
                 <p class="text-slate-500 text-lg max-w-2xl mx-auto">Every service includes file review, production tracking and a dedicated support contact for your job.</p>
             </div>
@@ -145,7 +145,7 @@
                     'laser-engraving'       => 'bolt',
                 ];
                 $serviceColors = [
-                    'direct-image-printing' => ['bg' => 'bg-pink-600',    'light' => 'bg-pink-50',    'text' => 'text-pink-600',    'border' => 'border-pink-200'],
+                    'direct-image-printing' => ['bg' => 'bg-brand-600',    'light' => 'bg-brand-50',    'text' => 'text-brand-600',    'border' => 'border-brand-200'],
                     'uv-dtf'                => ['bg' => 'bg-violet-600',  'light' => 'bg-violet-50',  'text' => 'text-violet-600',  'border' => 'border-violet-200'],
                     'dtf'                   => ['bg' => 'bg-sky-600',     'light' => 'bg-sky-50',     'text' => 'text-sky-600',     'border' => 'border-sky-200'],
                     'dtf-borderless'        => ['bg' => 'bg-emerald-600', 'light' => 'bg-emerald-50', 'text' => 'text-emerald-600', 'border' => 'border-emerald-200'],
@@ -157,10 +157,10 @@
                 @foreach($services as $service)
                     @php
                         $icon   = $serviceIcons[$service['slug']]  ?? 'star';
-                        $colors = $serviceColors[$service['slug']] ?? ['bg' => 'bg-pink-600', 'light' => 'bg-pink-50', 'text' => 'text-pink-600', 'border' => 'border-pink-200'];
+                        $colors = $serviceColors[$service['slug']] ?? ['bg' => 'bg-brand-600', 'light' => 'bg-brand-50', 'text' => 'text-brand-600', 'border' => 'border-brand-200'];
                     @endphp
 
-                    <article class="group bg-white rounded-3xl border border-slate-100 hover:border-pink-200 hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col">
+                    <article class="group bg-white rounded-3xl border border-slate-100 hover:border-brand-200 hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col">
                         {{-- Accent header --}}
                         <div class="{{ $colors['bg'] }} px-7 pt-7 pb-0 relative">
                             <div class="flex items-start justify-between mb-5">
@@ -253,12 +253,12 @@
     <section id="how-it-works" class="py-20 bg-white scroll-mt-20">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-14">
-                <span class="inline-block bg-pink-100 text-[#EC268F] text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-4">Simple Process</span>
+                <span class="inline-block bg-brand-100 text-brand-600 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-4">Simple Process</span>
                 <h2 class="text-4xl font-black text-slate-950 mb-3">From Brief to Delivery</h2>
                 <p class="text-slate-500 text-lg max-w-xl mx-auto">Four steps stand between your order and your finished product — every one tracked and visible.</p>
             </div>
             <div class="relative">
-                <div class="hidden lg:block absolute top-10 left-[calc(12.5%+28px)] right-[calc(12.5%+28px)] h-0.5 bg-gradient-to-r from-pink-200 via-pink-400 to-pink-200 pointer-events-none"></div>
+                <div class="hidden lg:block absolute top-10 left-[calc(12.5%+28px)] right-[calc(12.5%+28px)] h-0.5 bg-gradient-to-r from-brand-200 via-brand-400 to-brand-200 pointer-events-none"></div>
                 <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     @foreach([
                         ['icon' => 'document-text',   'num' => '01', 'title' => 'Submit Your Brief',  'desc' => 'Choose a service, share your quantity, options, and upload your design.'],
@@ -266,11 +266,11 @@
                         ['icon' => 'cog-6-tooth',      'num' => '03', 'title' => 'Production Begins',  'desc' => 'Your job moves through 6 tracked phases — design, print, QC, packaging.'],
                         ['icon' => 'truck',            'num' => '04', 'title' => 'Pickup or Delivery', 'desc' => 'Collect in person or get delivery nationwide with status updates.'],
                     ] as $step)
-                        <div class="bg-white rounded-2xl border border-slate-100 hover:border-pink-200 hover:shadow-lg transition-all p-6 text-center group">
-                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#EC268F] to-pink-700 flex items-center justify-center mx-auto mb-4 shadow-md shadow-pink-200 group-hover:scale-110 transition-transform">
+                        <div class="bg-white rounded-2xl border border-slate-100 hover:border-brand-200 hover:shadow-lg transition-all p-6 text-center group">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--color-brand-600)] to-brand-700 flex items-center justify-center mx-auto mb-4 shadow-md shadow-brand-200 group-hover:scale-110 transition-transform">
                                 <x-dynamic-component :component="'heroicon-o-'.$step['icon']" class="w-6 h-6 text-white" />
                             </div>
-                            <span class="text-[10px] font-black text-pink-400 uppercase tracking-widest">Step {{ $step['num'] }}</span>
+                            <span class="text-[10px] font-black text-brand-400 uppercase tracking-widest">Step {{ $step['num'] }}</span>
                             <h3 class="text-base font-black text-slate-950 mt-1 mb-2">{{ $step['title'] }}</h3>
                             <p class="text-sm text-slate-500 leading-relaxed">{{ $step['desc'] }}</p>
                         </div>
@@ -285,9 +285,9 @@
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="lg:grid lg:grid-cols-2 lg:gap-16 lg:items-center">
                 <div class="mb-12 lg:mb-0">
-                    <span class="inline-block bg-pink-100 text-[#EC268F] text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5">Why Choose Us</span>
+                    <span class="inline-block bg-brand-100 text-brand-600 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5">Why Choose Us</span>
                     <h2 class="text-4xl font-black text-slate-950 leading-tight mb-5">
-                        Production Quality You Can<br><span class="text-[#EC268F]">Bet Your Brand On</span>
+                        Production Quality You Can<br><span class="text-brand-600">Bet Your Brand On</span>
                     </h2>
                     <p class="text-slate-500 text-lg leading-relaxed mb-8">
                         Printbuka runs a structured print shop — every order handled by a specialist team with defined responsibilities across each production phase.
@@ -300,8 +300,8 @@
                             ['icon' => 'chat-bubble-left-right',   'title' => 'Dedicated Support',     'desc' => 'Raise a ticket, get a response. Our support team is tied to your specific job.'],
                         ] as $r)
                             <div class="flex items-start gap-4">
-                                <div class="w-10 h-10 rounded-xl bg-pink-100 flex items-center justify-center shrink-0">
-                                    <x-dynamic-component :component="'heroicon-o-'.$r['icon']" class="w-5 h-5 text-[#EC268F]" />
+                                <div class="w-10 h-10 rounded-xl bg-brand-100 flex items-center justify-center shrink-0">
+                                    <x-dynamic-component :component="'heroicon-o-'.$r['icon']" class="w-5 h-5 text-brand-600" />
                                 </div>
                                 <div>
                                     <p class="font-black text-slate-950 text-sm">{{ $r['title'] }}</p>
@@ -313,13 +313,13 @@
                 </div>
                 <div class="space-y-4">
                     <div class="bg-slate-950 rounded-3xl p-8 text-white relative overflow-hidden">
-                        <div class="pointer-events-none absolute top-0 right-0 w-48 h-48 rounded-full bg-pink-600/10 -translate-y-1/3 translate-x-1/4 blur-2xl"></div>
-                        <x-heroicon-s-chat-bubble-bottom-center-text class="w-8 h-8 text-pink-500 mb-4" />
+                        <div class="pointer-events-none absolute top-0 right-0 w-48 h-48 rounded-full bg-brand-600/10 -translate-y-1/3 translate-x-1/4 blur-2xl"></div>
+                        <x-heroicon-s-chat-bubble-bottom-center-text class="w-8 h-8 text-brand-500 mb-4" />
                         <p class="text-lg font-bold leading-relaxed text-slate-200 mb-6">
                             "The order tracking made it easy to follow the job from the moment we paid. Our branded items arrived exactly as expected — clean print, clean finish."
                         </p>
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-pink-600 flex items-center justify-center font-black text-white text-sm">A</div>
+                            <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center font-black text-white text-sm">A</div>
                             <div>
                                 <p class="font-black text-white text-sm">Adaeze O.</p>
                                 <p class="text-xs text-slate-400">Brand Manager, Lagos</p>
@@ -327,8 +327,8 @@
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
-                        @foreach([['6','Production Phases','text-[#EC268F]'],['100%','Tracked Orders','text-emerald-600'],['5+','Service Types','text-amber-600'],['3–7','Day Turnaround','text-sky-600']] as [$val,$lbl,$cls])
-                            <div class="bg-white rounded-2xl border border-slate-100 p-5 text-center hover:border-pink-200 transition-colors">
+                        @foreach([['6','Production Phases','text-brand-600'],['100%','Tracked Orders','text-emerald-600'],['5+','Service Types','text-amber-600'],['3–7','Day Turnaround','text-sky-600']] as [$val,$lbl,$cls])
+                            <div class="bg-white rounded-2xl border border-slate-100 p-5 text-center hover:border-brand-200 transition-colors">
                                 <p class="text-3xl font-black {{ $cls }}">{{ $val }}</p>
                                 <p class="text-xs font-bold text-slate-500 mt-1 uppercase tracking-wide">{{ $lbl }}</p>
                             </div>
@@ -343,7 +343,7 @@
     <section class="py-20 bg-white">
         <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
-                <span class="inline-block bg-pink-100 text-[#EC268F] text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-4">Quick Answers</span>
+                <span class="inline-block bg-brand-100 text-brand-600 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-4">Quick Answers</span>
                 <h2 class="text-4xl font-black text-slate-950">Common Questions</h2>
             </div>
             <div class="divide-y divide-slate-100" x-data="{ open: null }">
@@ -358,10 +358,10 @@
                     <div class="py-5">
                         <button @click="open = open === {{ $i }} ? null : {{ $i }}"
                                 class="w-full flex items-center justify-between gap-4 text-left group">
-                            <span class="font-black text-slate-950 group-hover:text-[#EC268F] transition-colors">{{ $faq['q'] }}</span>
-                            <span class="shrink-0 w-8 h-8 rounded-full bg-slate-100 group-hover:bg-pink-100 flex items-center justify-center transition-colors">
-                                <x-heroicon-o-plus class="w-4 h-4 text-slate-500 group-hover:text-[#EC268F]" x-show="open !== {{ $i }}" />
-                                <x-heroicon-o-minus class="w-4 h-4 text-[#EC268F]" x-show="open === {{ $i }}" x-cloak />
+                            <span class="font-black text-slate-950 group-hover:text-brand-600 transition-colors">{{ $faq['q'] }}</span>
+                            <span class="shrink-0 w-8 h-8 rounded-full bg-slate-100 group-hover:bg-brand-100 flex items-center justify-center transition-colors">
+                                <x-heroicon-o-plus class="w-4 h-4 text-slate-500 group-hover:text-brand-600" x-show="open !== {{ $i }}" />
+                                <x-heroicon-o-minus class="w-4 h-4 text-brand-600" x-show="open === {{ $i }}" x-cloak />
                             </span>
                         </button>
                         <div x-show="open === {{ $i }}" x-transition x-cloak class="mt-3 text-slate-500 text-sm leading-relaxed pr-12">
@@ -378,16 +378,16 @@
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
             <div class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-slate-950 via-[#1a002e] to-slate-950 px-8 sm:px-14 py-14 text-center">
                 <div class="pointer-events-none absolute inset-0">
-                    <div class="absolute -top-16 right-0 w-72 h-72 rounded-full bg-pink-600/10 translate-x-1/4 blur-2xl"></div>
+                    <div class="absolute -top-16 right-0 w-72 h-72 rounded-full bg-brand-600/10 translate-x-1/4 blur-2xl"></div>
                     <div class="absolute -bottom-16 left-0 w-60 h-60 rounded-full bg-cyan-500/10 -translate-x-1/4 blur-2xl"></div>
                 </div>
                 <div class="relative">
-                    <div class="inline-block bg-pink-600/20 text-pink-400 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full border border-pink-600/30 mb-6">Ready to print?</div>
+                    <div class="inline-block bg-brand-600/20 text-brand-400 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full border border-brand-600/30 mb-6">Ready to print?</div>
                     <h2 class="text-4xl sm:text-5xl font-black text-white leading-tight mb-4">Start Your Order Today</h2>
                     <p class="text-slate-400 text-lg max-w-xl mx-auto mb-10 leading-relaxed">Pick a service, submit your brief and let our production team handle the rest.</p>
                     <div class="flex flex-wrap justify-center gap-4">
                         <a href="#services"
-                           class="inline-flex items-center gap-2 bg-[#EC268F] hover:bg-pink-700 text-white font-black px-8 py-4 rounded-xl transition-colors text-sm shadow-lg shadow-pink-900/30">
+                           class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-black px-8 py-4 rounded-xl transition-colors text-sm shadow-lg shadow-brand-900/30">
                             <x-heroicon-o-squares-2x2 class="w-5 h-5" />
                             Browse All Services
                         </a>

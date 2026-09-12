@@ -265,6 +265,8 @@ class AdminStaffQueryController extends Controller
                 body: $query->subject,
                 type: 'staff_query_issued',
                 data: [
+                    'category'   => 'queries',
+                    'severity'   => 'major',
                     'query_id'   => $query->id,
                     'query_type' => $query->query_type,
                     'action_url' => route('admin.staff-queries.show', $query),
@@ -294,6 +296,8 @@ class AdminStaffQueryController extends Controller
                 body: $respondent->displayName().' responded to '.$query->query_number,
                 type: 'staff_query_responded',
                 data: [
+                    'category'   => 'queries',
+                    'severity'   => 'minor',
                     'query_id'   => $query->id,
                     'action_url' => route('admin.staff-queries.show', $query),
                 ],
@@ -314,6 +318,8 @@ class AdminStaffQueryController extends Controller
                     body: $commenter->displayName().' commented: '.Str::limit(strip_tags($comment->comment), 100),
                     type: 'staff_query_commented',
                     data: [
+                        'category'   => 'queries',
+                        'severity'   => 'minor',
                         'query_id'   => $query->id,
                         'action_url' => route('admin.staff-queries.show', $query).'#comments',
                     ],
@@ -330,6 +336,8 @@ class AdminStaffQueryController extends Controller
                     body: $commenter->displayName().' replied: '.Str::limit(strip_tags($comment->comment), 100),
                     type: 'staff_query_reply_shared',
                     data: [
+                        'category'   => 'queries',
+                        'severity'   => 'minor',
                         'query_id'   => $query->id,
                         'action_url' => route('admin.staff-queries.show', $query).'#comments',
                     ],

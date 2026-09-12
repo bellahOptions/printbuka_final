@@ -6,6 +6,7 @@ use App\Models\AttendanceRecord;
 use App\Models\WorkLocation;
 use App\Services\CloudinaryUploadService;
 use App\Support\AttendanceCalculator;
+use App\Support\RolePushNotifier;
 use App\Support\SiteSettings;
 use Carbon\Carbon;
 use Livewire\Component;
@@ -98,6 +99,17 @@ class AttendanceClock extends Component
         );
 
         $this->reset('photo');
+
+        if ($record->status === 'late') {
+            RolePushNotifier::send(
+                permission: 'attendance.manage',
+                title: 'Late Clock-In',
+                body: $user->displayName().' clocked in late — '.$now->format('h:i A').'.',
+                type: 'attendance_late',
+                data: ['category' => 'attendance', 'severity' => 'minor', 'user_id' => $user->id, 'action_url' => route('admin.attendance.show', $user)],
+                excludeUserId: $user->id,
+            );
+        }
 
         $this->statusMessage = $record->status === 'late'
             ? 'Clocked in — marked late for today.'

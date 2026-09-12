@@ -7,9 +7,9 @@
 
     {{-- Breadcrumb --}}
     <nav class="flex items-center gap-1.5 text-xs font-bold text-slate-400 mb-8">
-        <a href="{{ route('home') }}" class="hover:text-pink-600">Home</a>
+        <a href="{{ route('home') }}" class="hover:text-brand-600">Home</a>
         <span>/</span>
-        <a href="{{ route('shop.index') }}" class="hover:text-pink-600">Shop</a>
+        <a href="{{ route('shop.index') }}" class="hover:text-brand-600">Shop</a>
         <span>/</span>
         <span class="text-slate-700">{{ $product->name }}</span>
     </nav>
@@ -38,14 +38,14 @@
                     @if($product->featuredImageUrl())
                         <button type="button"
                                 @click="active = '{{ $product->featuredImageUrl() }}'"
-                                class="w-16 h-16 rounded-xl overflow-hidden border-2 border-transparent hover:border-pink-400 transition shrink-0">
+                                class="w-16 h-16 rounded-xl overflow-hidden border-2 border-transparent hover:border-brand-400 transition shrink-0">
                             <img src="{{ $product->featuredImageUrl() }}" alt="{{ $product->name }}" class="w-full h-full object-cover" />
                         </button>
                     @endif
                     @foreach($gallery as $img)
                         <button type="button"
                                 @click="active = '{{ $img }}'"
-                                class="w-16 h-16 rounded-xl overflow-hidden border-2 border-transparent hover:border-pink-400 transition shrink-0">
+                                class="w-16 h-16 rounded-xl overflow-hidden border-2 border-transparent hover:border-brand-400 transition shrink-0">
                             <img src="{{ $img }}" alt="{{ $product->name }}" class="w-full h-full object-cover" />
                         </button>
                     @endforeach
@@ -57,7 +57,7 @@
         <div>
             <div class="flex items-center gap-2 mb-3">
                 @if($product->isOnSale())
-                    <span class="badge bg-pink-600 border-0 text-white font-black">Sale</span>
+                    <span class="badge bg-brand-600 border-0 text-white font-black">Sale</span>
                 @endif
                 @if($product->manage_stock)
                     <span class="badge border-0 font-black {{ $product->isInStock() ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700' }}">
@@ -73,10 +73,10 @@
 
             <div class="mb-5">
                 @if($product->isOnSale())
-                    <span class="text-slate-400 line-through text-lg font-bold">NGN {{ number_format((float)$product->price, 0) }}</span>
-                    <span class="text-3xl font-black text-pink-600 ml-2">NGN {{ number_format($product->currentPrice(), 0) }}</span>
+                    <span class="pb-price-strike text-lg">NGN {{ number_format((float)$product->price, 0) }}</span>
+                    <span class="pb-price text-3xl text-brand-600 ml-2">NGN {{ number_format($product->currentPrice(), 0) }}</span>
                 @else
-                    <span class="text-3xl font-black text-pink-600">NGN {{ number_format($product->currentPrice(), 0) }}</span>
+                    <span class="pb-price text-3xl text-brand-600">NGN {{ number_format($product->currentPrice(), 0) }}</span>
                 @endif
             </div>
 
@@ -94,7 +94,7 @@
                         <div>
                             <label class="block text-sm font-black text-slate-900 mb-2">
                                 {{ $group->name }}
-                                @if($group->is_required)<span class="text-pink-600 ml-0.5">*</span>@endif
+                                @if($group->is_required)<span class="text-brand-600 ml-0.5">*</span>@endif
                             </label>
                             <div class="flex flex-wrap gap-2">
                                 @foreach($group->options->where('is_available', true) as $option)
@@ -105,7 +105,7 @@
                                                class="sr-only peer"
                                                @if(!$group->is_required) {{ '' }} @endif
                                                x-on:change="selectOption({{ $group->id }}, {{ $option->id }}, {{ (float)$option->price_modifier }})" />
-                                        <span class="inline-flex flex-col items-center border-2 border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 peer-checked:border-pink-500 peer-checked:bg-pink-50 peer-checked:text-pink-700 hover:border-slate-300 transition">
+                                        <span class="inline-flex flex-col items-center border-2 border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-700 hover:border-slate-300 transition">
                                             {{ $option->name }}
                                             @if((float)$option->price_modifier != 0)
                                                 <span class="text-xs font-bold {{ (float)$option->price_modifier > 0 ? 'text-slate-500' : 'text-emerald-600' }}">
@@ -122,7 +122,7 @@
                     {{-- Dynamic price --}}
                     <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
                         <p class="text-xs font-bold text-slate-500 uppercase tracking-wide">Total price</p>
-                        <p class="text-2xl font-black text-pink-600 mt-1" x-text="'NGN ' + total.toLocaleString('en-NG', {minimumFractionDigits: 0, maximumFractionDigits: 0})"></p>
+                        <p class="pb-price text-2xl text-brand-600 mt-1" x-text="'NGN ' + total.toLocaleString('en-NG', {minimumFractionDigits: 0, maximumFractionDigits: 0})"></p>
                     </div>
 
                     {{-- Quantity --}}
@@ -136,12 +136,12 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black w-full btn-lg">
+                    <button type="submit" class="pb-cta-primary w-full h-12 text-base">
                         <x-heroicon-o-shopping-cart class="w-5 h-5" />
                         Add to Cart
                     </button>
 
-                    <a href="{{ route('shop.cart') }}" class="btn btn-outline font-black border-slate-200 hover:border-pink-400 hover:text-pink-700 w-full">View Cart</a>
+                    <a href="{{ route('shop.cart') }}" class="pb-cta-outline w-full">View Cart</a>
                 </form>
 
                 <script>
@@ -180,22 +180,23 @@
     {{-- Related products --}}
     @if($relatedProducts->isNotEmpty())
         <div class="mt-16">
-            <h2 class="text-2xl font-black text-slate-950 mb-6">You might also like</h2>
+            <p class="pb-eyebrow mb-2">Related</p>
+            <h2 class="pb-display text-2xl sm:text-3xl mb-6">You might also like</h2>
             <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 @foreach($relatedProducts as $related)
-                    <a href="{{ route('shop.show', $related) }}" class="card bg-white border border-slate-200 hover:-translate-y-1 hover:shadow-lg transition group">
-                        <figure class="h-40 overflow-hidden bg-slate-100">
+                    <a href="{{ route('shop.show', $related) }}" class="pb-product-card group">
+                        <div class="pb-product-card-image">
                             @if($related->featuredImageUrl())
-                                <img src="{{ $related->featuredImageUrl() }}" alt="{{ $related->name }}" class="w-full h-full object-cover group-hover:scale-105 transition" />
+                                <img src="{{ $related->featuredImageUrl() }}" alt="{{ $related->name }}" />
                             @else
                                 <div class="w-full h-full flex items-center justify-center">
                                     <x-heroicon-o-shopping-bag class="w-10 h-10 text-slate-200" />
                                 </div>
                             @endif
-                        </figure>
-                        <div class="card-body p-4">
+                        </div>
+                        <div class="p-4">
                             <h3 class="font-black text-slate-950 text-sm leading-snug">{{ $related->name }}</h3>
-                            <p class="text-base font-black text-pink-600 mt-1">NGN {{ number_format($related->currentPrice(), 0) }}</p>
+                            <p class="pb-price text-base text-brand-600 mt-1">NGN {{ number_format($related->currentPrice(), 0) }}</p>
                         </div>
                     </a>
                 @endforeach

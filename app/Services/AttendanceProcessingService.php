@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\AttendanceRecord;
 use App\Models\Holiday;
 use App\Models\User;
+use App\Support\RolePushNotifier;
 use App\Support\SiteSettings;
 use Carbon\Carbon;
 
@@ -64,6 +65,14 @@ class AttendanceProcessingService
                 'status' => 'absent',
                 'flagged_reason' => 'No clock-in recorded by '.$cutoff->format('h:i A').'.',
             ]);
+
+            RolePushNotifier::send(
+                permission: 'attendance.manage',
+                title: 'Staff Marked Absent',
+                body: $staff->displayName().' had no clock-in recorded by '.$cutoff->format('h:i A').' and was auto-marked absent for '.$today.'.',
+                type: 'attendance_absent',
+                data: ['category' => 'attendance', 'severity' => 'major', 'user_id' => $staff->id, 'work_date' => $today, 'action_url' => route('admin.attendance.show', $staff)],
+            );
         }
 
         return $missing->count();

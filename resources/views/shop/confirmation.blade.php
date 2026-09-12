@@ -9,7 +9,7 @@
             <div class="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-5">
                 <x-heroicon-o-check-circle class="w-10 h-10 text-emerald-600" />
             </div>
-            <h1 class="text-3xl font-black text-slate-950">Order Confirmed!</h1>
+            <h1 class="pb-display text-3xl">Order Confirmed!</h1>
             <p class="text-slate-500 mt-2">Thank you, <strong>{{ $order->customer_name }}</strong>. Your payment was received.</p>
             @if(session('status'))
                 <div class="alert alert-success mt-4 font-bold">{{ session('status') }}</div>
@@ -20,8 +20,8 @@
             <div class="w-20 h-20 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-5">
                 <x-heroicon-o-clock class="w-10 h-10 text-amber-600" />
             </div>
-            <h1 class="text-3xl font-black text-slate-950">Order Received</h1>
-            <p class="text-slate-500 mt-2">Payment pending â€” we will update you at <strong>{{ $order->customer_email }}</strong>.</p>
+            <h1 class="pb-display text-3xl">Order Received</h1>
+            <p class="text-slate-500 mt-2">Payment pending — we will update you at <strong>{{ $order->customer_email }}</strong>.</p>
         </div>
     @endif
 
@@ -52,7 +52,7 @@
                             @foreach($item->selectedOptions as $opt)
                                 <p class="text-xs text-slate-400 font-bold">{{ $opt->group_name }}: {{ $opt->option_name }}</p>
                             @endforeach
-                            <p class="text-xs text-slate-500 mt-0.5">Ã— {{ $item->quantity }} @ NGN {{ number_format((float)$item->unit_price, 0) }}</p>
+                            <p class="text-xs text-slate-500 mt-0.5">× {{ $item->quantity }} @ NGN {{ number_format((float)$item->unit_price, 0) }}</p>
                         </div>
                         <p class="font-black text-slate-900 shrink-0">NGN {{ number_format((float)$item->line_total, 0) }}</p>
                     </div>
@@ -62,7 +62,7 @@
             {{-- Totals --}}
             <div class="border-t border-slate-200 mt-4 pt-4 flex justify-between">
                 <span class="font-black text-slate-900">Total Paid</span>
-                <span class="text-xl font-black text-pink-600">NGN {{ number_format((float)$order->total, 0) }}</span>
+                <span class="pb-price text-xl text-brand-600">NGN {{ number_format((float)$order->total, 0) }}</span>
             </div>
         </div>
     </div>
@@ -71,7 +71,7 @@
     <div class="card bg-white border border-slate-200 shadow-sm mb-8">
         <div class="card-body p-6">
             <h3 class="font-black text-slate-900 mb-3 flex items-center gap-2">
-                <x-heroicon-o-truck class="w-4 h-4 text-pink-600" /> Delivery Address
+                <x-heroicon-o-truck class="w-4 h-4 text-brand-600" /> Delivery Address
             </h3>
             <p class="text-slate-700 font-bold">{{ $order->shipping_name }}</p>
             <p class="text-slate-600 text-sm mt-1">{{ $order->shipping_address }}, {{ $order->shipping_city }}, {{ $order->shipping_state }}</p>
@@ -82,8 +82,8 @@
     </div>
 
     <div class="flex flex-wrap gap-3 justify-center">
-        <a href="{{ route('shop.index') }}" class="btn bg-pink-600 border-0 text-white hover:bg-pink-700 font-black">Continue Shopping</a>
-        <a href="{{ route('home') }}" class="btn btn-outline font-black border-slate-200 hover:border-pink-400 hover:text-pink-700">Back to Home</a>
+        <a href="{{ route('shop.index') }}" class="pb-cta-primary">Continue Shopping</a>
+        <a href="{{ route('home') }}" class="pb-cta-outline">Back to Home</a>
     </div>
 
 </div>

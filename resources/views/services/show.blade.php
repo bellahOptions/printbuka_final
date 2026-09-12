@@ -7,7 +7,7 @@
 <style>
 .svc-slide { position:absolute; inset:0; transition: opacity 1s ease-in-out; }
 .svc-dot   { width:8px; height:8px; border-radius:9999px; background:rgba(255,255,255,0.35); transition: all .3s; cursor:pointer; border:none; padding:0; }
-.svc-dot.active { background:#EC268F; width:24px; }
+.svc-dot.active { background:var(--color-brand-600); width:24px; }
 </style>
 @endpush
 
@@ -42,7 +42,7 @@
         'laser-engraving'       => 'bolt',
     ];
     $serviceColors = [
-        'direct-image-printing' => ['bg'=>'bg-pink-600',    'hex'=>'#db2777', 'from'=>'from-pink-600',    'light'=>'bg-pink-50',    'text'=>'text-pink-600',    'border'=>'border-pink-200'],
+        'direct-image-printing' => ['bg'=>'bg-brand-600',    'hex'=>'#db2777', 'from'=>'from-brand-600',    'light'=>'bg-brand-50',    'text'=>'text-brand-600',    'border'=>'border-brand-200'],
         'uv-dtf'                => ['bg'=>'bg-violet-600',  'hex'=>'#7c3aed', 'from'=>'from-violet-600',  'light'=>'bg-violet-50',  'text'=>'text-violet-600',  'border'=>'border-violet-200'],
         'dtf'                   => ['bg'=>'bg-sky-600',     'hex'=>'#0284c7', 'from'=>'from-sky-600',     'light'=>'bg-sky-50',     'text'=>'text-sky-600',     'border'=>'border-sky-200'],
         'dtf-borderless'        => ['bg'=>'bg-emerald-600', 'hex'=>'#059669', 'from'=>'from-emerald-600', 'light'=>'bg-emerald-50', 'text'=>'text-emerald-600', 'border'=>'border-emerald-200'],
@@ -128,12 +128,12 @@
                         <div class="w-14 h-14 rounded-2xl {{ $colors['bg'] }} flex items-center justify-center shadow-lg">
                             <x-dynamic-component :component="'heroicon-o-'.$icon" class="w-7 h-7 text-white" />
                         </div>
-                        <span class="text-xs font-black uppercase tracking-widest text-pink-400 bg-pink-600/20 border border-pink-600/30 px-4 py-2 rounded-full">
+                        <span class="text-xs font-black uppercase tracking-widest text-brand-400 bg-brand-600/20 border border-brand-600/30 px-4 py-2 rounded-full">
                             {{ $heroKicker }}
                         </span>
                     </div>
 
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.05] mb-5">
+                    <h1 class="pb-display text-4xl sm:text-5xl lg:text-6xl text-white leading-[1.05] mb-5">
                         {{ $heroTitle }}
                     </h1>
                     <p class="text-slate-300 text-lg leading-relaxed max-w-2xl mb-8">
@@ -249,7 +249,7 @@
             <div class="grid lg:grid-cols-3 gap-6">
 
                 {{-- What You Get --}}
-                <div class="bg-white rounded-2xl border border-slate-100 hover:border-pink-200 hover:shadow-lg transition-all p-7">
+                <div class="bg-white rounded-2xl border border-slate-100 hover:border-brand-200 hover:shadow-lg transition-all p-7">
                     <div class="w-10 h-10 rounded-xl {{ $colors['light'] }} flex items-center justify-center mb-4">
                         <x-heroicon-o-check-badge class="w-5 h-5 {{ $colors['text'] }}" />
                     </div>
@@ -268,7 +268,7 @@
                 </div>
 
                 {{-- Best For --}}
-                <div class="bg-white rounded-2xl border border-slate-100 hover:border-pink-200 hover:shadow-lg transition-all p-7">
+                <div class="bg-white rounded-2xl border border-slate-100 hover:border-brand-200 hover:shadow-lg transition-all p-7">
                     <div class="w-10 h-10 rounded-xl {{ $colors['light'] }} flex items-center justify-center mb-4">
                         <x-heroicon-o-building-office class="w-5 h-5 {{ $colors['text'] }}" />
                     </div>
@@ -323,7 +323,7 @@
                 <div class="hidden md:block absolute top-7 left-[calc(16.66%+20px)] right-[calc(16.66%+20px)] h-0.5 opacity-30 pointer-events-none {{ $colors['bg'] }}"></div>
                 <div class="grid sm:grid-cols-3 gap-6">
                     @forelse($processSteps as $i => $step)
-                        <div class="bg-white rounded-2xl border border-slate-100 hover:border-pink-200 hover:shadow-lg transition-all p-6 text-center group">
+                        <div class="bg-white rounded-2xl border border-slate-100 hover:border-brand-200 hover:shadow-lg transition-all p-6 text-center group">
                             <div class="w-14 h-14 rounded-2xl {{ $colors['bg'] }} flex items-center justify-center mx-auto mb-4 shadow-md group-hover:scale-110 transition-transform">
                                 <span class="text-xl font-black text-white">{{ $i + 1 }}</span>
                             </div>
@@ -378,7 +378,7 @@
                             Go to {{ $service['name'] }} Products
                         </a>
                         <a href="{{ route('products.index') }}"
-                           class="inline-flex items-center gap-2 border border-slate-200 hover:border-pink-300 text-slate-700 hover:text-pink-700 font-black px-7 py-4 rounded-xl transition-colors text-sm">
+                           class="inline-flex items-center gap-2 border border-slate-200 hover:border-brand-300 text-slate-700 hover:text-brand-700 font-black px-7 py-4 rounded-xl transition-colors text-sm">
                             Browse Full Catalog
                         </a>
                     </div>
@@ -421,7 +421,7 @@
                                 Sign In
                             </a>
                             <a href="{{ route('register') }}"
-                               class="inline-flex items-center gap-2 border border-slate-200 hover:border-pink-300 text-slate-700 hover:text-pink-700 font-black px-7 py-4 rounded-xl transition-colors text-sm">
+                               class="inline-flex items-center gap-2 border border-slate-200 hover:border-brand-300 text-slate-700 hover:text-brand-700 font-black px-7 py-4 rounded-xl transition-colors text-sm">
                                 <x-heroicon-o-user-plus class="w-5 h-5" />
                                 Create Free Account
                             </a>
@@ -465,48 +465,48 @@
                             @csrf
                             <div class="grid sm:grid-cols-2 gap-5">
                                 <div>
-                                    <label for="quantity" class="block text-sm font-black text-slate-800 mb-1.5">Quantity <span class="text-pink-600">*</span></label>
+                                    <label for="quantity" class="block text-sm font-black text-slate-800 mb-1.5">Quantity <span class="text-brand-600">*</span></label>
                                     <input id="quantity" type="number" min="1" name="quantity" value="{{ old('quantity', 1) }}" required
-                                           class="w-full h-12 rounded-xl border {{ $errors->has('quantity') ? 'border-red-400' : 'border-slate-200' }} px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" />
+                                           class="w-full h-12 rounded-xl border {{ $errors->has('quantity') ? 'border-red-400' : 'border-slate-200' }} px-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100" />
                                 </div>
                                 <div>
-                                    <label for="delivery_method" class="block text-sm font-black text-slate-800 mb-1.5">Delivery Method <span class="text-pink-600">*</span></label>
+                                    <label for="delivery_method" class="block text-sm font-black text-slate-800 mb-1.5">Delivery Method <span class="text-brand-600">*</span></label>
                                     <select id="delivery_method" name="delivery_method" required
-                                            class="w-full h-12 rounded-xl border {{ $errors->has('delivery_method') ? 'border-red-400' : 'border-slate-200' }} px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 bg-white">
+                                            class="w-full h-12 rounded-xl border {{ $errors->has('delivery_method') ? 'border-red-400' : 'border-slate-200' }} px-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 bg-white">
                                         @foreach($deliveryMethods as $method)
                                             <option value="{{ $method }}" @selected(old('delivery_method','Client Pickup') === $method)>{{ $method }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-black text-slate-800 mb-1.5">Your Name <span class="text-pink-600">*</span></label>
+                                    <label class="block text-sm font-black text-slate-800 mb-1.5">Your Name <span class="text-brand-600">*</span></label>
                                     <input type="text" name="customer_name" value="{{ old('customer_name', $customer?->displayName()) }}" required
-                                           class="w-full h-12 rounded-xl border {{ $errors->has('customer_name') ? 'border-red-400' : 'border-slate-200' }} px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" />
+                                           class="w-full h-12 rounded-xl border {{ $errors->has('customer_name') ? 'border-red-400' : 'border-slate-200' }} px-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100" />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-black text-slate-800 mb-1.5">Email Address <span class="text-pink-600">*</span></label>
+                                    <label class="block text-sm font-black text-slate-800 mb-1.5">Email Address <span class="text-brand-600">*</span></label>
                                     <input type="email" name="customer_email" value="{{ old('customer_email', $customer?->email) }}" required
-                                           class="w-full h-12 rounded-xl border {{ $errors->has('customer_email') ? 'border-red-400' : 'border-slate-200' }} px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" />
+                                           class="w-full h-12 rounded-xl border {{ $errors->has('customer_email') ? 'border-red-400' : 'border-slate-200' }} px-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100" />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-black text-slate-800 mb-1.5">Phone Number <span class="text-pink-600">*</span></label>
+                                    <label class="block text-sm font-black text-slate-800 mb-1.5">Phone Number <span class="text-brand-600">*</span></label>
                                     <input type="text" name="customer_phone" value="{{ old('customer_phone', $customer?->phone) }}" required
-                                           class="w-full h-12 rounded-xl border {{ $errors->has('customer_phone') ? 'border-red-400' : 'border-slate-200' }} px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" />
+                                           class="w-full h-12 rounded-xl border {{ $errors->has('customer_phone') ? 'border-red-400' : 'border-slate-200' }} px-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100" />
                                 </div>
                                 <div>
                                     <label for="delivery_city" class="block text-sm font-black text-slate-800 mb-1.5">Delivery City</label>
                                     <input id="delivery_city" type="text" name="delivery_city" value="{{ old('delivery_city') }}"
-                                           class="w-full h-12 rounded-xl border {{ $errors->has('delivery_city') ? 'border-red-400' : 'border-slate-200' }} px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" />
+                                           class="w-full h-12 rounded-xl border {{ $errors->has('delivery_city') ? 'border-red-400' : 'border-slate-200' }} px-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100" />
                                 </div>
                                 <div class="sm:col-span-2">
                                     <label for="delivery_address" class="block text-sm font-black text-slate-800 mb-1.5">Delivery Address</label>
                                     <input id="delivery_address" type="text" name="delivery_address" value="{{ old('delivery_address') }}"
-                                           class="w-full h-12 rounded-xl border {{ $errors->has('delivery_address') ? 'border-red-400' : 'border-slate-200' }} px-4 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100" />
+                                           class="w-full h-12 rounded-xl border {{ $errors->has('delivery_address') ? 'border-red-400' : 'border-slate-200' }} px-4 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100" />
                                 </div>
                                 <div class="sm:col-span-2">
-                                    <label class="block text-sm font-black text-slate-800 mb-1.5">Order Notes / Artwork Instructions <span class="text-pink-600">*</span></label>
+                                    <label class="block text-sm font-black text-slate-800 mb-1.5">Order Notes / Artwork Instructions <span class="text-brand-600">*</span></label>
                                     <textarea name="artwork_notes" rows="4" required
-                                              class="w-full rounded-xl border {{ $errors->has('artwork_notes') ? 'border-red-400' : 'border-slate-200' }} px-4 py-3 text-sm font-semibold outline-none transition focus:border-pink-500 focus:ring-4 focus:ring-pink-100 resize-none">{{ old('artwork_notes') }}</textarea>
+                                              class="w-full rounded-xl border {{ $errors->has('artwork_notes') ? 'border-red-400' : 'border-slate-200' }} px-4 py-3 text-sm font-semibold outline-none transition focus:border-brand-500 focus:ring-4 focus:ring-brand-100 resize-none">{{ old('artwork_notes') }}</textarea>
                                     <p class="text-xs text-slate-400 mt-1">Include dimensions, colours, file format, or any special requirements.</p>
                                 </div>
                             </div>
@@ -546,25 +546,25 @@
             @php
                 $allServices = collect(config('printbuka_services.services', []))->map(fn($s,$slug) => [...$s,'slug'=>$slug])->values();
                 $siIcons     = ['direct-image-printing'=>'printer','uv-dtf'=>'sparkles','dtf'=>'swatch','dtf-borderless'=>'rectangle-group','laser-engraving'=>'bolt'];
-                $siColors    = ['direct-image-printing'=>'bg-pink-600','uv-dtf'=>'bg-violet-600','dtf'=>'bg-sky-600','dtf-borderless'=>'bg-emerald-600','laser-engraving'=>'bg-amber-600'];
+                $siColors    = ['direct-image-printing'=>'bg-brand-600','uv-dtf'=>'bg-violet-600','dtf'=>'bg-sky-600','dtf-borderless'=>'bg-emerald-600','laser-engraving'=>'bg-amber-600'];
             @endphp
             <div class="grid sm:grid-cols-2 lg:grid-cols-{{ min(5, $allServices->count()) }} gap-4">
                 @foreach($allServices as $s)
                     <a href="{{ route('services.show', $s['slug']) }}"
-                       class="group flex items-center gap-4 bg-white rounded-2xl border {{ $s['slug'] === $service['slug'] ? 'border-pink-300 bg-pink-50 pointer-events-none' : 'border-slate-100 hover:border-pink-200 hover:shadow-md' }} p-5 transition-all">
+                       class="group flex items-center gap-4 bg-white rounded-2xl border {{ $s['slug'] === $service['slug'] ? 'border-brand-300 bg-brand-50 pointer-events-none' : 'border-slate-100 hover:border-brand-200 hover:shadow-md' }} p-5 transition-all">
                         <div class="w-10 h-10 rounded-xl {{ $siColors[$s['slug']] ?? 'bg-slate-600' }} flex items-center justify-center shrink-0">
                             <x-dynamic-component :component="'heroicon-o-'.($siIcons[$s['slug']] ?? 'star')" class="w-5 h-5 text-white" />
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p class="font-black text-sm text-slate-950 group-hover:text-[#EC268F] transition-colors truncate">{{ $s['name'] }}</p>
+                            <p class="font-black text-sm text-slate-950 group-hover:text-brand-600 transition-colors truncate">{{ $s['name'] }}</p>
                             @if($s['slug'] === $service['slug'])
-                                <p class="text-[10px] font-bold text-pink-600 uppercase tracking-wide">Current</p>
+                                <p class="text-[10px] font-bold text-brand-600 uppercase tracking-wide">Current</p>
                             @else
                                 <p class="text-xs text-slate-400 truncate">{{ \Illuminate\Support\Str::limit($s['summary'] ?? '', 45) }}</p>
                             @endif
                         </div>
                         @if($s['slug'] !== $service['slug'])
-                            <x-heroicon-o-arrow-right class="w-4 h-4 text-slate-300 group-hover:text-pink-500 shrink-0 transition-colors" />
+                            <x-heroicon-o-arrow-right class="w-4 h-4 text-slate-300 group-hover:text-brand-500 shrink-0 transition-colors" />
                         @endif
                     </a>
                 @endforeach

@@ -12,7 +12,7 @@
                  alt="{{ $post->title }}"
                  class="absolute inset-0 w-full h-full object-cover">
         @else
-            <div class="absolute inset-0 bg-[#EC268F]"></div>
+            <div class="absolute inset-0 bg-brand-600"></div>
         @endif
 
         {{-- Gradient --}}
@@ -27,12 +27,12 @@
             </a>
 
             <div class="flex items-center gap-3 mb-4 flex-wrap">
-                <span class="bg-[#EC268F] text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">
+                <span class="bg-brand-600 text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">
                     {{ $post->published_at?->format('M j, Y') ?? $post->created_at->format('M j, Y') }}
                 </span>
                 @if($post->author)
                     <span class="flex items-center gap-1.5 text-white/60 text-xs font-bold">
-                        <span class="w-5 h-5 rounded-full bg-pink-600 flex items-center justify-center text-white text-[9px] font-black">
+                        <span class="w-5 h-5 rounded-full bg-brand-600 flex items-center justify-center text-white text-[9px] font-black">
                             {{ strtoupper(substr($post->author->name, 0, 2)) }}
                         </span>
                         {{ $post->author->name }}
@@ -40,7 +40,7 @@
                 @endif
             </div>
 
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
+            <h1 class="pb-display text-3xl sm:text-4xl lg:text-5xl text-white leading-tight">
                 {{ $post->title }}
             </h1>
 
@@ -59,9 +59,9 @@
                 <article>
                     <div class="prose prose-slate prose-lg max-w-none
                                 prose-headings:font-black prose-headings:text-slate-900
-                                prose-a:text-[#EC268F] prose-a:no-underline hover:prose-a:underline
+                                prose-a:text-brand-600 prose-a:no-underline hover:prose-a:underline
                                 prose-img:rounded-2xl prose-img:shadow-md
-                                prose-blockquote:border-l-[#EC268F] prose-blockquote:bg-pink-50 prose-blockquote:py-1 prose-blockquote:rounded-r-xl">
+                                prose-blockquote:border-l-[var(--color-brand-600)] prose-blockquote:bg-brand-50 prose-blockquote:py-1 prose-blockquote:rounded-r-xl">
                         {!! $safeContent !!}
                     </div>
 
@@ -82,7 +82,7 @@
                     {{-- Author card --}}
                     @if($post->author)
                         <div class="mt-12 p-6 rounded-2xl border border-gray-100 bg-slate-50 flex items-center gap-5">
-                            <div class="w-14 h-14 rounded-full bg-[#EC268F] flex items-center justify-center text-white font-black text-lg shrink-0">
+                            <div class="w-14 h-14 rounded-full bg-brand-600 flex items-center justify-center text-white font-black text-lg shrink-0">
                                 {{ strtoupper(substr($post->author->name, 0, 2)) }}
                             </div>
                             <div>
@@ -117,11 +117,11 @@
                     </div>
 
                     {{-- CTA --}}
-                    <div class="rounded-2xl bg-[#EC268F] p-5 text-white">
-                        <p class="text-xs font-black uppercase tracking-widest text-pink-200 mb-2">Ready to print?</p>
+                    <div class="rounded-2xl bg-brand-600 p-5 text-white">
+                        <p class="text-xs font-black uppercase tracking-widest text-brand-200 mb-2">Ready to print?</p>
                         <p class="font-black text-lg leading-snug mb-4">Get quality prints delivered to your door.</p>
                         <a href="{{ route('products.index') }}"
-                           class="inline-flex items-center gap-1.5 bg-white text-[#EC268F] text-sm font-black px-4 py-2.5 rounded-xl hover:bg-pink-50 transition-colors">
+                           class="inline-flex items-center gap-1.5 bg-white text-brand-600 text-sm font-black px-4 py-2.5 rounded-xl hover:bg-brand-50 transition-colors">
                             Browse Products <x-heroicon-o-arrow-right class="w-4 h-4" />
                         </a>
                     </div>
@@ -145,7 +145,7 @@
                                  class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
                             <div class="absolute top-4 left-4">
-                                <span class="bg-[#EC268F] text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">
+                                <span class="bg-brand-600 text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">
                                     {{ $related->published_at?->format('M j, Y') ?? $related->created_at->format('M j, Y') }}
                                 </span>
                             </div>
@@ -156,7 +156,7 @@
                                 <h3 class="text-slate-900 font-black text-sm mb-2 line-clamp-2">{{ $related->title }}</h3>
                                 <p class="text-slate-500 text-xs line-clamp-2 mb-3">{{ $related->excerpt ?: \Illuminate\Support\Str::limit(strip_tags($related->content), 90) }}</p>
                                 <a href="{{ route('blog.show', $related) }}"
-                                   class="inline-flex items-center gap-1 bg-[#EC268F] hover:bg-pink-700 text-white text-xs font-black px-3 py-1.5 rounded-lg transition-colors">
+                                   class="inline-flex items-center gap-1 bg-brand-600 hover:bg-brand-700 text-white text-xs font-black px-3 py-1.5 rounded-lg transition-colors">
                                     Read <x-heroicon-o-arrow-right class="w-3 h-3" />
                                 </a>
                             </div>

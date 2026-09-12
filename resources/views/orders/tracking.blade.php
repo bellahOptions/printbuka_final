@@ -6,8 +6,8 @@
     <main class="bg-slate-50 py-12 text-slate-900">
         <section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="rounded-md bg-slate-950 p-6 text-white lg:p-8">
-                <p class="text-sm font-black uppercase tracking-wide text-cyan-300">Order Tracking</p>
-                <h1 class="mt-2 text-5xl">{{ $order->job_order_number ?? $order->displayNumber() }}</h1>
+                <p class="pb-eyebrow text-cyan-300">Order Tracking</p>
+                <h1 class="pb-display mt-2 text-4xl sm:text-5xl text-white">{{ $order->job_order_number ?? $order->displayNumber() }}</h1>
                 <p class="mt-3 max-w-2xl text-sm leading-6 text-slate-300">{{ $order->product?->name ?? 'Custom order' }} for {{ $order->customer_name }}</p>
             </div>
 
@@ -22,7 +22,7 @@
                 </div>
                 <div class="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
                     <p class="text-sm font-bold text-slate-500">{{ $order->service_type === 'quote' ? 'Pricing' : 'Total' }}</p>
-                    <p class="mt-1 text-2xl font-black text-pink-700">{{ $order->service_type === 'quote' ? 'Pending' : 'NGN '.number_format($order->invoice?->total_amount ?? $order->total_price, 2) }}</p>
+                    <p class="pb-price mt-1 text-2xl text-brand-700">{{ $order->service_type === 'quote' ? 'Pending' : 'NGN '.number_format($order->invoice?->total_amount ?? $order->total_price, 2) }}</p>
                 </div>
                 <div class="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
                     <p class="text-sm font-bold text-slate-500">Ordered</p>
@@ -34,16 +34,16 @@
                         {{ $order->estimated_delivery_at?->format('M d, Y h:i A') ?? 'Pending payment confirmation for delivery ETA.' }}
                     </p>
                     @if ($order->is_sample)
-                        <p class="mt-2 text-xs font-bold text-pink-700">Sample order (auto-express)</p>
+                        <p class="mt-2 text-xs font-bold text-brand-700">Sample order (auto-express)</p>
                     @elseif ($order->is_express)
-                        <p class="mt-2 text-xs font-bold text-pink-700">Express order</p>
+                        <p class="mt-2 text-xs font-bold text-brand-700">Express order</p>
                     @endif
                 </div>
             </div>
 
             <div class="mt-8 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
                 <section class="rounded-md border border-slate-200 bg-white p-6 shadow-sm">
-                    <p class="text-sm font-black uppercase tracking-wide text-pink-700">Order Details</p>
+                    <p class="text-sm font-black uppercase tracking-wide text-brand-700">Order Details</p>
                     <div class="mt-5 space-y-4 text-sm">
                         <div class="flex justify-between gap-4 border-b border-slate-100 pb-3">
                             <span class="font-bold text-slate-500">Product</span>
@@ -64,7 +64,7 @@
                         <div class="flex justify-between gap-4 border-b border-slate-100 pb-3">
                             <span class="font-bold text-slate-500">Fulfilment</span>
                             <span class="font-black text-slate-950">
-                                {{ $order->is_sample ? 'Sample Â· Express' : ($order->is_express ? 'Express' : 'Standard') }}
+                                {{ $order->is_sample ? 'Sample · Express' : ($order->is_express ? 'Express' : 'Standard') }}
                             </span>
                         </div>
                     </div>

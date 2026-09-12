@@ -23,7 +23,7 @@
         
         {{-- Back Button --}}
         <div class="mb-6">
-            <a href="{{ route('user.invoices.index') }}" class="inline-flex items-center gap-2 text-slate-500 hover:text-pink-600 transition">
+            <a href="{{ route('user.invoices.index') }}" class="inline-flex items-center gap-2 text-slate-500 hover:text-brand-600 transition">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
@@ -41,7 +41,7 @@
                         <div class="badge bg-cyan-500/20 text-cyan-300 border-0 mb-2">
                             {{ $invoice->documentTypeLabel() }}
                         </div>
-                        <h1 class="text-2xl font-bold text-white">
+                        <h1 class="pb-display text-2xl text-white">
                             {{ $invoice->invoice_number ?? 'INV-' . str_pad($invoice->id, 5, '0', STR_PAD_LEFT) }}
                         </h1>
                         <p class="text-slate-300 text-sm mt-1">
@@ -120,8 +120,8 @@
                                         @endif
                                     </td>
                                     <td class="py-3 text-right text-slate-700">{{ $invoice->order->quantity ?? 1 }}</td>
-                                    <td class="py-3 text-right text-slate-700">â‚¦{{ number_format($invoice->subtotal / max($invoice->order->quantity ?? 1, 1), 2) }}</td>
-                                    <td class="py-3 text-right font-semibold text-slate-800">â‚¦{{ number_format($invoice->subtotal, 2) }}</td>
+                                    <td class="py-3 text-right text-slate-700">₦{{ number_format($invoice->subtotal / max($invoice->order->quantity ?? 1, 1), 2) }}</td>
+                                    <td class="py-3 text-right font-semibold text-slate-800">₦{{ number_format($invoice->subtotal, 2) }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -134,23 +134,23 @@
                         <div class="w-full sm:w-80 space-y-2">
                             <div class="flex justify-between text-sm">
                                 <span class="text-slate-500">Subtotal:</span>
-                                <span class="text-slate-700">â‚¦{{ number_format($invoice->subtotal, 2) }}</span>
+                                <span class="text-slate-700">₦{{ number_format($invoice->subtotal, 2) }}</span>
                             </div>
                             @if($invoice->discount_amount > 0)
                             <div class="flex justify-between text-sm">
                                 <span class="text-slate-500">Discount:</span>
-                                <span class="text-emerald-600">-â‚¦{{ number_format($invoice->discount_amount, 2) }}</span>
+                                <span class="text-emerald-600">-₦{{ number_format($invoice->discount_amount, 2) }}</span>
                             </div>
                             @endif
                             @if($invoice->tax_amount > 0)
                             <div class="flex justify-between text-sm">
                                 <span class="text-slate-500">Tax (VAT):</span>
-                                <span class="text-slate-700">â‚¦{{ number_format($invoice->tax_amount, 2) }}</span>
+                                <span class="text-slate-700">₦{{ number_format($invoice->tax_amount, 2) }}</span>
                             </div>
                             @endif
                             <div class="flex justify-between text-lg font-bold pt-2 border-t border-slate-200">
                                 <span class="text-slate-900">Total:</span>
-                                <span class="text-pink-600">â‚¦{{ number_format($invoice->total_amount, 2) }}</span>
+                                <span class="text-brand-600">₦{{ number_format($invoice->total_amount, 2) }}</span>
                             </div>
                         </div>
                     </div>
@@ -240,7 +240,7 @@
 
                 {{-- Action Buttons --}}
                 <div class="mt-8 flex flex-wrap gap-3 justify-end">
-                    <a href="{{ route('user.invoices.download', $invoice) }}" class="btn btn-outline btn-pink-600">
+                    <a href="{{ route('user.invoices.download', $invoice) }}" class="btn btn-outline btn-brand-600">
                         <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                         </svg>

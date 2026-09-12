@@ -466,6 +466,143 @@
     .table-scroll-container::after { display: none; }
 }
 
+/* ============================================================
+   CUSTOMER STOREFRONT — visual refresh layer (additive only;
+   nothing here changes existing .pb-* sizes/shapes the admin
+   portal already relies on — new classes, new territory).
+   ============================================================ */
+@layer components {
+
+    /* ─── EYEBROW / KICKER LABEL ───────────────────────────
+       Small uppercase label above a heading — standard
+       e-commerce pattern to give sections a category context
+       before the headline. ─── */
+    .pb-eyebrow {
+        @apply inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.14em] text-brand-600;
+    }
+
+    /* ─── DISPLAY HEADING ───────────────────────────────────
+       Puts the previously-unused DM Serif Display token to
+       work for hero/section headlines — an editorial serif
+       accent that differentiates a print/creative brand from
+       generic sans-only SaaS storefronts. Weight comes from
+       the font itself (regular + italic only), so no
+       font-weight utility is layered on top. ─── */
+    .pb-display {
+        font-family: var(--font-display);
+        @apply tracking-tight text-slate-950;
+    }
+    .pb-display-italic {
+        font-family: var(--font-display);
+        font-style: italic;
+        @apply tracking-tight text-brand-700;
+    }
+
+    /* ─── STOREFRONT CTA BUTTONS ────────────────────────────
+       Distinct from admin's compact .pb-btn-* (h-10/40px) —
+       these meet the 44px touch-target minimum and carry a
+       bit more visual weight for a customer-facing storefront. ─── */
+    .pb-cta {
+        @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl
+               h-11 px-6 text-sm font-bold transition-all duration-200 select-none
+               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+               disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98];
+    }
+    .pb-cta-primary {
+        @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl
+               h-11 px-6 text-sm font-bold transition-all duration-200 select-none
+               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+               disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]
+               bg-brand-600 text-white shadow-lg shadow-brand-600/25
+               hover:bg-brand-700 hover:shadow-xl hover:shadow-brand-600/30
+               focus-visible:ring-brand-500;
+    }
+    .pb-cta-ink {
+        @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl
+               h-11 px-6 text-sm font-bold transition-all duration-200 select-none
+               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+               disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]
+               bg-slate-950 text-white shadow-lg shadow-slate-950/20
+               hover:bg-slate-800 focus-visible:ring-slate-700;
+    }
+    .pb-cta-outline {
+        @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl
+               h-11 px-6 text-sm font-bold transition-all duration-200 select-none
+               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+               disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]
+               border-2 border-slate-200 bg-white text-slate-900
+               hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700
+               focus-visible:ring-brand-500;
+    }
+    .pb-cta-white {
+        @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl
+               h-11 px-6 text-sm font-bold transition-all duration-200 select-none
+               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+               disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]
+               bg-white text-slate-950 shadow-lg shadow-slate-950/10
+               hover:bg-slate-50 focus-visible:ring-white;
+    }
+
+    /* ─── SECTION RHYTHM ────────────────────────────────────
+       Consistent vertical spacing scale for storefront page
+       sections, so scroll rhythm feels the same site-wide
+       instead of ad-hoc py-* per page. ─── */
+    .pb-section {
+        @apply py-16 sm:py-20 lg:py-24;
+    }
+    .pb-section-tight {
+        @apply py-10 sm:py-14;
+    }
+    .pb-container {
+        @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+    }
+
+    /* ─── PRODUCT / SHOP CARD ───────────────────────────────
+       Shared card treatment for anything sellable: image with
+       a gentle zoom-on-hover, consistent info block below.
+       NOTE: `group` is a bare selector marker, not a real
+       utility with CSS of its own, so it can't be @apply'd —
+       add class="pb-product-card group" together in markup. ─── */
+    .pb-product-card {
+        @apply relative flex flex-col overflow-hidden rounded-2xl border border-slate-200
+               bg-white transition-all duration-300 hover:-translate-y-1 hover:border-brand-200
+               hover:shadow-xl hover:shadow-slate-900/10;
+    }
+    .pb-product-card-image {
+        @apply aspect-square w-full overflow-hidden bg-slate-50;
+    }
+    .pb-product-card-image img {
+        @apply h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105;
+    }
+
+    /* ─── FILTER / TAG CHIP ─────────────────────────────────
+       Selectable pill for category filters, size/material
+       options, etc. — meets touch-target height at 44px total
+       with padding, and gives a clear selected/unselected state
+       that doesn't rely on color alone (border + weight shift). ─── */
+    .pb-chip {
+        @apply inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white
+               px-4 text-sm font-semibold text-slate-600 transition-all duration-150
+               hover:border-brand-300 hover:text-brand-700
+               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-1;
+    }
+    .pb-chip-active {
+        @apply border-brand-600 bg-brand-600 text-white hover:border-brand-600 hover:text-white;
+    }
+
+    /* ─── PRICE TAG ─────────────────────────────────────────
+       Tabular figures keep prices from jittering when the
+       digits change (e.g. on quantity/option updates). ─── */
+    .pb-price {
+        font-variant-numeric: tabular-nums;
+        @apply font-black text-slate-950;
+    }
+    .pb-price-strike {
+        font-variant-numeric: tabular-nums;
+        @apply text-slate-400 line-through font-semibold;
+    }
+}
+
 /* ─── Legacy helper classes ─── */
 .card-hover { transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
 .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgb(0 0 0/0.06); }

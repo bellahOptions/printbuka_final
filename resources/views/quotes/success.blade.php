@@ -5,8 +5,8 @@
 @section('content')
     <main class="bg-slate-50 px-4 py-16 text-slate-900 sm:px-6 lg:px-8">
         <section class="mx-auto max-w-4xl rounded-md bg-white p-6 text-center shadow-xl shadow-cyan-950/10 sm:p-10">
-            <p class="mx-auto inline-flex rounded-md bg-pink-50 px-4 py-2 text-sm font-black uppercase tracking-wide text-pink-700">Quote Submitted</p>
-            <h1 class="mt-5 text-5xl text-slate-950">We have your brief.</h1>
+            <p class="mx-auto inline-flex rounded-md bg-brand-50 px-4 py-2 text-sm font-black uppercase tracking-wide text-brand-700">Quote Submitted</p>
+            <h1 class="pb-display mt-5 text-5xl">We have your brief.</h1>
             <p class="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-600">Your quote request for {{ $order->job_type ?? $order->product?->name ?? 'this job' }} has been saved for review.</p>
 
             @if (session('status'))
@@ -33,9 +33,9 @@
             </div>
 
             <div class="mt-8 flex flex-wrap justify-center gap-3">
-                <a href="{{ route('orders.track.show', $order) }}" class="rounded-md border border-slate-200 px-6 py-3 text-sm font-black text-slate-800 transition hover:border-pink-300 hover:text-pink-700">Track Request</a>
-                <a href="{{ route('products.index') }}" class="rounded-md border border-slate-200 px-6 py-3 text-sm font-black text-slate-800 transition hover:border-pink-300 hover:text-pink-700">Browse Products</a>
-                <a href="{{ route('home') }}" class="rounded-md bg-pink-600 px-6 py-3 text-sm font-black text-white transition hover:bg-pink-700">Back Home</a>
+                <a href="{{ route('orders.track.show', $order) }}" class="rounded-md border border-slate-200 px-6 py-3 text-sm font-black text-slate-800 transition hover:border-brand-300 hover:text-brand-700">Track Request</a>
+                <a href="{{ route('products.index') }}" class="rounded-md border border-slate-200 px-6 py-3 text-sm font-black text-slate-800 transition hover:border-brand-300 hover:text-brand-700">Browse Products</a>
+                <a href="{{ route('home') }}" class="rounded-md bg-brand-600 px-6 py-3 text-sm font-black text-white transition hover:bg-brand-700">Back Home</a>
             </div>
         </section>
     </main>

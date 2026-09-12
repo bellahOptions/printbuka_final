@@ -16,14 +16,14 @@
                 {{-- Left Sidebar --}}
                 <aside class="h-fit rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white lg:sticky lg:top-28 shadow-xl">
                     <div class="flex items-center gap-2 mb-4">
-                        <div class="h-10 w-10 rounded-xl bg-pink-500/20 flex items-center justify-center">
-                            <svg class="h-5 w-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="h-10 w-10 rounded-xl bg-brand-500/20 flex items-center justify-center">
+                            <svg class="h-5 w-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
                         </div>
                         <p class="text-sm font-black uppercase tracking-wide text-cyan-300">Get Quote</p>
                     </div>
-                    <h1 class="mt-2 text-3xl font-bold leading-tight lg:text-4xl">Tell us what you need printed.</h1>
+                    <h1 class="pb-display mt-2 text-3xl leading-tight lg:text-4xl">Tell us what you need printed.</h1>
                     <p class="mt-4 text-sm leading-7 text-slate-300">Share the job details, quantity, delivery location and any artwork files you already have.</p>
 
                     {{-- Categories Quick Links --}}
@@ -33,7 +33,7 @@
                             <div class="flex flex-wrap gap-2">
                                 @foreach($quoteCategories->take(6) as $category)
                                     <a href="{{ route('products.category', $category->slug) }}" 
-                                       class="text-xs px-3 py-1.5 rounded-full bg-white/10 hover:bg-pink-500/30 transition text-slate-300 hover:text-white">
+                                       class="text-xs px-3 py-1.5 rounded-full bg-white/10 hover:bg-brand-500/30 transition text-slate-300 hover:text-white">
                                         {{ $category->name }}
                                     </a>
                                 @endforeach
@@ -65,7 +65,7 @@
                 <section class="card bg-white rounded-2xl shadow-xl border border-slate-100">
                     <div class="card-body p-6 sm:p-8">
                         <div class="mb-6">
-                            <div class="badge bg-pink-100 text-pink-700 border-0 mb-2">Quote Request</div>
+                            <div class="badge bg-brand-100 text-brand-700 border-0 mb-2">Quote Request</div>
                             <h2 class="text-2xl font-bold text-slate-900 sm:text-3xl">Send the brief.</h2>
                             <p class="mt-2 text-sm text-slate-500">We will review the request and contact you with pricing and next steps.</p>
                         </div>
@@ -86,10 +86,10 @@
                         @endif
 
                         @if ($selectedQuoteProduct)
-                            <div class="mb-6 rounded-xl border border-pink-100 bg-pink-50 p-4">
-                                <p class="text-xs font-black uppercase tracking-wide text-pink-700">Selected product</p>
+                            <div class="mb-6 rounded-xl border border-brand-100 bg-brand-50 p-4">
+                                <p class="text-xs font-black uppercase tracking-wide text-brand-700">Selected product</p>
                                 <p class="mt-1 text-lg font-black text-slate-950">{{ $selectedQuoteProduct->name }}</p>
-                                <p class="mt-1 text-sm font-semibold text-slate-600">MOQ {{ $selectedQuoteProduct->moq }}{{ $selectedQuoteProduct->paper_size ? ' Â· '.$selectedQuoteProduct->paper_size : '' }}{{ $selectedQuoteProduct->paper_density ? ' Â· '.$selectedQuoteProduct->paper_density : '' }}</p>
+                                <p class="mt-1 text-sm font-semibold text-slate-600">MOQ {{ $selectedQuoteProduct->moq }}{{ $selectedQuoteProduct->paper_size ? ' · '.$selectedQuoteProduct->paper_size : '' }}{{ $selectedQuoteProduct->paper_density ? ' · '.$selectedQuoteProduct->paper_density : '' }}</p>
                             </div>
                         @endif
 
@@ -123,7 +123,7 @@
                                             <option value="{{ $selectedQuoteProduct->name }}" @selected($selectedJobType === $selectedQuoteProduct->name)>{{ $selectedQuoteProduct->name }}</option>
                                         @endif
                                     </select>
-                                    @error('job_type') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                                    @error('job_type') <span class="text-xs text-brand-600 mt-1">{{ $message }}</span> @enderror
                                 </div>
                             </div>
 
@@ -150,7 +150,7 @@
                                     </label>
                                     <input type="number" min="1" name="quantity" value="{{ old('quantity', $selectedQuoteProduct?->moq ?? 1) }}" 
                                         class="input input-bordered w-full focus:input-primary @error('quantity') input-error @enderror" required />
-                                    @error('quantity') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                                    @error('quantity') <span class="text-xs text-brand-600 mt-1">{{ $message }}</span> @enderror
                                 </div>
                             </div>
 
@@ -160,16 +160,16 @@
                                     <span class="label-text font-semibold text-slate-700">Budget (Subject to negotiation & approval)</span>
                                 </label>
                                 <div class="relative">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold">â‚¦</span>
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold">₦</span>
                                     <input type="number" min="0" step="0.01" name="quote_budget" value="{{ old('quote_budget') }}" 
                                         id="quote-budget-input"
                                         data-naira-input data-naira-preview-id="quote-budget-preview"
                                         placeholder="Enter your planned budget"
                                         class="input input-bordered w-full pl-10 focus:input-primary @error('quote_budget') input-error @enderror" />
                                 </div>
-                                <span id="quote-budget-preview" class="mt-2 text-xs font-semibold text-slate-500">â‚¦0.00</span>
+                                <span id="quote-budget-preview" class="mt-2 text-xs font-semibold text-slate-500">₦0.00</span>
                                 <span class="mt-1 text-xs text-slate-400">Final pricing is still subject to Printbuka review, negotiation, and approval.</span>
-                                @error('quote_budget') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                                @error('quote_budget') <span class="text-xs text-brand-600 mt-1">{{ $message }}</span> @enderror
                             </div>
 
                             {{-- Material & Finish Row --}}
@@ -211,21 +211,21 @@
                                     <label class="label"><span class="label-text font-semibold text-slate-700">Full Name *</span></label>
                                     <input type="text" name="customer_name" value="{{ old('customer_name', auth()->user()?->displayName() ?? '') }}" 
                                         class="input input-bordered w-full focus:input-primary @error('customer_name') input-error @enderror" required />
-                                    @error('customer_name') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                                    @error('customer_name') <span class="text-xs text-brand-600 mt-1">{{ $message }}</span> @enderror
                                 </div>
 
                                 <div class="form-control w-full">
                                     <label class="label"><span class="label-text font-semibold text-slate-700">Phone Number *</span></label>
                                     <input type="tel" name="customer_phone" value="{{ old('customer_phone') }}" 
                                         class="input input-bordered w-full focus:input-primary @error('customer_phone') input-error @enderror" required />
-                                    @error('customer_phone') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                                    @error('customer_phone') <span class="text-xs text-brand-600 mt-1">{{ $message }}</span> @enderror
                                 </div>
 
                                 <div class="form-control w-full sm:col-span-2">
                                     <label class="label"><span class="label-text font-semibold text-slate-700">Email Address *</span></label>
                                     <input type="email" name="customer_email" value="{{ old('customer_email', auth()->user()->email ?? '') }}" 
                                         class="input input-bordered w-full focus:input-primary @error('customer_email') input-error @enderror" required />
-                                    @error('customer_email') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                                    @error('customer_email') <span class="text-xs text-brand-600 mt-1">{{ $message }}</span> @enderror
                                 </div>
 
                                 <div class="form-control w-full">
@@ -263,8 +263,8 @@
                                     :initial-paths="old('job_asset_image_paths', [])"
                                 />
                                 <p class="text-xs text-slate-400">Upload images securely (JPG, PNG, WEBP up to 5MB each).</p>
-                                @error('job_asset_image_paths') <span class="text-xs text-pink-600">{{ $message }}</span> @enderror
-                                @error('job_asset_image_paths.*') <span class="text-xs text-pink-600">{{ $message }}</span> @enderror
+                                @error('job_asset_image_paths') <span class="text-xs text-brand-600">{{ $message }}</span> @enderror
+                                @error('job_asset_image_paths.*') <span class="text-xs text-brand-600">{{ $message }}</span> @enderror
                             </div>
 
                             {{-- External Drive Links --}}
@@ -276,11 +276,11 @@
                                     class="textarea textarea-bordered w-full focus:textarea-primary font-mono text-sm"
                                     placeholder="Paste one link per line (Google Drive, OneDrive, MediaFire, Dropbox, WeTransfer, Mega).">{{ old('asset_drive_links') }}</textarea>
                                 <p class="mt-2 text-xs text-slate-400">Document and ZIP uploads are blocked for security. Share them as external links instead.</p>
-                                @error('asset_drive_links') <span class="text-xs text-pink-600 mt-1">{{ $message }}</span> @enderror
+                                @error('asset_drive_links') <span class="text-xs text-brand-600 mt-1">{{ $message }}</span> @enderror
                             </div>
 
                             {{-- Submit Button --}}
-                            <button type="submit" class="btn btn-block bg-pink-600 hover:bg-pink-700 border-0 text-white font-bold shadow-md shadow-pink-200 mt-6">
+                            <button type="submit" class="btn btn-block bg-brand-600 hover:bg-brand-700 border-0 text-white font-bold shadow-md shadow-brand-200 mt-6">
                                 <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                                 </svg>

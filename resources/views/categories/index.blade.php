@@ -7,14 +7,14 @@
 <main>
 
     {{-- ===== HERO ===== --}}
-    <section class="bg-[#EC268F] overflow-hidden" style="min-height: 320px;">
+    <section class="bg-brand-600 overflow-hidden" style="min-height: 320px;">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
             <div>
                 <span class="inline-flex items-center gap-2 bg-white/20 text-white text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-5 border border-white/30">
                     <span class="w-2 h-2 rounded-full bg-white"></span>
                     Product Catalog
                 </span>
-                <h1 class="text-4xl sm:text-5xl font-black text-white leading-tight mb-3">
+                <h1 class="pb-display text-4xl sm:text-5xl text-white leading-tight mb-3">
                     Browse by Category
                 </h1>
                 <p class="text-white/80 text-lg max-w-xl">
@@ -26,7 +26,7 @@
             </div>
             <div class="flex flex-wrap gap-3 shrink-0">
                 <a href="{{ route('products.index') }}"
-                   class="inline-flex items-center gap-2 bg-white text-[#EC268F] text-sm font-black px-5 py-3 rounded-xl hover:bg-pink-50 transition-colors">
+                   class="inline-flex items-center gap-2 bg-white text-brand-600 text-sm font-black px-5 py-3 rounded-xl hover:bg-brand-50 transition-colors">
                     <x-heroicon-o-tag class="w-4 h-4" />
                     Browse All Products
                 </a>
@@ -67,7 +67,7 @@
                         @endphp
 
                         <a href="{{ route('products.category', $category) }}"
-                           class="group relative rounded-3xl overflow-hidden border border-slate-100 hover:border-pink-200 hover:shadow-2xl transition-all duration-300 bg-white flex flex-col">
+                           class="group relative rounded-3xl overflow-hidden border border-slate-100 hover:border-brand-200 hover:shadow-2xl transition-all duration-300 bg-white flex flex-col">
 
                             {{-- Image --}}
                             <div class="relative h-52 overflow-hidden bg-slate-100 shrink-0">
@@ -86,7 +86,7 @@
                                 {{-- Category tag --}}
                                 @if($category->tag)
                                 <div class="absolute bottom-4 left-4">
-                                    <span class="bg-[#EC268F] text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">
+                                    <span class="bg-brand-600 text-white text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full">
                                         {{ $category->tag }}
                                     </span>
                                 </div>
@@ -95,7 +95,7 @@
 
                             {{-- Body --}}
                             <div class="p-6 flex-1 flex flex-col">
-                                <h2 class="text-lg font-black text-slate-950 mb-1 group-hover:text-[#EC268F] transition-colors">{{ $category->name }}</h2>
+                                <h2 class="text-lg font-black text-slate-950 mb-1 group-hover:text-brand-600 transition-colors">{{ $category->name }}</h2>
                                 <p class="text-sm text-slate-500 leading-relaxed flex-1">{{ \Illuminate\Support\Str::limit($catSummary, 110) }}</p>
 
                                 @if($category->children->isNotEmpty())
@@ -114,11 +114,11 @@
                                 @endif
 
                                 <div class="mt-5 flex items-center justify-between">
-                                    <span class="text-sm font-black text-[#EC268F] flex items-center gap-1 group-hover:gap-2 transition-all">
+                                    <span class="text-sm font-black text-brand-600 flex items-center gap-1 group-hover:gap-2 transition-all">
                                         Browse category <x-heroicon-o-arrow-right class="w-4 h-4" />
                                     </span>
-                                    <div class="w-8 h-8 rounded-full bg-pink-50 group-hover:bg-[#EC268F] flex items-center justify-center transition-colors">
-                                        <x-heroicon-o-arrow-right class="w-4 h-4 text-[#EC268F] group-hover:text-white transition-colors" />
+                                    <div class="w-8 h-8 rounded-full bg-brand-50 group-hover:bg-brand-600 flex items-center justify-center transition-colors">
+                                        <x-heroicon-o-arrow-right class="w-4 h-4 text-brand-600 group-hover:text-white transition-colors" />
                                     </div>
                                 </div>
                             </div>
@@ -129,8 +129,8 @@
 
             @else
                 <div class="rounded-3xl border border-dashed border-slate-200 bg-white p-16 text-center">
-                    <div class="w-16 h-16 rounded-2xl bg-pink-50 flex items-center justify-center mx-auto mb-4">
-                        <x-heroicon-o-squares-2x2 class="w-8 h-8 text-pink-300" />
+                    <div class="w-16 h-16 rounded-2xl bg-brand-50 flex items-center justify-center mx-auto mb-4">
+                        <x-heroicon-o-squares-2x2 class="w-8 h-8 text-brand-300" />
                     </div>
                     <p class="text-xl font-black text-slate-900">No categories yet.</p>
                     <p class="text-sm mt-2 text-slate-500">Products are being added. Check back shortly.</p>
@@ -145,18 +145,18 @@
         <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
             <div class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-slate-950 via-[#1a002e] to-slate-950 px-10 py-14 text-white text-center">
                 <div class="pointer-events-none absolute inset-0">
-                    <div class="absolute top-0 right-0 w-72 h-72 rounded-full bg-pink-600/10 -translate-y-1/2 translate-x-1/3 blur-2xl"></div>
+                    <div class="absolute top-0 right-0 w-72 h-72 rounded-full bg-brand-600/10 -translate-y-1/2 translate-x-1/3 blur-2xl"></div>
                     <div class="absolute bottom-0 left-0 w-60 h-60 rounded-full bg-cyan-500/10 translate-y-1/2 -translate-x-1/3 blur-2xl"></div>
                 </div>
                 <div class="relative">
-                    <div class="inline-block bg-pink-600/20 text-pink-400 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full border border-pink-600/30 mb-5">
+                    <div class="inline-block bg-brand-600/20 text-brand-400 text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full border border-brand-600/30 mb-5">
                         Ready to print?
                     </div>
                     <h2 class="text-3xl lg:text-4xl font-black text-white mb-3">Can't find what you need?</h2>
                     <p class="text-slate-400 max-w-lg mx-auto mb-8 leading-relaxed">Browse our full product catalog or contact our team — we'll help you find the right print solution for your brief.</p>
                     <div class="flex flex-wrap justify-center gap-3">
                         <a href="{{ route('products.index') }}"
-                           class="inline-flex items-center gap-2 bg-[#EC268F] hover:bg-pink-700 text-white text-sm font-black px-7 py-3.5 rounded-xl transition-colors">
+                           class="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-black px-7 py-3.5 rounded-xl transition-colors">
                             <x-heroicon-o-tag class="w-4 h-4" />
                             Browse All Products
                         </a>
