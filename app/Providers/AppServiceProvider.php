@@ -11,9 +11,12 @@ use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
+use NotificationChannels\WebPush\Events\NotificationFailed;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,6 +36,19 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
 
         RoleRegistry::applyOverlay();
+
+        // The package's default ReportHandler only dispatches this event —
+        // it never logs a failed browser push on its own, so without this
+        // listener a bad VAPID config, an expired subscription, or a push
+        // service rejection fails completely silently.
+        Event::listen(function (NotificationFailed $event): void {
+            Log::warning('WebPush delivery failed.', [
+                'endpoint' => $event->report->getEndpoint(),
+                'reason' => $event->report->getReason(),
+                'status' => $event->report->getResponse()?->getStatusCode(),
+                'subscription_id' => $event->subscription->id,
+            ]);
+        });
 
         VerifyEmail::createUrlUsing(function (object $notifiable): string {
             $relativeSignedUrl = URL::temporarySignedRoute(

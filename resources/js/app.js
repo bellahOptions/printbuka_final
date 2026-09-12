@@ -45,7 +45,12 @@ document.addEventListener('submit', (event) => {
 /* ─── Staff PWA / Capacitor shell: service worker registration ─── */
 if ('serviceWorker' in navigator && (location.pathname.startsWith('/staff') || location.pathname.startsWith('/admin'))) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/staff-sw.js').catch(() => {});
+        navigator.serviceWorker.register('/staff-sw.js').catch((error) => {
+            // Swallowed everywhere else, but logged here: a failure here
+            // (404, wrong scope, insecure context) silently breaks web push
+            // too, since it depends on this registration succeeding first.
+            console.error('[staff-sw] Service worker registration failed:', error);
+        });
     });
 }
 

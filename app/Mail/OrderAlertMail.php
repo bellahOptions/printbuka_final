@@ -15,7 +15,7 @@ class OrderAlertMail extends Mailable
     use HasEditableTemplate, Queueable, SerializesModels;
 
     public string $alertType;   // 'shop_order' | 'quote_request'
-    public string $subject;
+    public string $alertSubject;
 
     public function __construct(
         public User $recipient,
@@ -23,7 +23,7 @@ class OrderAlertMail extends Mailable
     ) {
         $this->alertType = $order instanceof ShopOrder ? 'shop_order' : 'quote_request';
 
-        $this->subject = $this->alertType === 'shop_order'
+        $this->alertSubject = $this->alertType === 'shop_order'
             ? '🛍️ New Shop Order: ' . $order->reference . ' — Printbuka'
             : '📋 New Quote Request: ' . $order->job_order_number . ' — Printbuka';
     }
@@ -31,7 +31,7 @@ class OrderAlertMail extends Mailable
     public function build(): self
     {
         return $this
-            ->subject($this->templateSubject($this->subject))
+            ->subject($this->templateSubject($this->alertSubject))
             ->view('mail.admin.order-alert')
             ->with([
                 'recipient'  => $this->recipient,
