@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RoutesByUuid;
 use App\Support\ExecutiveAlert;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class FinanceEntry extends Model
 {
+    use RoutesByUuid;
+
     protected static function booted(): void
     {
         static::created(function (FinanceEntry $entry): void {

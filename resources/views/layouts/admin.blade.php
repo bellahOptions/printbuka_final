@@ -7,6 +7,9 @@
         <meta name="supported-color-schemes" content="light">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="staff-devices-url" content="{{ route('admin.devices.store') }}">
+        <meta name="vapid-public-key" content="{{ config('webpush.vapid.public_key') }}">
+        <meta name="web-push-subscribe-url" content="{{ route('admin.web-push-subscriptions.store') }}">
+        <meta name="web-push-unsubscribe-url" content="{{ route('admin.web-push-subscriptions.destroy') }}">
         <link rel="manifest" href="/staff-manifest.json">
         <meta name="theme-color" content="#0f172a">
         <meta name="mobile-web-app-capable" content="yes">
@@ -101,6 +104,13 @@
                 <img src="{{ asset('logo.png') }}" alt="Printbuka" class="h-8 w-auto">
             </a>
             <div class="flex items-center gap-1.5">
+                <button type="button" data-web-push-toggle hidden
+                    class="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200
+                           bg-white text-slate-600 transition hover:border-brand-300 hover:text-brand-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M4 4l16 16" />
+                    </svg>
+                </button>
                 <livewire:notification-bell />
                 <button id="pb-menu-btn" type="button" aria-label="Open menu" aria-expanded="false"
                     class="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200
@@ -547,6 +557,12 @@
                         <button type="button" data-open-staff-spotlight title="Staff Spotlight"
                             class="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-amber-600 transition text-base">
                             🏆
+                        </button>
+                        <button type="button" data-web-push-toggle hidden title="Enable browser notifications"
+                            class="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-brand-600 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M4 4l16 16" />
+                            </svg>
                         </button>
                         <livewire:notification-bell />
                         @if($admin?->profilePhotoUrl())

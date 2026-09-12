@@ -68,7 +68,7 @@
             I've saved my codes — Continue to Dashboard
         </a>
 
-        <div class="mt-4 pt-4 border-t border-slate-100">
+        <div class="mt-4 pt-4 border-t border-slate-100 space-y-2">
             <form method="POST" action="{{ route('admin.two-factor.recovery-codes.regenerate') }}"
                   onsubmit="return confirm('This will permanently invalidate all existing recovery codes. Continue?')">
                 @csrf
@@ -76,6 +76,9 @@
                     Regenerate recovery codes
                 </button>
             </form>
+            <a href="{{ route('admin.two-factor.trusted-devices') }}" class="block w-full text-center text-xs font-bold text-slate-400 hover:text-pink-600 transition">
+                Manage trusted devices
+            </a>
         </div>
 
     </div>

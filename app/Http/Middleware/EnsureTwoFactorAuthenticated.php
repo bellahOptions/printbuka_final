@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Support\SiteSettings;
+use App\Support\TwoFactorTrust;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,6 +22,12 @@ class EnsureTwoFactorAuthenticated
         // Always allow the 2FA/OTP routes themselves through
         if ($request->routeIs('admin.two-factor.*') || $request->routeIs('admin.otp.*')) {
             return $next($request);
+        }
+
+        // A device the staff member chose to trust skips re-challenging for
+        // the duration they picked at their last verification.
+        if (! session('staff_2fa_verified') && TwoFactorTrust::check($request, $user)) {
+            session(['staff_2fa_verified' => true]);
         }
 
         // TOTP already confirmed: unchanged, regardless of the OTP toggle

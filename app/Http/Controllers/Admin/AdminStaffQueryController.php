@@ -82,8 +82,39 @@ class AdminStaffQueryController extends Controller
             403
         );
 
+        $query->load('staff', 'issuedBy', 'resolvedBy', 'comments.user');
+
+        $isHr = request()->user()?->canAdmin('staff.queries') || request()->user()?->canAdmin('*');
+
+        $thread = collect();
+
+        if ($query->staff_response) {
+            $thread->push([
+                'author'           => $query->staff,
+                'body'             => $query->staff_response,
+                'at'               => $query->staff_responded_at,
+                'is_staff'         => true,
+                'visible_to_staff' => true,
+            ]);
+        }
+
+        foreach ($query->comments as $comment) {
+            if (! $isHr && ! $comment->visible_to_staff) {
+                continue;
+            }
+
+            $thread->push([
+                'author'           => $comment->user,
+                'body'             => $comment->comment,
+                'at'               => $comment->created_at,
+                'is_staff'         => false,
+                'visible_to_staff' => $comment->visible_to_staff,
+            ]);
+        }
+
         return view('admin.staff-queries.show', [
-            'query' => $query->load('staff', 'issuedBy', 'resolvedBy', 'comments.user'),
+            'query'  => $query,
+            'thread' => $thread->sortBy('at')->values(),
         ]);
     }
 
@@ -96,9 +127,10 @@ class AdminStaffQueryController extends Controller
         ]);
 
         $comment = StaffQueryComment::query()->create([
-            'staff_query_id' => $query->id,
-            'user_id'        => $request->user()->id,
-            'comment'        => $validated['comment'],
+            'staff_query_id'   => $query->id,
+            'user_id'          => $request->user()->id,
+            'comment'          => $validated['comment'],
+            'visible_to_staff' => $request->boolean('visible_to_staff'),
         ]);
 
         $this->notifyStaffQueryCommented($query, $comment, $request->user());
@@ -288,6 +320,22 @@ class AdminStaffQueryController extends Controller
                 ));
             } catch (\Throwable $e) {
                 Log::error('Staff query comment notification failed.', ['query_id' => $query->id, 'message' => $e->getMessage()]);
+            }
+        }
+
+        if ($comment->visible_to_staff && $query->staff && $query->staff->id !== $commenter->id) {
+            try {
+                $query->staff->notify(new StaffPushNotification(
+                    title: 'New Reply on '.$query->query_number,
+                    body: $commenter->displayName().' replied: '.Str::limit(strip_tags($comment->comment), 100),
+                    type: 'staff_query_reply_shared',
+                    data: [
+                        'query_id'   => $query->id,
+                        'action_url' => route('admin.staff-queries.show', $query).'#comments',
+                    ],
+                ));
+            } catch (\Throwable $e) {
+                Log::error('Staff query shared-comment notification failed.', ['query_id' => $query->id, 'message' => $e->getMessage()]);
             }
         }
 

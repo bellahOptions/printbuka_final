@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RoutesByUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PayrollEntry extends Model
 {
+    use RoutesByUuid;
+
     protected $fillable = [
         'payroll_run_id', 'staff_id',
         'basic_salary', 'housing_allowance', 'transport_allowance',

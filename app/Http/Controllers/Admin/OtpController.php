@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Services\OtpService;
+use App\Support\TwoFactorTrust;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -58,7 +59,10 @@ class OtpController extends Controller
 
     public function verifyChallenge(Request $request): RedirectResponse
     {
-        $request->validate(['code' => ['required', 'string']]);
+        $request->validate([
+            'code' => ['required', 'string'],
+            'remember_days' => ['nullable', 'integer', 'in:'.implode(',', TwoFactorTrust::ALLOWED_DAYS)],
+        ]);
 
         $user = $request->user();
         abort_unless($user, 403);
@@ -74,6 +78,8 @@ class OtpController extends Controller
         }
 
         session(['staff_2fa_verified' => true]);
+
+        TwoFactorTrust::remember($user, (int) $request->input('remember_days', 0), $request);
 
         return redirect()->intended(route('admin.dashboard'));
     }

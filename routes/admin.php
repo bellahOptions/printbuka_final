@@ -51,6 +51,11 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::post('/devices', [\App\Http\Controllers\Api\StaffDeviceController::class, 'store'])->name('devices.store');
         Route::delete('/devices', [\App\Http\Controllers\Api\StaffDeviceController::class, 'destroy'])->name('devices.destroy');
 
+        // Browser Web Push subscriptions — the plain-browser equivalent of the
+        // devices routes above, for staff who never install the Capacitor app.
+        Route::post('/web-push-subscriptions', [\App\Http\Controllers\Api\WebPushSubscriptionController::class, 'store'])->name('web-push-subscriptions.store');
+        Route::delete('/web-push-subscriptions', [\App\Http\Controllers\Api\WebPushSubscriptionController::class, 'destroy'])->name('web-push-subscriptions.destroy');
+
         Route::delete('/products/seeded-catalog', [AdminProductController::class, 'destroySeeded'])
             ->middleware(['admin.permission:products.manage', 'super.admin'])
             ->name('products.seeded.destroy');
@@ -101,31 +106,31 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
             ->name('invoices.import-csv');
         Route::get('/invoices/{invoice}', [AdminInvoiceController::class, 'show'])
             ->middleware('admin.permission:invoices.manage')
-            ->whereNumber('invoice')
+            ->whereUuid('invoice')
             ->name('invoices.show');
         Route::get('/invoices/{invoice}/download', [AdminInvoiceController::class, 'download'])
             ->middleware('admin.permission:invoices.manage')
-            ->whereNumber('invoice')
+            ->whereUuid('invoice')
             ->name('invoices.download');
         Route::resource('invoices', AdminInvoiceController::class)
             ->except('show')
-            ->whereNumber('invoice')
+            ->whereUuid('invoice')
             ->middleware('admin.permission:invoices.manage');
         Route::patch('/invoices/{invoice}/mark-paid', [AdminInvoiceController::class, 'markAsPaid'])
             ->middleware('admin.permission:invoices.manage')
-            ->whereNumber('invoice')
+            ->whereUuid('invoice')
             ->name('invoices.mark-paid');
         Route::patch('/invoices/{invoice}/send', [AdminInvoiceController::class, 'send'])
             ->middleware('admin.permission:invoices.manage')
-            ->whereNumber('invoice')
+            ->whereUuid('invoice')
             ->name('invoices.send');
         Route::post('/invoices/{invoice}/record-payment', [AdminInvoiceController::class, 'recordPayment'])
             ->middleware('admin.permission:invoices.manage')
-            ->whereNumber('invoice')
+            ->whereUuid('invoice')
             ->name('invoices.record-payment');
         Route::patch('/invoices/{invoice}/payment-terms', [AdminInvoiceController::class, 'updatePaymentTerms'])
             ->middleware('admin.permission:invoices.manage')
-            ->whereNumber('invoice')
+            ->whereUuid('invoice')
             ->name('invoices.payment-terms');
         Route::get('/invoices/quotations/create', [AdminInvoiceController::class, 'createQuotation'])
             ->middleware('admin.permission:invoices.manage')
@@ -214,19 +219,19 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
             ->name('advertisements.destroy');
         Route::get('/finance/{finance}', [AdminFinanceController::class, 'show'])
             ->middleware('admin.permission:finance.view')
-            ->whereNumber('finance')
+            ->whereUuid('finance')
             ->name('finance.show');
         Route::get('/finance/{finance}/download', [AdminFinanceController::class, 'download'])
             ->middleware('admin.permission:finance.view')
-            ->whereNumber('finance')
+            ->whereUuid('finance')
             ->name('finance.download');
         Route::post('/finance/{finance}/refund', [AdminFinanceController::class, 'markRefunded'])
             ->middleware('admin.permission:finance.view')
-            ->whereNumber('finance')
+            ->whereUuid('finance')
             ->name('finance.refund');
         Route::delete('/finance/{finance}/refund', [AdminFinanceController::class, 'unmarkRefunded'])
             ->middleware('admin.permission:finance.view')
-            ->whereNumber('finance')
+            ->whereUuid('finance')
             ->name('finance.unrefund');
         Route::get('/finance-reports', [AdminFinanceController::class, 'reportForm'])
             ->middleware('admin.permission:finance.view')
@@ -239,7 +244,7 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
             ->name('finance.report-email');
         Route::resource('finance', AdminFinanceController::class)
             ->except('show')
-            ->whereNumber('finance')
+            ->whereUuid('finance')
             ->middleware('admin.permission:finance.view');
         Route::get('/settings', [AdminSiteSettingController::class, 'edit'])
             ->middleware('admin.permission:site_settings.manage')

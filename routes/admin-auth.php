@@ -25,6 +25,9 @@ Route::middleware(['user.auth', 'user.verified', 'staff.active'])->prefix('admin
     Route::get('/two-factor/challenge', [TwoFactorController::class, 'showChallenge'])->name('two-factor.challenge');
     Route::post('/two-factor/challenge', [TwoFactorController::class, 'verifyChallenge'])->name('two-factor.verify');
     Route::post('/two-factor/disable', [TwoFactorController::class, 'disable'])->name('two-factor.disable');
+    Route::get('/two-factor/trusted-devices', [TwoFactorController::class, 'showTrustedDevices'])->name('two-factor.trusted-devices');
+    Route::delete('/two-factor/trusted-devices/{device}', [TwoFactorController::class, 'revokeTrustedDevice'])->name('two-factor.trusted-devices.revoke');
+    Route::delete('/two-factor/trusted-devices', [TwoFactorController::class, 'revokeAllTrustedDevices'])->name('two-factor.trusted-devices.revoke-all');
 
     Route::get('/otp/challenge', [OtpController::class, 'showChallenge'])->name('otp.challenge');
     Route::post('/otp/send', [OtpController::class, 'send'])->middleware('throttle:5,1')->name('otp.send');

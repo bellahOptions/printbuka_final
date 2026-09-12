@@ -51,6 +51,17 @@
                 >
             </div>
 
+            <div class="mb-5">
+                <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1.5">Stay Signed In</label>
+                <select name="remember_days" class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 focus:border-pink-400 focus:ring-2 focus:ring-pink-100 focus:outline-none">
+                    <option value="0">Just this session — ask again next time</option>
+                    <option value="7">Don't ask again for 7 days on this device</option>
+                    <option value="30">Don't ask again for 30 days on this device</option>
+                    <option value="60">Don't ask again for 60 days on this device</option>
+                    <option value="90">Don't ask again for 90 days on this device</option>
+                </select>
+            </div>
+
             <button type="submit" class="w-full rounded-xl bg-slate-900 py-3 text-sm font-black text-white hover:bg-slate-700 transition">
                 Verify &amp; Continue
             </button>
@@ -75,6 +86,15 @@
                     placeholder="XXXXX-XXXXX"
                     class="w-full rounded-xl border border-slate-300 px-4 py-3 text-center text-lg font-mono tracking-widest focus:border-pink-400 focus:ring-2 focus:ring-pink-100 focus:outline-none"
                 >
+            </div>
+            <div class="mb-4">
+                <select name="remember_days" class="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 focus:border-pink-400 focus:ring-2 focus:ring-pink-100 focus:outline-none">
+                    <option value="0">Just this session — ask again next time</option>
+                    <option value="7">Don't ask again for 7 days on this device</option>
+                    <option value="30">Don't ask again for 30 days on this device</option>
+                    <option value="60">Don't ask again for 60 days on this device</option>
+                    <option value="90">Don't ask again for 90 days on this device</option>
+                </select>
             </div>
             <button type="submit" class="w-full rounded-xl bg-pink-600 py-3 text-sm font-black text-white hover:bg-pink-700 transition">
                 Verify with Recovery Code

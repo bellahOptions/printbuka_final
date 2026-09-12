@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RoutesByUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Invoice extends Model
 {
+    use RoutesByUuid;
+
     protected $fillable = [
         'order_id',
         'imported_customer_id',

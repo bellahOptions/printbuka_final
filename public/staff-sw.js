@@ -21,6 +21,51 @@ self.addEventListener('activate', (event) => {
     );
 });
 
+// ─── Web Push: show an OS-level notification for any push event, even with
+// no admin tab open, and route a click to the relevant admin page. ───
+self.addEventListener('push', (event) => {
+    if (!event.data) return;
+
+    let payload = {};
+    try {
+        payload = event.data.json();
+    } catch {
+        return;
+    }
+
+    const title = payload.title || 'Printbuka';
+    const data = payload.data || {};
+
+    event.waitUntil(
+        self.registration.showNotification(title, {
+            body: payload.body || '',
+            icon: payload.icon || '/android-icon-192x192.png',
+            badge: payload.badge,
+            tag: payload.tag,
+            data,
+        })
+    );
+});
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+
+    const targetUrl = event.notification.data?.action_url || '/admin/dashboard';
+
+    event.waitUntil(
+        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+            for (const client of clientList) {
+                if (client.url === targetUrl && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            if (self.clients.openWindow) {
+                return self.clients.openWindow(targetUrl);
+            }
+        })
+    );
+});
+
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 

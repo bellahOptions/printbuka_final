@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Support\TwoFactorTrust;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
@@ -118,7 +119,10 @@ class TwoFactorController extends Controller
 
     public function verifyChallenge(Request $request): RedirectResponse
     {
-        $request->validate(['code' => ['required', 'string']]);
+        $request->validate([
+            'code' => ['required', 'string'],
+            'remember_days' => ['nullable', 'integer', 'in:'.implode(',', TwoFactorTrust::ALLOWED_DAYS)],
+        ]);
 
         $user   = $request->user();
         $code   = str_replace([' ', '-'], '', $request->code);
@@ -149,7 +153,35 @@ class TwoFactorController extends Controller
 
         session(['staff_2fa_verified' => true]);
 
+        TwoFactorTrust::remember($user, (int) $request->input('remember_days', 0), $request);
+
         return redirect()->intended(route('admin.dashboard'));
+    }
+
+    // ── Trusted Devices ─────────────────────────────────────────────────────
+
+    public function showTrustedDevices(Request $request): View
+    {
+        $devices = $request->user()->twoFactorTrustedDevices()->latest()->get();
+
+        return view('auth.admin.two-factor-trusted-devices', ['devices' => $devices]);
+    }
+
+    public function revokeTrustedDevice(Request $request, \App\Models\TwoFactorTrustedDevice $device): RedirectResponse
+    {
+        abort_unless($device->user_id === $request->user()->id, 403);
+
+        $device->delete();
+
+        return back()->with('status', 'Device removed. It will be asked to verify again next time.');
+    }
+
+    public function revokeAllTrustedDevices(Request $request): RedirectResponse
+    {
+        TwoFactorTrust::forgetAll($request->user());
+        TwoFactorTrust::forgetCurrentDevice();
+
+        return back()->with('status', 'All trusted devices removed. You will be asked to verify on your next login.');
     }
 
     // ── Disable (super admin / HR only) ────────────────────────────────────
@@ -172,9 +204,12 @@ class TwoFactorController extends Controller
             'two_factor_confirmed_at'   => null,
         ])->save();
 
+        TwoFactorTrust::forgetAll($target);
+
         // If the target is the currently-logged-in user, clear their session flag too
         if ($actor->id === $target->id) {
             session()->forget('staff_2fa_verified');
+            TwoFactorTrust::forgetCurrentDevice();
         }
 
         return back()->with('status', '2FA disabled for '.$target->displayName().'. They will be prompted to set it up again on next login.');

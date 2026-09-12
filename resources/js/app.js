@@ -2,6 +2,7 @@ import './bootstrap';
 import Sortable from 'sortablejs';
 import './rich-media';
 import './capacitor-bridge';
+import './webpush';
 
 /* ─── Idempotency key: one generated per page load, resent unchanged on every
    submit attempt of that form (including retries) so a double-click or a

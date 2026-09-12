@@ -8,6 +8,8 @@ use Illuminate\Notifications\Notification;
 use NotificationChannels\Fcm\FcmChannel;
 use NotificationChannels\Fcm\FcmMessage;
 use NotificationChannels\Fcm\Resources\Notification as FcmNotification;
+use NotificationChannels\WebPush\WebPushChannel;
+use NotificationChannels\WebPush\WebPushMessage;
 
 /**
  * Generic staff push notification — persistent (database) + real-time (FCM).
@@ -35,9 +37,14 @@ class StaffPushNotification extends Notification implements ShouldQueue
     {
         $channels = ['database'];
 
-        // Only add FCM if this user has at least one registered device
+        // Only add FCM if this user has at least one registered native device
         if ($notifiable->pushSubscriptions()->exists()) {
             $channels[] = FcmChannel::class;
+        }
+
+        // Only add WebPush if this user has subscribed a browser tab
+        if ($notifiable->webPushSubscriptions()->exists()) {
+            $channels[] = WebPushChannel::class;
         }
 
         return $channels;
@@ -75,5 +82,22 @@ class StaffPushNotification extends Notification implements ShouldQueue
                 ['type' => $this->type],
                 array_map('strval', $this->data), // FCM data values must be strings
             ));
+    }
+
+    /**
+     * Delivered to any browser tab that subscribed via the Push API — shown
+     * as an OS-level notification by staff-sw.js even if no tab is open.
+     */
+    public function toWebPush(object $_notifiable, object $_notification): WebPushMessage
+    {
+        return (new WebPushMessage())
+            ->title($this->title)
+            ->body($this->body)
+            ->icon('/android-icon-192x192.png')
+            ->tag($this->type)
+            ->data([
+                'type' => $this->type,
+                'action_url' => $this->data['action_url'] ?? null,
+            ]);
     }
 }

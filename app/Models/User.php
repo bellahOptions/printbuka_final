@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RoutesByUuid;
 use App\Notifications\Auth\ResetPasswordNotification;
 use App\Notifications\Auth\VerifyEmailNotification;
 use App\Support\MediaUrl;
@@ -13,16 +14,19 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
+use NotificationChannels\WebPush\PushSubscription;
 
 #[Fillable(['first_name', 'last_name', 'phone', 'companyName', 'email', 'password', 'google_id', 'avatar', 'email_verified_at', 'role', 'department', 'requested_role', 'other_role', 'address', 'date_of_birth', 'photo', 'approved_by_id', 'approved_at', 'is_active', 'employment_status', 'employment_status_reason', 'employment_status_changed_at', 'employment_status_changed_by_id', 'two_factor_secret', 'two_factor_recovery_codes', 'two_factor_confirmed_at', 'access_restricted', 'access_restricted_reason', 'access_restricted_by_id', 'access_restricted_at', 'permission_overrides'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmailContract
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens, RoutesByUuid;
 
     /**
      * Get the attributes that should be cast.
@@ -58,6 +62,11 @@ class User extends Authenticatable implements MustVerifyEmailContract
     public function hasTwoFactorEnabled(): bool
     {
         return $this->two_factor_confirmed_at !== null;
+    }
+
+    public function twoFactorTrustedDevices(): HasMany
+    {
+        return $this->hasMany(TwoFactorTrustedDevice::class);
     }
 
     public function hasAdminAccess(): bool
@@ -195,6 +204,57 @@ class User extends Authenticatable implements MustVerifyEmailContract
     public function routeNotificationForFcm(): array
     {
         return $this->pushSubscriptions()->pluck('device_token')->toArray();
+    }
+
+    /**
+     * Browser Web Push subscriptions (one per subscribed browser/tab).
+     *
+     * Deliberately named differently from pushSubscriptions() above — that
+     * name is already taken by the FCM/Capacitor device relation, and the
+     * webpush package's own HasPushSubscriptions trait defines a method of
+     * that same name, which would silently collide with it.
+     */
+    public function webPushSubscriptions(): MorphMany
+    {
+        return $this->morphMany(config('webpush.model'), 'subscribable');
+    }
+
+    /**
+     * WebPush channel resolves every browser subscription for this user.
+     */
+    public function routeNotificationForWebPush(): EloquentCollection
+    {
+        return $this->webPushSubscriptions;
+    }
+
+    public function updateWebPushSubscription(string $endpoint, ?string $key, ?string $token, ?string $contentEncoding): PushSubscription
+    {
+        /** @var PushSubscription|null $subscription */
+        $subscription = PushSubscription::query()->where('endpoint', $endpoint)->first();
+
+        if ($subscription && (string) $subscription->subscribable_id === (string) $this->getKey() && $subscription->subscribable_type === $this->getMorphClass()) {
+            $subscription->forceFill([
+                'public_key' => $key,
+                'auth_token' => $token,
+                'content_encoding' => $contentEncoding,
+            ])->save();
+
+            return $subscription;
+        }
+
+        $subscription?->delete();
+
+        return $this->webPushSubscriptions()->create([
+            'endpoint' => $endpoint,
+            'public_key' => $key,
+            'auth_token' => $token,
+            'content_encoding' => $contentEncoding,
+        ]);
+    }
+
+    public function deleteWebPushSubscription(string $endpoint): void
+    {
+        $this->webPushSubscriptions()->where('endpoint', $endpoint)->delete();
     }
 
     public function profilePhotoUrl(): ?string

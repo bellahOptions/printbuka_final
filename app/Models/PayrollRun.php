@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RoutesByUuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PayrollRun extends Model
 {
+    use RoutesByUuid;
+
     protected $fillable = [
         'payroll_month', 'payroll_year', 'status',
         'payment_date', 'notes', 'created_by_id',

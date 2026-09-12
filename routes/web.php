@@ -219,9 +219,9 @@ Route::middleware('user.auth')->group(function (): void {
             Route::get('/manage-invoices', [UserInvoiceController::class, 'index'])->name('user.invoices.index');
         });
 
-        Route::get('/manage-invoices/{invoice}', [UserInvoiceController::class, 'show'])->name('user.invoices.show')->whereNumber('invoice');
-        Route::get('/manage-invoices/{invoice}/download', [UserInvoiceController::class, 'download'])->name('user.invoices.download')->whereNumber('invoice');
-        Route::get('/manage-invoices/{invoice}/pay', [PaymentController::class, 'process'])->name('payment.process')->whereNumber('invoice');
+        Route::get('/manage-invoices/{invoice}', [UserInvoiceController::class, 'show'])->name('user.invoices.show')->whereUuid('invoice');
+        Route::get('/manage-invoices/{invoice}/download', [UserInvoiceController::class, 'download'])->name('user.invoices.download')->whereUuid('invoice');
+        Route::get('/manage-invoices/{invoice}/pay', [PaymentController::class, 'process'])->name('payment.process')->whereUuid('invoice');
 
         Route::get('/support-tickets', [SupportController::class, 'index'])->name('support.tickets.index');
         Route::get('/support-tickets/create', [SupportController::class, 'create'])->name('support.tickets.create');

@@ -95,30 +95,59 @@
         @endif
     </div>
 
-    {{-- Staff Response --}}
-    @if ($query->staff_response)
-    <div class="pb-card p-6">
-        <div class="flex items-center gap-3 mb-4">
-            <h2 class="pb-section-title">Staff Response</h2>
-            <span class="text-xs text-slate-500">{{ $query->staff_responded_at?->format('M j, Y g:i A') }}</span>
+    {{-- Conversation: staff response + follow-up comments, in one reply thread --}}
+    <div class="pb-card p-6" id="comments">
+        <h2 class="pb-section-title mb-4">Conversation</h2>
+
+        <div class="space-y-4 {{ $thread->isNotEmpty() ? 'mb-5' : '' }}">
+            @forelse ($thread as $item)
+                <div class="flex gap-3">
+                    <img src="{{ $item['author']?->profilePhotoUrl() }}" class="h-8 w-8 rounded-full object-cover shrink-0" alt="">
+                    <div @class([
+                        'flex-1 rounded-xl border p-3',
+                        'bg-slate-50 border-slate-200' => $item['is_staff'],
+                        'bg-pink-50 border-pink-200' => ! $item['is_staff'],
+                    ])>
+                        <div class="flex flex-wrap items-center gap-2 mb-1">
+                            <p class="text-sm font-black text-slate-900">{{ $item['author']?->displayName() }}</p>
+                            @if ($item['is_staff'])
+                                <span class="pb-badge bg-slate-200 text-slate-700 text-[10px]">Staff Response</span>
+                            @endif
+                            @if ($isHr && ! $item['is_staff'] && ! $item['visible_to_staff'])
+                                <span class="pb-badge bg-amber-100 text-amber-800 text-[10px]">Internal only</span>
+                            @endif
+                            <span class="text-xs text-slate-400">{{ $item['at']?->format('M j, Y g:i A') }}</span>
+                        </div>
+                        <div class="text-sm text-slate-700 leading-relaxed whitespace-pre-line ql-editor">{!! $item['is_staff'] ? $item['body'] : e($item['body']) !!}</div>
+                    </div>
+                </div>
+            @empty
+                <p class="text-sm font-semibold text-slate-400 text-center py-4">No responses or comments yet.</p>
+            @endforelse
         </div>
-        <div class="rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-800 leading-relaxed ql-editor">{!! $query->staff_response !!}</div>
+
+        @if ($isHr)
+            <form method="POST" action="{{ route('admin.staff-queries.comments', $query) }}">
+                @csrf
+                <textarea name="comment" rows="3" required placeholder="Write a follow-up comment..." class="pb-textarea w-full mb-3"></textarea>
+                <label class="flex items-center gap-2 text-sm text-slate-600 mb-3">
+                    <input type="checkbox" name="visible_to_staff" value="1" class="checkbox checkbox-sm">
+                    Share this comment with {{ $query->staff?->displayName() }}
+                </label>
+                <button type="submit" class="pb-btn pb-btn-outline">Post Comment</button>
+            </form>
+        @elseif ($isSelf && ! $query->staff_response && in_array($query->status, ['pending', 'awaiting_response']))
+            <div class="rounded-xl border border-amber-200 bg-amber-50 p-4">
+                <p class="text-sm font-black text-amber-900 mb-1">Your Response Required</p>
+                <p class="text-xs text-amber-700 mb-3">Please provide your formal response to this query.</p>
+                <form method="POST" action="{{ route('admin.staff-queries.respond', $query) }}">
+                    @csrf
+                    <textarea name="staff_response" rows="5" required data-rich-editor placeholder="Write your formal response here..." class="pb-textarea w-full mb-3"></textarea>
+                    <button type="submit" class="pb-btn pb-btn-primary">Submit Response</button>
+                </form>
+            </div>
+        @endif
     </div>
-    @elseif ($isSelf && in_array($query->status, ['pending', 'awaiting_response']))
-    <div class="rounded-2xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
-        <h2 class="text-base font-black text-amber-900 mb-1">Your Response Required</h2>
-        <p class="text-sm text-amber-700 mb-4">Please provide your formal response to this query.</p>
-        <form method="POST" action="{{ route('admin.staff-queries.respond', $query) }}">
-            @csrf
-            <textarea name="staff_response" rows="5" required data-rich-editor placeholder="Write your formal response here..." class="pb-textarea w-full mb-3"></textarea>
-            <button type="submit" class="pb-btn pb-btn-primary">Submit Response</button>
-        </form>
-    </div>
-    @else
-    <div class="pb-card p-5">
-        <p class="text-sm font-semibold text-slate-400 text-center">No response submitted yet.</p>
-    </div>
-    @endif
 
     {{-- Resolution --}}
     @if ($query->status === 'closed')
@@ -148,37 +177,6 @@
             @csrf
             <textarea name="resolution_notes" rows="3" data-rich-editor placeholder="Resolution notes (optional)..." class="pb-textarea w-full mb-3"></textarea>
             <button type="submit" class="pb-btn pb-btn-ink">Close Query</button>
-        </form>
-    </div>
-    @endif
-
-    {{-- Internal Comments (HR / MD / Super Admin only) --}}
-    @if ($isHr)
-    <div class="pb-card p-6" id="comments">
-        <h2 class="pb-section-title mb-4">Internal Comments</h2>
-        <p class="text-xs text-slate-400 mb-4">Visible only to HR, MD/CEO, and Super Admin — not shown to {{ $query->staff?->displayName() }}.</p>
-
-        <div class="space-y-4 mb-5">
-            @forelse ($query->comments as $comment)
-                <div class="flex gap-3">
-                    <img src="{{ $comment->user?->profilePhotoUrl() }}" class="h-8 w-8 rounded-full object-cover shrink-0" alt="">
-                    <div class="flex-1 rounded-xl bg-slate-50 border border-slate-200 p-3">
-                        <div class="flex items-center gap-2 mb-1">
-                            <p class="text-sm font-black text-slate-900">{{ $comment->user?->displayName() }}</p>
-                            <span class="text-xs text-slate-400">{{ $comment->created_at->format('M j, Y g:i A') }}</span>
-                        </div>
-                        <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{{ $comment->comment }}</p>
-                    </div>
-                </div>
-            @empty
-                <p class="text-sm font-semibold text-slate-400 text-center py-4">No internal comments yet.</p>
-            @endforelse
-        </div>
-
-        <form method="POST" action="{{ route('admin.staff-queries.comments', $query) }}">
-            @csrf
-            <textarea name="comment" rows="3" required placeholder="Add an internal comment..." class="pb-textarea w-full mb-3"></textarea>
-            <button type="submit" class="pb-btn pb-btn-outline">Post Comment</button>
         </form>
     </div>
     @endif

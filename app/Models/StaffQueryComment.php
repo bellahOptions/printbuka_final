@@ -11,7 +11,15 @@ class StaffQueryComment extends Model
         'staff_query_id',
         'user_id',
         'comment',
+        'visible_to_staff',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'visible_to_staff' => 'boolean',
+        ];
+    }
 
     public function staffQuery(): BelongsTo
     {
