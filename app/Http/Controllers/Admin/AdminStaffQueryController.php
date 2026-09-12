@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\StaffQueryIssuedMail;
 use App\Models\StaffQuery;
+use App\Models\StaffQueryComment;
 use App\Models\User;
 use App\Notifications\StaffPushNotification;
 use App\Support\ExecutiveAlert;
@@ -13,6 +14,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class AdminStaffQueryController extends Controller
@@ -81,8 +83,27 @@ class AdminStaffQueryController extends Controller
         );
 
         return view('admin.staff-queries.show', [
-            'query' => $query->load('staff', 'issuedBy', 'resolvedBy'),
+            'query' => $query->load('staff', 'issuedBy', 'resolvedBy', 'comments.user'),
         ]);
+    }
+
+    public function comment(Request $request, StaffQuery $query): RedirectResponse
+    {
+        abort_unless($request->user()?->canAdmin('staff.queries') || $request->user()?->canAdmin('*'), 403);
+
+        $validated = $request->validate([
+            'comment' => ['required', 'string', 'max:5000'],
+        ]);
+
+        $comment = StaffQueryComment::query()->create([
+            'staff_query_id' => $query->id,
+            'user_id'        => $request->user()->id,
+            'comment'        => $validated['comment'],
+        ]);
+
+        $this->notifyStaffQueryCommented($query, $comment, $request->user());
+
+        return back()->with('status', 'Comment added.')->withFragment('comments');
     }
 
     public function respond(Request $request, StaffQuery $query): RedirectResponse
@@ -248,6 +269,35 @@ class AdminStaffQueryController extends Controller
         } catch (\Throwable $e) {
             Log::error('Staff query response push notification failed.', ['query_id' => $query->id, 'message' => $e->getMessage()]);
         }
+    }
+
+    private function notifyStaffQueryCommented(StaffQuery $query, StaffQueryComment $comment, User $commenter): void
+    {
+        $issuedBy = $query->issuedBy;
+
+        if ($issuedBy && $issuedBy->id !== $commenter->id) {
+            try {
+                $issuedBy->notify(new StaffPushNotification(
+                    title: 'New Comment on '.$query->query_number,
+                    body: $commenter->displayName().' commented: '.Str::limit(strip_tags($comment->comment), 100),
+                    type: 'staff_query_commented',
+                    data: [
+                        'query_id'   => $query->id,
+                        'action_url' => route('admin.staff-queries.show', $query).'#comments',
+                    ],
+                ));
+            } catch (\Throwable $e) {
+                Log::error('Staff query comment notification failed.', ['query_id' => $query->id, 'message' => $e->getMessage()]);
+            }
+        }
+
+        ExecutiveAlert::send(
+            title: 'Comment on Staff Query '.$query->query_number,
+            body: $commenter->displayName().' commented on a query for '.($query->staff?->displayName() ?: 'a staff member').'.',
+            type: 'staff_query_commented_executive',
+            data: ['query_id' => $query->id, 'action_url' => route('admin.staff-queries.show', $query).'#comments'],
+            excludeUserId: $commenter->id,
+        );
     }
 
     private function notifyStaffQueryClosed(StaffQuery $query): void

@@ -349,6 +349,9 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
             ->name('staff-queries.show');
         Route::post('/staff-queries/{query}/respond', [AdminStaffQueryController::class, 'respond'])
             ->name('staff-queries.respond');
+        Route::post('/staff-queries/{query}/comments', [AdminStaffQueryController::class, 'comment'])
+            ->middleware('admin.permission:staff.queries')
+            ->name('staff-queries.comments');
         Route::post('/staff-queries/{query}/close', [AdminStaffQueryController::class, 'close'])
             ->middleware('admin.permission:staff.queries')
             ->name('staff-queries.close');

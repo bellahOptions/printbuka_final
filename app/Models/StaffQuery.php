@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class StaffQuery extends Model
 {
@@ -81,6 +82,11 @@ class StaffQuery extends Model
     public function resolvedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'resolved_by_id');
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(StaffQueryComment::class)->oldest();
     }
 
     public function typeLabel(): string

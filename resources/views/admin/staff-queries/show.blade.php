@@ -64,7 +64,7 @@
 
         <div class="mt-4">
             <p class="text-xs font-black uppercase tracking-wide text-slate-400 mb-2">Query Description</p>
-            <div class="rounded-xl bg-pink-50 border border-pink-200 p-4 text-sm text-slate-800 leading-relaxed prose prose-sm max-w-none">{!! $query->description !!}</div>
+            <div class="rounded-xl bg-pink-50 border border-pink-200 text-sm text-slate-800 leading-relaxed ql-editor">{!! $query->description !!}</div>
         </div>
 
         @if ($isHr)
@@ -102,7 +102,7 @@
             <h2 class="pb-section-title">Staff Response</h2>
             <span class="text-xs text-slate-500">{{ $query->staff_responded_at?->format('M j, Y g:i A') }}</span>
         </div>
-        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm text-slate-800 leading-relaxed prose prose-sm max-w-none">{!! $query->staff_response !!}</div>
+        <div class="rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-800 leading-relaxed ql-editor">{!! $query->staff_response !!}</div>
     </div>
     @elseif ($isSelf && in_array($query->status, ['pending', 'awaiting_response']))
     <div class="rounded-2xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
@@ -137,7 +137,7 @@
         @if ($query->resolution_notes)
         <div class="mt-3">
             <p class="text-xs font-black uppercase tracking-wide text-slate-400 mb-2">Resolution Notes</p>
-            <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-sm text-slate-800 leading-relaxed prose prose-sm max-w-none">{!! $query->resolution_notes !!}</div>
+            <div class="rounded-xl bg-emerald-50 border border-emerald-200 text-sm text-slate-800 leading-relaxed ql-editor">{!! $query->resolution_notes !!}</div>
         </div>
         @endif
     </div>
@@ -148,6 +148,37 @@
             @csrf
             <textarea name="resolution_notes" rows="3" data-rich-editor placeholder="Resolution notes (optional)..." class="pb-textarea w-full mb-3"></textarea>
             <button type="submit" class="pb-btn pb-btn-ink">Close Query</button>
+        </form>
+    </div>
+    @endif
+
+    {{-- Internal Comments (HR / MD / Super Admin only) --}}
+    @if ($isHr)
+    <div class="pb-card p-6" id="comments">
+        <h2 class="pb-section-title mb-4">Internal Comments</h2>
+        <p class="text-xs text-slate-400 mb-4">Visible only to HR, MD/CEO, and Super Admin — not shown to {{ $query->staff?->displayName() }}.</p>
+
+        <div class="space-y-4 mb-5">
+            @forelse ($query->comments as $comment)
+                <div class="flex gap-3">
+                    <img src="{{ $comment->user?->profilePhotoUrl() }}" class="h-8 w-8 rounded-full object-cover shrink-0" alt="">
+                    <div class="flex-1 rounded-xl bg-slate-50 border border-slate-200 p-3">
+                        <div class="flex items-center gap-2 mb-1">
+                            <p class="text-sm font-black text-slate-900">{{ $comment->user?->displayName() }}</p>
+                            <span class="text-xs text-slate-400">{{ $comment->created_at->format('M j, Y g:i A') }}</span>
+                        </div>
+                        <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{{ $comment->comment }}</p>
+                    </div>
+                </div>
+            @empty
+                <p class="text-sm font-semibold text-slate-400 text-center py-4">No internal comments yet.</p>
+            @endforelse
+        </div>
+
+        <form method="POST" action="{{ route('admin.staff-queries.comments', $query) }}">
+            @csrf
+            <textarea name="comment" rows="3" required placeholder="Add an internal comment..." class="pb-textarea w-full mb-3"></textarea>
+            <button type="submit" class="pb-btn pb-btn-outline">Post Comment</button>
         </form>
     </div>
     @endif
