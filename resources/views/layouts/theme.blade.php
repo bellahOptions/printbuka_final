@@ -96,5 +96,6 @@
         <x-form-icons />
         @livewireScripts
         <x-shop-popup />
+        <livewire:support.chat-widget />
     </body>
 </html>

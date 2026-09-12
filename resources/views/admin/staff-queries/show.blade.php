@@ -64,8 +64,35 @@
 
         <div class="mt-4">
             <p class="text-xs font-black uppercase tracking-wide text-slate-400 mb-2">Query Description</p>
-            <div class="rounded-xl bg-pink-50 border border-pink-200 p-4 text-sm text-slate-800 leading-relaxed">{{ $query->description }}</div>
+            <div class="rounded-xl bg-pink-50 border border-pink-200 p-4 text-sm text-slate-800 leading-relaxed prose prose-sm max-w-none">{!! $query->description !!}</div>
         </div>
+
+        @if ($isHr)
+        <div class="mt-5 flex flex-wrap items-end justify-between gap-4 border-t border-slate-100 pt-4">
+            <div class="space-y-1 text-xs text-slate-500">
+                @if ($query->cc_emails)
+                    <p><span class="font-black uppercase tracking-wide text-slate-400">CC:</span> {{ implode(', ', $query->ccList()) }}</p>
+                @endif
+                @if ($query->bcc_emails)
+                    <p><span class="font-black uppercase tracking-wide text-slate-400">BCC:</span> {{ implode(', ', $query->bccList()) }}</p>
+                @endif
+                <p>
+                    @if ($query->email_last_sent_at)
+                        Last emailed {{ $query->email_last_sent_at->diffForHumans() }}
+                        @if ($query->email_send_count > 1)
+                            ({{ $query->email_send_count }}x)
+                        @endif
+                    @else
+                        Not yet emailed.
+                    @endif
+                </p>
+            </div>
+            <form method="POST" action="{{ route('admin.staff-queries.resend', $query) }}">
+                @csrf
+                <button type="submit" class="pb-btn pb-btn-outline text-xs">Resend Query Email</button>
+            </form>
+        </div>
+        @endif
     </div>
 
     {{-- Staff Response --}}
@@ -75,7 +102,7 @@
             <h2 class="pb-section-title">Staff Response</h2>
             <span class="text-xs text-slate-500">{{ $query->staff_responded_at?->format('M j, Y g:i A') }}</span>
         </div>
-        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm text-slate-800 leading-relaxed">{{ $query->staff_response }}</div>
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm text-slate-800 leading-relaxed prose prose-sm max-w-none">{!! $query->staff_response !!}</div>
     </div>
     @elseif ($isSelf && in_array($query->status, ['pending', 'awaiting_response']))
     <div class="rounded-2xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
@@ -110,7 +137,7 @@
         @if ($query->resolution_notes)
         <div class="mt-3">
             <p class="text-xs font-black uppercase tracking-wide text-slate-400 mb-2">Resolution Notes</p>
-            <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-sm text-slate-800 leading-relaxed">{{ $query->resolution_notes }}</div>
+            <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-sm text-slate-800 leading-relaxed prose prose-sm max-w-none">{!! $query->resolution_notes !!}</div>
         </div>
         @endif
     </div>

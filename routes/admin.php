@@ -352,6 +352,9 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::post('/staff-queries/{query}/close', [AdminStaffQueryController::class, 'close'])
             ->middleware('admin.permission:staff.queries')
             ->name('staff-queries.close');
+        Route::post('/staff-queries/{query}/resend', [AdminStaffQueryController::class, 'resend'])
+            ->middleware('admin.permission:staff.queries')
+            ->name('staff-queries.resend');
 
         // ===== STAFF EVALUATIONS =====
         Route::get('/evaluations', [AdminStaffEvaluationController::class, 'index'])

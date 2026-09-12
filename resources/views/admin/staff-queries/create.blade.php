@@ -63,6 +63,19 @@
                     <textarea name="description" rows="5" required data-rich-editor placeholder="Describe the infraction or issue in detail..." class="pb-textarea w-full">{{ old('description') }}</textarea>
                 </div>
 
+                <div class="grid gap-5 sm:grid-cols-2">
+                    <div class="pb-field">
+                        <label class="pb-label">CC (optional)</label>
+                        <input type="text" name="cc_emails" value="{{ old('cc_emails') }}" placeholder="hr@printbuka.com, manager@printbuka.com" class="pb-input w-full">
+                        <p class="text-xs text-slate-400 mt-1">Comma-separated email addresses.</p>
+                    </div>
+                    <div class="pb-field">
+                        <label class="pb-label">BCC (optional)</label>
+                        <input type="text" name="bcc_emails" value="{{ old('bcc_emails') }}" placeholder="records@printbuka.com" class="pb-input w-full">
+                        <p class="text-xs text-slate-400 mt-1">Comma-separated email addresses.</p>
+                    </div>
+                </div>
+
                 <div class="pb-field">
                     <label class="pb-label">Response Due Date</label>
                     <input type="date" name="response_due_date" value="{{ old('response_due_date') }}" class="pb-input w-full">

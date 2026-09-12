@@ -45,8 +45,7 @@ class SupportTicketsTable extends Component
         $query = Ticket::query()
             ->with(['user:id,first_name,last_name,email,role', 'assignedStaff:id,first_name,last_name,email,role'])
             ->when(
-                $this->isResolver($user),
-                fn ($builder) => $builder->whereHas('user', fn (Builder $userQuery) => $userQuery->where('role', '!=', 'customer')),
+                ! $this->isResolver($user),
                 fn ($builder) => $builder->where('user_id', $user?->id)
             );
 

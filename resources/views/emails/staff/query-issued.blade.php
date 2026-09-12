@@ -27,7 +27,7 @@
     <div class="label">Response Due</div><div class="value" style="color:#dc2626">{{ $query->response_due_date->format('F j, Y') }}</div>
     @endif
     <div class="label">Description</div>
-    <div class="description">{{ $query->description }}</div>
+    <div class="description">{!! $query->description !!}</div>
     <p style="text-align:center;margin-top:28px">
         <a href="{{ url('/staff/login') }}" class="btn">Respond to Query →</a>
     </p>

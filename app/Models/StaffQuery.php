@@ -21,9 +21,10 @@ class StaffQuery extends Model
 
     protected $fillable = [
         'staff_id', 'issued_by_id', 'query_number', 'query_date', 'query_type',
-        'subject', 'description', 'response_due_date',
+        'subject', 'description', 'cc_emails', 'bcc_emails', 'response_due_date',
         'staff_response', 'staff_responded_at', 'status',
         'resolved_by_id', 'resolved_at', 'resolution_notes',
+        'email_last_sent_at', 'email_send_count',
     ];
 
     protected function casts(): array
@@ -33,7 +34,38 @@ class StaffQuery extends Model
             'response_due_date'   => 'date',
             'staff_responded_at'  => 'datetime',
             'resolved_at'         => 'datetime',
+            'email_last_sent_at'  => 'datetime',
         ];
+    }
+
+    /**
+     * Parse a free-form comma/semicolon/newline-separated string of addresses
+     * into a clean list of valid, deduplicated emails.
+     *
+     * @return array<int, string>
+     */
+    public static function parseEmailList(?string $raw): array
+    {
+        if (! filled($raw)) {
+            return [];
+        }
+
+        return collect(preg_split('/[,;\n]+/', $raw) ?: [])
+            ->map(fn ($email) => trim((string) $email))
+            ->filter(fn ($email) => $email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL) !== false)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    public function ccList(): array
+    {
+        return self::parseEmailList($this->cc_emails);
+    }
+
+    public function bccList(): array
+    {
+        return self::parseEmailList($this->bcc_emails);
     }
 
     public function staff(): BelongsTo

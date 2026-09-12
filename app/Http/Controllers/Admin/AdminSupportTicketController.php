@@ -20,8 +20,7 @@ class AdminSupportTicketController extends Controller
         $baseQuery = Ticket::query()
             ->with(['user:id,first_name,last_name,email,role', 'assignedStaff:id,first_name,last_name,email,role'])
             ->when(
-                $this->isResolver($user),
-                fn ($query) => $query->whereHas('user', fn ($userQuery) => $userQuery->where('role', '!=', 'customer')),
+                ! $this->isResolver($user),
                 fn ($query) => $query->where('user_id', $user->id)
             );
 
@@ -151,8 +150,7 @@ class AdminSupportTicketController extends Controller
             return true;
         }
 
-        return $this->isResolver($user)
-            && $ticket->user()->where('role', '!=', 'customer')->exists();
+        return $this->isResolver($user);
     }
 
     private function resolveAssigneeId(User $creator): ?int

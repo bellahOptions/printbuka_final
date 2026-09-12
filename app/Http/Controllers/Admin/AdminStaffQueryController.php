@@ -51,6 +51,8 @@ class AdminStaffQueryController extends Controller
             'query_type'        => ['required', 'string', 'in:'.implode(',', StaffQuery::$types)],
             'subject'           => ['required', 'string', 'max:255'],
             'description'       => ['required', 'string', 'max:20000'],
+            'cc_emails'         => ['nullable', 'string', 'max:2000', $this->emailListRule()],
+            'bcc_emails'        => ['nullable', 'string', 'max:2000', $this->emailListRule()],
             'response_due_date' => ['nullable', 'date', 'after_or_equal:query_date'],
         ]);
 
@@ -103,6 +105,20 @@ class AdminStaffQueryController extends Controller
         return back()->with('status', 'Your response has been recorded.');
     }
 
+    public function resend(Request $request, StaffQuery $query): RedirectResponse
+    {
+        abort_unless($request->user()?->canAdmin('staff.queries') || $request->user()?->canAdmin('*'), 403);
+
+        $sent = $this->sendQueryEmail($query);
+
+        return back()->with(
+            $sent ? 'status' : 'warning',
+            $sent
+                ? 'Query '.$query->query_number.' email resent to '.$query->staff?->displayName().'.'
+                : 'Could not resend — '.$query->staff?->displayName().' has no email address on file.'
+        );
+    }
+
     public function close(Request $request, StaffQuery $query): RedirectResponse
     {
         abort_unless($request->user()?->canAdmin('staff.queries') || $request->user()?->canAdmin('*'), 403);
@@ -144,16 +160,45 @@ class AdminStaffQueryController extends Controller
         return 'QRY-'.$year.'-'.str_pad((string) $seq, 4, '0', STR_PAD_LEFT);
     }
 
-    private function sendQueryEmail(StaffQuery $query): void
+    private function sendQueryEmail(StaffQuery $query): bool
     {
         $email = $query->load('staff')->staff?->email ?? '';
-        if (! filled($email)) return;
+        if (! filled($email)) return false;
 
         try {
-            Mail::to($email)->send(new StaffQueryIssuedMail($query));
+            Mail::to($email)
+                ->cc($query->ccList())
+                ->bcc($query->bccList())
+                ->send(new StaffQueryIssuedMail($query));
+
+            $query->forceFill([
+                'email_last_sent_at' => now(),
+                'email_send_count'   => $query->email_send_count + 1,
+            ])->save();
+
+            return true;
         } catch (\Throwable $e) {
             Log::error('Staff query email failed.', ['query_id' => $query->id, 'message' => $e->getMessage()]);
+
+            return false;
         }
+    }
+
+    /**
+     * Validation rule closure rejecting a comma/semicolon/newline-separated
+     * string if it contains anything that isn't a valid email address.
+     */
+    private function emailListRule(): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail): void {
+            foreach (preg_split('/[,;\n]+/', (string) $value) ?: [] as $token) {
+                $email = trim($token);
+
+                if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+                    $fail("\"{$email}\" is not a valid email address.");
+                }
+            }
+        };
     }
 
     private function notifyStaffQueryIssued(StaffQuery $query): void

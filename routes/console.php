@@ -1,11 +1,13 @@
 <?php
 
 use App\Services\AttendanceProcessingService;
+use App\Services\ChatConclusionService;
 use App\Services\PendingJobReminderService;
 use App\Services\StaffActivitySummaryService;
 use App\Services\StaffRatingService;
 use App\Services\SupportTicketNotificationService;
 use App\Services\UnpaidInvoiceReminderService;
+use App\Models\ChatSession;
 use App\Models\Order;
 use App\Models\Training;
 use Illuminate\Foundation\Inspiring;
@@ -95,6 +97,27 @@ Artisan::command('staff-ratings:snapshot', function () {
     $this->info('Staff rating snapshots recomputed — '.$week->count().' staff (week), '.$month->count().' staff (month).');
 })->purpose('Recompute this week\'s and this month\'s staff rating leaderboards');
 
+Artisan::command('chatbot:conclude-idle-sessions', function () {
+    $idleCutoff = now()->subMinutes(10);
+
+    $sessions = ChatSession::query()
+        ->where('status', 'active')
+        ->where('updated_at', '<=', $idleCutoff)
+        ->get();
+
+    $service = app(ChatConclusionService::class);
+    $ticketsCreated = 0;
+
+    foreach ($sessions as $session) {
+        if ($service->conclude($session)) {
+            $ticketsCreated++;
+        }
+    }
+
+    $this->info("Idle chat sessions closed: {$sessions->count()} (tickets created: {$ticketsCreated}).");
+})->purpose('Conclude chat sessions idle for 10+ minutes, raising a support ticket for any with a logged-in customer message');
+
+Schedule::command('chatbot:conclude-idle-sessions')->everyFiveMinutes();
 Schedule::command('jobs:send-pending-reminders')->everySixHours();
 Schedule::command('support:send-unanswered-ticket-reminders')->everySixHours();
 Schedule::command('invoices:send-unpaid-reminders')->hourly();
