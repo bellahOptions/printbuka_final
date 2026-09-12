@@ -53,8 +53,9 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
 
         // Browser Web Push subscriptions — the plain-browser equivalent of the
         // devices routes above, for staff who never install the Capacitor app.
+        // Subscribing is mandatory (no unsubscribe route exists) — staff/admins
+        // cannot turn off web push notifications from within the app.
         Route::post('/web-push-subscriptions', [\App\Http\Controllers\Api\WebPushSubscriptionController::class, 'store'])->name('web-push-subscriptions.store');
-        Route::delete('/web-push-subscriptions', [\App\Http\Controllers\Api\WebPushSubscriptionController::class, 'destroy'])->name('web-push-subscriptions.destroy');
 
         Route::delete('/products/seeded-catalog', [AdminProductController::class, 'destroySeeded'])
             ->middleware(['admin.permission:products.manage', 'super.admin'])

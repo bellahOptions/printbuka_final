@@ -1,12 +1,16 @@
 // Browser Web Push for staff/admin pages viewed in a plain browser tab (the
 // Capacitor-wrapped shell already gets native push via capacitor-bridge.js,
 // so this deliberately no-ops there to avoid double-registering).
+//
+// Mandatory by design: staff/admins cannot turn this off from within the
+// app — there is no toggle and no unsubscribe endpoint. Once the browser
+// grants notification permission (a one-time browser-level prompt outside
+// our control), this subscribes and stays subscribed for as long as the
+// browser allows it.
 import { Capacitor } from '@capacitor/core';
 
-const csrfToken = () => document.querySelector('meta[name="csrf-token"]')?.content || '';
 const vapidKey = () => document.querySelector('meta[name="vapid-public-key"]')?.content || '';
 const subscribeUrl = () => document.querySelector('meta[name="web-push-subscribe-url"]')?.content;
-const unsubscribeUrl = () => document.querySelector('meta[name="web-push-unsubscribe-url"]')?.content;
 
 function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -15,32 +19,27 @@ function urlBase64ToUint8Array(base64String) {
     return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
 }
 
-// Returns true only on a genuine 2xx from the server — a failed registration
-// here must NOT be swallowed, because the alternative is a browser that
-// thinks it's subscribed (permission granted, live PushSubscription) while
-// the backend never learns the endpoint exists, so nothing is ever sent and
-// nothing ever looks wrong in the UI.
-async function postJson(url, method, body) {
+async function postJson(url, body) {
     try {
         const response = await fetch(url, {
-            method,
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken(),
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
                 'X-Requested-With': 'XMLHttpRequest',
             },
             body: JSON.stringify(body),
         });
 
         if (!response.ok) {
-            console.error(`[webpush] ${method} ${url} failed with status ${response.status}`);
+            console.error(`[webpush] POST ${url} failed with status ${response.status}`);
 
             return false;
         }
 
         return true;
     } catch (error) {
-        console.error(`[webpush] ${method} ${url} failed:`, error);
+        console.error(`[webpush] POST ${url} failed:`, error);
 
         return false;
     }
@@ -51,14 +50,14 @@ async function enableWebPush(registration) {
     if (!key) {
         console.error('[webpush] No VAPID public key found in the page — check VAPID_PUBLIC_KEY in .env.');
 
-        return false;
+        return;
     }
 
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') {
         console.warn('[webpush] Notification permission was not granted:', permission);
 
-        return false;
+        return;
     }
 
     const subscription = await registration.pushManager.subscribe({
@@ -71,50 +70,16 @@ async function enableWebPush(registration) {
         console.error('[webpush] No subscribe URL found in the page meta tags.');
         await subscription.unsubscribe();
 
-        return false;
+        return;
     }
 
-    const saved = await postJson(url, 'POST', subscription.toJSON());
+    const saved = await postJson(url, subscription.toJSON());
     if (!saved) {
         // The browser is subscribed but the server doesn't know it — that's
         // worse than not subscribing at all (looks "on" but never fires),
-        // so undo the browser-side subscription too.
+        // so undo the browser-side subscription too; it'll retry next load.
         await subscription.unsubscribe();
-
-        return false;
     }
-
-    return true;
-}
-
-async function disableWebPush(registration) {
-    const subscription = await registration.pushManager.getSubscription();
-    if (!subscription) return;
-
-    const url = unsubscribeUrl();
-    if (url) {
-        const removed = await postJson(url, 'DELETE', { endpoint: subscription.endpoint });
-        if (!removed) {
-            console.warn('[webpush] Server-side unsubscribe failed — unsubscribing this browser anyway.');
-        }
-    }
-
-    await subscription.unsubscribe();
-}
-
-function updateToggleButtons(state) {
-    document.querySelectorAll('[data-web-push-toggle]').forEach((btn) => {
-        if (state === 'unsupported' || state === 'denied') {
-            btn.hidden = true;
-            return;
-        }
-
-        btn.hidden = false;
-        btn.classList.toggle('text-brand-600', state === 'subscribed');
-        btn.title = state === 'subscribed'
-            ? 'Browser notifications on — click to turn off'
-            : 'Enable browser notifications';
-    });
 }
 
 async function initWebPush() {
@@ -128,13 +93,15 @@ async function initWebPush() {
     if (Capacitor.isNativePlatform()) return;
 
     if (Notification.permission === 'denied') {
-        updateToggleButtons('denied');
+        // Blocked at the browser/OS level — nothing the app can do about
+        // that short of the staff member changing their browser's site
+        // settings; there is no in-app fallback or toggle to work around it.
         return;
     }
 
     // navigator.serviceWorker.ready never resolves if registration failed
     // (see the console.error in app.js) — race it against a timeout so that
-    // failure is at least visible instead of leaving the toggle inert forever.
+    // failure is at least visible instead of hanging forever.
     const registration = await Promise.race([
         navigator.serviceWorker.ready,
         new Promise((_, reject) => setTimeout(() => reject(new Error('service worker not ready after 10s')), 10000)),
@@ -146,32 +113,10 @@ async function initWebPush() {
 
     if (!registration) return;
 
-    let subscription = await registration.pushManager.getSubscription();
+    const existing = await registration.pushManager.getSubscription();
+    if (existing) return;
 
-    updateToggleButtons(subscription ? 'subscribed' : 'default');
-
-    document.querySelectorAll('[data-web-push-toggle]').forEach((btn) => {
-        btn.addEventListener('click', async () => {
-            btn.disabled = true;
-            try {
-                if (subscription) {
-                    await disableWebPush(registration);
-                    subscription = null;
-                    updateToggleButtons('default');
-                } else {
-                    const ok = await enableWebPush(registration);
-                    if (ok) {
-                        subscription = await registration.pushManager.getSubscription();
-                        updateToggleButtons('subscribed');
-                    } else if (Notification.permission === 'denied') {
-                        updateToggleButtons('denied');
-                    }
-                }
-            } finally {
-                btn.disabled = false;
-            }
-        });
-    });
+    await enableWebPush(registration);
 }
 
 document.addEventListener('DOMContentLoaded', initWebPush);

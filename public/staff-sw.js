@@ -43,6 +43,11 @@ self.addEventListener('push', (event) => {
             badge: payload.badge,
             tag: payload.tag,
             data,
+            // Explicit, not just the default: these are mandatory staff
+            // notifications, so always play the OS/browser's notification
+            // sound and vibrate on devices that support it — never silent.
+            silent: false,
+            vibrate: [200, 100, 200],
         })
     );
 });

@@ -29,19 +29,4 @@ class WebPushSubscriptionController extends Controller
 
         return response()->json(['message' => 'Browser subscribed.'], 201);
     }
-
-    /**
-     * Unsubscribe this browser (staff member turned notifications off, or
-     * the browser's own subscription expired/rotated).
-     */
-    public function destroy(Request $request): JsonResponse
-    {
-        $request->validate([
-            'endpoint' => ['required', 'string'],
-        ]);
-
-        $request->user()->deleteWebPushSubscription($request->string('endpoint')->toString());
-
-        return response()->json(['message' => 'Browser unsubscribed.']);
-    }
 }

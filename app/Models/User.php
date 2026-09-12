@@ -252,10 +252,6 @@ class User extends Authenticatable implements MustVerifyEmailContract
         ]);
     }
 
-    public function deleteWebPushSubscription(string $endpoint): void
-    {
-        $this->webPushSubscriptions()->where('endpoint', $endpoint)->delete();
-    }
 
     public function profilePhotoUrl(): ?string
     {
