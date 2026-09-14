@@ -6,7 +6,6 @@
         <meta name="color-scheme" content="light">
         <meta name="supported-color-schemes" content="light">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <meta name="staff-devices-url" content="{{ route('admin.devices.store') }}">
         <meta name="vapid-public-key" content="{{ config('webpush.vapid.public_key') }}">
         <meta name="web-push-subscribe-url" content="{{ route('admin.web-push-subscriptions.store') }}">
         <link rel="manifest" href="/staff-manifest.json">

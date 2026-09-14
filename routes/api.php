@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Api\StaffAuthController;
-use App\Http\Controllers\Api\StaffDeviceController;
 use App\Http\Controllers\Api\StaffExportController;
 use App\Http\Controllers\Api\StaffNotificationController;
 use Illuminate\Support\Facades\Route;
@@ -29,10 +28,6 @@ Route::prefix('staff')
         // Auth
         Route::get('/me', [StaffAuthController::class, 'me']);
         Route::post('/logout', [StaffAuthController::class, 'logout']);
-
-        // Device registration (FCM token)
-        Route::post('/devices', [StaffDeviceController::class, 'store']);
-        Route::delete('/devices', [StaffDeviceController::class, 'destroy']);
 
         // Notification inbox
         Route::get('/notifications', [StaffNotificationController::class, 'index']);

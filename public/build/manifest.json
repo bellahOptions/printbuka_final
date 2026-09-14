@@ -1,6 +1,6 @@
 {
   "node_modules/@capacitor/geolocation/dist/esm/index.js": {
-    "file": "assets/esm-pOCCXTvg.js",
+    "file": "assets/esm-CZowkxBg.js",
     "name": "esm",
     "src": "node_modules/@capacitor/geolocation/dist/esm/index.js",
     "isDynamicEntry": true,
@@ -12,7 +12,7 @@
     ]
   },
   "node_modules/@capacitor/geolocation/dist/esm/web.js": {
-    "file": "assets/web-C6C1rIuM.js",
+    "file": "assets/web-DmXk8HHm.js",
     "name": "web",
     "src": "node_modules/@capacitor/geolocation/dist/esm/web.js",
     "isDynamicEntry": true,
@@ -20,17 +20,8 @@
       "resources/js/app.js"
     ]
   },
-  "node_modules/@capacitor/push-notifications/dist/esm/index.js": {
-    "file": "assets/esm-DEc08Zc6.js",
-    "name": "esm",
-    "src": "node_modules/@capacitor/push-notifications/dist/esm/index.js",
-    "isDynamicEntry": true,
-    "imports": [
-      "resources/js/app.js"
-    ]
-  },
   "resources/css/app.css": {
-    "file": "assets/app-BxTzg_si.css",
+    "file": "assets/app-C2UtudHx.css",
     "name": "app",
     "names": [
       "app.css"
@@ -39,12 +30,11 @@
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-BNFVFjja.js",
+    "file": "assets/app-D0djvXzO.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "dynamicImports": [
-      "node_modules/@capacitor/push-notifications/dist/esm/index.js",
       "node_modules/@capacitor/geolocation/dist/esm/index.js"
     ],
     "css": [

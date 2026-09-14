@@ -11,7 +11,6 @@
         "barryvdh/laravel-dompdf": "^3.1",
         "blade-ui-kit/blade-heroicons": "^2.7",
         "cloudinary/cloudinary_php": "^3.1",
-        "laravel-notification-channels/fcm": "^6.1",
         "laravel-notification-channels/webpush": "^11.0",
         "laravel/framework": "^13.0",
         "laravel/sanctum": "*",

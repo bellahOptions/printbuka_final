@@ -5,14 +5,11 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
-use NotificationChannels\Fcm\FcmChannel;
-use NotificationChannels\Fcm\FcmMessage;
-use NotificationChannels\Fcm\Resources\Notification as FcmNotification;
 use NotificationChannels\WebPush\WebPushChannel;
 use NotificationChannels\WebPush\WebPushMessage;
 
 /**
- * Generic staff push notification — persistent (database) + real-time (FCM).
+ * Generic staff push notification — persistent (database) + real-time (Web Push).
  *
  * Usage:
  *   $user->notify(new StaffPushNotification(
@@ -37,11 +34,6 @@ class StaffPushNotification extends Notification implements ShouldQueue
     {
         $channels = ['database'];
 
-        // Only add FCM if this user has at least one registered native device
-        if ($notifiable->pushSubscriptions()->exists()) {
-            $channels[] = FcmChannel::class;
-        }
-
         // Only add WebPush if this user has subscribed a browser tab
         if ($notifiable->webPushSubscriptions()->exists()) {
             $channels[] = WebPushChannel::class;
@@ -65,23 +57,6 @@ class StaffPushNotification extends Notification implements ShouldQueue
             'action_url' => $this->data['action_url'] ?? null,
             'data'       => $this->data,
         ];
-    }
-
-    /**
-     * Delivered via Firebase — works even when the app is closed.
-     * v6 API: fluent setters are ->notification() and ->data(), not ->set*().
-     */
-    public function toFcm(object $_notifiable): FcmMessage
-    {
-        return FcmMessage::create()
-            ->notification(new FcmNotification(
-                title: $this->title,
-                body: $this->body,
-            ))
-            ->data(array_merge(
-                ['type' => $this->type],
-                array_map('strval', $this->data), // FCM data values must be strings
-            ));
     }
 
     /**

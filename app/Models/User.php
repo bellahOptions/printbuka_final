@@ -150,11 +150,6 @@ class User extends Authenticatable implements MustVerifyEmailContract
         return $this->hasMany(DailyTodo::class, 'assigned_by_id');
     }
 
-    public function pushSubscriptions(): HasMany
-    {
-        return $this->hasMany(StaffPushSubscription::class);
-    }
-
     public function staffProfile(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(StaffProfile::class);
@@ -198,21 +193,11 @@ class User extends Authenticatable implements MustVerifyEmailContract
     }
 
     /**
-     * FCM channel resolves all registered device tokens for this user.
-     * Returns an array so the package fans out to every device the staff member owns.
-     */
-    public function routeNotificationForFcm(): array
-    {
-        return $this->pushSubscriptions()->pluck('device_token')->toArray();
-    }
-
-    /**
      * Browser Web Push subscriptions (one per subscribed browser/tab).
      *
-     * Deliberately named differently from pushSubscriptions() above — that
-     * name is already taken by the FCM/Capacitor device relation, and the
-     * webpush package's own HasPushSubscriptions trait defines a method of
-     * that same name, which would silently collide with it.
+     * Deliberately not named pushSubscriptions() — the webpush package's own
+     * HasPushSubscriptions trait defines a method of that name, which would
+     * silently collide with it.
      */
     public function webPushSubscriptions(): MorphMany
     {
