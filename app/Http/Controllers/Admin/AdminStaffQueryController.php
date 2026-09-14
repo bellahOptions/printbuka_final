@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\StaffQueryClosedMail;
 use App\Mail\StaffQueryIssuedMail;
 use App\Models\StaffQuery;
 use App\Models\StaffQueryComment;
@@ -86,35 +87,9 @@ class AdminStaffQueryController extends Controller
 
         $isHr = request()->user()?->canAdmin('staff.queries') || request()->user()?->canAdmin('*');
 
-        $thread = collect();
-
-        if ($query->staff_response) {
-            $thread->push([
-                'author'           => $query->staff,
-                'body'             => $query->staff_response,
-                'at'               => $query->staff_responded_at,
-                'is_staff'         => true,
-                'visible_to_staff' => true,
-            ]);
-        }
-
-        foreach ($query->comments as $comment) {
-            if (! $isHr && ! $comment->visible_to_staff) {
-                continue;
-            }
-
-            $thread->push([
-                'author'           => $comment->user,
-                'body'             => $comment->comment,
-                'at'               => $comment->created_at,
-                'is_staff'         => false,
-                'visible_to_staff' => $comment->visible_to_staff,
-            ]);
-        }
-
         return view('admin.staff-queries.show', [
             'query'  => $query,
-            'thread' => $thread->sortBy('at')->values(),
+            'thread' => $query->conversationThread($isHr),
         ]);
     }
 
@@ -141,21 +116,30 @@ class AdminStaffQueryController extends Controller
     public function respond(Request $request, StaffQuery $query): RedirectResponse
     {
         abort_unless($request->user()?->id === $query->staff_id, 403);
-        abort_if($query->staff_responded_at !== null, 422, 'You have already responded to this query.');
+        abort_if($query->status === 'closed', 422, 'This query has been closed.');
 
         $validated = $request->validate([
             'staff_response' => ['required', 'string', 'max:20000'],
         ]);
 
-        $query->forceFill([
-            'staff_response'     => $validated['staff_response'],
-            'staff_responded_at' => now(),
-            'status'             => 'responded',
-        ])->save();
+        if ($query->staff_responded_at === null) {
+            $query->forceFill([
+                'staff_response'     => $validated['staff_response'],
+                'staff_responded_at' => now(),
+                'status'             => 'responded',
+            ])->save();
+        } else {
+            StaffQueryComment::query()->create([
+                'staff_query_id'   => $query->id,
+                'user_id'          => $request->user()->id,
+                'comment'          => $validated['staff_response'],
+                'visible_to_staff' => true,
+            ]);
+        }
 
         $this->notifyStaffQueryResponded($query, $request->user());
 
-        return back()->with('status', 'Your response has been recorded.');
+        return back()->with('status', 'Your response has been recorded.')->withFragment('comments');
     }
 
     public function resend(Request $request, StaffQuery $query): RedirectResponse
@@ -188,6 +172,7 @@ class AdminStaffQueryController extends Controller
         ])->save();
 
         $this->notifyStaffQueryClosed($query);
+        $this->sendClosedMail($query);
 
         return back()->with('status', 'Query '.$query->query_number.' has been closed.');
     }
@@ -232,6 +217,32 @@ class AdminStaffQueryController extends Controller
             return true;
         } catch (\Throwable $e) {
             Log::error('Staff query email failed.', ['query_id' => $query->id, 'message' => $e->getMessage()]);
+
+            return false;
+        }
+    }
+
+    private function sendClosedMail(StaffQuery $query): bool
+    {
+        $query->load('staff', 'issuedBy');
+
+        $recipient = $query->staff?->email;
+        if (! filled($recipient)) return false;
+
+        $cc = array_values(array_unique(array_filter([
+            $query->issuedBy?->email,
+            ...$query->ccList(),
+        ])));
+
+        try {
+            Mail::to($recipient)
+                ->cc($cc)
+                ->bcc($query->bccList())
+                ->send(new StaffQueryClosedMail($query));
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('Staff query closed email failed.', ['query_id' => $query->id, 'message' => $e->getMessage()]);
 
             return false;
         }

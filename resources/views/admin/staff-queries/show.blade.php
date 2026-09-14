@@ -110,15 +110,17 @@
                     ])>
                         <div class="flex flex-wrap items-center gap-2 mb-1">
                             <p class="text-sm font-black text-slate-900">{{ $item['author']?->displayName() }}</p>
-                            @if ($item['is_staff'])
+                            @if ($item['is_html'])
                                 <span class="pb-badge bg-slate-200 text-slate-700 text-[10px]">Staff Response</span>
+                            @elseif ($item['is_staff'])
+                                <span class="pb-badge bg-slate-200 text-slate-700 text-[10px]">Staff Reply</span>
                             @endif
                             @if ($isHr && ! $item['is_staff'] && ! $item['visible_to_staff'])
                                 <span class="pb-badge bg-amber-100 text-amber-800 text-[10px]">Internal only</span>
                             @endif
                             <span class="text-xs text-slate-400">{{ $item['at']?->format('M j, Y g:i A') }}</span>
                         </div>
-                        <div class="text-sm text-slate-700 leading-relaxed whitespace-pre-line ql-editor">{!! $item['is_staff'] ? $item['body'] : e($item['body']) !!}</div>
+                        <div class="text-sm text-slate-700 leading-relaxed whitespace-pre-line ql-editor">{!! $item['is_html'] ? $item['body'] : e($item['body']) !!}</div>
                     </div>
                 </div>
             @empty
@@ -136,15 +138,23 @@
                 </label>
                 <button type="submit" class="pb-btn pb-btn-outline">Post Comment</button>
             </form>
-        @elseif ($isSelf && ! $query->staff_response && in_array($query->status, ['pending', 'awaiting_response']))
+        @elseif ($isSelf && $query->status !== 'closed')
             <div class="rounded-xl border border-amber-200 bg-amber-50 p-4">
-                <p class="text-sm font-black text-amber-900 mb-1">Your Response Required</p>
-                <p class="text-xs text-amber-700 mb-3">Please provide your formal response to this query.</p>
-                <form method="POST" action="{{ route('admin.staff-queries.respond', $query) }}">
-                    @csrf
-                    <textarea name="staff_response" rows="5" required data-rich-editor placeholder="Write your formal response here..." class="pb-textarea w-full mb-3"></textarea>
-                    <button type="submit" class="pb-btn pb-btn-primary">Submit Response</button>
-                </form>
+                @if (! $query->staff_response)
+                    <p class="text-sm font-black text-amber-900 mb-1">Your Response Required</p>
+                    <p class="text-xs text-amber-700 mb-3">Please provide your formal response to this query.</p>
+                    <form method="POST" action="{{ route('admin.staff-queries.respond', $query) }}">
+                        @csrf
+                        <textarea name="staff_response" rows="5" required data-rich-editor placeholder="Write your formal response here..." class="pb-textarea w-full mb-3"></textarea>
+                        <button type="submit" class="pb-btn pb-btn-primary">Submit Response</button>
+                    </form>
+                @else
+                    <form method="POST" action="{{ route('admin.staff-queries.respond', $query) }}">
+                        @csrf
+                        <textarea name="staff_response" rows="3" required placeholder="Write a follow-up reply..." class="pb-textarea w-full mb-3"></textarea>
+                        <button type="submit" class="pb-btn pb-btn-outline">Reply</button>
+                    </form>
+                @endif
             </div>
         @endif
     </div>

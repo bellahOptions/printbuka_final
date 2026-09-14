@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 class StaffQuery extends Model
 {
@@ -87,6 +88,55 @@ class StaffQuery extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(StaffQueryComment::class)->oldest();
+    }
+
+    /**
+     * The full conversation — the staff member's formal response plus every
+     * follow-up comment — merged into one chronological thread. Shared by
+     * the query detail page and the closing-transcript email so both always
+     * agree on what "the full thread" means.
+     *
+     * `is_html` is true only for the formal `staff_response` field (rich-text
+     * editor content, safe to render unescaped); every comment — including
+     * staff follow-up replies — is plain textarea input and must stay
+     * escaped, so `is_html` is false for all of them regardless of author.
+     * `is_staff` is purely "who authored this", used for badge/color styling.
+     *
+     * @return Collection<int, array{author: ?User, body: string, at: ?\Illuminate\Support\Carbon, is_staff: bool, is_html: bool, visible_to_staff: bool}>
+     */
+    public function conversationThread(bool $isHr = true): Collection
+    {
+        $this->loadMissing('staff', 'comments.user');
+
+        $thread = collect();
+
+        if ($this->staff_response) {
+            $thread->push([
+                'author'           => $this->staff,
+                'body'             => $this->staff_response,
+                'at'               => $this->staff_responded_at,
+                'is_staff'         => true,
+                'is_html'          => true,
+                'visible_to_staff' => true,
+            ]);
+        }
+
+        foreach ($this->comments as $comment) {
+            if (! $isHr && ! $comment->visible_to_staff) {
+                continue;
+            }
+
+            $thread->push([
+                'author'           => $comment->user,
+                'body'             => $comment->comment,
+                'at'               => $comment->created_at,
+                'is_staff'         => $comment->user_id === $this->staff_id,
+                'is_html'          => false,
+                'visible_to_staff' => $comment->visible_to_staff,
+            ]);
+        }
+
+        return $thread->sortBy('at')->values();
     }
 
     public function typeLabel(): string

@@ -29,10 +29,10 @@
     <div class="label">Description</div>
     <div class="description">{!! $query->description !!}</div>
     <p style="text-align:center;margin-top:28px">
-        <a href="{{ url('/staff/login') }}" class="btn">Respond to Query →</a>
+        <a href="{{ route('admin.staff-queries.show', $query) }}" class="btn">Respond to Query →</a>
     </p>
     <p style="font-size:12px;color:#64748b;margin-top:20px;line-height:1.6">
-        Please log in to the staff portal and navigate to <strong>My Queries</strong> to submit your formal response.
+        Click the button above to view this query and submit your formal response — you'll be asked to log in first if needed.
         Failure to respond by the due date may result in further disciplinary action.
     </p>
     {!! $outroHtml ?? '' !!}
