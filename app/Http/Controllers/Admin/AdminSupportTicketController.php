@@ -21,7 +21,11 @@ class AdminSupportTicketController extends Controller
             ->with(['user:id,first_name,last_name,email,role', 'assignedStaff:id,first_name,last_name,email,role'])
             ->when(
                 ! $this->isResolver($user),
-                fn ($query) => $query->where('user_id', $user->id)
+                fn ($query) => $query->where(function ($q) use ($user): void {
+                    $q->where('user_id', $user->id)
+                        ->orWhere('assigned_to', $user->id)
+                        ->orWhereHas('user', fn ($uq) => $uq->where('role', 'customer'));
+                })
             );
 
         $stats = [
@@ -150,7 +154,22 @@ class AdminSupportTicketController extends Controller
             return true;
         }
 
-        return $this->isResolver($user);
+        if ($this->isResolver($user)) {
+            return true;
+        }
+
+        // Customer-raised tickets are broadcast to every staff member with
+        // admin.view (see SupportTicketNotificationService::adminRecipients()).
+        // Anyone who receives that notification must be able to open and
+        // reply to it, not just super_admin/managing_director. Internal
+        // staff-to-staff tickets stay private to their creator/assignee.
+        $ticket->loadMissing('user:id,role');
+
+        if ($ticket->user?->role === 'customer') {
+            return $user->canAdmin('admin.view') || $user->canAdmin('*');
+        }
+
+        return false;
     }
 
     private function resolveAssigneeId(User $creator): ?int

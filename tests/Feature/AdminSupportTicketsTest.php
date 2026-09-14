@@ -57,6 +57,68 @@ class AdminSupportTicketsTest extends TestCase
             ->assertSeeText('Catalog sync issue');
     }
 
+    public function test_non_resolver_staff_can_view_and_reply_to_customer_raised_ticket(): void
+    {
+        $customer = User::factory()->create([
+            'role' => 'customer',
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        $socialMediaManager = $this->adminUser('social_media_manager', 'smm@example.com');
+
+        $ticket = Ticket::query()->create([
+            'user_id' => $customer->id,
+            'ticket_number' => Ticket::generateTicketNumber(),
+            'subject' => 'Question about a promo post',
+            'category' => 'general',
+            'priority' => 'normal',
+            'message' => 'Can you confirm the Instagram promo details?',
+            'status' => 'open',
+        ]);
+
+        $this->actingAs($socialMediaManager)
+            ->withSession(['staff_2fa_verified' => true])
+            ->get(route('admin.support.show', $ticket))
+            ->assertOk()
+            ->assertSeeText('Question about a promo post');
+
+        $this->actingAs($socialMediaManager)
+            ->withSession(['staff_2fa_verified' => true])
+            ->post(route('admin.support.reply', $ticket), [
+                'message' => 'Sure, here are the promo details.',
+            ])
+            ->assertRedirect(route('admin.support.show', $ticket));
+
+        $this->assertDatabaseHas('ticket_replies', [
+            'ticket_id' => $ticket->id,
+            'user_id' => $socialMediaManager->id,
+        ]);
+    }
+
+    public function test_non_resolver_staff_cannot_view_unrelated_internal_staff_ticket(): void
+    {
+        $staff = $this->adminUser('operations_manager', 'ops3@example.com');
+        $superAdmin = $this->adminUser('super_admin', 'sa3@example.com');
+        $unrelatedStaff = $this->adminUser('social_media_manager', 'smm2@example.com');
+
+        $ticket = Ticket::query()->create([
+            'user_id' => $staff->id,
+            'ticket_number' => Ticket::generateTicketNumber(),
+            'subject' => 'Need a new laptop',
+            'category' => 'general',
+            'priority' => 'normal',
+            'message' => 'My laptop is broken beyond repair.',
+            'status' => 'open',
+            'assigned_to' => $superAdmin->id,
+        ]);
+
+        $this->actingAs($unrelatedStaff)
+            ->withSession(['staff_2fa_verified' => true])
+            ->get(route('admin.support.show', $ticket))
+            ->assertRedirect(route('admin.support.index'));
+    }
+
     public function test_customer_cannot_access_admin_support_portal(): void
     {
         $customer = User::factory()->create([

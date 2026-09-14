@@ -18,13 +18,15 @@ Native shell (this project)  ──HTTPS──▶  Laravel app (printbuka_final)
 - `resources/js/capacitor-bridge.js` (bundled into the main app's `app.js`)
   detects when it's running inside this native shell (`Capacitor.isNativePlatform()`)
   and is a complete no-op everywhere else (plain browser, customer portal).
-- **Push notifications**: on first load inside the app, it requests permission,
-  registers for FCM, and POSTs the device token to `POST /admin/devices`
-  (`admin.devices.store`) — a session-authenticated route that reuses the
-  existing `App\Http\Controllers\Api\StaffDeviceController` (the same one the
-  Sanctum mobile API already used), so it lands in the same `staff_push_subscriptions`
-  table the existing Firebase-push sending code already reads from. No new
-  server-side push logic was needed.
+- **Push notifications**: native FCM push was removed from this shell — a
+  WebView-based native app can't receive Web Push while backgrounded, and
+  Firebase was dropped from the Laravel side (`App\Notifications\StaffPushNotification`
+  now delivers via the `WebPushChannel` only). Staff using this native app
+  see new notifications the same way any staff member does when they have
+  the app open: the notification bell polling the `database` channel. If you
+  need background delivery on the native app again in the future, that would
+  mean reintroducing a native push provider (FCM or otherwise) — there's no
+  way around a native-token-based channel for a backgrounded native shell.
 - **Geolocation**: the existing attendance clock-in/out flow
   (`resources/js/app.js`, `getLocation()`) now prefers the native
   `@capacitor/geolocation` plugin when running in the app (more reliable OS
@@ -45,17 +47,7 @@ Native shell (this project)  ──HTTPS──▶  Laravel app (printbuka_final)
    (`allowMixedContent: false` is set deliberately; don't turn this on for a
    real deployment). After changing it, run `npm run sync` in this directory.
 
-2. **Register an Android app in your existing Firebase project** (the one
-   whose service-account JSON is already configured server-side via
-   `FIREBASE_CREDENTIALS`) with package name `com.printbuka.staff`, download
-   the resulting `google-services.json`, and place it at
-   `android/app/google-services.json`. Without this file the app builds fine
-   but push notifications silently won't register (the Gradle config already
-   detects its absence and skips the Firebase plugin rather than failing the
-   build — you'll just see `google-services.json not found, google-services
-   plugin not applied. Push Notifications won't work` in the build log).
-
-3. **Build & sign the Android app.**
+2. **Build & sign the Android app.**
    ```bash
    cd mobile-app
    npm install
@@ -68,13 +60,12 @@ Native shell (this project)  ──HTTPS──▶  Laravel app (printbuka_final)
    done here since a keystore is a secret you should generate and hold
    yourself, not something to have an agent create for you.
 
-4. **iOS needs a Mac.** `npx cap add ios` (not run here — this sandbox is
+3. **iOS needs a Mac.** `npx cap add ios` (not run here — this sandbox is
    Linux) generates an Xcode project the same way `add android` did; building,
    signing, and submitting it requires Xcode and an Apple Developer account,
    which only run on macOS. Everything on the Laravel/JS side above already
-   works for iOS too (Capacitor's push/geolocation plugins are cross-platform)
-   — only the native Xcode project and its own `GoogleService-Info.plist`
-   (the iOS equivalent of `google-services.json`) are outstanding.
+   works for iOS too (Capacitor's geolocation plugin is cross-platform) —
+   only the native Xcode project itself is outstanding.
 
 ## Why "remote URL" mode instead of bundling the site
 
