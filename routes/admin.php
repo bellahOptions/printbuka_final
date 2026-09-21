@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AdminActivityLogController;
 use App\Http\Controllers\Admin\AdminAttendanceController;
 use App\Http\Controllers\Admin\AdminAdvertisementController;
 use App\Http\Controllers\Admin\AdminBlogPostController;
+use App\Http\Controllers\Admin\AdminCompanyAccountController;
 use App\Http\Controllers\Admin\AdminCustomerController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminEmailTemplateController;
@@ -125,6 +126,10 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
             ->middleware('admin.permission:invoices.manage')
             ->whereUuid('invoice')
             ->name('invoices.payment-terms');
+        Route::patch('/invoices/{invoice}/company-account', [AdminInvoiceController::class, 'updateCompanyAccount'])
+            ->middleware('admin.permission:invoices.manage')
+            ->whereUuid('invoice')
+            ->name('invoices.company-account');
         Route::get('/invoices/quotations/create', [AdminInvoiceController::class, 'createQuotation'])
             ->middleware('admin.permission:invoices.manage')
             ->name('invoices.quotations.create');
@@ -245,6 +250,15 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::put('/settings', [AdminSiteSettingController::class, 'update'])
             ->middleware('admin.permission:site_settings.manage')
             ->name('settings.update');
+        Route::get('/company-accounts/banks', [AdminCompanyAccountController::class, 'banks'])
+            ->middleware('admin.permission:company_accounts.manage')
+            ->name('company-accounts.banks');
+        Route::get('/company-accounts/resolve-account', [AdminCompanyAccountController::class, 'resolveAccount'])
+            ->middleware('admin.permission:company_accounts.manage')
+            ->name('company-accounts.resolve-account');
+        Route::resource('company-accounts', AdminCompanyAccountController::class)
+            ->except('show')
+            ->middleware('admin.permission:company_accounts.manage');
         Route::get('/staff', [AdminStaffController::class, 'index'])
             ->middleware('admin.permission:staff.view')
             ->name('staff.index');

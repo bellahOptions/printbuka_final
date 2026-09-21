@@ -10,10 +10,11 @@
     $companyAddressLine2 = (string) ($settings['company_address_line_2'] ?? '100001, Lagos');
     $companyEmail = (string) ($settings['contact_email'] ?? 'sales@printbuka.com.ng');
     $companyPhone = (string) ($settings['contact_phone'] ?? '08035245784, 09054784526');
-    $companyAccountName = trim((string) ($settings['company_account_name'] ?? ''));
-    $companyAccountNumber = trim((string) ($settings['company_account_number'] ?? ''));
-    $companyAccountBankName = trim((string) ($settings['company_account_bank_name'] ?? ''));
-    $companyAccountNote = trim((string) ($settings['company_account_note'] ?? ''));
+    $payToAccount = $invoice->resolvedCompanyAccount();
+    $companyAccountName = trim((string) ($payToAccount?->account_name ?? $settings['company_account_name'] ?? ''));
+    $companyAccountNumber = trim((string) ($payToAccount?->account_number ?? $settings['company_account_number'] ?? ''));
+    $companyAccountBankName = trim((string) ($payToAccount?->bank_name ?? $settings['company_account_bank_name'] ?? ''));
+    $companyAccountNote = trim((string) ($payToAccount?->note ?? $settings['company_account_note'] ?? ''));
     $hasCompanyAccountDetails = $companyAccountName !== '' || $companyAccountNumber !== '' || $companyAccountBankName !== '' || $companyAccountNote !== '';
     $paymentLink = null;
     // Bank transfer instructions shown directly instead of Paystack redirect

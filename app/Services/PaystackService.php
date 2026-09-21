@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Invoice;
+use App\Support\SafeCache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
@@ -139,6 +140,82 @@ class PaystackService
         return [
             'ok' => true,
             'data' => $data,
+        ];
+    }
+
+    /**
+     * @return array{ok:bool,data?:array<int,array<string,mixed>>,message?:string}
+     */
+    public function listBanks(): array
+    {
+        if (! $this->enabled()) {
+            return [
+                'ok' => false,
+                'message' => 'Paystack is not configured.',
+            ];
+        }
+
+        // Only successful lookups are cached — a transient Paystack failure
+        // must not be remembered and served for the rest of the week.
+        $banks = SafeCache::remember('paystack.banks.nigeria', now()->addWeek(), function (): ?array {
+            $response = Http::withToken($this->secretKey())
+                ->acceptJson()
+                ->get('https://api.paystack.co/bank', [
+                    'country' => 'nigeria',
+                    'currency' => 'NGN',
+                ]);
+
+            if (! $response->successful() || ! $response->json('status')) {
+                return null;
+            }
+
+            return (array) $response->json('data', []);
+        });
+
+        if ($banks === null) {
+            SafeCache::forget('paystack.banks.nigeria');
+
+            return [
+                'ok' => false,
+                'message' => 'Could not fetch the bank list.',
+            ];
+        }
+
+        return [
+            'ok' => true,
+            'data' => $banks,
+        ];
+    }
+
+    /**
+     * @return array{ok:bool,data?:array<string,mixed>,message?:string}
+     */
+    public function resolveAccount(string $accountNumber, string $bankCode): array
+    {
+        if ($accountNumber === '' || $bankCode === '' || ! $this->enabled()) {
+            return [
+                'ok' => false,
+                'message' => 'Account resolution cannot continue.',
+            ];
+        }
+
+        $response = Http::withToken($this->secretKey())
+            ->acceptJson()
+            ->get('https://api.paystack.co/bank/resolve', [
+                'account_number' => $accountNumber,
+                'bank_code' => $bankCode,
+            ]);
+
+        if (! $response->successful() || ! $response->json('status')) {
+            return [
+                'ok' => false,
+                'message' => (string) ($response->json('message') ?: 'Could not resolve this account number.'),
+            ];
+        }
+
+        return [
+            'ok' => true,
+            'data' => (array) $response->json('data', []),
         ];
     }
 

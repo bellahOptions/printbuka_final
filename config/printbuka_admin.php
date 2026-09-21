@@ -94,6 +94,7 @@ return [
         'newsletters.manage' => 'Newsletter Campaigns',
         'finance.view' => 'Finance',
         'site_settings.manage' => 'Site Settings',
+        'company_accounts.manage' => 'Company Accounts Management',
         'customers.manage' => 'Customer Management',
         'training.manage' => 'Training Applications',
         'vendors.manage' => 'Vendor Management',

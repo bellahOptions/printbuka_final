@@ -186,6 +186,29 @@
             </div>
         </div>
 
+        {{-- Pay-to Account --}}
+        @if(auth()->user()->canAdmin('invoices.manage'))
+        <div class="pb-card p-6">
+            <h2 class="pb-section-title mb-4">Pay-to Account</h2>
+            <p class="mb-4 text-sm text-slate-600">Which of the company's bank accounts shows on this {{ strtolower($invoice->documentTypeLabel()) }}'s PDF, receipt, and emails.</p>
+            <form method="POST" action="{{ route('admin.invoices.company-account', $invoice) }}" class="flex flex-wrap items-end gap-4">
+                @csrf @method('PATCH')
+                <div class="pb-field">
+                    <label class="pb-label">Account</label>
+                    <select name="company_account_id" class="pb-input">
+                        <option value="">— Use default account —</option>
+                        @foreach ($companyAccounts as $account)
+                            <option value="{{ $account->id }}" @selected($invoice->company_account_id === $account->id)>
+                                {{ $account->label }} ({{ $account->bank_name }} · {{ $account->account_number }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <button type="submit" class="pb-btn pb-btn-md pb-btn-secondary">Update Account</button>
+            </form>
+        </div>
+        @endif
+
         {{-- Payment Terms --}}
         @if(auth()->user()->canAdmin('invoices.manage'))
         <div class="pb-card p-6">

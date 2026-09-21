@@ -14,10 +14,11 @@
             $companyAddressLine2 = (string) ($settings['company_address_line_2'] ?? '100001, Lagos');
             $companyEmail = (string) ($settings['contact_email'] ?? 'sales@printbuka.com.ng');
             $companyPhone = (string) ($settings['contact_phone'] ?? '08035245784, 09054784526');
-            $companyAccountName = trim((string) ($settings['company_account_name'] ?? ''));
-            $companyAccountNumber = trim((string) ($settings['company_account_number'] ?? ''));
-            $companyAccountBankName = trim((string) ($settings['company_account_bank_name'] ?? ''));
-            $companyAccountNote = trim((string) ($settings['company_account_note'] ?? ''));
+            $payToAccount = $invoice->resolvedCompanyAccount();
+            $companyAccountName = trim((string) ($payToAccount?->account_name ?? $settings['company_account_name'] ?? ''));
+            $companyAccountNumber = trim((string) ($payToAccount?->account_number ?? $settings['company_account_number'] ?? ''));
+            $companyAccountBankName = trim((string) ($payToAccount?->bank_name ?? $settings['company_account_bank_name'] ?? ''));
+            $companyAccountNote = trim((string) ($payToAccount?->note ?? $settings['company_account_note'] ?? ''));
             $hasCompanyAccountDetails = $companyAccountName !== '' || $companyAccountNumber !== '' || $companyAccountBankName !== '' || $companyAccountNote !== '';
 
             $embedFont = static function (array $paths): ?string {
@@ -119,7 +120,7 @@
                 }
             @endif
 
-            @page { margin: 12mm 15mm; }
+            @page { margin: 20mm 20mm 25mm 20mm; }
 
             * { box-sizing: border-box; }
 
@@ -128,121 +129,55 @@
                 padding: 0;
                 font-family: 'Open Sans', 'DejaVu Sans', Arial, sans-serif;
                 background: #ffffff;
-                color: #13203a;
-                font-size: 10px;
-                line-height: 1.35;
+                color: #333333;
+                font-size: 12px;
+                line-height: 1.5;
             }
             /* ₦ pinned to DejaVu Sans — the embedded Open Sans glyph set lacks it */
             .naira { font-family: 'DejaVu Sans', sans-serif; font-weight: bold; font-size: inherit; }
 
-            .wrap {
-                width: 100%;
-                background: #ffffff;
-            }
+            .wrap { width: 100%; background: #ffffff; }
 
-            .lt {
-                width: 100%;
-                border-collapse: collapse;
-            }
-            .lt td {
-                border: 0;
-                padding: 0;
-                vertical-align: top;
-            }
+            .header-tbl { width: 100%; border-collapse: collapse; margin-bottom: 22px; }
+            .header-tbl td { border: 0; padding: 0; vertical-align: top; }
+            .header-left { width: 60%; }
+            .logo-img { height: 40px; width: auto; margin-bottom: 8px; }
+            .logo-fallback { font-size: 20px; font-weight: 700; color: #13203a; margin-bottom: 8px; }
+            .company-info { line-height: 1.5; font-size: 11px; color: #444444; }
+            .invoice-meta { width: 40%; text-align: right; font-size: 11px; }
+            .invoice-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; color: #13203a; }
 
-            .doc-title {
-                font-size: 18px;
-                font-weight: 600;
-                color: #13203a;
-                margin: 0;
-            }
+            .recipient { margin-bottom: 20px; font-size: 11px; line-height: 1.6; }
 
-            .logo-img { height: 34px; width: auto; }
-            .logo-fallback { font-size: 20px; font-weight: 700; color: #13203a; }
+            .items-tbl { width: 100%; border-collapse: collapse; border-bottom: 1px solid #dddddd; margin-bottom: 16px; }
+            .items-tbl th, .items-tbl td { border-top: 1px solid #dddddd; padding: 7px 6px; text-align: left; vertical-align: top; font-size: 10.5px; }
+            .items-tbl th { background: #f5f5f5; font-weight: 700; color: #333333; }
 
-            hr {
-                border: 0;
-                border-top: 1px solid #fbcfe8;
-                margin: 8px 0;
-            }
+            .totals-wrap { width: 45%; float: right; margin-bottom: 4px; }
+            .totals-tbl { width: 100%; border-collapse: collapse; }
+            .totals-tbl td { padding: 4px 0; font-size: 11px; border: 0; }
+            .totals-grand td { font-size: 13px; font-weight: 700; padding-top: 6px; }
+            .clearfix { clear: both; }
 
-            .addr-label { font-size: 11px; font-weight: 700; margin-bottom: 3px; }
-            .addr-body { font-size: 9px; color: #3e5068; line-height: 1.55; margin-top: 3px; }
+            .notes { clear: both; text-align: center; margin: 22px 0; font-size: 10.5px; color: #555555; white-space: pre-line; }
+            .notes strong { display: block; margin-bottom: 4px; color: #13203a; font-size: 11px; }
 
-            .items-tbl {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 20px;
-                margin-bottom: 8px;
-            }
+            .bottom-tbl { width: 100%; border-collapse: collapse; margin-top: 22px; page-break-inside: avoid; }
+            .bottom-tbl td { border: 0; padding: 0; vertical-align: top; font-size: 10px; line-height: 1.7; }
+            .bank-info { width: 100%; text-align: right; }
+            .pay-title { font-weight: 700; margin-bottom: 3px; color: #13203a; }
 
-            .items-tbl thead tr { background: #be185d; }
-
-            .items-tbl th {
-                padding: 8px 10px;
-                text-align: center;
-                color: #ffffff;
-                font-size: 9px;
-                font-weight: 600;
-                text-transform: uppercase;
-                border-right: 2px solid #ffffff;
-            }
-            .items-tbl th:last-child { border-right: 0; }
-            .items-tbl th.col-desc { text-align: left; }
-
-            .items-tbl td {
-                padding: 8px 10px;
-                font-size: 9px;
-                font-weight: 500;
-                text-align: center;
-                border-right: 2px solid #ffffff;
-                color: #13203a;
-            }
-            .items-tbl td:last-child { border-right: 0; }
-            .items-tbl td.col-desc { text-align: left; font-weight: 600; }
-
-            .totals-cell {
-                padding: 3px 0;
-                text-align: right;
-                border: 0;
-                background: #ffffff;
-                font-size: 9px;
-            }
-            .totals-lbl { padding-right: 32px; font-weight: 700; }
-            .totals-grand { font-size: 12px; font-weight: 700; }
-
-            .pay-title { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
-            .pay-row { font-size: 9px; color: #3e5068; line-height: 1.7; margin-top: 4px; }
-
-            .contact-link {
-                font-size: 9px;
-                font-weight: 500;
-                text-transform: uppercase;
-                letter-spacing: 0.06em;
-                color: #13203a;
-                display: block;
-                margin-top: 3px;
-            }
-
-            .fine-print {
-                margin-top: 10px;
-                font-size: 7px;
-                color: #7a8aa3;
-                text-align: center;
-            }
+            .fine-print { margin-top: 20px; font-size: 8px; color: #7a8aa3; text-align: center; }
         </style>
     </head>
     <body>
         <div class="wrap">
             {!! $introHtml ?? '' !!}
 
-            {{-- Header: Document title left, logo right --}}
-            <table class="lt">
+            {{-- Header: company (left) + document title & meta (right) --}}
+            <table class="header-tbl">
                 <tr>
-                    <td style="vertical-align: middle;">
-                        <h2 class="doc-title">{{ $documentType }}</h2>
-                    </td>
-                    <td style="text-align: right; vertical-align: middle;">
+                    <td class="header-left">
                         @if ($lightLogo || $darkLogo)
                             @if ($lightLogo)
                                 <img src="{{ $lightLogo }}" alt="{{ $companyName }}" class="logo-img">
@@ -252,122 +187,114 @@
                         @else
                             <div class="logo-fallback">{{ $companyName }}</div>
                         @endif
-                    </td>
-                </tr>
-            </table>
-
-            <hr>
-
-            {{-- Date + Receipt No --}}
-            <table class="lt">
-                <tr>
-                    <td style="font-size: 10px;"><strong>Date:</strong> {{ $issuedAt->format('d/m/Y') }}</td>
-                    <td style="font-size: 10px; text-align: right;"><strong>Receipt No:</strong> {{ $invoice->invoice_number }}</td>
-                </tr>
-            </table>
-
-            <hr>
-
-            {{-- Addresses: Receipt To (left) + Pay To (right) --}}
-            <table class="lt" style="margin-top: 10px;">
-                <tr>
-                    <td style="width: 50%;">
-                        <div class="addr-label">Receipt To:</div>
-                        <div class="addr-body">
-                            <strong>{{ $billToName }}</strong><br>
-                            {{ $billToEmail }}<br>
-                            {{ $billToPhone }}
-                            @if ($billToAddress !== '')
-                                <br>{{ $billToAddress }}
-                            @endif
-                        </div>
-                    </td>
-                    <td style="width: 50%; text-align: right;">
-                        <div class="addr-label">Pay To:</div>
-                        <div class="addr-body" style="text-align: right;">
-                            <strong>{{ $companyName }}</strong><br>
+                        <div class="company-info">
                             {{ $companyAddressLine1 }}<br>
                             {{ $companyAddressLine2 }}<br>
                             {{ $companyEmail }}<br>
                             {{ $companyPhone }}
                         </div>
                     </td>
+                    <td class="invoice-meta">
+                        <div class="invoice-title">{{ $documentType }}</div>
+                        <div><strong>Receipt No.:</strong> {{ $invoice->invoice_number }}</div>
+                        <div><strong>Date:</strong> {{ $issuedAt->format('d/m/Y') }}</div>
+                        <div><strong>Paid On:</strong> {{ $paidAt->format('d/m/Y') }}</div>
+                    </td>
                 </tr>
             </table>
+
+            {{-- Recipient --}}
+            <div class="recipient">
+                <strong>Receipt To:</strong><br>
+                {{ $billToName }}<br>
+                {{ $billToEmail }}<br>
+                {{ $billToPhone }}
+                @if ($billToAddress !== '')
+                    <br>{{ $billToAddress }}
+                @endif
+            </div>
 
             {{-- Items table --}}
             <table class="items-tbl">
                 <thead>
                     <tr>
-                        <th class="col-desc">Item Description</th>
-                        <th>Unit Price</th>
-                        <th>Qty</th>
-                        <th>Total</th>
+                        <th style="width: 6%;">#</th>
+                        <th>Description</th>
+                        <th style="width: 10%; text-align: right;">Qty</th>
+                        <th style="width: 17%; text-align: right;">Unit Price</th>
+                        <th style="width: 17%; text-align: right;">Amount</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($lineItems as $i => $lineItem)
-                        <tr style="background: {{ $i % 2 === 0 ? '#ffffff' : '#fdf2f8' }};">
-                            <td class="col-desc">{{ $lineItem['description'] }}</td>
-                            <td><span class="naira">₦</span>{{ number_format((float) $lineItem['rate'], 2) }}</td>
-                            <td>{{ number_format((float) $lineItem['quantity'], 0) }}</td>
-                            <td><span class="naira">₦</span>{{ number_format((float) $lineItem['amount'], 2) }}</td>
+                        <tr>
+                            <td>{{ $i + 1 }}</td>
+                            <td>{{ $lineItem['description'] }}</td>
+                            <td style="text-align: right;">{{ number_format((float) $lineItem['quantity'], 0) }}</td>
+                            <td style="text-align: right;"><span class="naira">₦</span>{{ number_format((float) $lineItem['rate'], 2) }}</td>
+                            <td style="text-align: right;"><span class="naira">₦</span>{{ number_format((float) $lineItem['amount'], 2) }}</td>
                         </tr>
                     @endforeach
-
-                    <tr>
-                        <td colspan="4" class="totals-cell" style="padding-top: 10px;">
-                            <span class="totals-lbl">Sub Total:</span><span class="naira">₦</span>{{ number_format((float) $invoice->subtotal, 2) }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="4" class="totals-cell">
-                            <span class="totals-lbl">Tax:</span><span class="naira">₦</span>{{ number_format((float) $invoice->tax_amount, 2) }}
-                        </td>
-                    </tr>
-                    @if ((float) $invoice->discount_amount > 0)
-                        <tr>
-                            <td colspan="4" class="totals-cell">
-                                <span class="totals-lbl">Discount:</span>- <span class="naira">₦</span>{{ number_format((float) $invoice->discount_amount, 2) }}
-                            </td>
-                        </tr>
-                    @endif
-                    <tr>
-                        <td colspan="4" class="totals-cell totals-grand" style="padding-bottom: 8px;">
-                            <span class="totals-lbl">Total Paid:</span><span class="naira">₦</span>{{ number_format((float) $invoice->total_amount, 2) }}
-                        </td>
-                    </tr>
                 </tbody>
             </table>
 
-            {{-- Footer: Payment info left, contact right --}}
-            <table class="lt" style="margin-top: 36px; page-break-inside: avoid;">
+            {{-- Totals --}}
+            <div class="totals-wrap">
+                <table class="totals-tbl">
+                    <tr>
+                        <td>Sub Total:</td>
+                        <td style="text-align: right;"><span class="naira">₦</span>{{ number_format((float) $invoice->subtotal, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Tax:</td>
+                        <td style="text-align: right;"><span class="naira">₦</span>{{ number_format((float) $invoice->tax_amount, 2) }}</td>
+                    </tr>
+                    @if ((float) $invoice->discount_amount > 0)
+                        <tr>
+                            <td>Discount:</td>
+                            <td style="text-align: right;">- <span class="naira">₦</span>{{ number_format((float) $invoice->discount_amount, 2) }}</td>
+                        </tr>
+                    @endif
+                    <tr class="totals-grand">
+                        <td><strong>Total Paid:</strong></td>
+                        <td style="text-align: right;"><strong><span class="naira">₦</span>{{ number_format((float) $invoice->total_amount, 2) }}</strong></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="clearfix"></div>
+
+            {{-- Notes --}}
+            @if (filled($order?->artwork_notes))
+                <div class="notes">
+                    <strong>Additional Notes</strong>
+                    {{ $order->artwork_notes }}
+                </div>
+            @else
+                <div class="notes">It was a pleasure doing business with you.</div>
+            @endif
+
+            {{-- Bottom: Payment info --}}
+            <table class="bottom-tbl">
                 <tr>
-                    <td style="width: 55%; vertical-align: top;">
+                    <td class="bank-info">
                         <div class="pay-title">Payment Info:</div>
-                        <div class="pay-row">
-                            Method: <strong>{{ $paymentLabel }}</strong><br>
-                            Transaction ID: <strong>{{ $paymentReference }}</strong><br>
-                            Settled on: <strong>{{ $paidAt->format('M d, Y') }}</strong>
-                            @if ($hasCompanyAccountDetails)
-                                @if ($companyAccountNumber !== '')
-                                    <br>Account No: <strong>{{ $companyAccountNumber }}</strong>
-                                @endif
-                                @if ($companyAccountName !== '')
-                                    <br>Name: <strong>{{ $companyAccountName }}</strong>
-                                @endif
-                                @if ($companyAccountBankName !== '')
-                                    <br>Bank: <strong>{{ $companyAccountBankName }}</strong>
-                                @endif
-                                @if ($companyAccountNote !== '')
-                                    <br>Note: <strong>{{ $companyAccountNote }}</strong>
-                                @endif
+                        Method: <strong>{{ $paymentLabel }}</strong><br>
+                        Transaction ID: <strong>{{ $paymentReference }}</strong><br>
+                        Settled on: <strong>{{ $paidAt->format('M d, Y') }}</strong>
+                        @if ($hasCompanyAccountDetails)
+                            @if ($companyAccountNumber !== '')
+                                <br>Account No: <strong>{{ $companyAccountNumber }}</strong>
                             @endif
-                        </div>
-                    </td>
-                    <td style="width: 45%; vertical-align: bottom; text-align: right;">
-                        <span class="contact-link">{{ $companyEmail }}</span>
-                        <span class="contact-link">{{ $companyPhone }}</span>
+                            @if ($companyAccountName !== '')
+                                <br>Name: <strong>{{ $companyAccountName }}</strong>
+                            @endif
+                            @if ($companyAccountBankName !== '')
+                                <br>Bank: <strong>{{ $companyAccountBankName }}</strong>
+                            @endif
+                            @if ($companyAccountNote !== '')
+                                <br>Note: <strong>{{ $companyAccountNote }}</strong>
+                            @endif
+                        @endif
                     </td>
                 </tr>
             </table>

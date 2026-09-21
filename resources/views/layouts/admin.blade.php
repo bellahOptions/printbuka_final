@@ -435,6 +435,14 @@
                             <span>Settings</span>
                         </a>
 
+                        <a href="{{ route('admin.company-accounts.index') }}" class="{{ $navLink('admin.company-accounts.*') }}">
+                            <svg class="pb-nav-icon h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 10h18M6 6h12a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 15h3"/>
+                            </svg>
+                            <span>Company Accounts</span>
+                        </a>
+
                         @if($admin?->role === 'super_admin')
                             <a href="{{ route('admin.activity-logs.index') }}" class="{{ $navLink('admin.activity-logs.*') }}">
                                 <svg class="pb-nav-icon h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

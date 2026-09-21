@@ -3,10 +3,11 @@
 @php
     $documentType = $invoice->documentTypeLabel();
     $settings = \App\Support\SiteSettings::all();
-    $companyAccountName = trim((string) ($settings['company_account_name'] ?? ''));
-    $companyAccountNumber = trim((string) ($settings['company_account_number'] ?? ''));
-    $companyAccountBankName = trim((string) ($settings['company_account_bank_name'] ?? ''));
-    $companyAccountNote = trim((string) ($settings['company_account_note'] ?? ''));
+    $payToAccount = $invoice->resolvedCompanyAccount();
+    $companyAccountName = trim((string) ($payToAccount?->account_name ?? $settings['company_account_name'] ?? ''));
+    $companyAccountNumber = trim((string) ($payToAccount?->account_number ?? $settings['company_account_number'] ?? ''));
+    $companyAccountBankName = trim((string) ($payToAccount?->bank_name ?? $settings['company_account_bank_name'] ?? ''));
+    $companyAccountNote = trim((string) ($payToAccount?->note ?? $settings['company_account_note'] ?? ''));
     $hasCompanyAccountDetails = $companyAccountName !== '' || $companyAccountNumber !== '' || $companyAccountBankName !== '' || $companyAccountNote !== '';
 @endphp
 

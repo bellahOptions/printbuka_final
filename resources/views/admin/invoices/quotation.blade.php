@@ -400,6 +400,20 @@
                         @error('invoice_status')<p class="pb-field-error">{{ $message }}</p>@enderror
                     </div>
 
+                    <div class="pb-field">
+                        <label class="pb-label">Pay-to Account</label>
+                        <select name="company_account_id" class="pb-input">
+                            <option value="">— Use default account —</option>
+                            @foreach ($companyAccounts as $account)
+                                <option value="{{ $account->id }}" @selected((string) old('company_account_id') === (string) $account->id)>
+                                    {{ $account->label }} ({{ $account->bank_name }} · {{ $account->account_number }})
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="text-xs font-semibold text-slate-500">Which bank details appear on this quotation's PDF.</p>
+                        @error('company_account_id')<p class="pb-field-error">{{ $message }}</p>@enderror
+                    </div>
+
                     <div class="sm:col-span-2 pb-field">
                         <label class="pb-label">
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

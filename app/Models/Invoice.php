@@ -13,6 +13,7 @@ class Invoice extends Model
 
     protected $fillable = [
         'order_id',
+        'company_account_id',
         'imported_customer_id',
         'invoice_number',
         'external_document_id',
@@ -49,6 +50,20 @@ class Invoice extends Model
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
+    }
+
+    public function companyAccount(): BelongsTo
+    {
+        return $this->belongsTo(CompanyAccount::class);
+    }
+
+    /**
+     * The account whose details should appear on this invoice's documents —
+     * the one explicitly picked for it, or the company's default account.
+     */
+    public function resolvedCompanyAccount(): ?CompanyAccount
+    {
+        return $this->companyAccount ?? CompanyAccount::defaultAccount();
     }
 
     public function importedCustomer(): BelongsTo

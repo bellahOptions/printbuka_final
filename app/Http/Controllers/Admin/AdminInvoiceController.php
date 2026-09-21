@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\CompanyAccount;
 use App\Models\FinanceEntry;
 use App\Models\Invoice;
 use App\Models\InvoicePayment;
@@ -46,13 +47,14 @@ class AdminInvoiceController extends Controller
     public function show(Invoice $invoice): View
     {
         return view('admin.invoices.show', [
-            'invoice' => $invoice->load('order.product'),
+            'invoice' => $invoice->load('order.product', 'companyAccount'),
+            'companyAccounts' => $this->activeCompanyAccounts(),
         ]);
     }
 
     public function download(Invoice $invoice)
     {
-        $invoice->load('order.product');
+        $invoice->load('order.product', 'companyAccount');
 
         $pdf = Pdf::loadView('admin.invoices.pdf', [
             'invoice' => $invoice,
@@ -104,7 +106,20 @@ class AdminInvoiceController extends Controller
             'sizes' => config('printbuka_admin.sizes'),
             'invoiceStatuses' => $this->allowedInvoiceStatuses(),
             'productOptionCatalog' => $this->productOptionCatalog($products),
+            'companyAccounts' => $this->activeCompanyAccounts(),
         ]);
+    }
+
+    /**
+     * @return \Illuminate\Support\Collection<int, CompanyAccount>
+     */
+    private function activeCompanyAccounts()
+    {
+        return CompanyAccount::query()
+            ->where('is_active', true)
+            ->orderByDesc('is_default')
+            ->orderBy('label')
+            ->get();
     }
 
     public function createQuotation(): View
@@ -131,6 +146,7 @@ class AdminInvoiceController extends Controller
             'jobTypes' => config('printbuka_admin.job_types'),
             'sizes' => config('printbuka_admin.sizes'),
             'finishes' => config('printbuka_admin.finishes'),
+            'companyAccounts' => $this->activeCompanyAccounts(),
         ]);
     }
 
@@ -214,6 +230,7 @@ class AdminInvoiceController extends Controller
             'delivery_address' => ['nullable', 'string', 'max:500'],
             'artwork_notes' => ['nullable', 'string', 'max:20000'],
             'internal_notes' => ['nullable', 'string', 'max:20000'],
+            'company_account_id' => ['nullable', 'integer', 'exists:company_accounts,id'],
             'action' => ['nullable', 'string', Rule::in(['save', 'save_download', 'save_send'])],
         ]);
 
@@ -370,6 +387,7 @@ class AdminInvoiceController extends Controller
 
             $invoice = Invoice::query()->create([
                 'order_id' => $order->id,
+                'company_account_id' => $validated['company_account_id'] ?? null,
                 'invoice_number' => ReferenceCode::invoiceNumber((string) $catalogItem['service_type']),
                 'subtotal' => $subtotal,
                 'tax_amount' => $validated['tax_amount'],
@@ -651,6 +669,7 @@ class AdminInvoiceController extends Controller
             'productOptionCatalog' => $this->productOptionCatalog(Product::query()->where('is_active', true)->orderBy('name')->get()),
 
             'invoiceStatuses' => $this->allowedInvoiceStatuses(),
+            'companyAccounts' => $this->activeCompanyAccounts(),
         ]);
     }
 
@@ -692,6 +711,7 @@ class AdminInvoiceController extends Controller
         'delivery_address' => ['nullable', 'string', 'max:500'],
         'artwork_notes' => ['nullable', 'string', 'max:20000'],
         'internal_notes' => ['nullable', 'string', 'max:20000'],
+        'company_account_id' => ['nullable', 'integer', 'exists:company_accounts,id'],
     ]);
 
     // Resolve catalog item
@@ -800,6 +820,7 @@ class AdminInvoiceController extends Controller
         'due_at' => $validated['due_at'] ?? $invoice->due_at,
         'issued_at' => $invoice->issued_at,
         'sent_at' => $invoice->sent_at,
+        'company_account_id' => $validated['company_account_id'] ?? null,
     ]);
 
     $invoiceLifecycleService->handleStatusChange($invoice->fresh(['order.product']), $previousStatus);
@@ -968,6 +989,17 @@ class AdminInvoiceController extends Controller
         return back()->with('status', 'Payment terms updated to: '.$label.'.');
     }
 
+    public function updateCompanyAccount(Request $request, Invoice $invoice): RedirectResponse
+    {
+        $validated = $request->validate([
+            'company_account_id' => ['nullable', 'integer', 'exists:company_accounts,id'],
+        ]);
+
+        $invoice->update(['company_account_id' => $validated['company_account_id'] ?? null]);
+
+        return back()->with('status', 'Pay-to account updated for this '.strtolower($invoice->documentTypeLabel()).'.');
+    }
+
     public function markAsPaid(Invoice $invoice, InvoiceLifecycleService $invoiceLifecycleService): RedirectResponse
     {
         if ((string) $invoice->status === 'paid') {
@@ -1049,6 +1081,7 @@ class AdminInvoiceController extends Controller
             'delivery_address' => ['nullable', 'string', 'max:500'],
             'artwork_notes' => ['nullable', 'string', 'max:20000'],
             'internal_notes' => ['nullable', 'string', 'max:20000'],
+            'company_account_id' => ['nullable', 'integer', 'exists:company_accounts,id'],
             'action' => ['nullable', 'string', Rule::in(['save', 'save_download', 'save_send'])],
         ]);
 
@@ -1146,6 +1179,7 @@ class AdminInvoiceController extends Controller
 
             $invoice = Invoice::query()->create([
                 'order_id' => $order->id,
+                'company_account_id' => $validated['company_account_id'] ?? null,
                 'invoice_number' => ReferenceCode::quotationNumber(),
                 'subtotal' => $subtotal,
                 'tax_amount' => $validated['tax_amount'],
@@ -1289,6 +1323,7 @@ class AdminInvoiceController extends Controller
     {
         $validated = $request->validate([
             'order_id' => ['required', 'exists:orders,id'],
+            'company_account_id' => ['nullable', 'integer', 'exists:company_accounts,id'],
             'invoice_number' => ['nullable', 'string', 'max:255', Rule::unique('invoices', 'invoice_number')->ignore($invoice?->id)],
             'subtotal' => ['required', 'numeric', 'min:0'],
             'tax_amount' => ['nullable', 'numeric', 'min:0'],

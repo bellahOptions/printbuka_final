@@ -363,6 +363,20 @@
                         </select>
                     </div>
 
+                    <div class="pb-field">
+                        <label class="pb-label">Pay-to Account</label>
+                        <select name="company_account_id" class="pb-input">
+                            <option value="">— Use default account —</option>
+                            @foreach ($companyAccounts as $account)
+                                <option value="{{ $account->id }}" @selected((string) old('company_account_id', $invoice->company_account_id) === (string) $account->id)>
+                                    {{ $account->label }} ({{ $account->bank_name }} · {{ $account->account_number }})
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="text-xs font-semibold text-slate-500">Which bank details appear on this {{ strtolower($invoice->documentTypeLabel()) }}'s PDF.</p>
+                        @error('company_account_id')<p class="pb-field-error">{{ $message }}</p>@enderror
+                    </div>
+
                     <div class="sm:col-span-2 pb-field">
                         <label class="pb-label">Delivery City</label>
                         <input name="delivery_city" value="{{ $defaultDeliveryCity }}" class="pb-input" placeholder="e.g., Lagos">
