@@ -150,6 +150,14 @@ class AdminInvoiceController extends Controller
         ]);
     }
 
+    private function createdMessage(Invoice $invoice, Request $request): string
+    {
+        $invoice->loadMissing(['order', 'importedCustomer']);
+
+        return $invoice->documentTypeLabel().' '.$invoice->invoice_number.' for '.$invoice->clientName()
+            .' has been created by '.$request->user()?->displayName().'.';
+    }
+
     public function store(
         Request $request,
         InvoiceService $invoiceService,
@@ -164,12 +172,12 @@ class AdminInvoiceController extends Controller
         $invoiceLifecycleService->handleStatusChange($invoice);
         app(ImportantActionNotifier::class)->notify(
             $invoice->documentTypeLabel().' created',
-            $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was created by '.$request->user()?->displayName().'.'
+            $this->createdMessage($invoice, $request)."\n\nClick ".route('admin.invoices.show', $invoice).' to view details.'
         );
         RolePushNotifier::send(
             permission: 'finance.view',
             title: $invoice->documentTypeLabel().' Created',
-            body: $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was created by '.$request->user()?->displayName().'.',
+            body: $this->createdMessage($invoice, $request),
             type: 'invoice_created',
             data: ['category' => 'finance', 'severity' => 'major', 'invoice_id' => $invoice->id, 'action_url' => route('admin.invoices.show', $invoice)],
         );
@@ -410,12 +418,12 @@ class AdminInvoiceController extends Controller
 
         app(ImportantActionNotifier::class)->notify(
             $invoice->documentTypeLabel().' created',
-            $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was created by '.$request->user()?->displayName().'.'
+            $this->createdMessage($invoice, $request)."\n\nClick ".route('admin.invoices.show', $invoice).' to view details.'
         );
         RolePushNotifier::send(
             permission: 'finance.view',
             title: $invoice->documentTypeLabel().' Created',
-            body: $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was created by '.$request->user()?->displayName().'.',
+            body: $this->createdMessage($invoice, $request),
             type: 'invoice_created',
             data: ['category' => 'finance', 'severity' => 'major', 'invoice_id' => $invoice->id, 'action_url' => route('admin.invoices.show', $invoice)],
         );
@@ -1202,12 +1210,12 @@ class AdminInvoiceController extends Controller
 
         app(ImportantActionNotifier::class)->notify(
             $invoice->documentTypeLabel().' created',
-            $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was created by '.$request->user()?->displayName().'.'
+            $this->createdMessage($invoice, $request)."\n\nClick ".route('admin.invoices.show', $invoice).' to view details.'
         );
         RolePushNotifier::send(
             permission: 'finance.view',
             title: $invoice->documentTypeLabel().' Created',
-            body: $invoice->documentTypeLabel().' '.$invoice->invoice_number.' was created by '.$request->user()?->displayName().'.',
+            body: $this->createdMessage($invoice, $request),
             type: 'invoice_created',
             data: ['category' => 'finance', 'severity' => 'major', 'invoice_id' => $invoice->id, 'action_url' => route('admin.invoices.show', $invoice)],
         );

@@ -102,6 +102,11 @@ class Invoice extends Model
         return strtolower((string) ($this->order?->service_type ?? '')) === 'quote';
     }
 
+    public function clientName(): string
+    {
+        return trim((string) ($this->order?->customer_name ?: $this->importedCustomer?->name)) ?: 'a client';
+    }
+
     public function documentTypeLabel(): string
     {
         return $this->isQuotation() ? 'Quotation' : 'Invoice';
