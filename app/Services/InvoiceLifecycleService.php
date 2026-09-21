@@ -10,6 +10,30 @@ use Illuminate\Support\Facades\Mail;
 
 class InvoiceLifecycleService
 {
+    /**
+     * Mark an invoice paid via Paystack. Idempotent — safe to call from both the
+     * browser callback and the server-to-server webhook without double-processing
+     * (duplicate receipt emails, finance entries, etc.) if both fire for the same
+     * payment.
+     */
+    public function confirmPaystackPayment(Invoice $invoice, string $reference): void
+    {
+        if ((string) $invoice->status === 'paid') {
+            return;
+        }
+
+        $previousStatus = (string) $invoice->status;
+
+        $invoice->forceFill([
+            'status' => 'paid',
+            'payment_gateway' => 'paystack',
+            'payment_reference' => $reference,
+            'paid_at' => now(),
+        ])->save();
+
+        $this->handleStatusChange($invoice->fresh(['order.product']), $previousStatus);
+    }
+
     public function handleStatusChange(Invoice $invoice, ?string $previousStatus = null): void
     {
         $invoice->loadMissing('order.product');

@@ -12,6 +12,7 @@ use App\Http\Controllers\Local\InvoiceDesignPreviewController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PaystackWebhookController;
 use App\Http\Controllers\PolicyPageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
@@ -273,6 +274,12 @@ Route::middleware(['customer.portal'])->group(function (): void {
 
 // Paystack callback (outside customer.portal so Paystack can reach it without session)
 Route::get('/checkout/callback', [ShopCheckoutController::class, 'callback'])->name('shop.checkout.callback');
+
+// Paystack webhook — server-to-server, no session/CAPTCHA available, and must stay
+// reachable even in maintenance mode so in-flight payments still get confirmed.
+Route::post('/webhooks/paystack', [PaystackWebhookController::class, 'handle'])
+    ->withoutMiddleware([\App\Http\Middleware\VerifyTurnstile::class, \App\Http\Middleware\EnforceSiteMaintenance::class])
+    ->name('webhooks.paystack');
 
 if (app()->environment('local')) {
     Route::prefix('/local-previews/invoices')

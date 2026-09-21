@@ -39,6 +39,12 @@ return Application::configure(basePath: dirname(__DIR__))
             LogStaffActivity::class,
         ]);
 
+        // Paystack posts webhook events with no CSRF token — verified instead via
+        // its own HMAC signature header inside PaystackWebhookController.
+        $middleware->validateCsrfTokens(except: [
+            'webhooks/paystack',
+        ]);
+
         $middleware->alias([
             // Web
             'user.auth'        => EnsureUserIsAuthenticated::class,

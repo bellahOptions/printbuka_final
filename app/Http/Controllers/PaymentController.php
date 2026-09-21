@@ -75,16 +75,7 @@ class PaymentController extends Controller
                 ->with('warning', 'Payment was not completed. Please try again.');
         }
 
-        $previousStatus = (string) $invoice->status;
-
-        $invoice->forceFill([
-            'status' => 'paid',
-            'payment_gateway' => 'paystack',
-            'payment_reference' => $reference,
-            'paid_at' => now(),
-        ])->save();
-
-        $invoiceLifecycleService->handleStatusChange($invoice->fresh(['order.product']), $previousStatus);
+        $invoiceLifecycleService->confirmPaystackPayment($invoice, $reference);
 
         session()->put('tracked_orders.'.$order->id, true);
 

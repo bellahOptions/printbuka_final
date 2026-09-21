@@ -161,29 +161,7 @@ class ShopCheckoutController extends Controller
         $paidKobo = (int) ($data['amount'] ?? 0);
 
         if ($status === 'success' && $paidKobo >= $expectedKobo) {
-            $order->update([
-                'payment_status' => 'paid',
-                'paystack_reference' => $reference,
-                'paystack_data' => $data,
-            ]);
-
-            $order->loadMissing('items.selectedOptions.productOption');
-
-            foreach ($order->items as $item) {
-                foreach ($item->selectedOptions as $itemOption) {
-                    $itemOption->productOption?->decrementStock(
-                        $item->quantity,
-                        $order->reference,
-                        $item->shop_product_id,
-                    );
-                }
-            }
-
-            Mail::to($order->customer_email)->queue(new ShopOrderConfirmationMail($order));
-
-            app(CustomerSyncService::class)->syncFromShopOrder($order);
-            app(OrderAlertService::class)->notifyShopOrder($order);
-            AdminShopOrderController::notifyStaffNewOrder($order);
+            $this->confirmPaidOrder($order, $data, $reference);
 
             return redirect()->route('shop.orders.confirmation', $order->reference)
                 ->with('status', 'Payment confirmed! Your order is being processed.');
@@ -195,6 +173,42 @@ class ShopCheckoutController extends Controller
 
         return redirect()->route('shop.checkout')
             ->with('error', 'Payment was not completed. Please try again.');
+    }
+
+    /**
+     * Mark a shop order paid via Paystack. Idempotent — safe to call from both the
+     * browser callback and the server-to-server webhook without double-decrementing
+     * stock or double-sending confirmation emails if both fire for the same payment.
+     */
+    public function confirmPaidOrder(ShopOrder $order, array $data, ?string $reference = null): void
+    {
+        if ($order->payment_status === 'paid') {
+            return;
+        }
+
+        $order->update([
+            'payment_status' => 'paid',
+            'paystack_reference' => $reference ?: (string) ($data['reference'] ?? $order->reference),
+            'paystack_data' => $data,
+        ]);
+
+        $order->loadMissing('items.selectedOptions.productOption');
+
+        foreach ($order->items as $item) {
+            foreach ($item->selectedOptions as $itemOption) {
+                $itemOption->productOption?->decrementStock(
+                    $item->quantity,
+                    $order->reference,
+                    $item->shop_product_id,
+                );
+            }
+        }
+
+        Mail::to($order->customer_email)->queue(new ShopOrderConfirmationMail($order));
+
+        app(CustomerSyncService::class)->syncFromShopOrder($order);
+        app(OrderAlertService::class)->notifyShopOrder($order);
+        AdminShopOrderController::notifyStaffNewOrder($order);
     }
 
     public function confirmation(string $reference): View|RedirectResponse
