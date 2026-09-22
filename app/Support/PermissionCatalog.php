@@ -73,6 +73,10 @@ class PermissionCatalog
                 'inventory.view' => 'View stock/inventory levels and history',
                 'inventory.manage' => 'Manage inventory items and stock movements',
             ],
+            'Vendors' => [
+                'vendors.view' => 'View vendor directory',
+                'vendors.manage' => 'Manage vendors (create, edit, import, delete)',
+            ],
             'System' => [
                 'admin.view' => 'Access the admin portal (required for any staff role)',
                 'products.manage' => 'Manage product catalog',
