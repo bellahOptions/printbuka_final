@@ -21,6 +21,9 @@
                 <h1 class="text-3xl font-black">{{ $staffMember->displayName() }}</h1>
                 <p class="mt-1 text-sm text-slate-300">{{ $staffMember->email }} · {{ ucwords(str_replace('_', ' ', $staffMember->role)) }}</p>
                 <div class="mt-2 flex flex-wrap gap-2">
+                    @if ($staffMember->hasSecondaryRole())
+                        <span class="rounded-full bg-violet-600 px-3 py-1 text-xs font-black">⬆ Also {{ $staffMember->secondaryRoleLabel() }}</span>
+                    @endif
                     @if (($profile->kyc_status ?? 'pending') === 'approved')
                         <span class="rounded-full bg-emerald-600 px-3 py-1 text-xs font-black">KYC Approved ✓</span>
                     @elseif (($profile->kyc_status ?? 'pending') === 'correction_requested')
@@ -260,6 +263,43 @@
                     <button type="submit" class="pb-btn pb-btn-outline">Save extra permissions</button>
                 </form>
             @endif
+        </div>
+    @endif
+
+    {{-- Elevate Role (Super Admin only) --}}
+    @if($viewer->role === 'super_admin' && !$isSelf && $staffMember->role !== 'super_admin')
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="mb-4">
+                <h2 class="text-lg font-black text-slate-950">Elevate Role</h2>
+                <p class="text-xs text-slate-500 mt-1">
+                    Grant {{ $staffMember->displayName() }} a second, additional role on top of their
+                    <strong>{{ ucwords(str_replace('_', ' ', $staffMember->role)) }}</strong> role — e.g. a Designer who is
+                    also made a Production Manager. Their primary role is unchanged, and they keep all its permissions.
+                    Staff is notified when this is granted or removed.
+                </p>
+            </div>
+
+            @if($staffMember->hasSecondaryRole())
+                <div class="mb-4 rounded-lg border border-violet-200 bg-violet-50 px-3 py-2.5 text-sm font-semibold text-violet-800">
+                    Currently also holds: {{ $staffMember->secondaryRoleLabel() }}
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('admin.staff.secondary-role.update', $staffMember) }}"
+                  class="flex flex-wrap items-end gap-3"
+                  onsubmit="return confirm('Update the additional role for {{ $staffMember->displayName() }}? They will be notified.')">
+                @csrf @method('PUT')
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-wide text-slate-500 mb-1">Additional role</label>
+                    <select name="secondary_role" class="pb-select text-sm">
+                        <option value="">— None —</option>
+                        @foreach($assignableSecondaryRoles as $value => $label)
+                            <option value="{{ $value }}" @selected($staffMember->secondary_role === $value)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <button type="submit" class="pb-btn pb-btn-outline">Save additional role</button>
+            </form>
         </div>
     @endif
 

@@ -21,7 +21,7 @@ use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use NotificationChannels\WebPush\PushSubscription;
 
-#[Fillable(['first_name', 'last_name', 'phone', 'companyName', 'email', 'password', 'google_id', 'avatar', 'email_verified_at', 'role', 'department', 'requested_role', 'other_role', 'address', 'date_of_birth', 'photo', 'approved_by_id', 'approved_at', 'is_active', 'employment_status', 'employment_status_reason', 'employment_status_changed_at', 'employment_status_changed_by_id', 'two_factor_secret', 'two_factor_recovery_codes', 'two_factor_confirmed_at', 'access_restricted', 'access_restricted_reason', 'access_restricted_by_id', 'access_restricted_at', 'permission_overrides'])]
+#[Fillable(['first_name', 'last_name', 'phone', 'companyName', 'email', 'password', 'google_id', 'avatar', 'email_verified_at', 'role', 'secondary_role', 'department', 'requested_role', 'other_role', 'address', 'date_of_birth', 'photo', 'approved_by_id', 'approved_at', 'is_active', 'employment_status', 'employment_status_reason', 'employment_status_changed_at', 'employment_status_changed_by_id', 'two_factor_secret', 'two_factor_recovery_codes', 'two_factor_confirmed_at', 'access_restricted', 'access_restricted_reason', 'access_restricted_by_id', 'access_restricted_at', 'permission_overrides'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmailContract
 {
@@ -91,6 +91,14 @@ class User extends Authenticatable implements MustVerifyEmailContract
             return true;
         }
 
+        if ($this->secondary_role) {
+            $secondaryPermissions = RoleRegistry::permissionsFor($this->secondary_role);
+
+            if (in_array('*', $secondaryPermissions, true) || in_array($permission, $secondaryPermissions, true)) {
+                return true;
+            }
+        }
+
         return in_array($permission, $this->extraPermissions(), true);
     }
 
@@ -107,7 +115,24 @@ class User extends Authenticatable implements MustVerifyEmailContract
 
     public function rolePriority(): int
     {
-        return RoleRegistry::priorityFor($this->role);
+        return max(
+            RoleRegistry::priorityFor($this->role),
+            $this->secondary_role ? RoleRegistry::priorityFor($this->secondary_role) : 0,
+        );
+    }
+
+    public function hasSecondaryRole(): bool
+    {
+        return filled($this->secondary_role);
+    }
+
+    public function secondaryRoleLabel(): ?string
+    {
+        if (! $this->secondary_role) {
+            return null;
+        }
+
+        return (string) (config('printbuka_admin.role_labels.'.$this->secondary_role) ?? ucwords(str_replace('_', ' ', $this->secondary_role)));
     }
 
     public function displayName(): string

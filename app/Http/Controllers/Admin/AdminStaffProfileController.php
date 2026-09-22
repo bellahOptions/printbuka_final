@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\StaffKycReviewMail;
 use App\Models\StaffProfile;
 use App\Models\User;
+use App\Notifications\StaffPushNotification;
 use App\Services\CloudinaryUploadService;
 use App\Support\CloudinaryUrl;
 use App\Support\LivewireSecureUploads;
@@ -43,6 +44,10 @@ class AdminStaffProfileController extends Controller
             'payslips'    => $user->payrollEntries()->with('payrollRun')->latest()->take(12)->get(),
             'permissionGroups' => PermissionCatalog::grouped(),
             'rolePermissions' => RoleRegistry::permissionsFor($user->role),
+            'assignableSecondaryRoles' => collect(config('printbuka_admin.roles', []))
+                ->keys()
+                ->reject(fn (string $slug): bool => in_array($slug, ['customer', 'staff_pending', 'super_admin', $user->role], true))
+                ->mapWithKeys(fn (string $slug): array => [$slug => config('printbuka_admin.role_labels.'.$slug) ?? ucwords(str_replace('_', ' ', $slug))]),
         ]);
     }
 
@@ -216,6 +221,75 @@ class AdminStaffProfileController extends Controller
         ])->save();
 
         return back()->with('status', 'Extra permissions updated for '.$user->displayName().'.');
+    }
+
+    /**
+     * Super Admin only: elevate a staff member by granting them a second,
+     * additional role on top of their primary one (e.g. a Designer who is
+     * also made a Production Manager) — without changing their primary role
+     * or affecting anyone else who holds either role. The staff member is
+     * notified either way (elevated or the grant removed).
+     */
+    public function updateSecondaryRole(Request $request, User $user): RedirectResponse
+    {
+        abort_if($user->role === 'customer', 404);
+
+        $actor = $request->user();
+        abort_unless($actor?->role === 'super_admin', 403);
+
+        $assignableRoles = array_values(array_diff(
+            array_keys(config('printbuka_admin.roles', [])),
+            ['customer', 'staff_pending', 'super_admin', $user->role]
+        ));
+
+        $validated = $request->validate([
+            'secondary_role' => ['nullable', 'string', Rule::in($assignableRoles)],
+        ]);
+
+        $newSecondaryRole = $validated['secondary_role'] ?? null;
+        $previousSecondaryRole = $user->secondary_role;
+
+        if ($newSecondaryRole === $previousSecondaryRole) {
+            return back()->with('status', 'No change — that is already this staff member\'s secondary role.');
+        }
+
+        $user->forceFill(['secondary_role' => $newSecondaryRole])->save();
+
+        $label = fn (?string $slug): ?string => $slug
+            ? (string) (config('printbuka_admin.role_labels.'.$slug) ?? ucwords(str_replace('_', ' ', $slug)))
+            : null;
+
+        if ($newSecondaryRole) {
+            $title = 'You were elevated to '.$label($newSecondaryRole);
+            $body = ($actor->displayName()).' granted you additional '.$label($newSecondaryRole).
+                ' access, on top of your '.$label($user->role).' role.';
+            $type = 'role_elevated';
+        } else {
+            $title = 'Additional role removed';
+            $body = ($actor->displayName()).' removed your '.$label($previousSecondaryRole).
+                ' access. You now hold your '.$label($user->role).' role only.';
+            $type = 'role_elevation_removed';
+        }
+
+        try {
+            $user->notify(new StaffPushNotification(
+                title: $title,
+                body: $body,
+                type: $type,
+                data: [
+                    'secondary_role' => $newSecondaryRole,
+                    'previous_secondary_role' => $previousSecondaryRole,
+                    'changed_by' => $actor->displayName(),
+                    'action_url' => route('admin.staff.profile.show', $user),
+                ],
+            ));
+        } catch (\Throwable $e) {
+            Log::error('Role elevation push notification failed.', ['user_id' => $user->id, 'message' => $e->getMessage()]);
+        }
+
+        return back()->with('status', $newSecondaryRole
+            ? $user->displayName().' has been elevated to also hold the '.$label($newSecondaryRole).' role. Staff has been notified.'
+            : 'Secondary role removed for '.$user->displayName().'. Staff has been notified.');
     }
 
     public function markKycComplete(Request $request, User $user): RedirectResponse
