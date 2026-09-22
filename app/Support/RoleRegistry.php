@@ -68,6 +68,7 @@ class RoleRegistry
             'printbuka_admin.roles' => $roles->pluck('permissions', 'slug')->all(),
             'printbuka_admin.role_priority' => $roles->pluck('priority', 'slug')->all() + ['customer' => 0],
             'printbuka_admin.role_labels' => $roles->pluck('label', 'slug')->all(),
+            'printbuka_admin.departments' => $roles->pluck('department', 'slug')->filter()->all(),
             'printbuka_admin.staff_dashboard_menus' => $roles->pluck('dashboard_menu', 'slug')->filter()->all(),
         ]);
     }
@@ -101,6 +102,17 @@ class RoleRegistry
         }
 
         return (int) ($roles->firstWhere('slug', $slug)?->priority ?? 0);
+    }
+
+    public static function departmentFor(string $slug): ?string
+    {
+        $roles = self::all();
+
+        if ($roles->isEmpty()) {
+            return config('printbuka_admin.departments.'.$slug);
+        }
+
+        return $roles->firstWhere('slug', $slug)?->department;
     }
 
     public static function clearCache(): void

@@ -35,6 +35,7 @@ class AdminRoleController extends Controller
         $role = Role::create([
             'slug' => $validated['slug'],
             'label' => $validated['label'],
+            'department' => $validated['department'] ?? null,
             'priority' => $validated['priority'],
             'permissions' => $validated['permissions'],
             'dashboard_menu' => $this->parseDashboardMenu($request->input('dashboard_menu')),
@@ -57,6 +58,7 @@ class AdminRoleController extends Controller
 
         $role->update([
             'label' => $validated['label'],
+            'department' => $validated['department'] ?? null,
             'priority' => $validated['priority'],
             'permissions' => $permissions,
             'dashboard_menu' => $this->parseDashboardMenu($request->input('dashboard_menu')),
@@ -95,6 +97,7 @@ class AdminRoleController extends Controller
 
         $rules = [
             'label' => ['required', 'string', 'max:100'],
+            'department' => ['nullable', 'string', 'max:100'],
             'priority' => ['required', 'integer', 'min:0', 'max:100'],
             'permissions' => ['nullable', 'array'],
             'permissions.*' => [Rule::in(array_merge($catalog, ['*']))],

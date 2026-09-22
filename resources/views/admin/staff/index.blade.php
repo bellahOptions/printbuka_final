@@ -183,16 +183,6 @@
             </div>
         </div>
 
-        @if($canAssignRoles)
-            <datalist id="dept-options">
-                @foreach($departmentCounts as $dc)
-                    @if($dc->department)
-                        <option value="{{ $dc->department }}"></option>
-                    @endif
-                @endforeach
-            </datalist>
-        @endif
-
         <livewire:admin.staff-list
             :can-assign-roles="$canAssignRoles"
             :can-manage-employment="$canManageEmployment"

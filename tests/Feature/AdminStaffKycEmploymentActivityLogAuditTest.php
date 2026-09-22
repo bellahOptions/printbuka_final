@@ -201,6 +201,27 @@ class AdminStaffKycEmploymentActivityLogAuditTest extends TestCase
         $this->assertSame('personal_assistant', $staffMember->role);
     }
 
+    public function test_department_is_auto_assigned_from_role_and_not_freely_editable(): void
+    {
+        $superAdmin = $this->makeStaff('super_admin');
+        $staffMember = $this->makeStaff('office_assistant');
+
+        $this->actingAs($superAdmin)
+            ->withSession(['staff_2fa_verified' => true])
+            ->put(route('admin.staff.update', $staffMember), [
+                'role' => 'designer',
+                'is_active' => 1,
+                // Attempting to pass a department directly should have no
+                // effect — it is derived from the role, not accepted input.
+                'department' => 'Whatever I Want',
+            ])
+            ->assertRedirect();
+
+        $staffMember->refresh();
+        $this->assertSame('designer', $staffMember->role);
+        $this->assertSame('Creative', $staffMember->department);
+    }
+
     public function test_employment_status_change_allowed_for_super_admin_and_hr_but_not_managing_director(): void
     {
         // updateEmploymentStatus route middleware is admin.permission:staff.view (which MD passes

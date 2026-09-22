@@ -11,6 +11,7 @@ use App\Services\CloudinaryUploadService;
 use App\Support\CloudinaryUrl;
 use App\Services\ImportantActionNotifier;
 use App\Support\LivewireSecureUploads;
+use App\Support\RoleRegistry;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -103,7 +104,6 @@ class AdminStaffController extends Controller
 
         $validated = $request->validate([
             'role' => ['nullable', 'string', Rule::in(array_keys(config('printbuka_admin.roles', [])))],
-            'department' => ['nullable', 'string', 'max:100'],
             'is_active' => ['nullable', 'boolean'],
             'photo_upload_path' => ['nullable', 'string', 'max:255'],
             'photo' => [
@@ -120,7 +120,7 @@ class AdminStaffController extends Controller
 
         $updates = [
             'role' => $role,
-            'department' => $validated['department'] ?? $user->department,
+            'department' => RoleRegistry::departmentFor($role) ?? $user->department,
             'is_active' => $request->boolean('is_active', $user->is_active),
             'employment_status' => $request->boolean('is_active', $user->is_active) ? 'active' : ($user->employment_status ?? 'pending'),
             'approved_by_id' => $request->user()->id,

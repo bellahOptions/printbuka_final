@@ -5,6 +5,7 @@
                 <tr>
                     <th>Employee</th>
                     <th>Role</th>
+                    <th>Secondary Role</th>
                     <th>Department</th>
                     <th>Status</th>
                     <th>Employment</th>
@@ -37,6 +38,11 @@
                                     @csrf @method('PUT')
                                     <input type="hidden" name="is_active" value="{{ $person->is_active ? 1 : 0 }}">
                                 </form>
+                                @if($person->role !== 'super_admin')
+                                    <form id="staff-secondary-role-form-{{ $person->id }}" action="{{ route('admin.staff.secondary-role.update', $person) }}" method="POST" class="hidden">
+                                        @csrf @method('PUT')
+                                    </form>
+                                @endif
                             @endif
                         </td>
                         <td data-label="Role">
@@ -46,22 +52,35 @@
                                         <option value="{{ $value }}" @selected($person->role === $value)>{{ $label }}</option>
                                     @endforeach
                                 </select>
+                                <button type="submit" form="staff-role-form-{{ $person->id }}" class="pb-btn pb-btn-sm pb-btn-outline text-[10px] mt-1.5 w-full">
+                                    Save role
+                                </button>
                             @else
                                 <span class="text-sm font-medium text-slate-700">{{ $roles[$person->role] ?? $person->role }}</span>
                             @endif
                         </td>
-                        <td data-label="Department">
-                            @if($canAssignRoles)
-                                <input type="text" name="department" form="staff-role-form-{{ $person->id }}"
-                                       list="dept-options" value="{{ $person->department }}"
-                                       placeholder="e.g. Creative" maxlength="100"
-                                       class="pb-input text-xs h-9 py-0 w-full">
-                                <button type="submit" form="staff-role-form-{{ $person->id }}" class="pb-btn pb-btn-sm pb-btn-outline text-[10px] mt-1.5 w-full">
-                                    Save role & dept
+                        <td data-label="Secondary Role">
+                            @if($canAssignRoles && $person->role !== 'super_admin')
+                                @php
+                                    $secondaryOptions = collect($roles)->except(['customer', 'staff_pending', 'super_admin', $person->role]);
+                                @endphp
+                                <select name="secondary_role" form="staff-secondary-role-form-{{ $person->id }}" class="pb-select text-xs h-9 py-0">
+                                    <option value="">— None —</option>
+                                    @foreach ($secondaryOptions as $value => $label)
+                                        <option value="{{ $value }}" @selected($person->secondary_role === $value)>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                                <button type="submit" form="staff-secondary-role-form-{{ $person->id }}" class="pb-btn pb-btn-sm pb-btn-outline text-[10px] mt-1.5 w-full">
+                                    Save additional role
                                 </button>
+                            @elseif($person->hasSecondaryRole())
+                                <span class="text-sm font-medium text-violet-700">{{ $person->secondaryRoleLabel() }}</span>
                             @else
-                                <span class="text-sm text-slate-600">{{ $person->department ?? '—' }}</span>
+                                <span class="text-sm text-slate-400">—</span>
                             @endif
+                        </td>
+                        <td data-label="Department">
+                            <span class="text-sm text-slate-600">{{ $person->department ?? '—' }}</span>
                         </td>
                         <td data-label="Status">
                             <span class="pb-badge {{ $person->is_active ? 'pb-badge-success' : 'pb-badge-danger' }} text-[10px]">
@@ -133,7 +152,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="py-12 text-center">
+                        <td colspan="9" class="py-12 text-center">
                             <div class="pb-empty border-0 bg-transparent">
                                 <p class="pb-empty-title">No approved staff yet</p>
                             </div>

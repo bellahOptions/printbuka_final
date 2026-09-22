@@ -46,7 +46,7 @@
         </div>
         <form action="{{ route('admin.staff.roles.store') }}" method="POST" class="pb-card-content space-y-5 pt-4">
             @csrf
-            <div class="grid gap-4 sm:grid-cols-3">
+            <div class="grid gap-4 sm:grid-cols-4">
                 <div class="pb-field">
                     <label class="pb-label" for="new-slug">Slug (unique, no spaces)</label>
                     <input id="new-slug" name="slug" value="{{ old('slug') }}" required
@@ -56,6 +56,11 @@
                     <label class="pb-label" for="new-label">Display label</label>
                     <input id="new-label" name="label" value="{{ old('label') }}" required
                            placeholder="e.g. Video Editor" class="pb-input">
+                </div>
+                <div class="pb-field">
+                    <label class="pb-label" for="new-department">Department (auto-assigned to staff with this role)</label>
+                    <input id="new-department" name="department" value="{{ old('department') }}"
+                           placeholder="e.g. Creative" class="pb-input">
                 </div>
                 <div class="pb-field">
                     <label class="pb-label" for="new-priority">Priority (0–100)</label>
@@ -112,10 +117,14 @@
 
                 <form action="{{ route('admin.staff.roles.update', $role) }}" method="POST" class="pb-card-content space-y-5 pt-4">
                     @csrf @method('PUT')
-                    <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="grid gap-4 sm:grid-cols-3">
                         <div class="pb-field">
                             <label class="pb-label">Display label</label>
                             <input name="label" value="{{ $role->label }}" required class="pb-input">
+                        </div>
+                        <div class="pb-field">
+                            <label class="pb-label">Department (auto-assigned to staff with this role)</label>
+                            <input name="department" value="{{ $role->department }}" placeholder="e.g. Creative" class="pb-input">
                         </div>
                         <div class="pb-field">
                             <label class="pb-label">Priority (0–100)</label>

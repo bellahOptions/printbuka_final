@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\StaffProfile;
 use App\Models\User;
 use App\Notifications\StaffPushNotification;
+use App\Support\RoleRegistry;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -107,5 +108,51 @@ class AdminStaffSecondaryRoleTest extends TestCase
                 'secondary_role' => 'super_admin',
             ])
             ->assertSessionHasErrors('secondary_role');
+    }
+
+    public function test_production_manager_role_grants_expected_permissions_and_department(): void
+    {
+        $productionManager = $this->makeStaff('production_manager');
+
+        $this->assertTrue($productionManager->canAdmin('production.update'));
+        $this->assertTrue($productionManager->canAdmin('qc.update'));
+        $this->assertTrue($productionManager->canAdmin('workflow.approve'));
+        $this->assertFalse($productionManager->canAdmin('payroll.manage'));
+        $this->assertSame('Production', RoleRegistry::departmentFor('production_manager'));
+    }
+
+    public function test_designer_elevated_with_production_manager_gains_combined_privileges(): void
+    {
+        Notification::fake();
+
+        $superAdmin = $this->makeStaff('super_admin');
+        $designer = $this->makeStaff('designer');
+
+        // Onboard the designer through the real role-assignment flow first,
+        // so their department is auto-assigned from their primary role.
+        $this->actingAs($superAdmin)
+            ->withSession(['staff_2fa_verified' => true])
+            ->put(route('admin.staff.update', $designer), [
+                'role' => 'designer',
+                'is_active' => 1,
+            ])
+            ->assertRedirect();
+
+        $this->actingAs($superAdmin)
+            ->withSession(['staff_2fa_verified' => true])
+            ->put(route('admin.staff.secondary-role.update', $designer), [
+                'secondary_role' => 'production_manager',
+            ])
+            ->assertRedirect();
+
+        $designer->refresh();
+
+        // Keeps every primary (designer) permission...
+        $this->assertTrue($designer->canAdmin('design.upload'));
+        // ...and gains every secondary (production_manager) permission too.
+        $this->assertTrue($designer->canAdmin('production.update'));
+        $this->assertTrue($designer->canAdmin('qc.update'));
+        // Granting a secondary role doesn't touch the primary role's department.
+        $this->assertSame('Creative', $designer->department);
     }
 }

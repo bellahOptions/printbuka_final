@@ -18,6 +18,7 @@ class Role extends Model
     protected $fillable = [
         'slug',
         'label',
+        'department',
         'priority',
         'permissions',
         'dashboard_menu',

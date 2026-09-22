@@ -149,8 +149,10 @@ class AdminRoleManagementTest extends TestCase
         $this->assertDatabaseMissing('roles', ['slug' => 'courier']);
     }
 
-    public function test_super_admin_can_change_a_staff_members_role_and_department(): void
+    public function test_super_admin_can_change_a_staff_members_role_and_department_auto_assigns(): void
     {
+        // Department is no longer freehand input — it's derived from the
+        // role, so any 'department' the request sends is ignored.
         $superAdmin = $this->makeStaff('super_admin');
         $staffMember = $this->makeStaff('office_assistant', ['department' => null]);
 
@@ -165,6 +167,6 @@ class AdminRoleManagementTest extends TestCase
 
         $staffMember->refresh();
         $this->assertSame('customer_service', $staffMember->role);
-        $this->assertSame('Client Services', $staffMember->department);
+        $this->assertSame('Customer Service', $staffMember->department);
     }
 }
