@@ -47,6 +47,16 @@ return [
             'report' => false,
         ],
 
+        // Full system backups (database dump + storage/app files), written by
+        // the "backups" module — kept outside the "local"/"public" disks so
+        // backup archives are never served through public URLs.
+        'backups' => [
+            'driver' => 'local',
+            'root' => storage_path('app/backups'),
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

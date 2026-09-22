@@ -9,17 +9,82 @@
             <p class="text-sm text-slate-400">Suppliers, engineers, contractors and every other business we purchase from or work with.</p>
         </div>
         @if(auth()->user()?->canAdmin('vendors.manage'))
-            <a href="{{ route('admin.vendors.create') }}"
-               class="pb-btn pb-btn-md pb-btn-primary self-start">
-                <x-heroicon-o-plus class="w-4 h-4" /> Add Vendor
-            </a>
+            <div class="flex flex-wrap gap-2 self-start">
+                <button type="button" class="pb-btn pb-btn-md pb-btn-secondary" onclick="document.getElementById('vendor-csv-import').classList.toggle('hidden')">
+                    <x-heroicon-o-arrow-up-tray class="w-4 h-4" /> Import CSV
+                </button>
+                <a href="{{ route('admin.vendors.create') }}"
+                   class="pb-btn pb-btn-md pb-btn-primary">
+                    <x-heroicon-o-plus class="w-4 h-4" /> Add Vendor
+                </a>
+            </div>
         @endif
     </div>
 </div>
 
+@if(auth()->user()?->canAdmin('vendors.manage'))
+    <div id="vendor-csv-import" class="pb-card p-5 mb-6 border-cyan-200 bg-cyan-50/50 {{ $errors->any() ? '' : 'hidden' }}">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div class="max-w-2xl">
+                <p class="pb-label text-cyan-700">Bulk Import</p>
+                <h2 class="pb-section-title mt-1">Import vendors from the office CSV list</h2>
+                <p class="mt-2 text-sm leading-6 text-slate-700">
+                    Upload the "vendors list for office use" CSV (name, street, number, vendor/service, account details).
+                    Each row's bank account number is automatically verified against Paystack, and the vendor's
+                    <span class="font-bold">bank_account_name</span> is only ever set from that verified response — never from the raw spreadsheet text.
+                </p>
+            </div>
+            <form method="POST" action="{{ route('admin.vendors.import') }}" enctype="multipart/form-data" class="w-full max-w-md space-y-3">
+                @csrf
+                <input type="file" name="csv_file" accept=".csv,text/csv" required class="pb-input w-full @error('csv_file') pb-input-error @enderror">
+                @error('csv_file') <p class="pb-field-error">{{ $message }}</p> @enderror
+                <button type="submit" class="pb-btn pb-btn-md pb-btn-secondary">
+                    <x-heroicon-o-arrow-up-tray class="w-4 h-4" /> Import CSV
+                </button>
+            </form>
+        </div>
+    </div>
+@endif
+
 @if(session('status'))
     <div class="pb-alert pb-alert-success mb-5">
         <x-heroicon-o-check-circle class="w-5 h-5" /> {{ session('status') }}
+    </div>
+@endif
+
+@if(session('import_rows_needing_attention') && count(session('import_rows_needing_attention')) > 0)
+    <div class="pb-card p-5 mb-6 border-amber-200 bg-amber-50/50">
+        <h2 class="font-black text-slate-950 text-sm uppercase tracking-wider flex items-center gap-2 mb-3">
+            <x-heroicon-o-exclamation-triangle class="w-4 h-4 text-amber-500" /> Rows needing a manual bank check
+        </h2>
+        <div class="overflow-x-auto">
+            <table class="pb-table w-full text-sm">
+                <thead>
+                    <tr>
+                        <th>Vendor</th>
+                        <th>Account Number</th>
+                        <th>Bank (best guess)</th>
+                        <th>What happened</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(session('import_rows_needing_attention') as $row)
+                        <tr>
+                            <td class="font-bold text-slate-900">
+                                @if(!empty($row['vendor_uuid']))
+                                    <a href="{{ route('admin.vendors.show', $row['vendor_uuid']) }}" class="hover:text-pink-600">{{ $row['name'] }}</a>
+                                @else
+                                    {{ $row['name'] }}
+                                @endif
+                            </td>
+                            <td class="text-slate-600">{{ $row['account_number'] ?: '—' }}</td>
+                            <td class="text-slate-600">{{ $row['bank_name'] ?: '—' }}</td>
+                            <td class="text-slate-600">{{ $row['message'] }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 @endif
 

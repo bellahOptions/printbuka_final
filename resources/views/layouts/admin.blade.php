@@ -479,6 +479,13 @@
                                 </svg>
                                 <span>Internal Memos</span>
                             </a>
+                            <a href="{{ route('admin.system-backups.index') }}" class="{{ $navLink('admin.system-backups.*') }}">
+                                <svg class="pb-nav-icon h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                          d="M4 7a8 3 0 0016 0 8 3 0 00-16 0zm0 0v5a8 3 0 0016 0V7m-16 5v5a8 3 0 0016 0v-5"/>
+                                </svg>
+                                <span>System Backups</span>
+                            </a>
                         @endif
                     @endif
 

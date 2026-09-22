@@ -29,15 +29,21 @@ class Vendor extends Model
         'code', 'code_sequence', 'name', 'company_name', 'vendor_type', 'category',
         'contact_person', 'email', 'phone', 'alternate_phone', 'website',
         'address', 'city', 'state', 'country', 'tax_id',
-        'bank_name', 'bank_account_name', 'bank_account_number',
-        'rating', 'status', 'tags', 'logo', 'notes', 'created_by',
+        'bank_name', 'bank_code', 'bank_account_name', 'bank_account_number', 'account_verified_at',
+        'rating', 'status', 'tags', 'logo', 'notes', 'created_by', 'imported_from',
     ];
 
     protected function casts(): array
     {
         return [
             'rating' => 'integer',
+            'account_verified_at' => 'datetime',
         ];
+    }
+
+    public function isAccountVerified(): bool
+    {
+        return $this->account_verified_at !== null;
     }
 
     protected static function booted(): void

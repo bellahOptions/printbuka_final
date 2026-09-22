@@ -135,3 +135,14 @@ Schedule::command('staff-ratings:snapshot')
 Schedule::command('orders:prune-uninvoiced')
     ->dailyAt('03:00')
     ->timezone(config('app.business_timezone', 'Africa/Lagos'));
+
+// Full system backup (database + storage/app files) — outside business
+// hours and staggered so cleanup runs against a disk that already has the
+// night's fresh backup on it.
+Schedule::command('system-backup:run')
+    ->dailyAt('02:00')
+    ->timezone(config('app.business_timezone', 'Africa/Lagos'))
+    ->withoutOverlapping();
+Schedule::command('backup:clean')
+    ->dailyAt('02:45')
+    ->timezone(config('app.business_timezone', 'Africa/Lagos'));

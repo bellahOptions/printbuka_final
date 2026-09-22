@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\AdminShopOrderController;
 use App\Http\Controllers\Admin\AdminShopProductController;
 use App\Http\Controllers\Admin\AdminSiteSettingController;
 use App\Http\Controllers\Admin\AdminStaffController;
+use App\Http\Controllers\Admin\AdminSystemBackupController;
 use App\Http\Controllers\Admin\AdminStaffProfileController;
 use App\Http\Controllers\Admin\AdminStaffQueryController;
 use App\Http\Controllers\Admin\AdminStaffSpotlightController;
@@ -573,6 +574,9 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
             Route::post('/', [AdminVendorController::class, 'store'])
                 ->middleware('admin.permission:vendors.manage')
                 ->name('store');
+            Route::post('/import', [AdminVendorController::class, 'importCsv'])
+                ->middleware('admin.permission:vendors.manage')
+                ->name('import');
             Route::get('/{vendor}', [AdminVendorController::class, 'show'])
                 ->middleware('admin.permission:vendors.view')
                 ->name('show');
@@ -602,5 +606,13 @@ Route::middleware(['user.auth', 'user.verified'])->group(function (): void {
         Route::patch('/shop-orders/{shopOrder}/status', [AdminShopOrderController::class, 'updateStatus'])
             ->middleware('admin.permission:shop-orders.view')
             ->name('shop-orders.update-status');
+
+        // ===== SYSTEM BACKUPS ===== (Super Admin only — full DB + file exports)
+        Route::prefix('system-backups')->name('system-backups.')->middleware(['admin.permission:system_backups.manage', 'super.admin'])->group(function (): void {
+            Route::get('/', [AdminSystemBackupController::class, 'index'])->name('index');
+            Route::post('/run', [AdminSystemBackupController::class, 'run'])->name('run');
+            Route::get('/{systemBackup}/download', [AdminSystemBackupController::class, 'download'])->name('download');
+            Route::delete('/{systemBackup}', [AdminSystemBackupController::class, 'destroy'])->name('destroy');
+        });
     });
 });

@@ -78,6 +78,7 @@ class PermissionCatalog
                 'products.manage' => 'Manage product catalog',
                 'product_categories.manage' => 'Manage product categories',
                 'site_settings.manage' => 'Manage site settings',
+                'system_backups.manage' => 'Run, download and delete full system backups (Super Admin only, regardless of this permission)',
             ],
         ];
     }

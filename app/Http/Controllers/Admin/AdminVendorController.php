@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Vendor;
 use App\Services\CloudinaryUploadService;
+use App\Services\VendorCsvImportService;
 use App\Support\CloudinaryUrl;
 use App\Support\ExecutiveAlert;
 use App\Support\LivewireSecureUploads;
@@ -140,6 +141,35 @@ class AdminVendorController extends Controller
         $vendor->delete();
 
         return back()->with('status', 'Vendor deleted.');
+    }
+
+    /**
+     * Bulk-import vendors from the office "vendors list" CSV. Bank account
+     * numbers are auto-verified against Paystack as each row is processed.
+     */
+    public function importCsv(Request $request, VendorCsvImportService $importer): RedirectResponse
+    {
+        $request->validate([
+            'csv_file' => ['required', 'file', 'mimes:csv,txt', 'max:20480'],
+        ]);
+
+        $stats = $importer->import($request->file('csv_file'), $request->user());
+
+        $status = "CSV import complete: {$stats['created']} vendor(s) added, {$stats['updated']} updated, "
+            ."{$stats['resolved']} bank account(s) auto-verified via Paystack.";
+
+        if ($stats['unresolved'] > 0) {
+            $status .= " {$stats['unresolved']} row(s) need bank details reviewed manually (see below).";
+        }
+
+        $needsAttention = array_values(array_filter(
+            $stats['rows'],
+            fn (array $row): bool => ! $row['resolved']
+        ));
+
+        return redirect()->route('admin.vendors.index')
+            ->with('status', $status)
+            ->with('import_rows_needing_attention', $needsAttention);
     }
 
     /** @return \Illuminate\Support\Collection<int, string> */
